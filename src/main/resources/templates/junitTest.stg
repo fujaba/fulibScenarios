@@ -1,0 +1,33 @@
+
+junitTest(packageName, testClassName, testMethodName, methodBody) ::=
+<<
+package <packageName>;
+
+import org.junit.Test;
+
+public class <testClassName>
+{
+   @Test
+   public void <testMethodName>()
+   {
+       <methodBody>
+   }
+}
+>>
+
+
+
+
+objectCreate(className, objectName, settings) ::=
+<<
+<className> <objectName> = new <className>()<settings>;
+
+
+>>
+
+setting(attrName, attrValue) ::=
+<<
+
+
+         .set<attrName>(<attrValue>)
+>>

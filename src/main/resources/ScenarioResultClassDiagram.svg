@@ -1,0 +1,26 @@
+<svg width="230pt" height="76pt"
+ viewBox="0.00 0.00 229.50 76.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 72)">
+<title>H</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-72 225.5,-72 225.5,4 -4,4"/>
+<!-- Student -->
+<g id="node1" class="node">
+<title>Student</title>
+<polygon fill="none" stroke="#000000" points="8,-46 8,-64 114,-64 114,-46 8,-46"/>
+<text text-anchor="start" x="45.722" y="-52" font-family="Times,serif" font-size="10.00" fill="#000000">Student</text>
+<polygon fill="none" stroke="#000000" points="8,-4 8,-46 114,-46 114,-4 8,-4"/>
+<text text-anchor="start" x="11" y="-34" font-family="Times,serif" font-size="10.00" fill="#000000">name :String</text>
+<text text-anchor="start" x="11" y="-22" font-family="Times,serif" font-size="10.00" fill="#000000">motivationpoints :double</text>
+<text text-anchor="start" x="11" y="-10" font-family="Times,serif" font-size="10.00" fill="#000000">creditpoints :double</text>
+</g>
+<!-- Room -->
+<g id="node2" class="node">
+<title>Room</title>
+<polygon fill="none" stroke="#000000" points="149,-40 149,-58 214,-58 214,-40 149,-40"/>
+<text text-anchor="start" x="169.276" y="-46" font-family="Times,serif" font-size="10.00" fill="#000000">Room</text>
+<polygon fill="none" stroke="#000000" points="149,-10 149,-40 214,-40 214,-10 149,-10"/>
+<text text-anchor="start" x="152" y="-28" font-family="Times,serif" font-size="10.00" fill="#000000">topic :String</text>
+<text text-anchor="start" x="152" y="-16" font-family="Times,serif" font-size="10.00" fill="#000000">credits :double</text>
+</g>
+</g>
+</svg>

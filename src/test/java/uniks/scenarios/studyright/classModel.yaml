@@ -1,0 +1,57 @@
+- c1: 	ClassModel
+  classes: 	student2 	room3 	
+  defaultPropertyStyle: 	POJO
+  defaultRoleType: 	"java.util.ArrayList<%s>"
+  mainJavaDir: 	"src/test/java"
+  packageName: 	uniks.scenarios.studyright
+  packageSrcFolder: 	"src/test/java/uniks/scenarios/studyright"
+
+- student2: 	Clazz
+  attributes: 	name4 	motivationpoints5 	creditpoints6 	
+  model: 	c1
+  modified: 	false
+  name: 	Student
+  propertyStyle: 	POJO
+
+- room3: 	Clazz
+  attributes: 	topic7 	credits8 	
+  model: 	c1
+  modified: 	false
+  name: 	Room
+  propertyStyle: 	POJO
+
+- name4: 	Attribute
+  clazz: 	student2
+  modified: 	false
+  name: 	name
+  propertyStyle: 	POJO
+  type: 	String
+
+- motivationpoints5: 	Attribute
+  clazz: 	student2
+  modified: 	false
+  name: 	motivationpoints
+  propertyStyle: 	POJO
+  type: 	double
+
+- creditpoints6: 	Attribute
+  clazz: 	student2
+  modified: 	false
+  name: 	creditpoints
+  propertyStyle: 	POJO
+  type: 	double
+
+- topic7: 	Attribute
+  clazz: 	room3
+  modified: 	false
+  name: 	topic
+  propertyStyle: 	POJO
+  type: 	String
+
+- credits8: 	Attribute
+  clazz: 	room3
+  modified: 	false
+  name: 	credits
+  propertyStyle: 	POJO
+  type: 	double
+
