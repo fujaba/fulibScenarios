@@ -124,6 +124,18 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDiagramSentence(FulibScenariosParser.DiagramSentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDiagramSentence(FulibScenariosParser.DiagramSentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUsualWithClause(FulibScenariosParser.UsualWithClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -167,6 +179,18 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitValueData(FulibScenariosParser.ValueDataContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFileNameClause(FulibScenariosParser.FileNameClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFileNameClause(FulibScenariosParser.FileNameClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

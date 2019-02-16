@@ -1,0 +1,159 @@
+- eventType: haveClass
+  .eventKey: University
+  name: University
+  .eventTimestamp: "2019-02-15T14:57:25.731"
+
+- eventType: haveAttribute
+  .eventKey: University.students
+  className: University
+  attrName: students
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.696"
+
+- eventType: haveAttribute
+  .eventKey: University.rooms
+  className: University
+  attrName: rooms
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.712"
+
+- eventType: haveClass
+  .eventKey: Student
+  name: Student
+  .eventTimestamp: "2019-02-15T14:59:21.727"
+
+- eventType: haveAttribute
+  .eventKey: Student.name
+  className: Student
+  attrName: name
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.727"
+
+- eventType: haveAttribute
+  .eventKey: Student.motivationpoints
+  className: Student
+  attrName: motivationpoints
+  attrType: double
+  .eventTimestamp: "2019-02-15T14:59:21.743"
+
+- eventType: haveAttribute
+  .eventKey: Student.creditpoints
+  className: Student
+  attrName: creditpoints
+  attrType: double
+  .eventTimestamp: "2019-02-15T14:59:21.759"
+
+- eventType: haveClass
+  .eventKey: Room
+  name: Room
+  .eventTimestamp: "2019-02-15T14:59:21.781"
+
+- eventType: haveAttribute
+  .eventKey: Room.topic
+  className: Room
+  attrName: topic
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.781"
+
+- eventType: haveAttribute
+  .eventKey: Room.credits
+  className: Room
+  attrName: credits
+  attrType: double
+  .eventTimestamp: "2019-02-15T14:59:21.781"
+
+- eventType: haveAttribute
+  .eventKey: Room.assignments
+  className: Room
+  attrName: assignments
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.796"
+
+- eventType: haveClass
+  .eventKey: Assignment
+  name: Assignment
+  .eventTimestamp: "2019-02-15T14:59:21.796"
+
+- eventType: haveAttribute
+  .eventKey: Assignment.topic
+  className: Assignment
+  attrName: topic
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.812"
+
+- eventType: haveAttribute
+  .eventKey: Assignment.points
+  className: Assignment
+  attrName: points
+  attrType: double
+  .eventTimestamp: "2019-02-15T14:59:21.812"
+
+- eventType: haveAttribute
+  .eventKey: Assignment.room
+  className: Assignment
+  attrName: room
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.827"
+
+- eventType: haveAttribute
+  .eventKey: Assignment.within
+  className: Assignment
+  attrName: within
+  attrType: String
+  .eventTimestamp: "2019-02-15T14:59:21.843"
+
+- eventType: haveClass
+  .eventKey: StudyRightUtils
+  name: StudyRightUtils
+  .eventTimestamp: "2019-02-15T14:59:21.859"
+
+- eventType: haveClass
+  .eventKey: assignment
+  name: assignment
+  .eventTimestamp: "2019-02-16T14:21:35.533"
+
+- eventType: haveRole
+  .eventKey: assignment.topic
+  srcClassName: assignment
+  attrName: topic
+  tgtClassName: assignment
+  tgtCardinality: 1
+  .eventTimestamp: "2019-02-16T14:21:35.533"
+
+- eventType: haveRole
+  .eventKey: assignment.room
+  srcClassName: assignment
+  attrName: room
+  tgtClassName: Room
+  tgtCardinality: 1
+  .eventTimestamp: "2019-02-16T14:21:40.799"
+
+- eventType: haveRole
+  .eventKey: assignment.within
+  srcClassName: assignment
+  attrName: within
+  tgtClassName: Room
+  tgtCardinality: 1
+  .eventTimestamp: "2019-02-16T14:21:40.799"
+
+- eventType: haveClass
+  .eventKey: university
+  name: university
+  .eventTimestamp: "2019-02-16T14:34:11.765"
+
+- eventType: haveRole
+  .eventKey: university.students
+  srcClassName: university
+  attrName: students
+  tgtClassName: Student
+  tgtCardinality: 2
+  .eventTimestamp: "2019-02-16T14:34:11.780"
+
+- eventType: haveRole
+  .eventKey: university.rooms
+  srcClassName: university
+  attrName: rooms
+  tgtClassName: Room
+  tgtCardinality: 2
+  .eventTimestamp: "2019-02-16T14:34:11.780"
+

@@ -3,6 +3,7 @@ junitTest(packageName, testClassName, testMethodName, methodBody) ::=
 <<
 package <packageName>;
 
+import org.fulib.FulibTools;
 import org.junit.Test;
 
 public class <testClassName>

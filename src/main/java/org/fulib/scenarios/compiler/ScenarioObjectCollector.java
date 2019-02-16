@@ -1,6 +1,7 @@
 package org.fulib.scenarios.compiler;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.fulib.Fulib;
 import org.fulib.StrUtil;
 import org.fulib.builder.ClassBuilder;
@@ -9,6 +10,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.StringRenderer;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class ScenarioObjectCollector extends FulibScenariosBaseListener
@@ -17,6 +19,7 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
 
    private String objectName;
    private String className;
+   private ArrayList<String> objectNamesList;
 
    @Override
    public void enterTitle(FulibScenariosParser.TitleContext ctx)
@@ -25,13 +28,21 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
 
 
    @Override
+   public void enterDirectSentence(FulibScenariosParser.DirectSentenceContext ctx)
+   {
+      objectName = StrUtil.downFirstChar(getMultiName(ctx.objectName));
+      className = StrUtil.cap(getMultiName(ctx.className));
+      object2ClassMap.put(objectName, className);
+   }
+
+   @Override
    public void enterThereSentence(FulibScenariosParser.ThereSentenceContext ctx)
    {
       objectName = null;
 
       if (ctx.objectName != null)
       {
-         objectName = getMultiName(ctx.objectName);
+         objectName = StrUtil.downFirstChar(getMultiName(ctx.objectName));
       }
 
       className = StrUtil.cap(ctx.className.getText());
@@ -40,28 +51,50 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
    @Override
    public void exitThereSentence(FulibScenariosParser.ThereSentenceContext ctx)
    {
-      object2ClassMap.put(StrUtil.downFirstChar(objectName), className);
+      object2ClassMap.put(objectName, className);
    }
 
 
    @Override
    public void enterUsualWithClause(FulibScenariosParser.UsualWithClauseContext ctx)
    {
+      objectNamesList = new ArrayList<String>();
+   }
+
+
+   @Override
+   public void exitUsualWithClause(FulibScenariosParser.UsualWithClauseContext ctx)
+   {
       if (objectName == null)
       {
-         String result = "";
+         objectName = StrUtil.downFirstChar(objectNamesList.get(0));
+      }
+   }
 
-         for (ParseTree child : ctx.attrValue.children)
+   @Override
+   public void enterValueClause(FulibScenariosParser.ValueClauseContext ctx)
+   {
+      String multiValueName = getMultiValue(ctx);
+      objectNamesList.add(multiValueName);
+   }
+
+
+
+   private String getMultiValue(FulibScenariosParser.ValueClauseContext valueContext)
+   {
+      String result = "";
+
+      for (ParseTree child : valueContext.children)
+      {
+         if ( ! (child instanceof TerminalNode))
          {
             result += StrUtil.cap(child.getText());
          }
-
-         if (result.endsWith(","))
-         {
-         }
-
-         objectName = result;
       }
+
+      result = StrUtil.downFirstChar(result);
+
+      return result;
    }
 
 

@@ -98,6 +98,16 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 */
 	void exitHasSentence(FulibScenariosParser.HasSentenceContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#diagramSentence}.
+	 * @param ctx the parse tree
+	 */
+	void enterDiagramSentence(FulibScenariosParser.DiagramSentenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#diagramSentence}.
+	 * @param ctx the parse tree
+	 */
+	void exitDiagramSentence(FulibScenariosParser.DiagramSentenceContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code UsualWithClause}
 	 * labeled alternative in {@link FulibScenariosParser#withClause}.
 	 * @param ctx the parse tree
@@ -141,6 +151,16 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitValueData(FulibScenariosParser.ValueDataContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#fileNameClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterFileNameClause(FulibScenariosParser.FileNameClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#fileNameClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitFileNameClause(FulibScenariosParser.FileNameClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#any}.
 	 * @param ctx the parse tree
