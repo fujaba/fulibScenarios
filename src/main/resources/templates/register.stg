@@ -1,0 +1,30 @@
+
+register(body) ::=
+<<
+
+
+# Register
+
+<body>
+
+>>
+
+classDef(name, examples, attributes) ::=
+<<
+<name> e.g. <examples>
+<attributes>
+
+
+>>
+
+attribute(name, examples) ::=
+<<
+ + <name> e.g. <examples>
+
+>>
+
+role(name, card, tgtClass, reverseName) ::=
+<<
+ + <name> <card> <tgtClass><if (reverseName)> cf. <reverseName><endif>
+
+>>

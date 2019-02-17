@@ -23,6 +23,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    public StringBuilder references;
 
    private LinkedHashMap<String, String> object2ClassMap;
+   private LinkedHashMap<String, String> attrValueExamplesMap;
 
    private String objectName;
    private String className;
@@ -40,6 +41,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    public ScenarioTestCollector(LinkedHashMap<String, String> object2ClassMap)
    {
       this.object2ClassMap = object2ClassMap;
+      this.attrValueExamplesMap = new LinkedHashMap<>();
 
       em = new ModelEventManager();
       mm = new ClassModelManager(em);
@@ -50,10 +52,24 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
 
 
+   public LinkedHashMap<String, String> getObject2ClassMap()
+   {
+      return object2ClassMap;
+   }
+
+
+   public LinkedHashMap<String, String> getAttrValueExamplesMap()
+   {
+      return attrValueExamplesMap;
+   }
+
+
+
    public void setObject2ClassMap(LinkedHashMap<String, String> object2ClassMap)
    {
       this.object2ClassMap = object2ClassMap;
    }
+
 
 
 
@@ -258,6 +274,12 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          st.add("attrValue", "\"" + valueDataTextList.get(0) + "\"");
          String result = st.render();
 
+         String key = className + "." + attrName;
+         String exampleString = attrValueExamplesMap.get(key);
+         if (exampleString == null) exampleString = "";
+         exampleString += valueDataTextList.get(0) + ", ";
+         attrValueExamplesMap.put(key, exampleString);
+
          settings.append(result);
       }
    }
@@ -274,7 +296,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       ST st = group.getInstanceOf("setting");
 
       // setting(attrName, value)
-      String attrName = ctx.attrName.getText();
+      String attrName = StrUtil.downFirstChar(getMultiName(ctx.attrName));
       String value = ctx.value.getText();
 
       mm.haveAttribute(clazz, attrName, ClassModelBuilder.DOUBLE);
@@ -283,8 +305,15 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       st.add("attrValue", value);
       String result = st.render();
 
+      String key = className + "." + attrName;
+      String exampleString = attrValueExamplesMap.get(key);
+      if (exampleString == null) exampleString = "";
+      exampleString += value + ", ";
+      attrValueExamplesMap.put(key, exampleString);
+
       settings.append(result);
    }
+
 
 
    @Override

@@ -4,7 +4,7 @@ import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class Room 
+public class Room  
 {
 
    public static final String PROPERTY_topic = "topic";
@@ -23,27 +23,6 @@ public class Room
          String oldValue = this.topic;
          this.topic = value;
          firePropertyChange("topic", oldValue, value);
-      }
-      return this;
-   }
-
-
-   public static final String PROPERTY_credits = "credits";
-
-   private double credits;
-
-   public double getCredits()
-   {
-      return credits;
-   }
-
-   public Room setCredits(double value)
-   {
-      if (value != this.credits)
-      {
-         double oldValue = this.credits;
-         this.credits = value;
-         firePropertyChange("credits", oldValue, value);
       }
       return this;
    }
@@ -363,17 +342,6 @@ public Room withoutDoors(Object... value)
       return true;
    }
 
-   @Override
-   public String toString()
-   {
-      StringBuilder result = new StringBuilder();
-
-      result.append(" ").append(this.getTopic());
-
-
-      return result.substring(1);
-   }
-
    public void removeYou()
    {
       this.setUni(null);
@@ -392,5 +360,36 @@ public Room withoutDoors(Object... value)
 
    }
 
+   public static final String PROPERTY_credits = "credits";
+
+   private double credits;
+
+   public double getCredits()
+   {
+      return credits;
+   }
+
+   public Room setCredits(double value)
+   {
+      if (value != this.credits)
+      {
+         double oldValue = this.credits;
+         this.credits = value;
+         firePropertyChange("credits", oldValue, value);
+      }
+      return this;
+   }
+
+
+   @Override
+   public String toString()
+   {
+      StringBuilder result = new StringBuilder();
+
+      result.append(" ").append(this.getTopic());
+
+
+      return result.substring(1);
+   }
 
 }

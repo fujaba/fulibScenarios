@@ -12,13 +12,13 @@ public class TestDoAssignments
 
        Student carliBob = new Student()
                 .setName("Carli Bob")
-                .setMotivationpoints(42.0)
-                .setCreditpoints(0.0);
+                .setMotivationPoints(42.0)
+                .setCreditPoints(0.0);
 
        Student alice = new Student()
                 .setName("Alice")
-                .setMotivationpoints(84.0)
-                .setCreditpoints(0.0);
+                .setMotivationPoints(84.0)
+                .setCreditPoints(0.0);
 
        Room mathRoom = new Room()
                 .setTopic("math")

@@ -4,7 +4,7 @@ import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class Assignment 
+public class Assignment  
 {
 
    public static final String PROPERTY_topic = "topic";
@@ -23,27 +23,6 @@ public class Assignment
          String oldValue = this.topic;
          this.topic = value;
          firePropertyChange("topic", oldValue, value);
-      }
-      return this;
-   }
-
-
-   public static final String PROPERTY_points = "points";
-
-   private double points;
-
-   public double getPoints()
-   {
-      return points;
-   }
-
-   public Assignment setPoints(double value)
-   {
-      if (value != this.points)
-      {
-         double oldValue = this.points;
-         this.points = value;
-         firePropertyChange("points", oldValue, value);
       }
       return this;
    }
@@ -161,6 +140,34 @@ public class Assignment
       return true;
    }
 
+   public void removeYou()
+   {
+      this.setStudents(null);
+      this.setRoom(null);
+
+   }
+
+   public static final String PROPERTY_points = "points";
+
+   private double points;
+
+   public double getPoints()
+   {
+      return points;
+   }
+
+   public Assignment setPoints(double value)
+   {
+      if (value != this.points)
+      {
+         double oldValue = this.points;
+         this.points = value;
+         firePropertyChange("points", oldValue, value);
+      }
+      return this;
+   }
+
+
    @Override
    public String toString()
    {
@@ -171,13 +178,5 @@ public class Assignment
 
       return result.substring(1);
    }
-
-   public void removeYou()
-   {
-      this.setStudents(null);
-      this.setRoom(null);
-
-   }
-
 
 }

@@ -4,7 +4,7 @@ import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class Student 
+public class Student  
 {
 
    public static final String PROPERTY_name = "name";
@@ -23,90 +23,6 @@ public class Student
          String oldValue = this.name;
          this.name = value;
          firePropertyChange("name", oldValue, value);
-      }
-      return this;
-   }
-
-
-   public static final String PROPERTY_motivationPoints = "motivationPoints";
-
-   private String motivationPoints;
-
-   public String getMotivationPoints()
-   {
-      return motivationPoints;
-   }
-
-   public Student setMotivationPoints(String value)
-   {
-      if (value == null ? this.motivationPoints != null : ! value.equals(this.motivationPoints))
-      {
-         String oldValue = this.motivationPoints;
-         this.motivationPoints = value;
-         firePropertyChange("motivationPoints", oldValue, value);
-      }
-      return this;
-   }
-
-
-   public static final String PROPERTY_credits = "credits";
-
-   private double credits;
-
-   public double getCredits()
-   {
-      return credits;
-   }
-
-   public Student setCredits(double value)
-   {
-      if (value != this.credits)
-      {
-         double oldValue = this.credits;
-         this.credits = value;
-         firePropertyChange("credits", oldValue, value);
-      }
-      return this;
-   }
-
-
-   public static final String PROPERTY_motivationpoints = "motivationpoints";
-
-   private double motivationpoints;
-
-   public double getMotivationpoints()
-   {
-      return motivationpoints;
-   }
-
-   public Student setMotivationpoints(double value)
-   {
-      if (value != this.motivationpoints)
-      {
-         double oldValue = this.motivationpoints;
-         this.motivationpoints = value;
-         firePropertyChange("motivationpoints", oldValue, value);
-      }
-      return this;
-   }
-
-
-   public static final String PROPERTY_creditpoints = "creditpoints";
-
-   private double creditpoints;
-
-   public double getCreditpoints()
-   {
-      return creditpoints;
-   }
-
-   public Student setCreditpoints(double value)
-   {
-      if (value != this.creditpoints)
-      {
-         double oldValue = this.creditpoints;
-         this.creditpoints = value;
-         firePropertyChange("creditpoints", oldValue, value);
       }
       return this;
    }
@@ -302,18 +218,6 @@ public class Student
       return true;
    }
 
-   @Override
-   public String toString()
-   {
-      StringBuilder result = new StringBuilder();
-
-      result.append(" ").append(this.getName());
-      result.append(" ").append(this.getMotivationPoints());
-
-
-      return result.substring(1);
-   }
-
    public void removeYou()
    {
       this.setRoom(null);
@@ -324,5 +228,56 @@ public class Student
 
    }
 
+   public static final String PROPERTY_motivationPoints = "motivationPoints";
+
+   private double motivationPoints;
+
+   public double getMotivationPoints()
+   {
+      return motivationPoints;
+   }
+
+   public Student setMotivationPoints(double value)
+   {
+      if (value != this.motivationPoints)
+      {
+         double oldValue = this.motivationPoints;
+         this.motivationPoints = value;
+         firePropertyChange("motivationPoints", oldValue, value);
+      }
+      return this;
+   }
+
+
+   public static final String PROPERTY_creditPoints = "creditPoints";
+
+   private double creditPoints;
+
+   public double getCreditPoints()
+   {
+      return creditPoints;
+   }
+
+   public Student setCreditPoints(double value)
+   {
+      if (value != this.creditPoints)
+      {
+         double oldValue = this.creditPoints;
+         this.creditPoints = value;
+         firePropertyChange("creditPoints", oldValue, value);
+      }
+      return this;
+   }
+
+   @Override
+   public String toString()
+   {
+      StringBuilder result = new StringBuilder();
+
+      result.append(" ").append(this.getName());
+
+
+      return result.substring(1);
+   }
 
 }

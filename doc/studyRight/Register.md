@@ -21,7 +21,7 @@ Room e.g. math room, arts room
 Student e.g. carliBob
  + name e.g. Carli Bob, Alice
  + motivationPoints e.g. 42.0
- + credits e.g. 23.0
+ + creditPoints e.g. 23.0
  + room one room cf. students
  + done many assignment cf. students
  + uni one university cf. students

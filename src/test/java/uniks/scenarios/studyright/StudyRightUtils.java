@@ -4,7 +4,7 @@ import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class StudyRightUtils 
+public class StudyRightUtils  
 {
 
    protected PropertyChangeSupport listeners = null;
@@ -62,6 +62,70 @@ public class StudyRightUtils
    public void removeYou()
    {
    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
