@@ -133,7 +133,7 @@ public class ScenarioTestGenerator
       st.add("body", body.toString());
       result = st.render();
 
-      System.out.println(result);
+      // System.out.println(result);
 
       try
       {
