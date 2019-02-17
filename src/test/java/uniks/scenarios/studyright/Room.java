@@ -4,7 +4,7 @@ import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class Room  
+public class Room 
 {
 
    public static final String PROPERTY_topic = "topic";
@@ -47,37 +47,6 @@ public class Room
       }
       return this;
    }
-
-
-   public static final String PROPERTY_university = "university";
-
-   private University university = null;
-
-   public University getUniversity()
-   {
-      return this.university;
-   }
-
-   public Room setUniversity(University value)
-   {
-      if (this.university != value)
-      {
-         University oldValue = this.university;
-         if (this.university != null)
-         {
-            this.university = null;
-            oldValue.withoutRooms(this);
-         }
-         this.university = value;
-         if (value != null)
-         {
-            value.withRooms(this);
-         }
-         firePropertyChange("university", oldValue, value);
-      }
-      return this;
-   }
-
 
 
    public static final java.util.ArrayList<Assignment> EMPTY_assignments = new java.util.ArrayList<Assignment>()
@@ -236,6 +205,114 @@ public class Room
    }
 
 
+public static final java.util.ArrayList<Room> EMPTY_doors = new java.util.ArrayList<Room>()
+   { @Override public boolean add(Room value){ throw new UnsupportedOperationException("No direct add! Use xy.withDoors(obj)"); }};
+
+
+public static final String PROPERTY_doors = "doors";
+
+private java.util.ArrayList<Room> doors = null;
+
+public java.util.ArrayList<Room> getDoors()
+   {
+      if (this.doors == null)
+      {
+         return EMPTY_doors;
+      }
+
+      return this.doors;
+   }
+
+public Room withDoors(Object... value)
+   {
+      if(value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withDoors(i);
+            }
+         }
+         else if (item instanceof Room)
+         {
+            if (this.doors == null)
+            {
+               this.doors = new java.util.ArrayList<Room>();
+            }
+            if ( ! this.doors.contains(item))
+            {
+               this.doors.add((Room)item);
+               ((Room)item).withDoors(this);
+               firePropertyChange("doors", null, item);
+            }
+         }
+         else throw new IllegalArgumentException();
+      }
+      return this;
+   }
+
+
+public Room withoutDoors(Object... value)
+   {
+      if (this.doors == null || value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withoutDoors(i);
+            }
+         }
+         else if (item instanceof Room)
+         {
+            if (this.doors.contains(item))
+            {
+               this.doors.remove((Room)item);
+               ((Room)item).withoutDoors(this);
+               firePropertyChange("doors", item, null);
+            }
+         }
+      }
+      return this;
+   }
+
+
+   public static final String PROPERTY_uni = "uni";
+
+   private University uni = null;
+
+   public University getUni()
+   {
+      return this.uni;
+   }
+
+   public Room setUni(University value)
+   {
+      if (this.uni != value)
+      {
+         University oldValue = this.uni;
+         if (this.uni != null)
+         {
+            this.uni = null;
+            oldValue.withoutRooms(this);
+         }
+         this.uni = value;
+         if (value != null)
+         {
+            value.withRooms(this);
+         }
+         firePropertyChange("uni", oldValue, value);
+      }
+      return this;
+   }
+
+
+
    protected PropertyChangeSupport listeners = null;
 
    public boolean firePropertyChange(String propertyName, Object oldValue, Object newValue)
@@ -299,12 +376,18 @@ public class Room
 
    public void removeYou()
    {
-      this.setUniversity(null);
+      this.setUni(null);
 
       this.withoutAssignments(this.getAssignments().clone());
 
 
       this.withoutStudents(this.getStudents().clone());
+
+
+      this.withoutDoors(this.getDoors().clone());
+
+
+      this.withoutDoors(this.getDoors().clone());
 
 
    }

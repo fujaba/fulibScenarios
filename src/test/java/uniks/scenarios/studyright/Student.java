@@ -4,7 +4,7 @@ import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class Student  
+public class Student 
 {
 
    public static final String PROPERTY_name = "name";
@@ -23,6 +23,48 @@ public class Student
          String oldValue = this.name;
          this.name = value;
          firePropertyChange("name", oldValue, value);
+      }
+      return this;
+   }
+
+
+   public static final String PROPERTY_motivationPoints = "motivationPoints";
+
+   private String motivationPoints;
+
+   public String getMotivationPoints()
+   {
+      return motivationPoints;
+   }
+
+   public Student setMotivationPoints(String value)
+   {
+      if (value == null ? this.motivationPoints != null : ! value.equals(this.motivationPoints))
+      {
+         String oldValue = this.motivationPoints;
+         this.motivationPoints = value;
+         firePropertyChange("motivationPoints", oldValue, value);
+      }
+      return this;
+   }
+
+
+   public static final String PROPERTY_credits = "credits";
+
+   private double credits;
+
+   public double getCredits()
+   {
+      return credits;
+   }
+
+   public Student setCredits(double value)
+   {
+      if (value != this.credits)
+      {
+         double oldValue = this.credits;
+         this.credits = value;
+         firePropertyChange("credits", oldValue, value);
       }
       return this;
    }
@@ -70,37 +112,6 @@ public class Student
    }
 
 
-   public static final String PROPERTY_university = "university";
-
-   private University university = null;
-
-   public University getUniversity()
-   {
-      return this.university;
-   }
-
-   public Student setUniversity(University value)
-   {
-      if (this.university != value)
-      {
-         University oldValue = this.university;
-         if (this.university != null)
-         {
-            this.university = null;
-            oldValue.withoutStudents(this);
-         }
-         this.university = value;
-         if (value != null)
-         {
-            value.withStudents(this);
-         }
-         firePropertyChange("university", oldValue, value);
-      }
-      return this;
-   }
-
-
-
    public static final java.util.ArrayList<Assignment> EMPTY_done = new java.util.ArrayList<Assignment>()
    { @Override public boolean add(Assignment value){ throw new UnsupportedOperationException("No direct add! Use xy.withDone(obj)"); }};
 
@@ -141,7 +152,7 @@ public class Student
             if ( ! this.done.contains(item))
             {
                this.done.add((Assignment)item);
-               ((Assignment)item).setStudent(this);
+               ((Assignment)item).setStudents(this);
                firePropertyChange("done", null, item);
             }
          }
@@ -170,7 +181,7 @@ public class Student
             if (this.done.contains(item))
             {
                this.done.remove((Assignment)item);
-               ((Assignment)item).setStudent(null);
+               ((Assignment)item).setStudents(null);
                firePropertyChange("done", item, null);
             }
          }
@@ -204,6 +215,37 @@ public class Student
             value.withStudents(this);
          }
          firePropertyChange("room", oldValue, value);
+      }
+      return this;
+   }
+
+
+
+   public static final String PROPERTY_uni = "uni";
+
+   private University uni = null;
+
+   public University getUni()
+   {
+      return this.uni;
+   }
+
+   public Student setUni(University value)
+   {
+      if (this.uni != value)
+      {
+         University oldValue = this.uni;
+         if (this.uni != null)
+         {
+            this.uni = null;
+            oldValue.withoutStudents(this);
+         }
+         this.uni = value;
+         if (value != null)
+         {
+            value.withStudents(this);
+         }
+         firePropertyChange("uni", oldValue, value);
       }
       return this;
    }
@@ -266,6 +308,7 @@ public class Student
       StringBuilder result = new StringBuilder();
 
       result.append(" ").append(this.getName());
+      result.append(" ").append(this.getMotivationPoints());
 
 
       return result.substring(1);
@@ -273,8 +316,8 @@ public class Student
 
    public void removeYou()
    {
-      this.setUniversity(null);
       this.setRoom(null);
+      this.setUni(null);
 
       this.withoutDone(this.getDone().clone());
 

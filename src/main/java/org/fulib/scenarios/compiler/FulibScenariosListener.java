@@ -171,4 +171,54 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAny(FulibScenariosParser.AnyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#classDef}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassDef(FulibScenariosParser.ClassDefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#classDef}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassDef(FulibScenariosParser.ClassDefContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#exampleValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterExampleValue(FulibScenariosParser.ExampleValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#exampleValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitExampleValue(FulibScenariosParser.ExampleValueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#attrDef}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttrDef(FulibScenariosParser.AttrDefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#attrDef}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttrDef(FulibScenariosParser.AttrDefContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#roleDef}.
+	 * @param ctx the parse tree
+	 */
+	void enterRoleDef(FulibScenariosParser.RoleDefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#roleDef}.
+	 * @param ctx the parse tree
+	 */
+	void exitRoleDef(FulibScenariosParser.RoleDefContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#cardDef}.
+	 * @param ctx the parse tree
+	 */
+	void enterCardDef(FulibScenariosParser.CardDefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#cardDef}.
+	 * @param ctx the parse tree
+	 */
+	void exitCardDef(FulibScenariosParser.CardDefContext ctx);
 }

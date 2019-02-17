@@ -31,9 +31,10 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    private final ClassModel classModel;
    private String attrName;
    private String attrValue;
-   private ArrayList<String> objectNamesList;
    private ArrayList<String> valueDataTextList;
    private ArrayList<String> valueDataNameList;
+   private Clazz currentRegisterClazz;
+   private String attrType;
 
 
    public ScenarioTestCollector(LinkedHashMap<String, String> object2ClassMap)
@@ -48,16 +49,26 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    }
 
 
+
+   public void setObject2ClassMap(LinkedHashMap<String, String> object2ClassMap)
+   {
+      this.object2ClassMap = object2ClassMap;
+   }
+
+
+
    public ClassModelManager getModelManager()
    {
       return mm;
    }
 
 
+
    public ClassModel getClassModel()
    {
       return classModel;
    }
+
 
 
    @Override
@@ -67,11 +78,14 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    }
 
 
+
    @Override
    public void exitScenario(FulibScenariosParser.ScenarioContext ctx)
    {
       methodBody.append(references.toString());
    }
+
+
 
    @Override
    public void enterDirectSentence(FulibScenariosParser.DirectSentenceContext ctx)
@@ -83,6 +97,8 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
       clazz = mm.haveClass(className);
    }
+
+
 
    @Override
    public void exitDirectSentence(FulibScenariosParser.DirectSentenceContext ctx)
@@ -164,7 +180,6 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    {
       attrName = ctx.attrName.getText();
       attrValue = ctx.attrValue.getText();
-      objectNamesList = new ArrayList<String>();
 
       if (ctx.children.get(ctx.children.size()-1) instanceof TerminalNode)
       {
@@ -262,7 +277,6 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       String attrName = ctx.attrName.getText();
       String value = ctx.value.getText();
 
-      System.out.println("Adding attribute" + attrName);
       mm.haveAttribute(clazz, attrName, ClassModelBuilder.DOUBLE);
 
       st.add("attrName", StrUtil.cap(attrName));
@@ -279,6 +293,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       valueDataTextList = new ArrayList<String>();
       valueDataNameList = new ArrayList<String>();
    }
+
 
 
    @Override
@@ -298,6 +313,56 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
       valueDataTextList.add(valueText);
       valueDataNameList.add(valueName);
+   }
+
+
+   @Override
+   public void enterClassDef(FulibScenariosParser.ClassDefContext ctx)
+   {
+      String className = ctx.className.getText();
+      currentRegisterClazz = mm.haveClass(className);
+   }
+
+
+
+   @Override
+   public void enterAttrDef(FulibScenariosParser.AttrDefContext ctx)
+   {
+      String myAttrName = ctx.attrName.getText();
+      mm.haveAttribute(currentRegisterClazz, myAttrName, attrType);
+   }
+
+
+   @Override
+   public void enterRoleDef(FulibScenariosParser.RoleDefContext ctx)
+   {
+      //      Room e.g. math room, arts room
+      //         + doors many rooms cf. room.doors
+      String srcRole = ctx.roleName.getText();
+      String tgtClassName = StrUtil.cap(ctx.className.getText());
+      Clazz tgtClass = mm.haveClass(tgtClassName);
+      int srcSize = (ctx.card.getText().equals("one") ? ClassModelBuilder.ONE : ClassModelBuilder.MANY);
+
+      if (ctx.otherRoleName != null)
+      {
+         String tgtRole = ctx.otherRoleName.getText();
+         mm.haveRole(currentRegisterClazz, srcRole, tgtClass, srcSize, tgtRole, ClassModelBuilder.ONE);
+      }
+      else
+      {
+         mm.haveRole(currentRegisterClazz, srcRole, tgtClass, srcSize);
+      }
+   }
+
+
+
+   @Override
+   public void enterExampleValue(FulibScenariosParser.ExampleValueContext ctx)
+   {
+      if (ctx.nameValue != null) attrType = ClassModelBuilder.STRING;
+
+      if (ctx.numberValue != null) attrType = ClassModelBuilder.DOUBLE;
+
    }
 
    private String getMultiName(FulibScenariosParser.MultiNameContext objectName)

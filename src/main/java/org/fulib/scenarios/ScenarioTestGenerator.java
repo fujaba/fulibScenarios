@@ -18,33 +18,28 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ScenarioTestGenerator
 {
    public static void main(String[] args)
    {
+      // parse register
+      FulibScenariosParser.ScenarioContext registerContext = parse("doc/studyRight/Register.md");
+
+      ScenarioTestCollector myScenarioListener = new ScenarioTestCollector(new LinkedHashMap<>());
+      ParseTreeWalker.DEFAULT.walk(myScenarioListener, registerContext);
+
+      FulibTools.classDiagrams().dumpPng(myScenarioListener.getClassModel(), "doc/studyRight/RegisterDiag.png");
+
       // parse scenario
-      FulibScenariosLexer lexer = null;
-      try
-      {
-         lexer = new FulibScenariosLexer(
-               CharStreams.fromFileName("doc/studyRight/StudyRightScenario.md"));
-      }
-      catch (IOException e)
-      {
-         e.printStackTrace();
-      }
-      // lexer.removeErrorListeners();
-
-      FulibScenariosParser parser = new FulibScenariosParser(new CommonTokenStream(lexer));
-
-      FulibScenariosParser.ScenarioContext mainContext = parser.scenario();
+      FulibScenariosParser.ScenarioContext mainContext = parse("doc/studyRight/StudyRightScenario.md");
 
       ScenarioObjectCollector objectCollector = new ScenarioObjectCollector();
       ParseTreeWalker.DEFAULT.walk(objectCollector, mainContext);
 
-      ScenarioTestCollector myScenarioListener = new ScenarioTestCollector(objectCollector.object2ClassMap);
+      myScenarioListener.setObject2ClassMap(objectCollector.object2ClassMap);
       ParseTreeWalker.DEFAULT.walk(myScenarioListener, mainContext);
 
       // generate class model implementation
@@ -52,7 +47,7 @@ public class ScenarioTestGenerator
             .setMainJavaDir("src/test/java")
             .setPackageName("uniks.scenarios.studyright");
       Fulib.generator().generate(classModel);
-      FulibTools.classDiagrams().dumpSVG(classModel, "src/main/resources/ScenarioResultClassDiagram.svg");
+      FulibTools.classDiagrams().dumpPng(classModel, "doc/studyRight/ScenarioResultClassDiagram.png");
 
       // generate scenario test
       STGroupFile group = new STGroupFile("templates/junitTest.stg");
@@ -78,5 +73,24 @@ public class ScenarioTestGenerator
       {
          e.printStackTrace();
       }
+   }
+
+   private static FulibScenariosParser.ScenarioContext parse(String fileName)
+   {
+      FulibScenariosLexer lexer = null;
+      try
+      {
+         lexer = new FulibScenariosLexer(
+               CharStreams.fromFileName(fileName));
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
+      // lexer.removeErrorListeners();
+
+      FulibScenariosParser parser = new FulibScenariosParser(new CommonTokenStream(lexer));
+
+      return parser.scenario();
    }
 }

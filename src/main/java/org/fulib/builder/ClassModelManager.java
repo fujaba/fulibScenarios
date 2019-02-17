@@ -41,6 +41,10 @@ public class ClassModelManager implements IModelManager
    public static final String SRC_CLASS_NAME = "srcClassName";
    public static final String TGT_CLASS_NAME = "tgtClassName";
    public static final String TGT_CARDINALITY = "tgtCardinality";
+   public static final String SRC_ROLE = "srcRole";
+   public static final String SRC_SIZE = "srcSize";
+   public static final String TGT_ROLE = "tgtRole";
+   public static final String TGT_SIZE = "tgtSize";
 
    private ClassModel classModel;
    private ModelEventManager mem;
@@ -216,42 +220,69 @@ public class ClassModelManager implements IModelManager
       return attr;
    }
 
+
+
    public AssocRole haveRole(Clazz srcClass, String attrName, Clazz tgtClass, int size)
    {
-      AssocRole role = srcClass.getRole(attrName);
+      String tgtClassName = StrUtil.downFirstChar(tgtClass.getName());
+      return this.haveRole(srcClass, attrName, tgtClass, size, tgtClassName, ClassModelBuilder.ONE, false);
+   }
 
-      if (role != null && role.getOther().getClazz() == tgtClass && role.getCardinality() >= size) return role; //=========
+   public AssocRole haveRole(Clazz srcClass, String srcRole, Clazz tgtClass, int srcSize, String tgtRole, int tgtSize)
+   {
+      return this.haveRole(srcClass, srcRole, tgtClass, srcSize, tgtRole, tgtSize, true);
+   }
+
+   private AssocRole haveRole(Clazz srcClass, String srcRole, Clazz tgtClass, int srcSize, String tgtRole, int tgtSize, boolean bothRoles)
+   {
+      AssocRole role = srcClass.getRole(srcRole);
+
+      if (role != null
+            && role.getCardinality() >= srcSize
+            && role.getOther().getClazz() == tgtClass
+            && ( ! bothRoles || role.getOther().getName().equals(tgtRole))
+            && ( ! bothRoles || role.getOther().getCardinality() >= tgtSize)
+      )
+         return role; //===============================================================
+
+      if (StrUtil.stringEquals(srcRole, tgtRole)) tgtSize = srcSize;
 
       if (role == null)
       {
          role = new AssocRole()
                .setClazz(srcClass)
-               .setName(attrName)
-               .setCardinality(size)
+               .setName(srcRole)
+               .setCardinality(srcSize)
                .setPropertyStyle(srcClass.getPropertyStyle())
                .setRoleType(srcClass.getModel().getDefaultRoleType());
 
          AssocRole otherRole = new AssocRole()
                .setClazz(tgtClass)
-               .setName(StrUtil.downFirstChar(srcClass.getName()))
-               .setCardinality(ClassModelBuilder.ONE)
+               .setName(tgtRole)
+               .setCardinality(tgtSize)
                .setPropertyStyle(tgtClass.getPropertyStyle())
                .setRoleType(tgtClass.getModel().getDefaultRoleType());
 
          role.setOther(otherRole);
       }
 
-      int maxSize = Math.max(role.getCardinality(), size);
-      role.setClazz(srcClass)
-            .setCardinality(maxSize);
+      int maxSize = Math.max(role.getCardinality(), srcSize);
+      role.setCardinality(maxSize);
 
+      int maxTgtSize = Math.max(role.getOther().getCardinality(), tgtSize);
+      if (bothRoles) role.getOther().setName(tgtRole);
+      role.getOther().setCardinality(tgtSize);
+
+      // mm.haveRole(currentRegisterClazz, srcRole, tgtClass, srcSize, tgtRole, ClassModelBuilder.ONE);
       LinkedHashMap<String, String> event = new LinkedHashMap<>();
       event.put(EventSource.EVENT_TYPE, HAVE_ROLE);
-      event.put(EventSource.EVENT_KEY, Yamler.encapsulate(srcClass.getName() + "." + attrName));
+      event.put(EventSource.EVENT_KEY, Yamler.encapsulate(srcClass.getName() + "." + srcRole));
       event.put(SRC_CLASS_NAME, Yamler.encapsulate(srcClass.getName()));
-      event.put(ATTR_NAME, Yamler.encapsulate(attrName));
+      event.put(SRC_ROLE, Yamler.encapsulate(srcRole));
       event.put(TGT_CLASS_NAME, Yamler.encapsulate(tgtClass.getName()));
-      event.put(TGT_CARDINALITY, "" + maxSize);
+      event.put(SRC_SIZE, "" + maxSize);
+      event.put(TGT_ROLE, Yamler.encapsulate(tgtRole));
+      event.put(TGT_SIZE, "" + maxTgtSize);
       mem.append(event);
 
       return role;

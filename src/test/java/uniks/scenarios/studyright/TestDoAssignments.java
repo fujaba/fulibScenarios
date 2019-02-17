@@ -45,6 +45,8 @@ public class TestDoAssignments
        studyRight.withStudents(carliBob, alice);
        studyRight.withRooms(mathRoom, modelingRoom);
        carliBob.withDone(integrals, series);
+       carliBob.setRoom(mathRoom);
+       alice.setRoom(mathRoom);
        mathRoom.withAssignments(integrals, series, matrices);
        mathRoom.withStudents(carliBob, alice);
 

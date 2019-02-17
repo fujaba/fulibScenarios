@@ -4,7 +4,7 @@ import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class Assignment  
+public class Assignment 
 {
 
    public static final String PROPERTY_topic = "topic";
@@ -49,31 +49,31 @@ public class Assignment
    }
 
 
-   public static final String PROPERTY_student = "student";
+   public static final String PROPERTY_students = "students";
 
-   private Student student = null;
+   private Student students = null;
 
-   public Student getStudent()
+   public Student getStudents()
    {
-      return this.student;
+      return this.students;
    }
 
-   public Assignment setStudent(Student value)
+   public Assignment setStudents(Student value)
    {
-      if (this.student != value)
+      if (this.students != value)
       {
-         Student oldValue = this.student;
-         if (this.student != null)
+         Student oldValue = this.students;
+         if (this.students != null)
          {
-            this.student = null;
+            this.students = null;
             oldValue.withoutDone(this);
          }
-         this.student = value;
+         this.students = value;
          if (value != null)
          {
             value.withDone(this);
          }
-         firePropertyChange("student", oldValue, value);
+         firePropertyChange("students", oldValue, value);
       }
       return this;
    }
@@ -174,7 +174,7 @@ public class Assignment
 
    public void removeYou()
    {
-      this.setStudent(null);
+      this.setStudents(null);
       this.setRoom(null);
 
    }

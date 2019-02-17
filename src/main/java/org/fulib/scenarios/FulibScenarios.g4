@@ -2,11 +2,12 @@
 grammar FulibScenarios;
 
 scenario: title section*
+        | '#'+ 'Register' classDef*
           ;
 
-title: '#' any+;
+title: '#'+ 'Scenario' any+;
 
-section: '##' 'Setup' sentence*;
+section: '#'+ 'Setup' sentence*;
 
 sentence: thereSentence | directSentence | isSentence | hasSentence | diagramSentence;
 
@@ -22,6 +23,7 @@ hasSentence: objectName=multiName 'has' attrName=NAME value=valueData '.';
 
 diagramSentence: '!' '[' type=NAME ']' '(' fileName=fileNameClause ')';
 
+
 withClause:   'with'?  attrName=NAME  attrValue=valueClause # UsualWithClause
             | 'with' value= NUMBER  attrName=multiName ','? 'and'? # NumberWithClause
             ;
@@ -33,6 +35,22 @@ valueData: (NAME | NUMBER)+;
 fileNameClause: (NAME | '.' | '/')+ ;
 
 any: NUMBER | NAME | A | ',' | '.';
+
+
+classDef:
+    className=NAME 'e.g.' exampleValue*
+    (attrDef | roleDef) *
+;
+
+exampleValue: (nameValue=NAME | numberValue=NUMBER) ','? ;
+
+attrDef: '+' attrName=NAME 'e.g.' exampleValue*;
+
+roleDef: '+' roleName=NAME card=cardDef className=NAME ('cf.' (otherClassName=NAME '.')? otherRoleName=NAME)?;
+
+cardDef: 'one' | 'many' ;
+
+
 
 A: 'a' | 'an' | 'the';
 
