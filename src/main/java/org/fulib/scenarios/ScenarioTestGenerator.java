@@ -137,7 +137,7 @@ public class ScenarioTestGenerator
 
       try
       {
-         Path path = Paths.get("doc/studyright/RegisterGen.md");
+         Path path = Paths.get("doc/studyright/Register.md");
          // Files.createDirectories(path);
          Files.write(path,
                result.getBytes());

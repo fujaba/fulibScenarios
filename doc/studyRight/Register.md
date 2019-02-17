@@ -1,35 +1,36 @@
 
 # Register
 
-
-Assignment e.g. integrals, series, matrices
- + topic e.g. math
- + points e.g. 42.0
- + students many student cf. student.done
- + room one room cf. assignments
-
-
-Room e.g. math room, arts room
- + topic e.g. math
- + credits e.g. 23.0
- + assignments many assignment cf. assignment.room
- + students many student cf. room
- + doors many room cf. doors
- + uni one university cf. rooms
+Assignment e.g. integrals, series, matrices, 
+ + topic e.g. integrals 101, series 101, matrices 101, 
+ + points e.g. 10, 8, 6, 
+ + students one Student cf. done
+ + room one Room cf. assignments
 
 
-Student e.g. carliBob
- + name e.g. Carli Bob, Alice
- + motivationPoints e.g. 42.0
- + creditPoints e.g. 23.0
- + room one room cf. students
- + done many assignment cf. students
- + uni one university cf. students
+Room e.g. mathRoom, modelingRoom, 
+ + topic e.g. math, modeling, 
+ + credits e.g. 23, 42, 
+ + assignments many Assignment cf. room
+ + students many Student cf. room
+ + doors many Room cf. doors
+ + uni one University cf. rooms
 
 
-StudyRightUtils e.g. utils
+Student e.g. carliBob, alice, 
+ + name e.g. Carli Bob, Alice, 
+ + motivationPoints e.g. 42.0, 84.0, 
+ + creditPoints e.g. 0.0, 0.0, 
+ + done many Assignment cf. students
+ + room one Room cf. students
+ + uni one University cf. students
 
 
-University e.g. studyRight
- + students many student cf. uni
- + rooms many room cf. uni
+StudyRightUtils e.g. utils, 
+
+University e.g. studyRight, 
+ + rooms many Room cf. uni
+ + students many Student cf. uni
+
+
+
