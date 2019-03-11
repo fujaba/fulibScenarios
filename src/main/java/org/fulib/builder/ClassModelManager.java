@@ -2,10 +2,7 @@ package org.fulib.builder;
 
 import org.fulib.Fulib;
 import org.fulib.StrUtil;
-import org.fulib.classmodel.AssocRole;
-import org.fulib.classmodel.Attribute;
-import org.fulib.classmodel.ClassModel;
-import org.fulib.classmodel.Clazz;
+import org.fulib.classmodel.*;
 import org.fulib.yaml.EventSource;
 import org.fulib.yaml.Yamler;
 
@@ -47,6 +44,7 @@ public class ClassModelManager implements IModelManager
    public static final String TGT_SIZE = "tgtSize";
 
    private ClassModel classModel;
+   private LinkedHashMap<String, FMethod> methodMap;
    private ModelEventManager mem;
 
 
@@ -119,12 +117,21 @@ public class ClassModelManager implements IModelManager
       this.classModel = new ClassModel()
             .setDefaultPropertyStyle(POJO)
             .setDefaultRoleType(COLLECTION_ARRAY_LIST);
+
+      this.methodMap = new LinkedHashMap<>();
    }
 
 
    public ClassModel getClassModel()
    {
       return classModel;
+   }
+
+
+
+   public LinkedHashMap<String, FMethod> getMethodMap()
+   {
+      return methodMap;
    }
 
 
@@ -224,8 +231,8 @@ public class ClassModelManager implements IModelManager
 
    public AssocRole haveRole(Clazz srcClass, String attrName, Clazz tgtClass, int size)
    {
-      String tgtClassName = StrUtil.downFirstChar(tgtClass.getName());
-      return this.haveRole(srcClass, attrName, tgtClass, size, tgtClassName, ClassModelBuilder.ONE, false);
+      String otherRoleName = StrUtil.downFirstChar(srcClass.getName());
+      return this.haveRole(srcClass, attrName, tgtClass, size, otherRoleName, ClassModelBuilder.ONE, false);
    }
 
    public AssocRole haveRole(Clazz srcClass, String srcRole, Clazz tgtClass, int srcSize, String tgtRole, int tgtSize)
@@ -286,5 +293,36 @@ public class ClassModelManager implements IModelManager
       mem.append(event);
 
       return role;
+   }
+
+
+   public FMethod haveMethod(Clazz srcClass, String methodName)
+   {
+      String key = srcClass.getName() + "." + methodName;
+
+      FMethod method = methodMap.get(key);
+
+      if (method == null)
+      {
+         method = new FMethod();
+         this.methodMap.put(key, method);
+      }
+
+      method.setClassName(srcClass.getName())
+            .setName(methodName);
+
+      return method;
+   }
+
+   public FMethod getMethod(String methodName) {
+      for (String key : this.getMethodMap().keySet())
+      {
+         String[] split = key.split("\\.");
+         if (methodName.equals(split[1]))
+         {
+            return this.getMethodMap().get(key);
+         }
+      }
+      return null;
    }
 }

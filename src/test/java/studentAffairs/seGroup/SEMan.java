@@ -1,11 +1,41 @@
-package uniks.scenarios.studyright;
+package studentAffairs.seGroup;
 
 import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
 
-public class StudyRightUtils  
+public class SEMan  
 {
+
+   public static final String PROPERTY_root = "root";
+
+   private SEGroup root = null;
+
+   public SEGroup getRoot()
+   {
+      return this.root;
+   }
+
+   public SEMan setRoot(SEGroup value)
+   {
+      if (this.root != value)
+      {
+         SEGroup oldValue = this.root;
+         if (this.root != null)
+         {
+            this.root = null;
+            oldValue.setSEMan(null);
+         }
+         this.root = value;
+         if (value != null)
+         {
+            value.setSEMan(this);
+         }
+         firePropertyChange("root", oldValue, value);
+      }
+      return this;
+   }
+
 
    protected PropertyChangeSupport listeners = null;
 
@@ -58,9 +88,17 @@ public class StudyRightUtils
    }
 
 
-
    public void removeYou()
    {
+      this.setRoot(null);
+
    }
 
+
+   public void registerStudent(SEStudent student, SEClass seClass){ 
+      Achievement a1 = new Achievement()
+         .setId("A1")
+         .setSEStudent(student);
+
+   }
 }

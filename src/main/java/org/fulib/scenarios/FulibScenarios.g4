@@ -1,25 +1,35 @@
 
 grammar FulibScenarios;
 
-scenario: title section*
+scenario: '#'+ 'Scenario' any+ '.' sentence*
         | '#'+ 'Register' classDef*
           ;
 
-title: '#'+ 'Scenario' any+;
+sentence: thereSentence | directSentence | chainSentence | hasSentence | diagramSentence
+        | callSentence;
 
-section: '#'+ 'Setup' sentence*;
+callSentence: caller=NAME CALL methodName=NAME 'on' objectName=NAME withClause* '.';
 
-sentence: thereSentence | directSentence | isSentence | hasSentence | diagramSentence;
-
-thereSentence: 'There' 'is' A? objectName=multiName? A className=multiName withClause* '.';
+thereSentence: 'There' 'is' A? objectName=multiName? (A className=multiName withClause*)? '.';
 
 multiName: NAME+;
 
-isSentence: objectName=multiName 'is' attrName='in' A? value=valueData '.';
+chainSentence: methodName=NAME predicateObjectPhrase ('and' 'it' predicateObjectPhrase)* '.'  ;
 
-directSentence: objectName=multiName 'is' A? className=multiName withClause* '.';
+predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase ;
 
-hasSentence: objectName=multiName 'has' attrName=NAME value=valueData '.';
+createPhrase: 'creates' A? className=NAME withClause* ;
+
+verbPhrase: ('adds'|'puts'|'reads') A? value=valueData ('to'|'into'|'from') A? attrName=NAME 'of' A? targetName=NAME ;
+
+answerPhrase: 'answers' ('with'|':')? value=valueData;
+
+directSentence: objectName=multiName 'is' A? className=multiName withClause*;
+
+hasSentence: A? objectName=multiName hasClause+ '.';
+
+hasClause:    'has' attrName=NAME attrValue=valueClause # UsualHasClause
+            | 'has' value= NUMBER  attrName=multiName ','? 'and'? # NumberHasClause ;
 
 diagramSentence: '!' '[' type=NAME ']' '(' fileName=fileNameClause ')';
 
@@ -34,7 +44,9 @@ valueData: (NAME | NUMBER)+;
 
 fileNameClause: (NAME | '.' | '/')+ ;
 
-any: NUMBER | NAME | A | ',' | '.';
+CALL: 'call' | 'calls';
+
+any: NUMBER | NAME | A | CALL | 'with' | 'has' | 'There' | 'is' | ',';
 
 
 classDef:
@@ -52,9 +64,9 @@ cardDef: 'one' | 'many' ;
 
 
 
-A: 'a' | 'an' | 'the';
+A: 'a' | 'A' | 'an' | 'An' | 'the' | 'The';
 
-NAME: [a-zA-Z][a-zA-Z0-9]*;
+NAME: [0-9]*[a-zA-Z_-][a-zA-Z0-9_-]*;
 
 
 NUMBER: '-'?[0-9]+ ('.' [0-9]+)?;

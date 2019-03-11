@@ -1,36 +1,24 @@
 
 # Register
 
-Assignment e.g. integrals, series, matrices, 
- + topic e.g. integrals 101, series 101, matrices 101, 
- + points e.g. 10, 8, 6, 
- + students one Student cf. done
- + room one Room cf. assignments
+Assignment e.g. partyAppScenarios, 
+ + topic e.g. Composite, PartyApp Scenarios, 
+ + points e.g. 12, 10, 
+ + seClass one SEClass cf. sEClass
 
 
-Room e.g. mathRoom, modelingRoom, 
- + topic e.g. math, modeling, 
- + credits e.g. 23, 42, 
- + assignments many Assignment cf. room
- + students many Student cf. room
- + doors many Room cf. doors
- + uni one University cf. rooms
+SEClass e.g. modeling, pattern, 
+ + topic e.g. OO Modeling, design pattern, design pattern, 
+ + start e.g. 2019 -4, 2019 -4, 2019 -4, 2019 -4, 
+ + sEClass one Assignment cf. seClass
+ + topic one SEClass cf. sEClass
 
 
-Student e.g. carliBob, alice, 
- + name e.g. Carli Bob, Alice, 
- + motivationPoints e.g. 42.0, 84.0, 
- + creditPoints e.g. 0.0, 0.0, 
- + done many Assignment cf. students
- + room one Room cf. students
- + uni one University cf. students
+SEGroup e.g. sEGroup, 
 
-
-StudyRightUtils e.g. utils, 
-
-University e.g. studyRight, 
- + rooms many Room cf. uni
- + students many Student cf. uni
+SEStudent e.g. alice, bob, 
+ + name e.g. Alice, Bob, Alice, Bob, 
+ + studentId e.g. m42, m23, 
 
 
 

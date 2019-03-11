@@ -1,0 +1,57 @@
+- c1: 	ClassModel
+  classes: 	fMethod2 	
+  defaultPropertyStyle: 	POJO
+  defaultRoleType: 	"java.util.ArrayList<%s>"
+  mainJavaDir: 	"src/main/java"
+  packageName: 	org.fulib.classmodel
+  packageSrcFolder: 	"src/main/java/org/fulib/classmodel"
+
+- fMethod2: 	Clazz
+  attributes: 	name3 	returnType4 	methodBody5 	className6 	packageName7 	javaSrcDir8 	
+  model: 	c1
+  modified: 	false
+  name: 	FMethod
+  propertyStyle: 	POJO
+
+- name3: 	Attribute
+  clazz: 	fMethod2
+  modified: 	false
+  name: 	name
+  propertyStyle: 	POJO
+  type: 	String
+
+- returnType4: 	Attribute
+  clazz: 	fMethod2
+  modified: 	false
+  name: 	returnType
+  propertyStyle: 	POJO
+  type: 	String
+
+- methodBody5: 	Attribute
+  clazz: 	fMethod2
+  modified: 	false
+  name: 	methodBody
+  propertyStyle: 	POJO
+  type: 	String
+
+- className6: 	Attribute
+  clazz: 	fMethod2
+  modified: 	false
+  name: 	className
+  propertyStyle: 	POJO
+  type: 	String
+
+- packageName7: 	Attribute
+  clazz: 	fMethod2
+  modified: 	false
+  name: 	packageName
+  propertyStyle: 	POJO
+  type: 	String
+
+- javaSrcDir8: 	Attribute
+  clazz: 	fMethod2
+  modified: 	false
+  name: 	javaSrcDir
+  propertyStyle: 	POJO
+  type: 	String
+

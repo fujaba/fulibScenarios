@@ -22,12 +22,6 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
    private ArrayList<String> objectNamesList;
 
    @Override
-   public void enterTitle(FulibScenariosParser.TitleContext ctx)
-   {
-   }
-
-
-   @Override
    public void enterDirectSentence(FulibScenariosParser.DirectSentenceContext ctx)
    {
       objectName = StrUtil.downFirstChar(getMultiName(ctx.objectName));
@@ -45,7 +39,24 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
          objectName = StrUtil.downFirstChar(getMultiName(ctx.objectName));
       }
 
-      className = StrUtil.cap(ctx.className.getText());
+      if (ctx.className == null)
+      {
+         className = StrUtil.cap(objectName);
+      }
+      else
+      {
+         className = StrUtil.cap(ctx.className.getText());
+      }
+   }
+
+   @Override
+   public void enterHasSentence(FulibScenariosParser.HasSentenceContext ctx)
+   {
+      objectName = null;
+      if (ctx.objectName != null)
+      {
+         objectName = StrUtil.downFirstChar(getMultiName(ctx.objectName));
+      }
    }
 
    @Override
@@ -63,7 +74,22 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
 
 
    @Override
+   public void enterUsualHasClause(FulibScenariosParser.UsualHasClauseContext ctx)
+   {
+      objectNamesList = new ArrayList<String>();
+   }
+
+   @Override
    public void exitUsualWithClause(FulibScenariosParser.UsualWithClauseContext ctx)
+   {
+      if (objectName == null)
+      {
+         objectName = StrUtil.downFirstChar(objectNamesList.get(0));
+      }
+   }
+
+   @Override
+   public void exitUsualHasClause(FulibScenariosParser.UsualHasClauseContext ctx)
    {
       if (objectName == null)
       {

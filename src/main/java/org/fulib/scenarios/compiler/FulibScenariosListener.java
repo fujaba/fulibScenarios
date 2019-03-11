@@ -18,26 +18,6 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 */
 	void exitScenario(FulibScenariosParser.ScenarioContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FulibScenariosParser#title}.
-	 * @param ctx the parse tree
-	 */
-	void enterTitle(FulibScenariosParser.TitleContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FulibScenariosParser#title}.
-	 * @param ctx the parse tree
-	 */
-	void exitTitle(FulibScenariosParser.TitleContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link FulibScenariosParser#section}.
-	 * @param ctx the parse tree
-	 */
-	void enterSection(FulibScenariosParser.SectionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link FulibScenariosParser#section}.
-	 * @param ctx the parse tree
-	 */
-	void exitSection(FulibScenariosParser.SectionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#sentence}.
 	 * @param ctx the parse tree
 	 */
@@ -47,6 +27,16 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSentence(FulibScenariosParser.SentenceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#callSentence}.
+	 * @param ctx the parse tree
+	 */
+	void enterCallSentence(FulibScenariosParser.CallSentenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#callSentence}.
+	 * @param ctx the parse tree
+	 */
+	void exitCallSentence(FulibScenariosParser.CallSentenceContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#thereSentence}.
 	 * @param ctx the parse tree
@@ -68,15 +58,55 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 */
 	void exitMultiName(FulibScenariosParser.MultiNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link FulibScenariosParser#isSentence}.
+	 * Enter a parse tree produced by {@link FulibScenariosParser#chainSentence}.
 	 * @param ctx the parse tree
 	 */
-	void enterIsSentence(FulibScenariosParser.IsSentenceContext ctx);
+	void enterChainSentence(FulibScenariosParser.ChainSentenceContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link FulibScenariosParser#isSentence}.
+	 * Exit a parse tree produced by {@link FulibScenariosParser#chainSentence}.
 	 * @param ctx the parse tree
 	 */
-	void exitIsSentence(FulibScenariosParser.IsSentenceContext ctx);
+	void exitChainSentence(FulibScenariosParser.ChainSentenceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#predicateObjectPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#predicateObjectPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#createPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreatePhrase(FulibScenariosParser.CreatePhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#createPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreatePhrase(FulibScenariosParser.CreatePhraseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#verbPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#verbPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#answerPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnswerPhrase(FulibScenariosParser.AnswerPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#answerPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnswerPhrase(FulibScenariosParser.AnswerPhraseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#directSentence}.
 	 * @param ctx the parse tree
@@ -97,6 +127,30 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitHasSentence(FulibScenariosParser.HasSentenceContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code UsualHasClause}
+	 * labeled alternative in {@link FulibScenariosParser#hasClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterUsualHasClause(FulibScenariosParser.UsualHasClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code UsualHasClause}
+	 * labeled alternative in {@link FulibScenariosParser#hasClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitUsualHasClause(FulibScenariosParser.UsualHasClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NumberHasClause}
+	 * labeled alternative in {@link FulibScenariosParser#hasClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterNumberHasClause(FulibScenariosParser.NumberHasClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NumberHasClause}
+	 * labeled alternative in {@link FulibScenariosParser#hasClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitNumberHasClause(FulibScenariosParser.NumberHasClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#diagramSentence}.
 	 * @param ctx the parse tree

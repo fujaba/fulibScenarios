@@ -28,30 +28,6 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTitle(FulibScenariosParser.TitleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTitle(FulibScenariosParser.TitleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSection(FulibScenariosParser.SectionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSection(FulibScenariosParser.SectionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterSentence(FulibScenariosParser.SentenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -59,6 +35,18 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSentence(FulibScenariosParser.SentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCallSentence(FulibScenariosParser.CallSentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCallSentence(FulibScenariosParser.CallSentenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -88,13 +76,61 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIsSentence(FulibScenariosParser.IsSentenceContext ctx) { }
+	@Override public void enterChainSentence(FulibScenariosParser.ChainSentenceContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIsSentence(FulibScenariosParser.IsSentenceContext ctx) { }
+	@Override public void exitChainSentence(FulibScenariosParser.ChainSentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCreatePhrase(FulibScenariosParser.CreatePhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCreatePhrase(FulibScenariosParser.CreatePhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnswerPhrase(FulibScenariosParser.AnswerPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnswerPhrase(FulibScenariosParser.AnswerPhraseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -119,6 +155,30 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitHasSentence(FulibScenariosParser.HasSentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUsualHasClause(FulibScenariosParser.UsualHasClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUsualHasClause(FulibScenariosParser.UsualHasClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNumberHasClause(FulibScenariosParser.NumberHasClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNumberHasClause(FulibScenariosParser.NumberHasClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

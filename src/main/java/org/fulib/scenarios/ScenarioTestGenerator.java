@@ -6,14 +6,12 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.fulib.Fulib;
 import org.fulib.FulibTools;
 import org.fulib.StrUtil;
-import org.fulib.classmodel.AssocRole;
-import org.fulib.classmodel.Attribute;
-import org.fulib.classmodel.ClassModel;
-import org.fulib.classmodel.Clazz;
+import org.fulib.classmodel.*;
 import org.fulib.scenarios.compiler.FulibScenariosLexer;
 import org.fulib.scenarios.compiler.FulibScenariosParser;
 import org.fulib.scenarios.compiler.ScenarioObjectCollector;
 import org.fulib.scenarios.compiler.ScenarioTestCollector;
+import org.fulib.util.Generator4FMethod;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.StringRenderer;
@@ -22,42 +20,83 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ScenarioTestGenerator
 {
    public static void main(String[] args)
    {
       // parse register
-      FulibScenariosParser.ScenarioContext registerContext = parse("doc/studyRight/Register.md");
+      generateScenarios("doc/studentAffairs/seGroup");
+   }
 
-      ScenarioTestCollector myScenarioListener = new ScenarioTestCollector(new LinkedHashMap<>());
+   private static void generateScenarios(String docDir)
+   {
+      FulibScenariosParser.ScenarioContext registerContext = parse(docDir + "/Register.md");
+
+      ScenarioTestCollector myScenarioListener = new ScenarioTestCollector(new LinkedHashMap<>(), docDir);
       ParseTreeWalker.DEFAULT.walk(myScenarioListener, registerContext);
 
-      FulibTools.classDiagrams().dumpPng(myScenarioListener.getClassModel(), "doc/studyRight/RegisterDiag.png");
+      // parse scenarios
+      try
+      {
+         Files.list(Paths.get(docDir)).forEach(
+               path -> {
+                  System.out.println(path.toString());
 
-      // parse scenario
-      FulibScenariosParser.ScenarioContext mainContext = parse("doc/studyRight/StudyRightScenario.md");
+                  if ( path.toString().endsWith(".md"))
+                  {
+                     if (path.toString().endsWith("Register.md")) return;
 
-      ScenarioObjectCollector objectCollector = new ScenarioObjectCollector();
-      ParseTreeWalker.DEFAULT.walk(objectCollector, mainContext);
+                     String fileName = path.toString();
+                     FulibScenariosParser.ScenarioContext mainContext = parse(fileName);
 
-      myScenarioListener.setObject2ClassMap(objectCollector.object2ClassMap);
-      ParseTreeWalker.DEFAULT.walk(myScenarioListener, mainContext);
+                     ScenarioObjectCollector objectCollector = new ScenarioObjectCollector();
+                     ParseTreeWalker.DEFAULT.walk(objectCollector, mainContext);
 
-      generateClassModelCode(myScenarioListener);
+                     myScenarioListener.setObject2ClassMap(objectCollector.object2ClassMap);
+                     myScenarioListener.methodBody.setLength(0);
+                     ParseTreeWalker.DEFAULT.walk(myScenarioListener, mainContext);
 
-      generateJUnitTest(myScenarioListener);
+                     generateJUnitTest(myScenarioListener, docDir, path.getFileName().toString());
+                  }
+               }
+         );
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
 
-      generateRegister(myScenarioListener);
+      generateClassModelCode(myScenarioListener, docDir);
+      generateFMethods(myScenarioListener, docDir);
+      generateRegister(myScenarioListener, docDir);
+
+      FulibTools.classDiagrams().dumpPng(myScenarioListener.getClassModel(), docDir + "/RegisterDiag.png");
+   }
+
+   private static void generateFMethods(ScenarioTestCollector myScenarioListener, String docDir)
+   {
+      // generate class model implementation
+      String packageName = docDir.substring("doc/".length());
+      packageName = packageName.replaceAll("/", ".");
+      String javaSrcDir = "src/test/java";
+
+      Generator4FMethod generator = new Generator4FMethod();
+      for (Map.Entry<String, FMethod> entry : myScenarioListener.getModelManager().getMethodMap().entrySet())
+      {
+         String methodName = entry.getKey();
+         FMethod method = entry.getValue();
+
+         method.setPackageName(packageName);
+         method.setJavaSrcDir(javaSrcDir);
+
+         generator.generate(method);
+      }
    }
 
 
-
-   private static void generateRegister(ScenarioTestCollector myScenarioListener)
+   private static void generateRegister(ScenarioTestCollector myScenarioListener, String docDir)
    {
       // generate scenario test
       STGroupFile group = new STGroupFile("templates/register.stg");
@@ -95,8 +134,13 @@ public class ScenarioTestGenerator
          for (Attribute attribute : clazz.getAttributes())
          {
             String key = clazz.getName() + "." + attribute.getName();
-            String exampleString = myScenarioListener.getAttrValueExamplesMap().get(key);
-
+            TreeSet<String> exampleSet = myScenarioListener.getAttrValueExamplesMap().get(key);
+            String exampleString = "  ";
+            for (String s : exampleSet)
+            {
+               exampleString += s + ", ";
+            }
+            exampleString = exampleString.substring(0, exampleString.length()-", ".length()).trim();
             st = group.getInstanceOf("attribute");
             st.add("name", attribute.getName());
             st.add("examples", exampleString);
@@ -137,7 +181,7 @@ public class ScenarioTestGenerator
 
       try
       {
-         Path path = Paths.get("doc/studyright/Register.md");
+         Path path = Paths.get(docDir + "/Register.md");
          // Files.createDirectories(path);
          Files.write(path,
                result.getBytes());
@@ -149,24 +193,30 @@ public class ScenarioTestGenerator
    }
 
 
-   private static void generateJUnitTest(ScenarioTestCollector myScenarioListener)
+   private static void generateJUnitTest(ScenarioTestCollector myScenarioListener, String docDir, String fileName)
    {
+      fileName = fileName.substring(0, fileName.length()-".md".length());
       // generate scenario test
       STGroupFile group = new STGroupFile("templates/junitTest.stg");
       group.registerRenderer(String.class, new StringRenderer());
       ST st = group.getInstanceOf("junitTest");
 
       // packageName, testClassName, testMethodName, methodBody
-      st.add("packageName", "uniks.scenarios.studyright");
-      st.add("testClassName", "TestDoAssignments");
-      st.add("testMethodName", "testScenario1");
+      String packagePath = docDir.substring("doc/".length());
+      String packageName = packagePath;
+      packageName = packageName.replaceAll("/", ".");
+      st.add("packageName", packageName);
+      st.add("testClassName", "Test" + fileName);
+      st.add("testMethodName", "test" + fileName);
       st.add("methodBody", myScenarioListener.methodBody);
       String result = st.render();
 
       try
       {
-         Path path = Paths.get("src/test/java/uniks/scenarios/studyright/TestDoAssignments.java");
-         // Files.createDirectories(path);
+         String dirName = "src/test/java/" + packagePath;
+         Path path = Paths.get(dirName);
+         Files.createDirectories(path);
+         path = Paths.get(dirName + "/Test" + fileName + ".java");
          Files.write(path,
                result.getBytes());
       }
@@ -176,14 +226,16 @@ public class ScenarioTestGenerator
       }
    }
 
-   private static void generateClassModelCode(ScenarioTestCollector myScenarioListener)
+   private static void generateClassModelCode(ScenarioTestCollector myScenarioListener, String docDir)
    {
       // generate class model implementation
+      String packageName = docDir.substring("doc/".length());
+      packageName = packageName.replaceAll("/", ".");
       ClassModel classModel = myScenarioListener.getClassModel()
             .setMainJavaDir("src/test/java")
-            .setPackageName("uniks.scenarios.studyright");
+            .setPackageName(packageName);
       Fulib.generator().generate(classModel);
-      FulibTools.classDiagrams().dumpPng(classModel, "doc/studyRight/ScenarioResultClassDiagram.png");
+      // FulibTools.classDiagrams().dumpPng(classModel, docDir + "/ScenarioResultClassDiagram.png");
    }
 
    private static FulibScenariosParser.ScenarioContext parse(String fileName)
