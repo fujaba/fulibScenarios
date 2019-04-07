@@ -65,6 +65,7 @@ public class Achievement
    {
       this.setSEStudent(null);
       this.setSolutions(null);
+      this.setSEClass(null);
 
    }
 
@@ -131,16 +132,68 @@ public class Achievement
 
 
 
+   public static final String PROPERTY_sEClass = "sEClass";
+
+   private SEClass sEClass = null;
+
+   public SEClass getSEClass()
+   {
+      return this.sEClass;
+   }
+
+   public Achievement setSEClass(SEClass value)
+   {
+      if (this.sEClass != value)
+      {
+         SEClass oldValue = this.sEClass;
+         if (this.sEClass != null)
+         {
+            this.sEClass = null;
+            oldValue.setAchievements(null);
+         }
+         this.sEClass = value;
+         if (value != null)
+         {
+            value.setAchievements(this);
+         }
+         firePropertyChange("sEClass", oldValue, value);
+      }
+      return this;
+   }
+
+
    @Override
    public String toString()
    {
       StringBuilder result = new StringBuilder();
 
       result.append(" ").append(this.getId());
+      result.append(" ").append(this.getState());
 
 
       return result.substring(1);
    }
+
+   public static final String PROPERTY_state = "state";
+
+   private String state;
+
+   public String getState()
+   {
+      return state;
+   }
+
+   public Achievement setState(String value)
+   {
+      if (value == null ? this.state != null : ! value.equals(this.state))
+      {
+         String oldValue = this.state;
+         this.state = value;
+         firePropertyChange("state", oldValue, value);
+      }
+      return this;
+   }
+
 
    public static final String PROPERTY_sEStudent = "sEStudent";
 
@@ -159,12 +212,12 @@ public class Achievement
          if (this.sEStudent != null)
          {
             this.sEStudent = null;
-            oldValue.withoutAchievements(this);
+            oldValue.setAchievements(null);
          }
          this.sEStudent = value;
          if (value != null)
          {
-            value.withAchievements(this);
+            value.setAchievements(this);
          }
          firePropertyChange("sEStudent", oldValue, value);
       }

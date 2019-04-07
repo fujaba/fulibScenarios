@@ -91,21 +91,10 @@ public class SEClass
       return true;
    }
 
-   @Override
-   public String toString()
-   {
-      StringBuilder result = new StringBuilder();
-
-      result.append(" ").append(this.getTopic());
-      result.append(" ").append(this.getStart());
-
-
-      return result.substring(1);
-   }
-
    public void removeYou()
    {
       this.setSEGroup(null);
+      this.setAchievements(null);
 
       this.withoutAssignments(this.getAssignments().clone());
 
@@ -232,5 +221,47 @@ public class SEClass
    }
 
 
+
+   public static final String PROPERTY_achievements = "achievements";
+
+   private Achievement achievements = null;
+
+   public Achievement getAchievements()
+   {
+      return this.achievements;
+   }
+
+   public SEClass setAchievements(Achievement value)
+   {
+      if (this.achievements != value)
+      {
+         Achievement oldValue = this.achievements;
+         if (this.achievements != null)
+         {
+            this.achievements = null;
+            oldValue.setSEClass(null);
+         }
+         this.achievements = value;
+         if (value != null)
+         {
+            value.setSEClass(this);
+         }
+         firePropertyChange("achievements", oldValue, value);
+      }
+      return this;
+   }
+
+
+   @Override
+   public String toString()
+   {
+      StringBuilder result = new StringBuilder();
+
+      result.append(" ").append(this.getTopic());
+      result.append(" ").append(this.getStart());
+
+
+      return result.substring(1);
+   }
 
 }

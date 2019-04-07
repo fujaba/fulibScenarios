@@ -54,8 +54,12 @@ public class ScenarioTestGenerator
                      ScenarioObjectCollector objectCollector = new ScenarioObjectCollector();
                      ParseTreeWalker.DEFAULT.walk(objectCollector, mainContext);
 
-                     myScenarioListener.setObject2ClassMap(objectCollector.object2ClassMap);
+                     for (Map.Entry<String, String> entry : objectCollector.object2ClassMap.entrySet())
+                     {
+                        myScenarioListener.getObject2ClassMap().put(entry.getKey(), entry.getValue());
+                     }
                      myScenarioListener.methodBody.setLength(0);
+                     myScenarioListener.initMethodParams();
                      ParseTreeWalker.DEFAULT.walk(myScenarioListener, mainContext);
 
                      generateJUnitTest(myScenarioListener, docDir, path.getFileName().toString());
@@ -130,17 +134,17 @@ public class ScenarioTestGenerator
             }
          }
 
+         if (objectExamples.length() <= 0)
+            continue; // this class is not used in any scenario
+
          StringBuilder attributeList = new StringBuilder();
          for (Attribute attribute : clazz.getAttributes())
          {
-            String key = clazz.getName() + "." + attribute.getName();
-            TreeSet<String> exampleSet = myScenarioListener.getAttrValueExamplesMap().get(key);
-            String exampleString = "  ";
-            for (String s : exampleSet)
-            {
-               exampleString += s + ", ";
-            }
-            exampleString = exampleString.substring(0, exampleString.length()-", ".length()).trim();
+            String exampleString = getExamplesString(myScenarioListener, clazz, attribute.getName());
+
+            if (exampleString.length() <= 0)
+               continue; // this attribute is not used in any scenario
+
             st = group.getInstanceOf("attribute");
             st.add("name", attribute.getName());
             st.add("examples", exampleString);
@@ -154,11 +158,20 @@ public class ScenarioTestGenerator
             if (usedRoles.contains(role.getName())) continue; //=====================
             usedRoles.add(role.getName());
 
+            String exampleString = getExamplesString(myScenarioListener, clazz, role.getName());
+            AssocRole otherRole = role.getOther();
+            Clazz otherClazz = otherRole.getClazz();
+            String otherExampleString = getExamplesString(myScenarioListener, otherClazz, otherRole.getName());
+
+            if (exampleString.length() <= 0 && otherExampleString.length() <= 0)
+               continue; // this role is not used in any scenario
+
             st = group.getInstanceOf("role");
             st.add("name", role.getName());
             st.add("card", (role.getCardinality()==1 ? "one" : "many"));
             st.add("tgtClass", role.getOther().getClazz().getName());
             st.add("reverseName", role.getOther().getName());
+            st.add("examples", exampleString);
             result = st.render();
             attributeList.append(result);
          }
@@ -190,6 +203,23 @@ public class ScenarioTestGenerator
       {
          e.printStackTrace();
       }
+   }
+
+   private static String getExamplesString(ScenarioTestCollector myScenarioListener, Clazz clazz, String name)
+   {
+      String key = clazz.getName() + "." + name;
+
+      TreeSet<String> exampleSet = myScenarioListener.getAttrValueExamplesMap().get(key);
+      if (exampleSet == null)
+         return "";
+
+      String exampleString = "  ";
+      for (String s : exampleSet)
+      {
+         exampleString += s + ", ";
+      }
+      exampleString = exampleString.substring(0, exampleString.length() - ", ".length()).trim();
+      return exampleString;
    }
 
 

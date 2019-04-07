@@ -100,11 +100,23 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
    @Override
    public void enterValueClause(FulibScenariosParser.ValueClauseContext ctx)
    {
-      String multiValueName = getMultiValue(ctx);
-      objectNamesList.add(multiValueName);
+      // String multiValueName = getMultiValue(ctx);
+      // objectNamesList.add(multiValueName);
    }
 
+   @Override
+   public void enterValueData(FulibScenariosParser.ValueDataContext ctx)
+   {
+      String result = "";
 
+      for (ParseTree child : ctx.children)
+      {
+         result += StrUtil.cap(child.getText());
+      }
+
+      result = StrUtil.downFirstChar(result);
+      objectNamesList.add(result);
+   }
 
    private String getMultiValue(FulibScenariosParser.ValueClauseContext valueContext)
    {

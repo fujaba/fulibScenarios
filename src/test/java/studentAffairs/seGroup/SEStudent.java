@@ -90,24 +90,10 @@ public class SEStudent
       return true;
    }
 
-   @Override
-   public String toString()
-   {
-      StringBuilder result = new StringBuilder();
-
-      result.append(" ").append(this.getName());
-      result.append(" ").append(this.getStudentId());
-
-
-      return result.substring(1);
-   }
-
    public void removeYou()
    {
+      this.setAchievements(null);
       this.setSEGroup(null);
-
-      this.withoutAchievements(this.getAchievements().clone());
-
 
    }
 
@@ -154,83 +140,47 @@ public class SEStudent
    }
 
 
+   @Override
+   public String toString()
+   {
+      StringBuilder result = new StringBuilder();
 
-   public static final java.util.ArrayList<Achievement> EMPTY_achievements = new java.util.ArrayList<Achievement>()
-   { @Override public boolean add(Achievement value){ throw new UnsupportedOperationException("No direct add! Use xy.withAchievements(obj)"); }};
+      result.append(" ").append(this.getName());
+      result.append(" ").append(this.getStudentId());
 
+
+      return result.substring(1);
+   }
 
    public static final String PROPERTY_achievements = "achievements";
 
-   private java.util.ArrayList<Achievement> achievements = null;
+   private Achievement achievements = null;
 
-   public java.util.ArrayList<Achievement> getAchievements()
+   public Achievement getAchievements()
    {
-      if (this.achievements == null)
-      {
-         return EMPTY_achievements;
-      }
-
       return this.achievements;
    }
 
-   public SEStudent withAchievements(Object... value)
+   public SEStudent setAchievements(Achievement value)
    {
-      if(value==null) return this;
-      for (Object item : value)
+      if (this.achievements != value)
       {
-         if (item == null) continue;
-         if (item instanceof java.util.Collection)
+         Achievement oldValue = this.achievements;
+         if (this.achievements != null)
          {
-            for (Object i : (java.util.Collection) item)
-            {
-               this.withAchievements(i);
-            }
+            this.achievements = null;
+            oldValue.setSEStudent(null);
          }
-         else if (item instanceof Achievement)
+         this.achievements = value;
+         if (value != null)
          {
-            if (this.achievements == null)
-            {
-               this.achievements = new java.util.ArrayList<Achievement>();
-            }
-            if ( ! this.achievements.contains(item))
-            {
-               this.achievements.add((Achievement)item);
-               ((Achievement)item).setSEStudent(this);
-               firePropertyChange("achievements", null, item);
-            }
+            value.setSEStudent(this);
          }
-         else throw new IllegalArgumentException();
+         firePropertyChange("achievements", oldValue, value);
       }
       return this;
    }
 
-
-
-   public SEStudent withoutAchievements(Object... value)
-   {
-      if (this.achievements == null || value==null) return this;
-      for (Object item : value)
-      {
-         if (item == null) continue;
-         if (item instanceof java.util.Collection)
-         {
-            for (Object i : (java.util.Collection) item)
-            {
-               this.withoutAchievements(i);
-            }
-         }
-         else if (item instanceof Achievement)
-         {
-            if (this.achievements.contains(item))
-            {
-               this.achievements.remove((Achievement)item);
-               ((Achievement)item).setSEStudent(null);
-               firePropertyChange("achievements", item, null);
-            }
-         }
-      }
-      return this;
-   }
 
 
 }

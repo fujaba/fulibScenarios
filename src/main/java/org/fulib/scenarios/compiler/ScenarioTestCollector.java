@@ -15,10 +15,7 @@ import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.StringRenderer;
 
 import java.sql.Struct;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 public class ScenarioTestCollector extends FulibScenariosBaseListener
 {
@@ -31,7 +28,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    private LinkedHashMap<String, String> object2ClassMap;
    private String docDir;
    private LinkedHashMap<String, TreeSet<String>> attrValueExamplesMap;
-   private LinkedHashMap<String, String> currentAttrValueMap;
+   private LinkedHashMap<String, ArrayList<String>> currentAttrValueMap;
    private LinkedHashMap<String, String> methodParams;
 
    private String objectName;
@@ -47,6 +44,8 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    private Clazz currentRegisterClazz;
    private String attrType;
    private String sentenceType = null;
+   private String lastInvocation;
+   private int oldMethodBodyLength;
 
 
    public ScenarioTestCollector(LinkedHashMap<String, String> object2ClassMap, String docDir)
@@ -60,6 +59,11 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       em.setModelManager(mm);
 
       classModel = mm.getClassModel();
+   }
+
+
+   public void initMethodParams() {
+      this.methodParams = new LinkedHashMap<>();
    }
 
 
@@ -209,6 +213,9 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          className = StrUtil.cap(ctx.className.getText());
       }
 
+      mm.haveClass(className);
+      this.object2ClassMap.put(objectName, className);
+
       // objectCreate(className, objectName, settings)
       st.add("className", StrUtil.cap(className));
       st.add("objectName", objectName);
@@ -274,9 +281,9 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
       String actualParams = String.join(", ", this.methodParams.values());
 
-      String invocation = String.format("%s.%s(%s);\n", objectName, methodName, actualParams);
+      lastInvocation = String.format("%s.%s(%s);\n", objectName, methodName, actualParams);
 
-      this.methodBody.append(invocation);
+      this.methodBody.append(lastInvocation);
 
       String className = object2ClassMap.get(objectName);
       Clazz clazz = this.getModelManager().haveClass(className);
@@ -299,6 +306,8 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       }
    }
 
+
+
    @Override
    public void enterChainSentence(FulibScenariosParser.ChainSentenceContext ctx)
    {
@@ -309,6 +318,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    }
 
 
+
    @Override
    public void enterCreatePhrase(FulibScenariosParser.CreatePhraseContext ctx)
    {
@@ -316,30 +326,109 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       this.currentAttrValueMap = new LinkedHashMap<>();
    }
 
+
+
    @Override
    public void exitCreatePhrase(FulibScenariosParser.CreatePhraseContext ctx)
    {
       this.sentenceType = null;
       String className = StrUtil.cap(ctx.className.getText());
+      Clazz newClazz = this.getModelManager().haveClass(className);
+
       String objectId = this.attrValue;
 
       STGroupFile group = new STGroupFile("templates/junitTest.stg");
       group.registerRenderer(String.class, new StringRenderer());
-      ST st = group.getInstanceOf("objectCreate");
 
-      String newObjectName = this.currentAttrValueMap.values().iterator().next();
-      newObjectName = StrUtil.downFirstChar(newObjectName);
 
-      String inits = computeInitialization(newObjectName, className);
+      String attrName = this.currentAttrValueMap.keySet().iterator().next();
+      String value = this.currentAttrValueMap.get(attrName).get(0);
 
+      String newObjectName = StrUtil.downFirstChar(value);
       this.object2ClassMap.put(newObjectName, className);
 
-      // objectCreate(className, objectName, settings)
+      // create attrValueLists for attrs with lists of values
+      boolean thereAreLists = false;
+      String firstAttrName = null;
+      String indent = "";
+      ArrayList<String> firstValueList = null;
+      for (String attr : this.currentAttrValueMap.keySet())
+      {
+         ArrayList<String> valueList = this.currentAttrValueMap.get(attr);
+
+         if (firstAttrName == null)
+         {
+            firstAttrName = attr;
+            firstValueList = valueList;
+         }
+
+         if (valueList.size() > 1)
+         {
+            String listInit = String.format("      java.util.ArrayList<String> %sList = new java.util.ArrayList<String>();\n",
+                  attr);
+            for (String v : valueList)
+            {
+               String oneAdd = String.format("      %sList.add(\"%s\");\n",
+                     attr, v);
+               listInit += oneAdd;
+            }
+            listInit += "\n";
+            appendToCurrentMethodBody(listInit);
+            thereAreLists = true;
+
+         }
+      }
+
+      // if there are lists, create object list
+      if (thereAreLists)
+      {
+         String objList = String.format("      java.util.ArrayList<%s> %sList = new java.util.ArrayList<>();\n",
+               className, StrUtil.downFirstChar(className));
+         appendToCurrentMethodBody((objList));
+
+         // loop through list of object names
+         String forStmt = String.format("      for (int i = 0; i < %sList.size(); i++ ) {\n",
+               firstAttrName);
+         appendToCurrentMethodBody(forStmt);
+
+         newObjectName = StrUtil.downFirstChar(className) + "Tmp";
+         indent = "   ";
+      }
+
+      // create objects and
+      ST st = group.getInstanceOf("objectCreate");
       st.add("className", className);
       st.add("objectName", newObjectName);
-      st.add("settings", inits);
-      String result = "      " + st.render();
+      String result = indent + "      " + st.render();
 
+      // set attributes and
+      for (String attr : this.currentAttrValueMap.keySet())
+      {
+         ArrayList<String> valueList = this.currentAttrValueMap.get(attr);
+         String oneValue = valueList.get(0);
+         if (thereAreLists) {
+            oneValue = String.format("%sList.get(i)", attr);
+         }
+
+         String text = computeFullSetterCall(className, newClazz, newObjectName, attr, oneValue);
+
+         result += indent + text;
+      }
+
+      result += "\n";
+
+      // add to object list
+      if (thereAreLists) {
+         String stmt = String.format("         %sList.add(%sTmp);\n" +
+                     "      }\n\n",
+               StrUtil.downFirstChar(className), StrUtil.downFirstChar(className));
+         result += stmt;
+      }
+      appendToCurrentMethodBody(result);
+   }
+
+   private void appendToCurrentMethodBody(String result)
+   {
       String currentMethodBody = this.currentMethod.getMethodBody();
       currentMethodBody = (currentMethodBody == null ? "" : currentMethodBody);
       currentMethodBody += result;
@@ -347,6 +436,127 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    }
 
 
+   @Override
+   public void exitVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx)
+   {
+      String owner = ctx.targetName.getText();
+      owner = realValue(owner);
+      String realOwner = this.getParamName4Value(owner);
+
+      String attrName = ctx.attrName.getText();
+      String value = realValue(ctx.value.getText());
+
+      String setMethodName = setMethodName(owner, attrName, value);
+
+      String result = String.format("      %s.%s(%s);\n",
+            realOwner, setMethodName, value);
+
+      appendToCurrentMethodBody(result);
+      System.out.println();
+   }
+
+   private String setMethodName(String obj, String attrName, String value)
+   {
+      String objectType = this.object2ClassMap.get(obj);
+      Clazz objectClass = mm.haveClass(objectType);
+      String valueType = this.object2ClassMap.get(value);
+      Clazz valueClass = mm.haveClass(valueType);
+
+      AssocRole role = mm.haveRole(objectClass, attrName, valueClass, 1);
+
+      String prefix = "with";
+      if (role.getCardinality() == 1)
+      {
+         prefix = "set";
+      }
+      return prefix + StrUtil.cap(attrName);
+   }
+
+
+   private String realValue(String value)
+   {
+      String ownerId = StrUtil.downFirstChar(value);
+      if (this.object2ClassMap.get(ownerId) != null)
+      {
+         value = ownerId;
+      }
+      return value;
+   }
+
+   @Override
+   public void exitAnswerPhrase(FulibScenariosParser.AnswerPhraseContext ctx)
+   {
+      String returnValue = ctx.value.getText();
+      String returnValueId = StrUtil.downFirstChar(ctx.value.getText());
+
+      String resultType = this.object2ClassMap.get(returnValueId);
+      if (resultType != null)
+      {
+         returnValue = returnValueId;
+      }
+
+      String result = String.format("      return %s;\n", returnValue);
+
+      this.currentMethod.setReturnType(resultType);
+
+      appendToCurrentMethodBody(result);
+
+      String newCallStatement = String.format("%s %s = %s", resultType, returnValue, this.lastInvocation);
+
+      int pos = methodBody.lastIndexOf(this.lastInvocation);
+      methodBody.replace(pos, pos + this.lastInvocation.length(), newCallStatement);
+   }
+
+
+   @Override
+   public void enterThatPhrase(FulibScenariosParser.ThatPhraseContext ctx)
+   {
+      this.sentenceType = "thatPhrase";
+   }
+
+   @Override
+   public void enterNumberHasClause(FulibScenariosParser.NumberHasClauseContext ctx)
+   {
+      super.enterNumberHasClause(ctx);
+   }
+
+   @Override
+   public void exitThatPhrase(FulibScenariosParser.ThatPhraseContext ctx)
+   {
+      this.sentenceType = null;
+      String objectName = StrUtil.downFirstChar(ctx.objectName.getText());
+
+      if (ctx.hasPart instanceof FulibScenariosParser.UsualHasClauseContext)
+      {
+         FulibScenariosParser.UsualHasClauseContext hasCtx = (FulibScenariosParser.UsualHasClauseContext) ctx.hasPart;
+
+         String attrName = hasCtx.attrName.getText();
+
+         String objectType = this.object2ClassMap.get(objectName);
+         Clazz objectClass = mm.haveClass(objectType);
+         AssocRole role = objectClass.getRole(attrName);
+         String checkOp = "hasItem";
+         if (role == null || role.getCardinality() == 1)
+         {
+            checkOp = "equalTo";
+         }
+
+         String value = this.valueDataTextList.get(0);
+         value = realValue(value);
+         if (this.object2ClassMap.get(value) == null)
+         {
+            value = "\"" + value + "\"";
+         }
+
+         String result = String.format("assertThat(%s.get%s(), %s(%s));\n",
+               objectName, StrUtil.cap(attrName), checkOp, value);
+
+         methodBody.append(result);
+         references.setLength(0);
+
+         System.out.println();
+      }
+   }
 
    @Override
    public void enterUsualWithClause(FulibScenariosParser.UsualWithClauseContext ctx)
@@ -398,10 +608,22 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       else if (sentenceType.equals(VERB_PHRASE))
       {
          String attrName = this.attrName;
-         String value = this.valueDataNameList.get(0);
-         if (this.object2ClassMap.get(value) == null) value = this.valueDataTextList.get(0);
+         ArrayList<String> valueList = new ArrayList<>();
+         for (int i = 0; i < this.valueDataNameList.size(); i++)
+         {
+            String value = this.valueDataNameList.get(i);
 
-         this.currentAttrValueMap.put(attrName, value);
+            if (this.object2ClassMap.get(value) == null)
+            {
+               valueList.add(this.valueDataTextList.get(i));
+            }
+            else
+            {
+               valueList.add(value);
+            }
+         }
+         this.currentAttrValueMap.put(attrName, valueList);
+
       }
       else
       {
@@ -420,6 +642,64 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          }
       }
    }
+
+
+
+   private String computeFullSetterCall(String className, Clazz newClazz, String newObjectName, String attr, String newValue)
+   {
+      String result = "";
+      String newParam = getParamName4Value(newValue);
+
+      STGroupFile group = new STGroupFile("templates/junitTest.stg");
+      group.registerRenderer(String.class, new StringRenderer());
+
+      if ( this.object2ClassMap.get(newValue) != null)
+      {
+         // build role
+         String tgtClassName = object2ClassMap.get(newValue);
+         Clazz tgtClass = mm.haveClass(tgtClassName);
+         AssocRole role = mm.haveRole(newClazz, attr, tgtClass, 1);
+
+         String stmt = "      " + newObjectName + ".";
+
+         if (role.getCardinality() == 1)
+         {
+            stmt += "set";
+         }
+         else
+         {
+            stmt += "with";
+         }
+
+         stmt += StrUtil.cap(attr);
+         stmt += "(" + newParam + ");\n";
+
+         result += stmt;
+      }
+      else
+      {
+         mm.haveAttribute(newClazz, attr, ClassModelBuilder.STRING);
+
+         String actualParam = newParam;
+         if (newParam.equals(newValue) && newValue.indexOf(".") < 0)
+         {
+            actualParam = "\"" + newValue + "\"";
+         }
+         ST st = group.getInstanceOf("fullSetting");
+         st.add("objectName", newObjectName);
+         st.add("attrName", StrUtil.cap(attr));
+         st.add("attrValue", actualParam);
+         String text = st.render();
+
+         addAttrValueExample(className, attr, newValue);
+
+         result += text;
+      }
+
+      return result;
+   }
+
+
 
    private void computeSettings()
    {
@@ -466,6 +746,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          for (String name : valueDataNameList)
          {
             stmt += name + ", ";
+            addAttrValueExample(srcClassName, attrName, name);
          }
 
          stmt = stmt.substring(0, stmt.length()-2);
@@ -479,102 +760,109 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          mm.haveAttribute(clazz, attrName, ClassModelBuilder.STRING);
 
          st.add("attrName", StrUtil.cap(attrName));
-         st.add("attrValue", "\"" + valueDataTextList.get(0) + "\"");
+         String value = valueDataTextList.get(0);
+         st.add("attrValue", "\"" + value + "\"");
          String result = st.render();
 
-         String key = className + "." + attrName;
-         TreeSet<String> exampleSet = attrValueExamplesMap.get(key);
-         if (exampleSet == null)
-         {
-            exampleSet = new TreeSet<>();
-            attrValueExamplesMap.put(key, exampleSet);
-         }
-         exampleSet.add(valueDataTextList.get(0));
+         addAttrValueExample(className, attrName, value);
 
          settings.append(result);
       }
    }
 
-
-
-   private String computeInitialization(String objectName, String className)
+   private void addAttrValueExample(String className, String attrName, String value)
    {
-      String result = "";
+      String key = className + "." + attrName;
+      TreeSet<String> exampleSet = attrValueExamplesMap.get(key);
+      if (exampleSet == null)
+      {
+         exampleSet = new TreeSet<>();
+         attrValueExamplesMap.put(key, exampleSet);
+      }
+      exampleSet.add(value);
+   }
 
+
+   private ArrayList<String> computeInitialization(String objectName, String className)
+   {
       STGroupFile group = new STGroupFile("templates/junitTest.stg");
       group.registerRenderer(String.class, new StringRenderer());
-      ST st = group.getInstanceOf("setting");
+
 
       Clazz newClazz = this.getModelManager().haveClass(className);
 
-      for (Map.Entry<String, String> entry : this.currentAttrValueMap.entrySet())
+      ArrayList<String> resultList = new ArrayList<>();
+
+      for (Map.Entry<String, ArrayList<String>> entry : this.currentAttrValueMap.entrySet())
       {
          String key = entry.getKey();
-         String value = entry.getValue();
-         String valueId = StrUtil.downFirstChar(value);
-         String paramValue = getParamValue(value);
+         ArrayList<String> valueList = entry.getValue();
+         ArrayList<String> valueIdList = new ArrayList<>();
+         for (String v : valueList) {
+            valueIdList.add(StrUtil.downFirstChar(v));
+         }
+         ArrayList<String> paramValueList = new ArrayList<>();
+         for (String v : valueList) {
+            paramValueList.add(getParamName4Value(v));
+         }
 
-
-         if ( ! valueId.equals(objectName) && this.object2ClassMap.get(valueId) != null)
+         for (int i = 0; i < valueList.size(); i++)
          {
-            // build role
-            String tgtClassName = object2ClassMap.get(valueId);
-            Clazz tgtClass = mm.haveClass(tgtClassName);
-            AssocRole role = mm.haveRole(newClazz, attrName, tgtClass, valueDataNameList.size());
-
-            String stmt = "\n         .";
-
-            if (role.getCardinality() == 1)
+            String result = "";
+            String valueId = valueIdList.get(i);
+            String value = valueList.get(i);
+            if ( ! valueId.equals(objectName) && this.object2ClassMap.get(valueId) != null)
             {
-               stmt += "set";
+               // build role
+               String tgtClassName = object2ClassMap.get(valueId);
+               Clazz tgtClass = mm.haveClass(tgtClassName);
+               AssocRole role = mm.haveRole(newClazz, key, tgtClass, valueDataNameList.size());
+
+               String stmt = "\n         .";
+
+               if (role.getCardinality() == 1)
+               {
+                  stmt += "set";
+               }
+               else
+               {
+                  stmt += "with";
+               }
+
+               stmt += StrUtil.cap(key);
+               stmt += "(";
+
+               String param = getParamName4Value(valueId);
+               addAttrValueExample(className, key, valueId);
+
+               stmt += param;
+               stmt += ")";
+
+               result += stmt;
             }
             else
             {
-               stmt += "with";
+               mm.haveAttribute(newClazz, key, ClassModelBuilder.STRING);
+
+               ST st = group.getInstanceOf("setting");
+               st.add("attrName", StrUtil.cap(key));
+               st.add("attrValue", "\"" + value + "\"");
+               String text = st.render();
+
+               addAttrValueExample(className, key, value);
+
+               result += text;
             }
-
-            stmt += StrUtil.cap(attrName);
-            stmt += "(";
-
-            for (String name : valueDataNameList)
-            {
-               String param = getParamValue(name);
-               stmt += param + ", ";
-            }
-
-            stmt = stmt.substring(0, stmt.length()-2);
-
-            stmt += ")";
-
-            result += stmt;
-         }
-         else
-         {
-            mm.haveAttribute(newClazz, key, ClassModelBuilder.STRING);
-
-            st.add("attrName", StrUtil.cap(key));
-            st.add("attrValue", "\"" + value + "\"");
-            String text = st.render();
-
-            String newKey = className + "." + key;
-            TreeSet<String> exampleSet = attrValueExamplesMap.get(newKey);
-            if (exampleSet == null)
-            {
-               exampleSet = new TreeSet<>();
-               attrValueExamplesMap.put(newKey, exampleSet);
-            }
-            exampleSet.add(value);
-
-            result += text;
+            resultList.add(result);
          }
       }
 
-      return result;
+      return resultList;
    }
 
 
 
-   private String getParamValue(String value)
+   private String getParamName4Value(String value)
    {
       String result = value;
       for (Map.Entry<String, String> entry : this.getMethodParams().entrySet())
@@ -595,7 +883,10 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    @Override
    public void exitUsualHasClause(FulibScenariosParser.UsualHasClauseContext ctx)
    {
-      computeSettings();
+      if (sentenceType == null)
+      {
+         computeSettings();
+      }
    }
 
 
@@ -619,14 +910,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       st.add("attrValue", value);
       String result = st.render();
 
-      String key = className + "." + attrName;
-      TreeSet<String> exampleSet = attrValueExamplesMap.get(key);
-      if (exampleSet == null)
-      {
-         exampleSet = new TreeSet<>();
-         attrValueExamplesMap.put(key, exampleSet);
-      }
-      exampleSet.add(value);
+      addAttrValueExample(className, attrName, value);
 
       settings.append(result);
    }
@@ -800,7 +1084,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       return result;
    }
 
-   
+
    private String getMultiValue(FulibScenariosParser.ValueClauseContext valueContext)
    {
       String result = "";

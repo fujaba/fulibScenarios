@@ -23,8 +23,8 @@ attribute(name, examples) ::=
 
 >>
 
-role(name, card, tgtClass, reverseName) ::=
+role(name, card, tgtClass, reverseName, examples) ::=
 <<
- + <name> <card> <tgtClass><if (reverseName)> cf. <reverseName><endif>
+ + <name> <card> <tgtClass><if (reverseName)> cf. <reverseName><endif> e.g. <examples>
 
 >>

@@ -6,7 +6,7 @@ scenario: '#'+ 'Scenario' any+ '.' sentence*
           ;
 
 sentence: thereSentence | directSentence | chainSentence | hasSentence | diagramSentence
-        | callSentence;
+        | callSentence | expectSentence;
 
 callSentence: caller=NAME CALL methodName=NAME 'on' objectName=NAME withClause* '.';
 
@@ -16,13 +16,17 @@ multiName: NAME+;
 
 chainSentence: methodName=NAME predicateObjectPhrase ('and' 'it' predicateObjectPhrase)* '.'  ;
 
-predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase ;
+predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase;
 
-createPhrase: 'creates' A? className=NAME withClause* ;
+createPhrase: ('create' | 'creates') A? className=NAME ('cards'|'card')? withClause* ;
 
 verbPhrase: ('adds'|'puts'|'reads') A? value=valueData ('to'|'into'|'from') A? attrName=NAME 'of' A? targetName=NAME ;
 
 answerPhrase: 'answers' ('with'|':')? value=valueData;
+
+expectSentence: A? caller=NAME 'expect' thatPhrase+ '.';
+
+thatPhrase: 'that' objectName=multiName hasPart=hasClause;
 
 directSentence: objectName=multiName 'is' A? className=multiName withClause*;
 
@@ -58,7 +62,7 @@ exampleValue: (nameValue=NAME | numberValue=NUMBER) ','? ;
 
 attrDef: '+' attrName=NAME 'e.g.' exampleValue*;
 
-roleDef: '+' roleName=NAME card=cardDef className=NAME ('cf.' (otherClassName=NAME '.')? otherRoleName=NAME)?;
+roleDef: '+' roleName=NAME card=cardDef className=NAME ('cf.' (otherClassName=NAME '.')? otherRoleName=NAME)? ('e.g.' exampleValue*)?;
 
 cardDef: 'one' | 'many' ;
 

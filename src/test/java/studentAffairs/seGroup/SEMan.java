@@ -95,10 +95,13 @@ public class SEMan
    }
 
 
-   public void registerStudent(SEStudent student, SEClass seClass){ 
-      Achievement a1 = new Achievement()
-         .setId("A1")
-         .setSEStudent(student);
+   public Achievement registerStudent(SEStudent student, SEClass seClass){ 
+      Achievement a2 = new Achievement();
+      a2.setId("A2");
+      a2.setSEStudent(student);
+      a2.setState("registered");
 
+      seClass.setAchievements(a2);
+      return a2;
    }
 }

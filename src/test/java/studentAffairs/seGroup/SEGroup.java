@@ -114,17 +114,6 @@ public class SEGroup
       return this;
    }
 
-   @Override
-   public String toString()
-   {
-      StringBuilder result = new StringBuilder();
-
-      result.append(" ").append(this.getHead());
-
-
-      return result.substring(1);
-   }
-
 
    public static final java.util.ArrayList<SEClass> EMPTY_classes = new java.util.ArrayList<SEClass>()
    { @Override public boolean add(SEClass value){ throw new UnsupportedOperationException("No direct add! Use xy.withClasses(obj)"); }};
@@ -312,5 +301,41 @@ public class SEGroup
    }
 
 
+   @Override
+   public String toString()
+   {
+      StringBuilder result = new StringBuilder();
 
+      result.append(" ").append(this.getHead());
+
+
+      return result.substring(1);
+   }
+   public void init(){ 
+      java.util.ArrayList<String> nameList = new java.util.ArrayList<String>();
+      nameList.add("Alice");
+      nameList.add("Bob");
+      nameList.add("Carli");
+      nameList.add("Chris Robin");
+
+      java.util.ArrayList<String> studentIdList = new java.util.ArrayList<String>();
+      studentIdList.add("m42");
+      studentIdList.add("m23");
+      studentIdList.add("m84");
+      studentIdList.add("m1337");
+
+      java.util.ArrayList<SEStudent> sEStudentList = new java.util.ArrayList<>();
+      for (int i = 0; i < nameList.size(); i++ ) {
+         SEStudent sEStudentTmp = new SEStudent();
+         sEStudentTmp.setName(nameList.get(i));
+         sEStudentTmp.setStudentId(studentIdList.get(i));
+
+         sEStudentList.add(sEStudentTmp);
+      }
+
+      SEStudent ali = new SEStudent();
+      ali.setName("Ali");
+      ali.setStudentId("m20");
+
+   }
 }

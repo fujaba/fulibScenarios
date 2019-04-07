@@ -136,6 +136,30 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExpectSentence(FulibScenariosParser.ExpectSentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpectSentence(FulibScenariosParser.ExpectSentenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterThatPhrase(FulibScenariosParser.ThatPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitThatPhrase(FulibScenariosParser.ThatPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDirectSentence(FulibScenariosParser.DirectSentenceContext ctx) { }
 	/**
 	 * {@inheritDoc}

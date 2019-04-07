@@ -3,6 +3,8 @@ junitTest(packageName, testClassName, testMethodName, methodBody) ::=
 <<
 package <packageName>;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
 import org.fulib.FulibTools;
 import org.junit.Test;
 
@@ -23,8 +25,15 @@ objectCreate(className, objectName, settings) ::=
 <<
 <className> <objectName> = new <className>()<settings>;
 
+>>
+
+
+fullSetting(objectName, attrName, attrValue) ::=
+<<
+      <objectName>.set<attrName>(<attrValue>);
 
 >>
+
 
 setting(attrName, attrValue) ::=
 <<

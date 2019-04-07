@@ -108,6 +108,26 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 */
 	void exitAnswerPhrase(FulibScenariosParser.AnswerPhraseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#expectSentence}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpectSentence(FulibScenariosParser.ExpectSentenceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#expectSentence}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpectSentence(FulibScenariosParser.ExpectSentenceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#thatPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterThatPhrase(FulibScenariosParser.ThatPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#thatPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitThatPhrase(FulibScenariosParser.ThatPhraseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#directSentence}.
 	 * @param ctx the parse tree
 	 */
