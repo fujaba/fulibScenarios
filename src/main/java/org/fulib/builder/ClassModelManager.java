@@ -204,7 +204,7 @@ public class ClassModelManager implements IModelManager
          ClassModelBuilder.checkValidJavaId(attrName);
          if (clazz.getAttribute(attrName) != null
                || clazz.getRole(attrName) != null)
-            throw new IllegalArgumentException("duplicate attribute / role name");
+            throw new IllegalArgumentException("duplicate attribute / role name: " + attrName);
 
          attr = new Attribute();
          attr.setName(attrName);

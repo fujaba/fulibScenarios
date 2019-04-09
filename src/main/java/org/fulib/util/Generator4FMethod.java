@@ -22,9 +22,13 @@ public class Generator4FMethod
       FileFragmentMap fragmentMap = Parser.parse(classFileName);
 
       String signature = method.getSignature();
+      String methodBody = method.getMethodBody();
+      if (methodBody == null) {
+         methodBody = "      // hello world\n";
+      }
       String newText = "   " + method.getDeclaration() +
             "{ \n" +
-            method.getMethodBody() +
+            methodBody +
             "   }";
 
       fragmentMap.add(signature, newText, 2);

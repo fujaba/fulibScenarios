@@ -1,24 +1,28 @@
 
 # Register
 
-Assignment e.g. partyAppScenarios, 
- + topic e.g. Composite, PartyApp Scenarios, 
- + points e.g. 12, 10, 
- + seClass one SEClass cf. sEClass
+Assignment e.g. integrals, 
+ + room one Room cf. assignment e.g. math
 
 
-SEClass e.g. modeling, pattern, 
- + topic e.g. OO Modeling, design pattern, design pattern, 
- + start e.g. 2019 -4, 2019 -4, 2019 -4, 2019 -4, 
- + sEClass one Assignment cf. seClass
- + topic one SEClass cf. sEClass
+Room e.g. math, 
+ + topic e.g. math
+ + credits e.g. 23
+ + assignment one Assignment cf. room e.g. 
+ + students one Student cf. room e.g. carli
 
 
-SEGroup e.g. sEGroup, 
+Student e.g. carli, 
+ + name e.g. carli
+ + credits e.g. 0
+ + motivation e.g. 65
+ + room one Room cf. students e.g. 
+ + uni one StudyRight cf. student e.g. studyRight
 
-SEStudent e.g. alice, bob, 
- + name e.g. Alice, Bob, Alice, Bob, 
- + studentId e.g. m42, m23, 
+
+StudyRight e.g. studyRight, 
+ + credits e.g. 23
+ + student one Student cf. uni e.g. 
 
 
 

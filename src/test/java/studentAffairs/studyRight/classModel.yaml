@@ -1,0 +1,7 @@
+- c1: 	ClassModel
+  defaultPropertyStyle: 	POJO
+  defaultRoleType: 	"java.util.ArrayList<%s>"
+  mainJavaDir: 	"src/test/java"
+  packageName: 	studentAffairs.studyRight
+  packageSrcFolder: 	"src/test/java/studentAffairs/studyRight"
+

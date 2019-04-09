@@ -19,7 +19,7 @@ public class ScenarioObjectCollector extends FulibScenariosBaseListener
 
    private String objectName;
    private String className;
-   private ArrayList<String> objectNamesList;
+   private ArrayList<String> objectNamesList = new ArrayList<>();
 
    @Override
    public void enterDirectSentence(FulibScenariosParser.DirectSentenceContext ctx)

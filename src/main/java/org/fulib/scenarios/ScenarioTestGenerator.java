@@ -27,15 +27,17 @@ public class ScenarioTestGenerator
    public static void main(String[] args)
    {
       // parse register
-      generateScenarios("doc/studentAffairs/seGroup");
+      generateScenarios("doc/studyRight");
    }
 
    private static void generateScenarios(String docDir)
    {
-      FulibScenariosParser.ScenarioContext registerContext = parse(docDir + "/Register.md");
-
       ScenarioTestCollector myScenarioListener = new ScenarioTestCollector(new LinkedHashMap<>(), docDir);
-      ParseTreeWalker.DEFAULT.walk(myScenarioListener, registerContext);
+
+      if (Files.exists(Paths.get(docDir + "/Register.md"))) {
+         FulibScenariosParser.ScenarioContext registerContext = parse(docDir + "/Register.md");
+         ParseTreeWalker.DEFAULT.walk(myScenarioListener, registerContext);
+      }
 
       // parse scenarios
       try

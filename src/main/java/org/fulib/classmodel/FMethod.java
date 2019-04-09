@@ -224,6 +224,7 @@ public class FMethod
 
    public String getSignature()
    {
+      this.getParams().remove("this");
       String paramTypes = String.join(",", this.getParams().values());
       String result = String.format(Parser.METHOD + ":%s(%s)",
             this.getName(),

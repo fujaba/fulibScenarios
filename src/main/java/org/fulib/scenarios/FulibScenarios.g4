@@ -20,9 +20,10 @@ predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase;
 
 createPhrase: ('create' | 'creates') A? className=NAME ('cards'|'card')? withClause* ;
 
-verbPhrase: ('adds'|'puts'|'reads') A? value=valueData ('to'|'into'|'from') A? attrName=NAME 'of' A? targetName=NAME ;
+verbPhrase: ('adds'|'puts'|'reads'|'writes') A? value=valueClause ('from' A? fromAttrName=NAME ('of' A? fromObjName=NAME)? )?
+                (('to'|'into') toAttrName=NAME ('of' A? toObjName=NAME)? )? ;
 
-answerPhrase: 'answers' ('with'|':')? value=valueData;
+answerPhrase: 'answers' ('with'|':')? value=valueClause;
 
 expectSentence: A? caller=NAME 'expect' thatPhrase+ '.';
 
