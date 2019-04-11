@@ -209,8 +209,9 @@ public class Student
 
    public void work(){ 
       double pointSum = 0;
-      // if () {}
-      pointSum = 42;
+      if (pointSum <= 23) {
+         pointSum = 42;
+      }
       Room room = this.getRoom();
       double credits = room.getCredits();
       java.util.ArrayList<Assignment> tasks = room.getAssignments();

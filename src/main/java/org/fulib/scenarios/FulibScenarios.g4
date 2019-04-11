@@ -20,7 +20,9 @@ introPhrase: onPhrase | loopClause | asPhrase;
 onPhrase: 'On' any+ ',';
 loopClause: 'One' 'by' 'one' ','? ;
 
-asPhrase: 'As' data1=valueClause cmp=cmpOp data2=valueClause ',';
+asPhrase: 'As' A? value1=valueClause ('from' A? fromAttrName1=NAME ('of' A? fromObjName1=NAME)? )?
+            cmp=cmpOp
+           A? value2=valueClause ('from' A? fromAttrName2=NAME ('of' A? fromObjName2=NAME)? )? ',';
 
 cmpOp: greaterEqual | lessThan;
 

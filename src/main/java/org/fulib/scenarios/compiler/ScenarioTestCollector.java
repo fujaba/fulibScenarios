@@ -63,6 +63,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    private int oldMethodBodyLength;
    private FulibScenariosParser.LoopClauseContext loopIntro;
    private String indent = "";
+   private String statementClosing = "";
 
 
    public ScenarioTestCollector(LinkedHashMap<String, String> object2ClassMap, String docDir)
@@ -500,9 +501,50 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    @Override
    public void exitAsPhrase(FulibScenariosParser.AsPhraseContext ctx)
    {
-      String result = "      // if () {}\n";
+      LinkedHashMap<String,String> map1 = new LinkedHashMap<>();
 
+      String fromAttrName1 = null;
+      if (ctx.fromAttrName1 != null) {
+         fromAttrName1 = ctx.fromAttrName1.getText();
+         map1.put(FROM_ATTR_NAME, fromAttrName1);
+      }
 
+      String fromObjName1 = null;
+      if (ctx.fromObjName1 != null) {
+         fromObjName1 = StrUtil.downFirstChar(ctx.fromObjName1.getText());
+         map1.put(FROM_OBJ_NAME, fromObjName1);
+      }
+
+      String firstValue = generateRightHandValue(map1, previousValueDataNameList, previousValueDataTextList);
+      firstValue = firstValue.substring(0, firstValue.length()-1);
+
+      LinkedHashMap<String,String> map2 = new LinkedHashMap<>();
+      String fromAttrName2 = null;
+      if (ctx.fromAttrName2 != null) {
+         fromAttrName2 = ctx.fromAttrName2.getText();
+         map2.put(FROM_ATTR_NAME, fromAttrName2);
+      }
+
+      String cmpOp = "==";
+      String text = ctx.cmp.getText();
+      if (text.equals("greaterequal")) {
+         cmpOp = ">=";
+      }
+
+      String fromObjName2 = null;
+      if (ctx.fromObjName2 != null) {
+         fromObjName2 = StrUtil.downFirstChar(ctx.fromObjName2.getText());
+         map2.put(FROM_OBJ_NAME, fromObjName2);
+      }
+
+      String secondValue = generateRightHandValue(map2, valueDataNameList, valueDataTextList);
+      secondValue = secondValue.substring(0, secondValue.length()-1);
+
+      String result = String.format("      if (%s <= %s) {\n",
+            firstValue, secondValue);
+
+      this.indent = "   ";
+      this.statementClosing = "      }\n";
 
       appendToCurrentMethodBody(result);
    }
@@ -512,22 +554,10 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    {
       LinkedHashMap<String,String> map = new LinkedHashMap<>();
 
-      String toObjName = null;
-      if (ctx.toObjName != null) {
-         toObjName = ctx.toObjName.getText();
-         map.put(TO_OBJ_NAME, toObjName);
-      }
-
       String fromAttrName = null;
       if (ctx.fromAttrName != null) {
          fromAttrName = ctx.fromAttrName.getText();
          map.put(FROM_ATTR_NAME, fromAttrName);
-      }
-
-      String toAttrName = null;
-      if (ctx.toAttrName != null) {
-         toAttrName = ctx.toAttrName.getText();
-         map.put(TO_ATTR_NAME, toAttrName);
       }
 
       String fromObjName = null;
@@ -536,8 +566,20 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          map.put(FROM_OBJ_NAME, fromObjName);
       }
 
+      String toAttrName = null;
+      if (ctx.toAttrName != null) {
+         toAttrName = ctx.toAttrName.getText();
+         map.put(TO_ATTR_NAME, toAttrName);
+      }
+
+      String toObjName = null;
+      if (ctx.toObjName != null) {
+         toObjName = ctx.toObjName.getText();
+         map.put(TO_OBJ_NAME, toObjName);
+      }
+
       // do all the reading.
-      String rightHandValue = generateRightHandValue(map);
+      String rightHandValue = generateRightHandValue(map, this.valueDataNameList, this.valueDataTextList);
 
       String fromClassName = map.get(FROM_CLASS_NAME);
       boolean valueClassIsAttrType = map.get(VALUE_CLASS_IS_ATTR_TYPE) != null;
@@ -601,16 +643,23 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          this.indent = "   ";
       }
 
+      result += this.statementClosing;
+      if ( ! this.statementClosing.equals("")) {
+         this.indent = "";
+      }
+      this.statementClosing = "";
 
       appendToCurrentMethodBody(result);
       System.out.println();
    }
 
 
-   private String generateRightHandValue(LinkedHashMap<String, String> map) {
+   private String generateRightHandValue(LinkedHashMap<String, String> map,
+                                         ArrayList<String> myValueDataNameList,
+                                         ArrayList<String> myValueDataTextList) {
       // value target = value read
       String leftHandSetter = "?";
-      String valueName = this.valueDataNameList.get(0);
+      String valueName = myValueDataNameList.get(0);
       String rangeStart = null;
       String rangeEnd = null;
       String fromListName = null;
@@ -650,7 +699,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          valueClassIsDouble = valueClassName.equals(ClassModelBuilder.DOUBLE);
       }
 
-      if (isList(this.valueDataNameList)) {
+      if (isList(myValueDataNameList)) {
          valueClassName = String.format("java.util.ArrayList<%s>", StrUtil.cap(valueClassName));
       }
 
@@ -678,17 +727,21 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
       map.put(NEW_VAR_NAME, newVarName);
 
-      String rightHandValue = "\"" + this.valueDataTextList.get(0) + "\"" + ";";
+      String rightHandValue = "\"" + myValueDataTextList.get(0) + "\"" + ";";
       if (valueClassIsDouble) {
          rightHandValue = valueName + ";";
       }
 
-      if (isList(this.valueDataNameList)) {
+      if (fromAttrName != null) {
+         rightHandValue = fromAttrName + ";";
+      }
+
+      if (isList(myValueDataNameList)) {
          // assign new ArrayList and than all elements.
          rightHandValue = "new java.util.ArrayList<>();\n";
 
          String cast = (valueClassIsDouble ? "(double) " : "");
-         for (String v : this.valueDataTextList) {
+         for (String v : myValueDataTextList) {
             String nextAdd = String.format("      %s.add(%s%s);\n",
                   newVarName, cast, v);
 

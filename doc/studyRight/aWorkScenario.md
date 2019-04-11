@@ -10,7 +10,7 @@ We call work on Carli.
 
 Work writes 0 into pointSum.
 
-As credits pointSum is less than 23, work reads 42 into pointSum.
+As 0 from pointSum is less than 23, work reads 42 into pointSum.
 
 Work reads math from room of Carli. 
 Work reads 23 from credits of math.
