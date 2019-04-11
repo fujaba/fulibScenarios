@@ -88,6 +88,90 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIntroPhrase(FulibScenariosParser.IntroPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIntroPhrase(FulibScenariosParser.IntroPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOnPhrase(FulibScenariosParser.OnPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOnPhrase(FulibScenariosParser.OnPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLoopClause(FulibScenariosParser.LoopClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLoopClause(FulibScenariosParser.LoopClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAsPhrase(FulibScenariosParser.AsPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAsPhrase(FulibScenariosParser.AsPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCmpOp(FulibScenariosParser.CmpOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCmpOp(FulibScenariosParser.CmpOpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGreaterEqual(FulibScenariosParser.GreaterEqualContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGreaterEqual(FulibScenariosParser.GreaterEqualContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLessThan(FulibScenariosParser.LessThanContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLessThan(FulibScenariosParser.LessThanContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -95,6 +179,18 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStopPhrase(FulibScenariosParser.StopPhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStopPhrase(FulibScenariosParser.StopPhraseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -251,6 +347,18 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitValueClause(FulibScenariosParser.ValueClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRangeClause(FulibScenariosParser.RangeClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRangeClause(FulibScenariosParser.RangeClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

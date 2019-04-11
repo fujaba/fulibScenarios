@@ -63,8 +63,10 @@ public class Room
 
    public void removeYou()
    {
-      this.setAssignment(null);
       this.setStudents(null);
+
+      this.withoutAssignments(this.getAssignments().clone());
+
 
    }
 
@@ -124,37 +126,6 @@ public class Room
       return this;
    }
 
-
-
-   public static final String PROPERTY_assignment = "assignment";
-
-   private Assignment assignment = null;
-
-   public Assignment getAssignment()
-   {
-      return this.assignment;
-   }
-
-   public Room setAssignment(Assignment value)
-   {
-      if (this.assignment != value)
-      {
-         Assignment oldValue = this.assignment;
-         if (this.assignment != null)
-         {
-            this.assignment = null;
-            oldValue.setRoom(null);
-         }
-         this.assignment = value;
-         if (value != null)
-         {
-            value.setRoom(this);
-         }
-         firePropertyChange("assignment", oldValue, value);
-      }
-      return this;
-   }
-
    public static final String PROPERTY_credits = "credits";
 
    private double credits;
@@ -186,5 +157,83 @@ public class Room
 
       return result.substring(1);
    }
+
+   public static final java.util.ArrayList<Assignment> EMPTY_assignments = new java.util.ArrayList<Assignment>()
+   { @Override public boolean add(Assignment value){ throw new UnsupportedOperationException("No direct add! Use xy.withAssignments(obj)"); }};
+
+
+   public static final String PROPERTY_assignments = "assignments";
+
+   private java.util.ArrayList<Assignment> assignments = null;
+
+   public java.util.ArrayList<Assignment> getAssignments()
+   {
+      if (this.assignments == null)
+      {
+         return EMPTY_assignments;
+      }
+
+      return this.assignments;
+   }
+
+   public Room withAssignments(Object... value)
+   {
+      if(value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withAssignments(i);
+            }
+         }
+         else if (item instanceof Assignment)
+         {
+            if (this.assignments == null)
+            {
+               this.assignments = new java.util.ArrayList<Assignment>();
+            }
+            if ( ! this.assignments.contains(item))
+            {
+               this.assignments.add((Assignment)item);
+               ((Assignment)item).setRoom(this);
+               firePropertyChange("assignments", null, item);
+            }
+         }
+         else throw new IllegalArgumentException();
+      }
+      return this;
+   }
+
+
+
+   public Room withoutAssignments(Object... value)
+   {
+      if (this.assignments == null || value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withoutAssignments(i);
+            }
+         }
+         else if (item instanceof Assignment)
+         {
+            if (this.assignments.contains(item))
+            {
+               this.assignments.remove((Assignment)item);
+               ((Assignment)item).setRoom(null);
+               firePropertyChange("assignments", item, null);
+            }
+         }
+      }
+      return this;
+   }
+
 
 }

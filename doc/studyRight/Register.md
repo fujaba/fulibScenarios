@@ -1,14 +1,14 @@
 
 # Register
 
-Assignment e.g. integrals, 
- + room one Room cf. assignment e.g. math
+Assignment e.g. tasks_i, integrals, series, matrices, 
+ + room one Room cf. assignments e.g. math
 
 
-Room e.g. math, 
+Room e.g. room, math, 
  + topic e.g. math
  + credits e.g. 23
- + assignment one Assignment cf. room e.g. 
+ + assignments many Assignment cf. room e.g. 
  + students one Student cf. room e.g. carli
 
 

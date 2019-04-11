@@ -14,13 +14,27 @@ thereSentence: 'There' 'is' A? objectName=multiName? (A className=multiName with
 
 multiName: NAME+;
 
-chainSentence: methodName=NAME predicateObjectPhrase ('and' 'it' predicateObjectPhrase)* '.'  ;
+chainSentence: loopIntro=introPhrase? methodName=NAME predicateObjectPhrase ('and' 'it' predicateObjectPhrase)* '.'  ;
 
-predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase;
+introPhrase: onPhrase | loopClause | asPhrase;
+onPhrase: 'On' any+ ',';
+loopClause: 'One' 'by' 'one' ','? ;
+
+asPhrase: 'As' data1=valueClause cmp=cmpOp data2=valueClause ',';
+
+cmpOp: greaterEqual | lessThan;
+
+greaterEqual: 'is' 'greater' 'equal';
+lessThan: 'is' 'less' 'than';
+
+
+predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase | stopPhrase;
+
+stopPhrase: 'stops' 'reading' loopName=NAME;
 
 createPhrase: ('create' | 'creates') A? className=NAME ('cards'|'card')? withClause* ;
 
-verbPhrase: ('adds'|'puts'|'reads'|'writes') A? value=valueClause ('from' A? fromAttrName=NAME ('of' A? fromObjName=NAME)? )?
+verbPhrase: verb=('adds'|'puts'|'reads'|'writes') A? value=valueClause ('from' A? fromAttrName=NAME ('of' A? fromObjName=NAME)? )?
                 (('to'|'into') toAttrName=NAME ('of' A? toObjName=NAME)? )? ;
 
 answerPhrase: 'answers' ('with'|':')? value=valueClause;
@@ -43,7 +57,9 @@ withClause:   'with'?  attrName=NAME  attrValue=valueClause # UsualWithClause
             | 'with' value= NUMBER  attrName=multiName ','? 'and'? # NumberWithClause
             ;
 
-valueClause: (A? valueData ','? 'and'?)+;
+valueClause: (rangeClause ','? 'and'?)+;
+
+rangeClause: A? firstData=valueData ('to' A? secondData=valueData)?;
 
 valueData: (NAME | NUMBER)+;
 
@@ -78,6 +94,6 @@ NUMBER: '-'?[0-9]+ ('.' [0-9]+)?;
 
 
 WS:                 [ \t\r\n\u000C]+ -> channel(HIDDEN);
-COMMENT:            '/*' .*? '*/'    -> channel(HIDDEN);
+COMMENT:            '<!--' .*? '-->'    -> channel(HIDDEN);
 LINE_COMMENT:       '//' ~[\r\n]*    -> channel(HIDDEN);
 

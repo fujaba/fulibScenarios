@@ -17,10 +17,21 @@ import org.stringtemplate.v4.StringRenderer;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ScenarioTestCollector extends FulibScenariosBaseListener
 {
    public static final String VERB_PHRASE = "verbPhrase";
+   public static final String TO_OBJ_NAME = "toObjName";
+   public static final String FROM_ATTR_NAME = "fromAttrName";
+   public static final String FROM_CLASS_NAME = "fromClassName";
+   public static final String TO_ATTR_NAME = "toAttrName";
+   public static final String FROM_OBJ_NAME = "fromObjName";
+   public static final String VALUE_CLASS_NAME = "valueClassName";
+   public static final String VALUE_CLASS_IS_ATTR_TYPE = "valueClassIsAttrType";
+   public static final String NEW_VAR_NAME = "newVarName";
+   public static final String VALUE_NAME = "valueName";
    private final ClassModelManager mm;
    public StringBuilder methodBody = new StringBuilder();
    public StringBuilder settings;
@@ -43,11 +54,15 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    private String attrValue;
    private ArrayList<String> valueDataTextList = new ArrayList<>();
    private ArrayList<String> valueDataNameList = new ArrayList<>();
+   private ArrayList<String> previousValueDataTextList = new ArrayList<>();
+   private ArrayList<String> previousValueDataNameList = new ArrayList<>();
    private Clazz currentRegisterClazz;
    private String attrType;
    private String sentenceType = null;
    private String lastInvocation;
    private int oldMethodBodyLength;
+   private FulibScenariosParser.LoopClauseContext loopIntro;
+   private String indent = "";
 
 
    public ScenarioTestCollector(LinkedHashMap<String, String> object2ClassMap, String docDir)
@@ -342,9 +357,22 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       String methodName = StrUtil.downFirstChar(ctx.methodName.getText());
 
       this.currentMethod = this.getModelManager().getMethod(methodName);
+      this.loopIntro = null;
+
+      if (ctx.loopIntro != null) {
+         if (ctx.loopIntro.children.get(0) instanceof FulibScenariosParser.LoopClauseContext)
+         {
+            this.loopIntro = (FulibScenariosParser.LoopClauseContext) ctx.loopIntro.children.get(0);
+         }
+      }
    }
 
-
+   @Override
+   public void exitStopPhrase(FulibScenariosParser.StopPhraseContext ctx)
+   {
+      appendToCurrentMethodBody("      }\n");
+      this.indent = "";
+   }
 
    @Override
    public void enterCreatePhrase(FulibScenariosParser.CreatePhraseContext ctx)
@@ -470,60 +498,265 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
 
    @Override
+   public void exitAsPhrase(FulibScenariosParser.AsPhraseContext ctx)
+   {
+      String result = "      // if () {}\n";
+
+
+
+      appendToCurrentMethodBody(result);
+   }
+
+   @Override
    public void exitVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx)
    {
-      // value target = value read
-      String leftHandValue = "?";
-      String valueName = this.valueDataNameList.get(0);
-      String valueClassName = this.object2ClassMap.get(valueName);
-      if (valueClassName == null) {
-         valueClassName = getAttrType(valueName);
+      LinkedHashMap<String,String> map = new LinkedHashMap<>();
+
+      String toObjName = null;
+      if (ctx.toObjName != null) {
+         toObjName = ctx.toObjName.getText();
+         map.put(TO_OBJ_NAME, toObjName);
       }
-      String newVarName = null;
+
+      String fromAttrName = null;
       if (ctx.fromAttrName != null) {
-         newVarName = ctx.fromAttrName.getText();
+         fromAttrName = ctx.fromAttrName.getText();
+         map.put(FROM_ATTR_NAME, fromAttrName);
       }
-      else if (ctx.toAttrName != null && ctx.toObjName == null) {
-         newVarName = ctx.toAttrName.getText();
+
+      String toAttrName = null;
+      if (ctx.toAttrName != null) {
+         toAttrName = ctx.toAttrName.getText();
+         map.put(TO_ATTR_NAME, toAttrName);
       }
 
       String fromObjName = null;
-      String fromObjVarName = null;
-      String fromClassName = null;
-
-      String rightHandValue = valueName;
-
       if (ctx.fromObjName != null) {
          fromObjName = StrUtil.downFirstChar(ctx.fromObjName.getText());
-         fromClassName = this.object2ClassMap.get(fromObjName);
-
-         fromObjVarName = getParamVarName4Value(fromObjName);
-
-         rightHandValue = String.format("%s.get%s()", fromObjVarName, StrUtil.cap(newVarName));
+         map.put(FROM_OBJ_NAME, fromObjName);
       }
 
+      // do all the reading.
+      String rightHandValue = generateRightHandValue(map);
 
-      if (ctx.toObjName == null)
+      String fromClassName = map.get(FROM_CLASS_NAME);
+      boolean valueClassIsAttrType = map.get(VALUE_CLASS_IS_ATTR_TYPE) != null;
+      String valueClassName = map.get(VALUE_CLASS_NAME);
+      String entryClassName = null;
+      String newVarName = map.get(NEW_VAR_NAME);
+      String valueName = map.get(VALUE_NAME);
+      String leftHandValue = "?";
+
+      if (toObjName == null)
       {
          // declare local variable
          if (fromClassName != null) {
             Clazz fromClass = mm.haveClass(fromClassName);
-            AssocRole fromRole = fromClass.getRole(newVarName);
+            AssocRole fromRole = fromClass.getRole(fromAttrName);
+
             if (fromRole != null) {
                valueClassName = fromRole.getOther().getClazz().getName();
+               if (fromRole.getCardinality() > 1) {
+                  entryClassName = valueClassName;
+                  valueClassName = String.format("java.util.ArrayList<%s>", valueClassName);
+               }
+               valueClassIsAttrType = false;
             }
          }
 
          leftHandValue = String.format("%s %s = ",
                valueClassName, newVarName);
+         if (this.getMethodLocalVars().get(newVarName) != null) {
+            leftHandValue = String.format("%s = ", newVarName);
+         }
+
+         if (ctx.verb.getText().equals("adds")) {
+            leftHandValue += newVarName + " + " ;
+         }
+
+         if (! valueClassIsAttrType) {
+            this.object2ClassMap.put(newVarName, valueClassName);
+
+            if (entryClassName == null) {
+               this.object2ClassMap.put(valueName, valueClassName);
+            } else {
+               this.object2ClassMap.put(newVarName + "_i", entryClassName);
+
+               for (String v : this.valueDataNameList) {
+                  this.object2ClassMap.put(v, entryClassName);
+               }
+            }
+         }
+
          this.getMethodLocalVars().put(newVarName, valueName);
       }
 
-      String result = String.format("      %s%s;\n",
+      String result = String.format(this.indent + "      %s%s\n",
             leftHandValue, rightHandValue);
+
+      if (this.loopIntro != null) {
+         result += String.format("      int %s_i = 1;\n", newVarName);
+         result += String.format("      for ( ; %s_i <= %s.size(); %s_i++) {\n",
+               newVarName, newVarName, newVarName);
+         this.indent = "   ";
+      }
+
 
       appendToCurrentMethodBody(result);
       System.out.println();
+   }
+
+
+   private String generateRightHandValue(LinkedHashMap<String, String> map) {
+      // value target = value read
+      String leftHandSetter = "?";
+      String valueName = this.valueDataNameList.get(0);
+      String rangeStart = null;
+      String rangeEnd = null;
+      String fromListName = null;
+      String index = null;
+      int pos = valueName.indexOf(':');
+
+      if (pos > 0) {
+         rangeStart = valueName.substring(0, pos);
+         rangeEnd = valueName.substring(pos+1);
+         valueName = rangeStart;
+      }
+      else {
+         index = indexPart(valueName);
+
+         if (index != null) {
+            valueName = valueName.substring(0, valueName.length()-index.length());
+            fromListName = valueName;
+         }
+      }
+
+      map.put(VALUE_NAME, valueName);
+
+      String newVarName = valueName;
+      String paramValue = this.methodLocalVars.get(newVarName);
+      if (paramValue != null) {
+         valueName = paramValue;
+      }
+
+      boolean valueClassIsAttrType = false;
+      boolean valueClassIsDouble = false;
+      String valueClassName = this.object2ClassMap.get(valueName);
+
+      if (valueClassName == null) {
+         valueClassName = getAttrType(valueName);
+         valueClassIsAttrType = true;
+         map.put(VALUE_CLASS_IS_ATTR_TYPE, "true");
+         valueClassIsDouble = valueClassName.equals(ClassModelBuilder.DOUBLE);
+      }
+
+      if (isList(this.valueDataNameList)) {
+         valueClassName = String.format("java.util.ArrayList<%s>", StrUtil.cap(valueClassName));
+      }
+
+      map.put(VALUE_CLASS_NAME, valueClassName);
+
+      String fromAttrName = map.get(FROM_ATTR_NAME);
+      String fromClassName = null;
+      if (fromAttrName != null) {
+         index = indexPart(fromAttrName);
+         fromClassName = this.object2ClassMap.get(fromAttrName);
+         newVarName = fromAttrName;
+
+         if (index != null) {
+            fromAttrName = fromAttrName.substring(0, fromAttrName.length() - index.length());
+            fromListName = fromAttrName;
+            fromClassName = this.object2ClassMap.get(fromAttrName + "_i");
+         }
+
+      }
+
+      String toAttrName = map.get(TO_ATTR_NAME);
+      if (toAttrName != null) {
+         newVarName = toAttrName;
+      }
+
+      map.put(NEW_VAR_NAME, newVarName);
+
+      String rightHandValue = "\"" + this.valueDataTextList.get(0) + "\"" + ";";
+      if (valueClassIsDouble) {
+         rightHandValue = valueName + ";";
+      }
+
+      if (isList(this.valueDataNameList)) {
+         // assign new ArrayList and than all elements.
+         rightHandValue = "new java.util.ArrayList<>();\n";
+
+         String cast = (valueClassIsDouble ? "(double) " : "");
+         for (String v : this.valueDataTextList) {
+            String nextAdd = String.format("      %s.add(%s%s);\n",
+                  newVarName, cast, v);
+
+            if (v.indexOf(':') > 0) {
+               // iterate
+               String[] split = v.split("\\:");
+
+               nextAdd = String.format("      for (double d = %s; d <= %s; d++) {\n" +
+                           "         %s.add(d);\n" +
+                           "      }\n",
+                     split[0], split[1], newVarName);
+            }
+
+            rightHandValue += nextAdd;
+         }
+      }
+
+      String fromObjName = map.get(FROM_OBJ_NAME);
+      String fromObjVarName = null;
+
+      if (fromObjName != null) {
+         String fromIndex = this.indexPart(fromObjName);
+         if (fromIndex == null) {
+            fromClassName = this.object2ClassMap.get(fromObjName);
+            fromObjVarName = getParamVarName4Value(fromObjName);
+            rightHandValue = String.format("%s.get%s();", fromObjVarName, StrUtil.cap(fromAttrName));
+         } else {
+            String listName = fromObjName.substring(0, fromObjName.length()-fromIndex.length());
+            fromObjVarName = listName + "_i";
+            fromClassName = this.object2ClassMap.get(fromObjVarName);
+            rightHandValue = String.format("%s.get(%s).get%s();",
+                  listName, fromObjVarName, StrUtil.cap(fromAttrName));
+         }
+      }
+
+      if (index != null) {
+         rightHandValue = String.format("%s.get(%s-1);", fromListName, index);
+      }
+
+      map.put(FROM_CLASS_NAME, fromClassName);
+
+      return rightHandValue;
+   }
+
+
+   private String indexPart(String valueName)
+   {
+      // Pattern regEx = Pattern.compile(".*(([0-9]+)|(_[a-zA-Z]*))$");
+      Pattern regEx = Pattern.compile("(([0-9]+)|(_[a-zA-Z]*))$");
+      Matcher matcher = regEx.matcher(valueName);
+      boolean found = matcher.find();
+      if (found) {
+         String group = matcher.group();
+         if ( ! group.equals(valueName)) {
+            return group;
+         }
+      }
+
+      return null;
+   }
+
+   private boolean isList(ArrayList<String> nameList)
+   {
+      if (nameList.size() > 1) return true;
+
+      if (nameList.get(0).indexOf(':') > 0) return true;
+
+      return false;
    }
 
 
@@ -1028,11 +1261,30 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    @Override
    public void enterValueClause(FulibScenariosParser.ValueClauseContext ctx)
    {
+      previousValueDataTextList = valueDataTextList;
+      previousValueDataNameList = valueDataNameList;
       valueDataTextList = new ArrayList<String>();
       valueDataNameList = new ArrayList<String>();
    }
 
+   @Override
+   public void exitRangeClause(FulibScenariosParser.RangeClauseContext ctx)
+   {
+      // is this a range?
+      if (ctx.secondData != null) {
+         // combine start and end into one value
+         int pos = valueDataNameList.size()-2;
+         String first = valueDataNameList.get(pos);
+         String second = valueDataNameList.get(pos+1);
+         valueDataNameList.set(pos, first + ":" + second);
+         valueDataNameList.remove(pos+1);
 
+         first = valueDataTextList.get(pos);
+         second = valueDataTextList.get(pos + 1);
+         valueDataTextList.set(pos, first + ":" + second);
+         valueDataTextList.remove(pos+1);
+      }
+   }
 
    @Override
    public void enterValueData(FulibScenariosParser.ValueDataContext ctx)

@@ -68,6 +68,76 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 */
 	void exitChainSentence(FulibScenariosParser.ChainSentenceContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#introPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntroPhrase(FulibScenariosParser.IntroPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#introPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntroPhrase(FulibScenariosParser.IntroPhraseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#onPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnPhrase(FulibScenariosParser.OnPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#onPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnPhrase(FulibScenariosParser.OnPhraseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#loopClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterLoopClause(FulibScenariosParser.LoopClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#loopClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitLoopClause(FulibScenariosParser.LoopClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#asPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterAsPhrase(FulibScenariosParser.AsPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#asPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitAsPhrase(FulibScenariosParser.AsPhraseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#cmpOp}.
+	 * @param ctx the parse tree
+	 */
+	void enterCmpOp(FulibScenariosParser.CmpOpContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#cmpOp}.
+	 * @param ctx the parse tree
+	 */
+	void exitCmpOp(FulibScenariosParser.CmpOpContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#greaterEqual}.
+	 * @param ctx the parse tree
+	 */
+	void enterGreaterEqual(FulibScenariosParser.GreaterEqualContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#greaterEqual}.
+	 * @param ctx the parse tree
+	 */
+	void exitGreaterEqual(FulibScenariosParser.GreaterEqualContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#lessThan}.
+	 * @param ctx the parse tree
+	 */
+	void enterLessThan(FulibScenariosParser.LessThanContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#lessThan}.
+	 * @param ctx the parse tree
+	 */
+	void exitLessThan(FulibScenariosParser.LessThanContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#predicateObjectPhrase}.
 	 * @param ctx the parse tree
 	 */
@@ -77,6 +147,16 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#stopPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterStopPhrase(FulibScenariosParser.StopPhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#stopPhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitStopPhrase(FulibScenariosParser.StopPhraseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#createPhrase}.
 	 * @param ctx the parse tree
@@ -215,6 +295,16 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitValueClause(FulibScenariosParser.ValueClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#rangeClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterRangeClause(FulibScenariosParser.RangeClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#rangeClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitRangeClause(FulibScenariosParser.RangeClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#valueData}.
 	 * @param ctx the parse tree

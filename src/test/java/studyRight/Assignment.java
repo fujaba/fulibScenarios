@@ -84,36 +84,6 @@ public class Assignment
 
    }
 
-
-   public static final String PROPERTY_room = "room";
-
-   private Room room = null;
-
-   public Room getRoom()
-   {
-      return this.room;
-   }
-
-   public Assignment setRoom(Room value)
-   {
-      if (this.room != value)
-      {
-         Room oldValue = this.room;
-         if (this.room != null)
-         {
-            this.room = null;
-            oldValue.setAssignment(null);
-         }
-         this.room = value;
-         if (value != null)
-         {
-            value.setAssignment(this);
-         }
-         firePropertyChange("room", oldValue, value);
-      }
-      return this;
-   }
-
    public static final String PROPERTY_points = "points";
 
    private double points;
@@ -145,5 +115,36 @@ public class Assignment
 
       return result.substring(1);
    }
+
+   public static final String PROPERTY_room = "room";
+
+   private Room room = null;
+
+   public Room getRoom()
+   {
+      return this.room;
+   }
+
+   public Assignment setRoom(Room value)
+   {
+      if (this.room != value)
+      {
+         Room oldValue = this.room;
+         if (this.room != null)
+         {
+            this.room = null;
+            oldValue.withoutAssignments(this);
+         }
+         this.room = value;
+         if (value != null)
+         {
+            value.withAssignments(this);
+         }
+         firePropertyChange("room", oldValue, value);
+      }
+      return this;
+   }
+
+
 
 }

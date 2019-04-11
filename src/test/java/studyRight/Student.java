@@ -1,8 +1,11 @@
 package studyRight;
 
+import org.junit.Test;
+
 import java.beans.PropertyChangeSupport;
 
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 
 public class Student  
 {
@@ -203,9 +206,17 @@ public class Student
       return result.substring(1);
    }
 
+
    public void work(){ 
       double pointSum = 0;
+      // if () {}
+      pointSum = 42;
       Room room = this.getRoom();
       double credits = room.getCredits();
+      java.util.ArrayList<Assignment> tasks = room.getAssignments();
+      int tasks_i = 1;
+      for ( ; tasks_i <= tasks.size(); tasks_i++) {
+         pointSum = pointSum + tasks.get(tasks_i).getPoints();
+      }
    }
 }

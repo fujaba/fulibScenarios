@@ -20,7 +20,7 @@
   modified: 	false
   name: 	Room
   propertyStyle: 	POJO
-  roles: 	assignment11 	students12 	
+  roles: 	assignments11 	students12 	
 
 - student4: 	Clazz
   attributes: 	name13 	credits14 	motivation15 	
@@ -58,7 +58,7 @@
   clazz: 	assignment2
   modified: 	false
   name: 	room
-  other: 	assignment11
+  other: 	assignments11
   propertyStyle: 	POJO
   roleType: 	"java.util.ArrayList<%s>"
 
@@ -76,12 +76,12 @@
   propertyStyle: 	POJO
   type: 	double
 
-- assignment11: 	AssocRole
+- assignments11: 	AssocRole
   aggregation: 	false
-  cardinality: 	1
+  cardinality: 	42
   clazz: 	room3
   modified: 	false
-  name: 	assignment
+  name: 	assignments
   other: 	room8
   propertyStyle: 	POJO
   roleType: 	"java.util.ArrayList<%s>"
