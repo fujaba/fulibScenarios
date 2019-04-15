@@ -13,6 +13,10 @@ public class TestaWorkScenario
        StudyRight studyRight = new StudyRight();
        Student carli = studyRight.init();
        carli.work();
+       assertThat(carli.getCredits(), equalTo((double) 23));
+
+       FulibTools.objectDiagrams().dumpPng("doc/studyRight/studyRighMathDone.png", carli);
+
 
    }
 }

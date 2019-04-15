@@ -81,6 +81,7 @@ public class Assignment
    public void removeYou()
    {
       this.setRoom(null);
+      this.setStudent(null);
 
    }
 
@@ -116,6 +117,8 @@ public class Assignment
       return result.substring(1);
    }
 
+
+
    public static final String PROPERTY_room = "room";
 
    private Room room = null;
@@ -141,6 +144,37 @@ public class Assignment
             value.withAssignments(this);
          }
          firePropertyChange("room", oldValue, value);
+      }
+      return this;
+   }
+
+
+
+   public static final String PROPERTY_student = "student";
+
+   private Student student = null;
+
+   public Student getStudent()
+   {
+      return this.student;
+   }
+
+   public Assignment setStudent(Student value)
+   {
+      if (this.student != value)
+      {
+         Student oldValue = this.student;
+         if (this.student != null)
+         {
+            this.student = null;
+            oldValue.withoutTaskLog(this);
+         }
+         this.student = value;
+         if (value != null)
+         {
+            value.withTaskLog(this);
+         }
+         firePropertyChange("student", oldValue, value);
       }
       return this;
    }

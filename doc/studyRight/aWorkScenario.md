@@ -8,26 +8,25 @@ Init answers with Student Carli.
 
 We call work on Carli.
 
-Work writes 0 into pointSum.
-
-As 0 from pointSum is less than 23, work reads 42 into pointSum.
-
 Work reads math from room of Carli. 
 Work reads 23 from credits of math.
+Work writes 0 into pointSum.
+Work reads size from assignments of math into maxTaskNumber. 
 
-One by one, Work reads integrals, series, and matrices from assignments of math into tasks.
+One by one, work reads 1 to maxTaskNumber into position.
+On position 1, 
+work reads integrals from assignments_position of math into currentTask and
+it adds 5 from points of currentTask into pointSum.
+As 5 from pointSum is less than 23 from credits, work continues with position 2. 
+On position 2, work adds 20 from points of series into pointSum.
+As 25 from pointSum is greater equal 23 from credits, 
+work adds 23 from credits into credits of Carli and 
+it stops reading tasks with index now 2. 
 
-On 1, work adds 5 from points of tasks1 into pointSum;
- 
+Work writes integrals and series from assignments1 to assignments_position of math into taskLog of Carli.
 
-Work stops reading tasks. 
+We expect that Carli has credits 23.
 
-
-<!--On run 1, work reads 5 from points of tasks1.-->
-
-
-<!--Work reads 1 to 5, and 10 into points.-->
-<!--Work reads series from taskList2 into task.-->
-<!--Work reads points4 into four.-->
+![Carli](StudyRighMathDone.png)
 
 

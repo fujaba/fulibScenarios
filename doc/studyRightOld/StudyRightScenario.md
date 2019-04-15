@@ -1,8 +1,6 @@
 
 # Scenario Karli does the first math assignments
 
-## Setup
-
 Study Right is a University with students Carli Bob and Alice
 and with rooms the math room and the modeling room.
 

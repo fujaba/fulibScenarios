@@ -1,0 +1,43 @@
+- c1: 	ClassModel
+  classes: 	field2 	mineSweeper3 	
+  defaultPropertyStyle: 	POJO
+  defaultRoleType: 	"java.util.ArrayList<%s>"
+  mainJavaDir: 	"src/test/java"
+  packageName: 	MineSweeper
+  packageSrcFolder: 	"src/test/java/MineSweeper"
+
+- field2: 	Clazz
+  attributes: 	id4 	number5 	
+  model: 	c1
+  modified: 	false
+  name: 	Field
+  propertyStyle: 	POJO
+
+- mineSweeper3: 	Clazz
+  attributes: 	id6 	
+  model: 	c1
+  modified: 	false
+  name: 	MineSweeper
+  propertyStyle: 	POJO
+
+- id4: 	Attribute
+  clazz: 	field2
+  modified: 	false
+  name: 	id
+  propertyStyle: 	POJO
+  type: 	String
+
+- number5: 	Attribute
+  clazz: 	field2
+  modified: 	false
+  name: 	number
+  propertyStyle: 	POJO
+  type: 	double
+
+- id6: 	Attribute
+  clazz: 	mineSweeper3
+  modified: 	false
+  name: 	id
+  propertyStyle: 	POJO
+  type: 	String
+

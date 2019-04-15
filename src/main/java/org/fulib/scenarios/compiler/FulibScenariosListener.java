@@ -148,6 +148,16 @@ public interface FulibScenariosListener extends ParseTreeListener {
 	 */
 	void exitPredicateObjectPhrase(FulibScenariosParser.PredicateObjectPhraseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link FulibScenariosParser#continuePhrase}.
+	 * @param ctx the parse tree
+	 */
+	void enterContinuePhrase(FulibScenariosParser.ContinuePhraseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link FulibScenariosParser#continuePhrase}.
+	 * @param ctx the parse tree
+	 */
+	void exitContinuePhrase(FulibScenariosParser.ContinuePhraseContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link FulibScenariosParser#stopPhrase}.
 	 * @param ctx the parse tree
 	 */

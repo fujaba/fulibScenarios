@@ -63,9 +63,10 @@ public class Room
 
    public void removeYou()
    {
-      this.setStudents(null);
-
       this.withoutAssignments(this.getAssignments().clone());
+
+
+      this.withoutStudents(this.getStudents().clone());
 
 
    }
@@ -92,36 +93,6 @@ public class Room
          String oldValue = this.topic;
          this.topic = value;
          firePropertyChange("topic", oldValue, value);
-      }
-      return this;
-   }
-
-
-   public static final String PROPERTY_students = "students";
-
-   private Student students = null;
-
-   public Student getStudents()
-   {
-      return this.students;
-   }
-
-   public Room setStudents(Student value)
-   {
-      if (this.students != value)
-      {
-         Student oldValue = this.students;
-         if (this.students != null)
-         {
-            this.students = null;
-            oldValue.setRoom(null);
-         }
-         this.students = value;
-         if (value != null)
-         {
-            value.setRoom(this);
-         }
-         firePropertyChange("students", oldValue, value);
       }
       return this;
    }
@@ -157,6 +128,8 @@ public class Room
 
       return result.substring(1);
    }
+
+
 
    public static final java.util.ArrayList<Assignment> EMPTY_assignments = new java.util.ArrayList<Assignment>()
    { @Override public boolean add(Assignment value){ throw new UnsupportedOperationException("No direct add! Use xy.withAssignments(obj)"); }};
@@ -229,6 +202,84 @@ public class Room
                this.assignments.remove((Assignment)item);
                ((Assignment)item).setRoom(null);
                firePropertyChange("assignments", item, null);
+            }
+         }
+      }
+      return this;
+   }
+
+
+   public static final java.util.ArrayList<Student> EMPTY_students = new java.util.ArrayList<Student>()
+   { @Override public boolean add(Student value){ throw new UnsupportedOperationException("No direct add! Use xy.withStudents(obj)"); }};
+
+
+   public static final String PROPERTY_students = "students";
+
+   private java.util.ArrayList<Student> students = null;
+
+   public java.util.ArrayList<Student> getStudents()
+   {
+      if (this.students == null)
+      {
+         return EMPTY_students;
+      }
+
+      return this.students;
+   }
+
+   public Room withStudents(Object... value)
+   {
+      if(value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withStudents(i);
+            }
+         }
+         else if (item instanceof Student)
+         {
+            if (this.students == null)
+            {
+               this.students = new java.util.ArrayList<Student>();
+            }
+            if ( ! this.students.contains(item))
+            {
+               this.students.add((Student)item);
+               ((Student)item).setRoom(this);
+               firePropertyChange("students", null, item);
+            }
+         }
+         else throw new IllegalArgumentException();
+      }
+      return this;
+   }
+
+
+
+   public Room withoutStudents(Object... value)
+   {
+      if (this.students == null || value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withoutStudents(i);
+            }
+         }
+         else if (item instanceof Student)
+         {
+            if (this.students.contains(item))
+            {
+               this.students.remove((Student)item);
+               ((Student)item).setRoom(null);
+               firePropertyChange("students", item, null);
             }
          }
       }

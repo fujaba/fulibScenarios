@@ -30,14 +30,16 @@ greaterEqual: 'is' 'greater' 'equal';
 lessThan: 'is' 'less' 'than';
 
 
-predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase | stopPhrase;
+predicateObjectPhrase: createPhrase | verbPhrase | answerPhrase | stopPhrase | continuePhrase;
 
-stopPhrase: 'stops' 'reading' loopName=NAME;
+continuePhrase: 'continues' any+;
+stopPhrase: 'stops' 'reading' loopName=NAME any*;
 
 createPhrase: ('create' | 'creates') A? className=NAME ('cards'|'card')? withClause* ;
 
-verbPhrase: verb=('adds'|'puts'|'reads'|'writes') A? value=valueClause ('from' A? fromAttrName=NAME ('of' A? fromObjName=NAME)? )?
-                (('to'|'into') toAttrName=NAME ('of' A? toObjName=NAME)? )? ;
+verbPhrase: verb=('adds'|'puts'|'reads'|'writes') A? value=valueClause
+                ('from' A? fromAttrName=NAME ('to' secondFromAttrName=NAME)? ('of' A? fromObjName=NAME)? )?
+                ('into' toAttrName=NAME ('of' A? toObjName=NAME)? )? ;
 
 answerPhrase: 'answers' ('with'|':')? value=valueClause;
 
@@ -69,7 +71,8 @@ fileNameClause: (NAME | '.' | '/')+ ;
 
 CALL: 'call' | 'calls';
 
-any: NUMBER | NAME | A | CALL | 'with' | 'has' | 'There' | 'is' | ',';
+any: NUMBER | NAME | A | CALL | 'with' | 'has' | 'There' | 'is'
+     | 'reading' | 'continues' | 'from' | 'to' | 'into' | ',';
 
 
 classDef:
@@ -77,7 +80,7 @@ classDef:
     (attrDef | roleDef) *
 ;
 
-exampleValue: (nameValue=NAME | numberValue=NUMBER) ','? ;
+exampleValue: (nameValue=NAME | numberValue=NUMBER)(':' (nameValue=NAME | numberValue=NUMBER))? ','? ;
 
 attrDef: '+' attrName=NAME 'e.g.' exampleValue*;
 

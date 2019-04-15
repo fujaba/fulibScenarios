@@ -14,5 +14,8 @@ public class TestinitScenario
        Student carli = studyRight.init();
        assertThat(carli.getMotivation(), equalTo((double) 65));
 
+       FulibTools.objectDiagrams().dumpPng("doc/studyRight/studyRightInit.png", carli);
+
+
    }
 }

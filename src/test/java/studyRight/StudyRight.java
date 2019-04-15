@@ -77,7 +77,7 @@ public class StudyRight
       Room math = new Room();
       math.setTopic("math");
       math.setCredits(23);
-      math.setStudents(carli);
+      math.withStudents(carli);
 
       java.util.ArrayList<String> taskList = new java.util.ArrayList<String>();
       taskList.add("integrals");

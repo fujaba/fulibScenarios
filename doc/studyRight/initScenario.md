@@ -19,3 +19,5 @@ with room math.
 Init answers with Carli.
 
 We expect that Carli has motivation 65.
+
+![Carli](StudyRightInit.png)

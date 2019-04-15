@@ -27,7 +27,11 @@ public class ScenarioTestGenerator
    public static void main(String[] args)
    {
       // parse register
-      generateScenarios("doc/studyRight");
+      for (String arg : args) {
+         generateScenarios(arg);
+      }
+
+      // generateScenarios("doc/ludo");
    }
 
    private static void generateScenarios(String docDir)

@@ -184,6 +184,18 @@ public class FulibScenariosBaseListener implements FulibScenariosListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterContinuePhrase(FulibScenariosParser.ContinuePhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitContinuePhrase(FulibScenariosParser.ContinuePhraseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStopPhrase(FulibScenariosParser.StopPhraseContext ctx) { }
 	/**
 	 * {@inheritDoc}

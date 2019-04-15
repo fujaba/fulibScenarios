@@ -1,0 +1,50 @@
+- c1: 	ClassModel
+  classes: 	ludo2 	player3 	
+  defaultPropertyStyle: 	POJO
+  defaultRoleType: 	"java.util.ArrayList<%s>"
+  mainJavaDir: 	"src/test/java"
+  packageName: 	ludo
+  packageSrcFolder: 	"src/test/java/ludo"
+
+- ludo2: 	Clazz
+  model: 	c1
+  modified: 	false
+  name: 	Ludo
+  propertyStyle: 	POJO
+  roles: 	player4 	
+
+- player3: 	Clazz
+  attributes: 	name5 	
+  model: 	c1
+  modified: 	false
+  name: 	Player
+  propertyStyle: 	POJO
+  roles: 	game6 	
+
+- player4: 	AssocRole
+  aggregation: 	false
+  cardinality: 	1
+  clazz: 	ludo2
+  modified: 	false
+  name: 	player
+  other: 	game6
+  propertyStyle: 	POJO
+  roleType: 	"java.util.ArrayList<%s>"
+
+- name5: 	Attribute
+  clazz: 	player3
+  modified: 	false
+  name: 	name
+  propertyStyle: 	POJO
+  type: 	String
+
+- game6: 	AssocRole
+  aggregation: 	false
+  cardinality: 	1
+  clazz: 	player3
+  modified: 	false
+  name: 	game
+  other: 	player4
+  propertyStyle: 	POJO
+  roleType: 	"java.util.ArrayList<%s>"
+
