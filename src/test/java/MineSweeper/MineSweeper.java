@@ -91,7 +91,89 @@ public class MineSweeper
 
    public void removeYou()
    {
+      this.withoutFields(this.getFields().clone());
+
+
    }
+
+
+   public static final java.util.ArrayList<Field> EMPTY_fields = new java.util.ArrayList<Field>()
+   { @Override public boolean add(Field value){ throw new UnsupportedOperationException("No direct add! Use xy.withFields(obj)"); }};
+
+
+   public static final String PROPERTY_fields = "fields";
+
+   private java.util.ArrayList<Field> fields = null;
+
+   public java.util.ArrayList<Field> getFields()
+   {
+      if (this.fields == null)
+      {
+         return EMPTY_fields;
+      }
+
+      return this.fields;
+   }
+
+   public MineSweeper withFields(Object... value)
+   {
+      if(value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withFields(i);
+            }
+         }
+         else if (item instanceof Field)
+         {
+            if (this.fields == null)
+            {
+               this.fields = new java.util.ArrayList<Field>();
+            }
+            if ( ! this.fields.contains(item))
+            {
+               this.fields.add((Field)item);
+               ((Field)item).setParent(this);
+               firePropertyChange("fields", null, item);
+            }
+         }
+         else throw new IllegalArgumentException();
+      }
+      return this;
+   }
+
+
+
+   public MineSweeper withoutFields(Object... value)
+   {
+      if (this.fields == null || value==null) return this;
+      for (Object item : value)
+      {
+         if (item == null) continue;
+         if (item instanceof java.util.Collection)
+         {
+            for (Object i : (java.util.Collection) item)
+            {
+               this.withoutFields(i);
+            }
+         }
+         else if (item instanceof Field)
+         {
+            if (this.fields.contains(item))
+            {
+               this.fields.remove((Field)item);
+               ((Field)item).setParent(null);
+               firePropertyChange("fields", item, null);
+            }
+         }
+      }
+      return this;
+   }
+
 
 
    public void init(){ 
@@ -110,12 +192,35 @@ public class MineSweeper
          Field fieldTmp = new Field();
          fieldTmp.setId(idList.get(i));
          fieldTmp.setNumber(numberList.get(i));
+         fieldTmp.setParent(this);
          fList.add(fieldTmp);
       }
 
-            for (double d = f1; d <= f2; d++) {
-         f2.withNeighbors(d);
+      double result = 42;
+      java.util.ArrayList<Field> tmpFieldValueList = new java.util.ArrayList<>();
+      for (int i = 1; i <= 2; i++) {
+         tmpFieldValueList.add(fList.get(i-1));
+      }
+      for (int i = 7; i <= 8; i++) {
+         tmpFieldValueList.add(fList.get(i-1));
+      }
+      tmpFieldValueList.add(fList.get(4-1));
+      java.util.ArrayList<Field> tmpFieldTargetList = new java.util.ArrayList<>();
+      for (int i = 2; i <= 3; i++) {
+         tmpFieldTargetList.add(fList.get(i-1));
+      }
+      for (int i = 8; i <= 9; i++) {
+         tmpFieldTargetList.add(fList.get(i-1));
+      }
+      tmpFieldTargetList.add(fList.get(5-1));
+      for (int i = 1; i <= tmpFieldTargetList.size(); i++) {
+         tmpFieldTargetList.get(i-1).withNeighbors(tmpFieldValueList.get(i-1));
       }
 
+      java.util.ArrayList<Integer> tmpIntValueList = new java.util.ArrayList<>();
+      for (int i = 10; i <= 20; i++) {
+         tmpIntValueList.add(i);
+      }
+      // list to single value to be done 
    }
 }

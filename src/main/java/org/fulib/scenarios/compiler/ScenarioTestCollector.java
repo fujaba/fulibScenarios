@@ -44,6 +44,10 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    public static final String RANGE_END = "rangeEnd";
    public static final String RANGE_START = "rangeStart";
    public static final String ENTRY_CLASS_NAME = "entryClassName";
+   public static final String SECOND_TO_OBJ_NAME = "secondToObjName";
+   public static final String PREPARE_VALUE_LIST = "prepareValueList";
+   public static final String PREPARE_TARGET_LIST = "prepareTargetList";
+   public static final String VALUE_LIST_NAME = "valueListName";
    private final ClassModelManager mm;
    public StringBuilder methodBody = new StringBuilder();
    public StringBuilder settings;
@@ -76,6 +80,8 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    private String loopIntro = null;
    private String indent = "";
    private String statementClosing = "";
+   private ArrayList<String> toObjNameList;
+   private ArrayList<String> toObjTextList;
 
 
    public ScenarioTestCollector(LinkedHashMap<String, String> object2ClassMap, String docDir)
@@ -635,6 +641,15 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
    }
 
    @Override
+   public void enterVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx)
+   {
+      this.previousValueDataTextList = null;
+      this.previousValueDataNameList = null;
+      this.valueDataTextList = null;
+      this.valueDataNameList = null;
+   }
+
+   @Override
    public void exitVerbPhrase(FulibScenariosParser.VerbPhraseContext ctx)
    {
       if (ANOTHER_ON.equals(this.loopIntro)) {
@@ -642,6 +657,8 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       }
 
       LinkedHashMap<String,String> map = new LinkedHashMap<>();
+
+      Boolean valueDataIsList = isList(valueDataNameList);
 
       String fromAttrName = null;
       if (ctx.fromAttrName != null) {
@@ -667,13 +684,39 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       }
 
       String toObjName = null;
-      if (ctx.toObjName != null) {
-         toObjName = ctx.toObjName.getText();
-         map.put(TO_OBJ_NAME, toObjName);
+      toObjNameList = null;
+      toObjTextList = null;
+      if (previousValueDataTextList != null) {
+         toObjNameList = this.valueDataNameList;
+         toObjTextList = this.valueDataTextList;
+         this.valueDataNameList = this.previousValueDataNameList;
+         this.valueDataTextList = this.previousValueDataTextList;
+         toObjName = toObjNameList.get(0);
+
       }
+
 
       // do all the reading.
       String rightHandValue = generateRightHandValue(map, this.valueDataNameList, this.valueDataTextList);
+
+      String prepareValueList = map.get(PREPARE_VALUE_LIST);
+      if (prepareValueList == null) {
+         prepareValueList = "";
+      }
+
+
+      if (isList(valueDataNameList) && isList(toObjNameList)) {
+         // list to list.
+         prepareLeftHandTargetList(map);
+         return;
+      }
+      else if (isList(valueDataNameList) && ! isList(toObjNameList)) {
+         String assignPart = String.format("%s%s",
+               "", "      // list to single value to be done \n");
+         appendToCurrentMethodBody(assignPart);
+         return;
+      }
+
 
       String fromClassName = map.get(FROM_CLASS_NAME);
       boolean valueClassIsAttrType = map.get(VALUE_CLASS_IS_ATTR_TYPE) != null;
@@ -791,6 +834,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          }
       }
 
+      result = prepareValueList + result;
       appendToCurrentMethodBody(result);
    }
 
@@ -805,8 +849,17 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       String rangeEnd = null;
       String fromListName = null;
       String index = null;
-      int pos = valueName.indexOf(':');
+      String valueClassName = null;
+      String valueListName = "tmpValueList";
+      String valueAccess = "???";
 
+      // read a list of values?
+      if (isList(myValueDataNameList)) {
+         prepareRightHandValueList(map, valueClassName, valueListName);
+         return "84";
+      }
+
+      int pos = valueName.indexOf(':');
       if (pos > 0) {
          rangeStart = valueName.substring(0, pos);
          rangeEnd = valueName.substring(pos+1);
@@ -815,9 +868,10 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          valueName = rangeStart;
       }
       else {
-         index = indexPart(valueName);
+         String indexPart = indexPart(valueName);
 
-         if (index != null) {
+         if ( ! valueName.equals(indexPart)) {
+            index = indexPart;
             valueName = truncate(valueName, index.length());
             fromListName = valueName;
          }
@@ -833,7 +887,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
       boolean valueClassIsAttrType = false;
       boolean valueClassIsDouble = false;
-      String valueClassName = this.object2ClassMap.get(valueName);
+      valueClassName = this.object2ClassMap.get(valueName);
       String entryClassName = null;
 
       if (valueClassName == null) {
@@ -980,6 +1034,152 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       return rightHandValue;
    }
 
+
+   private void prepareLeftHandTargetList(LinkedHashMap<String, String> map)
+   {
+      // generate code to targetObjectList
+      String valueAccess;
+      String fromListName;
+      String rangeStart;
+      String rangeEnd;// collect a list of all values
+      String addTargets = "";
+      String targetClassName = null;
+      String targetListName = null;
+
+      for (int i = 0; i < toObjNameList.size(); i++) {
+         String v = toObjNameList.get(i);
+         if (v.indexOf(':') < 0) {
+            String indexPart = indexPart(v);
+            if (indexPart == null) {
+               valueAccess = v;
+               targetClassName = this.object2ClassMap.get(v);
+            } else {
+               fromListName = truncate(v, indexPart.length());
+
+               if (targetClassName == null) {
+                  targetClassName = this.object2ClassMap.get(fromListName + "_i");
+                  targetListName = String.format("tmp%sValueList", targetClassName);
+               }
+
+               valueAccess = String.format("%sList.get(%s-1)", fromListName, indexPart);
+            }
+            addTargets += String.format("" +
+                        indent + "      %s.add(%s);\n",
+                  targetListName, valueAccess);
+         } else {
+            String[] split = v.split("\\:");
+            rangeStart = indexPart(split[0]);
+            rangeEnd = indexPart(split[1]);
+            fromListName = truncate(split[0], rangeStart.length());
+            String listValueAccess = String.format("%sList.get(i-1)", fromListName);
+
+            if (targetClassName == null) {
+               targetClassName = this.object2ClassMap.get(fromListName + "_i");
+               targetListName = String.format("tmp%sTargetList", targetClassName);
+            }
+
+            addTargets += String.format("" +
+                        indent + "      for (int i = %s; i <= %s; i++) {\n" +
+                        indent + "         %s.add(%s);\n" +
+                        indent + "      }\n",
+                  rangeStart, rangeEnd, targetListName, listValueAccess);
+         }
+      }
+
+      String prepareTargetList = String.format(indent + "" +
+                  "      java.util.ArrayList<%s> %s = new java.util.ArrayList<>();\n",
+            targetClassName, targetListName);
+      prepareTargetList += addTargets;
+
+      // do the assignments
+      String valueListName = map.get(VALUE_LIST_NAME);
+      String toAttrName = map.get(TO_ATTR_NAME);
+      toAttrName = StrUtil.cap(toAttrName);
+
+      String assignPart = String.format("" +
+            indent + "      for (int i = 1; i <= %s.size(); i++) {\n" +
+            indent + "         %s.get(i-1).with%s(%s.get(i-1));\n" +
+            indent + "      }\n",
+            targetListName, targetListName, toAttrName, valueListName);
+
+      // create assoc
+      Clazz targetClazz = mm.haveClass(targetClassName);
+      String valueClassName = map.get(VALUE_CLASS_NAME);
+      Clazz valueClazz = mm.haveClass(valueClassName);
+      mm.haveRole(targetClazz, toAttrName, valueClazz, ClassModelBuilder.MANY);
+
+      map.put(PREPARE_TARGET_LIST, prepareTargetList);
+
+      appendToCurrentMethodBody(prepareTargetList +
+            assignPart + "\n");
+   }
+
+
+
+   private void prepareRightHandValueList(LinkedHashMap<String, String> map, String valueClassName, String valueListName)
+   {
+      String valueAccess;
+      String fromListName;
+      String rangeStart;
+      String rangeEnd;// collect a list of all values
+      String addValues = "";
+      for (int i = 0; i < valueDataNameList.size(); i++) {
+         String v = valueDataNameList.get(i);
+         if (v.indexOf(':') < 0) {
+            String indexPart = indexPart(v);
+            if (indexPart == null) {
+               valueAccess = v;
+               valueClassName = this.object2ClassMap.get(v);
+            } else {
+               fromListName = truncate(v, indexPart.length());
+
+               if (valueClassName == null) {
+                  valueClassName = this.object2ClassMap.get(fromListName + "_i");
+                  valueListName = String.format("tmp%sValueList", valueClassName);
+               }
+
+               valueAccess = String.format("%sList.get(%s-1)", fromListName, indexPart);
+            }
+            addValues += String.format("" +
+                     indent + "      %s.add(%s);\n",
+                  valueListName, valueAccess);
+         } else {
+            String[] split = v.split("\\:");
+            rangeStart = indexPart(split[0]);
+            rangeEnd = indexPart(split[1]);
+            fromListName = truncate(split[0], rangeStart.length());
+            String listValueAccess = String.format("%sList.get(i-1)", fromListName);
+
+            if ("".equals(fromListName)) {
+               // just numbers
+               valueClassName = "Integer";
+               valueListName = "tmpIntValueList";
+               listValueAccess = "i";
+            } if (valueClassName == null) {
+               valueClassName = this.object2ClassMap.get(fromListName + "_i");
+               valueListName = String.format("tmp%sValueList", valueClassName);
+            }
+
+            addValues += String.format("" +
+                        indent + "      for (int i = %s; i <= %s; i++) {\n" +
+                        indent + "         %s.add(%s);\n" +
+                        indent + "      }\n",
+                  rangeStart, rangeEnd, valueListName, listValueAccess);
+         }
+      }
+
+      String prepareValueList = String.format(indent + "" +
+                  "      java.util.ArrayList<%s> %s = new java.util.ArrayList<>();\n",
+            valueClassName, valueListName);
+      prepareValueList += addValues;
+
+      map.put(VALUE_CLASS_NAME, valueClassName);
+      map.put(VALUE_LIST_NAME, valueListName);
+      map.put(PREPARE_VALUE_LIST, prepareValueList);
+
+      appendToCurrentMethodBody(prepareValueList);
+   }
+
    private static String truncate(String oldText, int charsToChop)
    {
       oldText = oldText.substring(0, oldText.length() - charsToChop);
@@ -1003,6 +1203,8 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
    private boolean isList(ArrayList<String> nameList)
    {
+      if (nameList == null) return false;
+
       if (nameList.size() > 1) return true;
 
       if (nameList.get(0).indexOf(':') > 0) return true;

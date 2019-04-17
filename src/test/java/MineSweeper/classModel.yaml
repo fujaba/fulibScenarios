@@ -12,13 +12,15 @@
   modified: 	false
   name: 	Field
   propertyStyle: 	POJO
+  roles: 	parent6 	neighbors7 	field8 	
 
 - mineSweeper3: 	Clazz
-  attributes: 	id6 	
+  attributes: 	id9 	
   model: 	c1
   modified: 	false
   name: 	MineSweeper
   propertyStyle: 	POJO
+  roles: 	fields10 	
 
 - id4: 	Attribute
   clazz: 	field2
@@ -34,10 +36,50 @@
   propertyStyle: 	POJO
   type: 	double
 
-- id6: 	Attribute
+- parent6: 	AssocRole
+  aggregation: 	false
+  cardinality: 	1
+  clazz: 	field2
+  modified: 	false
+  name: 	parent
+  other: 	fields10
+  propertyStyle: 	POJO
+  roleType: 	"java.util.ArrayList<%s>"
+
+- neighbors7: 	AssocRole
+  aggregation: 	false
+  cardinality: 	42
+  clazz: 	field2
+  modified: 	false
+  name: 	Neighbors
+  other: 	field8
+  propertyStyle: 	POJO
+  roleType: 	"java.util.ArrayList<%s>"
+
+- field8: 	AssocRole
+  aggregation: 	false
+  cardinality: 	1
+  clazz: 	field2
+  modified: 	false
+  name: 	field
+  other: 	neighbors7
+  propertyStyle: 	POJO
+  roleType: 	"java.util.ArrayList<%s>"
+
+- id9: 	Attribute
   clazz: 	mineSweeper3
   modified: 	false
   name: 	id
   propertyStyle: 	POJO
   type: 	String
+
+- fields10: 	AssocRole
+  aggregation: 	false
+  cardinality: 	42
+  clazz: 	mineSweeper3
+  modified: 	false
+  name: 	fields
+  other: 	parent6
+  propertyStyle: 	POJO
+  roleType: 	"java.util.ArrayList<%s>"
 

@@ -39,7 +39,7 @@ createPhrase: ('create' | 'creates') A? className=NAME ('cards'|'card')? withCla
 
 verbPhrase: verb=('adds'|'puts'|'reads'|'writes') A? value=valueClause
                 ('from' A? fromAttrName=NAME ('to' secondFromAttrName=NAME)? ('of' A? fromObjName=NAME)? )?
-                ('into' toAttrName=NAME ('of' A? toObjName=NAME)? )? ;
+                ('into' toAttrName=NAME ('of' toObjClause=valueClause)?)? ;
 
 answerPhrase: 'answers' ('with'|':')? value=valueClause;
 
