@@ -1,6 +1,10 @@
 
 grammar FulibScenarios;
 
+@header {
+package org.fulib.scenarios.compiler;
+}
+
 scenario: '#'+ 'Scenario' any+ '.' sentence*
         | '#'+ 'Register' classDef*
           ;

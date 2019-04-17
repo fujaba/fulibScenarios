@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'antlr'
 }
 
 group 'org.fulib'
@@ -14,10 +15,23 @@ repositories {
     maven { url = 'https://mvnrepository.com/artifact/org.apache.bcel/bcel' }
 }
 
+// prevent full ANTLR dependency, only ANTLR-runtime is needed in the final artifact
+configurations {
+    compile {
+        extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+    }
+}
+
 dependencies {
     // https://mvnrepository.com/artifact/org.antlr/antlr4
-    compile 'org.antlr:antlr4:4.7'
-    compile 'org.antlr:ST4:4.0.8'
+    antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
+
+    // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
+    compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.7.2'
+
+    // https://mvnrepository.com/artifact/org.antlr/ST4
+    compile group: 'org.antlr', name: 'ST4', version: '4.0.8'
+
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
     compile files('../fulibYaml/build/libs/fulibYaml-1.0.1-SNAPSHOT.jar')
@@ -28,4 +42,4 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-
+sourceSets.main.java.srcDir("$buildDir/generated-src/antlr/main/")
