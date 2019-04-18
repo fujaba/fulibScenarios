@@ -177,6 +177,10 @@ public class MineSweeper
 
 
    public void init(){ 
+      java.util.ArrayList<String> tmpValueList = new java.util.ArrayList<>();
+      tmpValueList.add("hello");
+      tmpValueList.add("world");
+      java.util.ArrayList<String> wordList = tmpValueList;
       java.util.ArrayList<String> idList = new java.util.ArrayList<String>();
       for (int i = 1; i <= 9; i++) {
          idList.add("f"+i);
@@ -221,6 +225,6 @@ public class MineSweeper
       for (int i = 10; i <= 20; i++) {
          tmpIntValueList.add(i);
       }
-      // list to single value to be done 
+      java.util.ArrayList<Integer> myNumberList = tmpIntValueList;
    }
 }
