@@ -17,11 +17,13 @@ CALL:     'call';
 CALLS:    'calls';
 CARD:     'card';
 CARDS:    'cards';
+CF:       'cf.';
 CONTAIN:  'contain';
 CONTAINS: 'contains';
 CREATE:   'create';
 CREATES:  'creates';
 DOES:     'does';
+EG:       'e.g.';
 EQUAL:    'equal';
 EXPECT:   'expect';
 FROM:     'from';
@@ -32,11 +34,14 @@ INTO:     'into';
 IS:       'is';
 IT:       'it';
 LESS:     'less';
+MANY:     'many';
 NOT:      'not';
 OF:       'of';
 ON:       'on';
+ONE:      'one';
 READ:     'read';
 READS:    'reads';
+REGISTER: 'register';
 SAME:     'same';
 SCENARIO: 'Scenario';
 THAN:     'than';
@@ -57,6 +62,7 @@ H1:        '#';
 H2:        '##';
 COMMA:     ',';
 FULL_STOP: '.';
+PLUS:      '+';
 
 // --------------- Literals ---------------
 
