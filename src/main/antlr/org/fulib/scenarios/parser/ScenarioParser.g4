@@ -3,7 +3,7 @@ parser grammar ScenarioParser;
 options { tokenVocab = ScenarioLexer; }
 
 @header {
-package org.fulib.scenarios.compiler;
+package org.fulib.scenarios.parser;
 }
 
 // =============== Scenarios ===============

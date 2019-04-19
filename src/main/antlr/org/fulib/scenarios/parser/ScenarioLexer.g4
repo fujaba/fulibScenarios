@@ -1,5 +1,9 @@
 lexer grammar ScenarioLexer;
 
+@header {
+package org.fulib.scenarios.parser;
+}
+
 // --------------- Keywords ---------------
 
 A:        'a';
