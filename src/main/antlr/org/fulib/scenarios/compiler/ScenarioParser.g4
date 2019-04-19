@@ -1,13 +1,15 @@
-grammar Scenario;
+parser grammar ScenarioParser;
+
+options { tokenVocab = ScenarioLexer; }
 
 @header {
 package org.fulib.scenarios.compiler;
 }
 
-scenario: header sentence*;
-header: H1 SCENARIO ~FULL_STOP+ FULL_STOP;
+// =============== Scenarios ===============
 
-// =============== Parser ===============
+scenario: header sentence* EOF;
+header: H1 SCENARIO ~FULL_STOP+ FULL_STOP;
 
 // --------------- Expressions ---------------
 
@@ -76,7 +78,7 @@ expectSentence: WE EXPECT thatClauses;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
-diagramSentence: '![' multiName '](' ~')'+ ')';
+diagramSentence: IMG_START multiName IMG_SEP FILE_NAME IMG_END;
 
 // --------------- Phrases ---------------
 
@@ -111,75 +113,3 @@ writeSV: name (READS | WRITES) | WE (READ | WRITE);
 
 answerPhrase: answerSV WITH expr;
 answerSV: WE ANSWER | actor ANSWERS;
-
-// =============== Lexer ===============
-
-// --------------- Keywords ---------------
-
-A:        'a';
-AN:       'an';
-AND:      'and';
-ANSWER:   'answer';
-ANSWERS:  'answers';
-ARE:      'are';
-AS:       'as';
-CALL:     'call';
-CALLS:    'calls';
-CARD:     'card';
-CARDS:    'cards';
-CONTAIN:  'contain';
-CONTAINS: 'contains';
-CREATE:   'create';
-CREATES:  'creates';
-DOES:     'does';
-EQUAL:    'equal';
-EXPECT:   'expect';
-FROM:     'from';
-GREATER:  'greater';
-HAS:      'has';
-IN:       'in';
-INTO:     'into';
-IS:       'is';
-IT:       'it';
-LESS:     'less';
-NOT:      'not';
-OF:       'of';
-ON:       'on';
-READ:     'read';
-READS:    'reads';
-SAME:     'same';
-SCENARIO: 'Scenario';
-THAN:     'than';
-THAT:     'that';
-THE:      'the';
-THEN:     'then';
-THERE:    'there';
-THROUGH:  'through';
-TO:       'to';
-WE:       'We' | 'we';
-WITH:     'with';
-WRITE:    'write';
-WRITES:   'writes';
-
-// --------------- Key Symbols ---------------
-
-H1:        '#';
-H2:        '##';
-COMMA:     ',';
-FULL_STOP: '.';
-
-// --------------- Literals ---------------
-
-NUMBER:         '-'? [0-9]+ ('.' [0-9]+)?;
-STRING_LITERAL: ['] [^']* [']
-              | '"' [^"]* '"';
-
-// --------------- Words ---------------
-
-WORD: [a-zA-Z][a-zA-Z0-9']*;
-
-// --------------- Whitespace ---------------
-
-WS:           [ \t\r\n\u000C]+ -> skip;
-COMMENT:      '<!--' .*? '-->'    -> channel(HIDDEN);
-LINE_COMMENT: '//' ~[\r\n]*    -> channel(HIDDEN);
