@@ -4,20 +4,24 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.fulib.StrUtil;
 import org.fulib.builder.ClassModelBuilder;
-import org.fulib.builder.ModelEventManager;
 import org.fulib.builder.ClassModelManager;
+import org.fulib.builder.ModelEventManager;
 import org.fulib.classmodel.AssocRole;
 import org.fulib.classmodel.ClassModel;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
+import org.fulib.scenarios.parser.FulibScenariosBaseListener;
+import org.fulib.scenarios.parser.FulibScenariosParser;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroupFile;
 import org.stringtemplate.v4.StringRenderer;
 
-import java.sql.Struct;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

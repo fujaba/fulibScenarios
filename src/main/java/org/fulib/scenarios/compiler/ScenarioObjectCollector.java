@@ -2,13 +2,9 @@ package org.fulib.scenarios.compiler;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.fulib.Fulib;
 import org.fulib.StrUtil;
-import org.fulib.builder.ClassBuilder;
-import org.fulib.builder.ClassModelBuilder;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroupFile;
-import org.stringtemplate.v4.StringRenderer;
+import org.fulib.scenarios.parser.FulibScenariosBaseListener;
+import org.fulib.scenarios.parser.FulibScenariosParser;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
