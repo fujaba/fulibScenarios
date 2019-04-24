@@ -711,6 +711,16 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
          return;
       }
       else if (isList(valueDataNameList) && ! isList(toObjNameList)) {
+         if (toAttrName != null && toObjName == null) {
+            String valueClassName = map.get(VALUE_CLASS_NAME);
+            String valueListName = map.get(VALUE_LIST_NAME);
+            String assignPart = String.format("" +
+                        indent + "      java.util.ArrayList<%s> %s = %s;\n",
+                  valueClassName, toAttrName, valueListName);
+            appendToCurrentMethodBody(assignPart);
+            return;
+
+         }
          String assignPart = String.format("%s%s",
                "", "      // list to single value to be done \n");
          appendToCurrentMethodBody(assignPart);
@@ -1130,6 +1140,12 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
             if (indexPart == null) {
                valueAccess = v;
                valueClassName = this.object2ClassMap.get(v);
+               if (valueClassName == null) {
+                  valueClassName = getAttrType(v);
+                  if (ClassModelBuilder.STRING.equals(valueClassName)) {
+                     valueAccess = "\"" + v + "\"";
+                  }
+               }
             } else {
                fromListName = truncate(v, indexPart.length());
 
