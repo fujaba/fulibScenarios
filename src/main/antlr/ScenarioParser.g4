@@ -5,23 +5,27 @@ options { tokenVocab = ScenarioLexer; }
 // =============== Scenarios ===============
 
 scenario: header sentence* EOF;
-header: H1 SCENARIO ~FULL_STOP+ FULL_STOP;
+header: H1 SCENARIO scenarioName FULL_STOP;
+scenarioName: ~FULL_STOP+;
 
 // --------------- Expressions ---------------
 
 expr: access | collection;
 
 // Primary
-primary: NUMBER | STRING_LITERAL | IT | nameAccess;
+primary: number | stringLiteral | it | nameAccess;
 primaryExpr: primary | primaryCollection;
 
+number: NUMBER;
+stringLiteral: STRING_LITERAL;
+it: IT;
+
 simpleName: THE? WORD;
-multiName: THE? WORD+;
-name: multiName;
+name: THE? WORD+;
 
-nameAccess: multiName;
+nameAccess: name;
 
-string: (WORD | NUMBER)+;
+// string: (WORD | NUMBER)+;
 
 // Access
 
@@ -50,7 +54,7 @@ primaryListElem: primary | primaryRange;
 
 condExpr: attrCheck | condOpExpr;
 attrCheck: access HAS simpleName primary
-         | access HAS NUMBER multiName;
+         | access HAS NUMBER name;
 
 condOpExpr: access condOp access;
 condOp: eqOp | cmpOp | collOp;
@@ -68,13 +72,13 @@ sentence: phrase FULL_STOP | thereSentence | isSentence | expectSentence | diagr
 thereSentence: THERE IS descriptor FULL_STOP
 | THERE ARE descriptor (sep descriptor)+ FULL_STOP;
 
-isSentence: multiName IS constructor;
+isSentence: name IS constructor;
 
 expectSentence: WE EXPECT thatClauses;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
-diagramSentence: IMG_START multiName IMG_SEP FILE_NAME IMG_END;
+diagramSentence: IMG_START name IMG_SEP FILE_NAME IMG_END;
 
 // --------------- Phrases ---------------
 
@@ -86,18 +90,18 @@ phrase: createPhrase | callPhrase | writePhrase | answerPhrase;
 createPhrase: createSV descriptor (sep descriptor)*;
 createSV: WE CREATE | actor CREATES;
 
-descriptor: (multiName COMMA?)? constructor;
+descriptor: (name COMMA?)? constructor;
 constructor: typeClause withClauses?;
-typeClause: (A | AN) multiName CARD?
-          | multiName CARDS;
+typeClause: (A | AN) name CARD?
+          | name CARDS;
 
 withClauses: withClause (sep withClause)*;
-withClause: WITH simpleName primaryExpr
-          | WITH NUMBER multiName;
+withClause: WITH simpleName primaryExpr # SimpleWithClause
+          | WITH NUMBER name # NumberWithClause;
 
 // Calls
 
-callPhrase: callSV multiName ON expr withClauses?;
+callPhrase: callSV name ON expr withClauses?;
 callSV: WE CALL | actor CALLS;
 
 // Write
