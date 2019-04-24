@@ -2,10 +2,6 @@ parser grammar ScenarioParser;
 
 options { tokenVocab = ScenarioLexer; }
 
-@header {
-package org.fulib.scenarios.parser;
-}
-
 // =============== Scenarios ===============
 
 scenario: header sentence* EOF;

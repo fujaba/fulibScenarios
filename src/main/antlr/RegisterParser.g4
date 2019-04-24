@@ -2,10 +2,6 @@ parser grammar RegisterParser;
 
 options { tokenVocab = ScenarioLexer; }
 
-@header {
-package org.fulib.scenarios.parser;
-}
-
 // =============== Register ===============
 
 register: H1 REGISTER classDef*;

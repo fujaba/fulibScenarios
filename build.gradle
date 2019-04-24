@@ -42,7 +42,18 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-sourceSets.main.java.srcDir("$buildDir/generated-src/antlr/main/")
+// --------------- ANTLR ---------------
+
+def generatedANTLRDir = "$buildDir/generated-src/antlr/main/"
+
+sourceSets.main.java.srcDir(generatedANTLRDir)
+
+// https://stackoverflow.com/questions/40995727/gradle-cant-find-antlr-token-file
+generateGrammarSource {
+    def packageName = 'org.fulib.scenarios.parser'
+    arguments += [ '-package', packageName ]
+    outputDirectory = file("$generatedANTLRDir/${ packageName.replace('.', '/') }/")
+}
 
 // --------------- GenTreeSrc ---------------
 
