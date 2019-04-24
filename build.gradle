@@ -10,6 +10,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    jcenter()
 
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url = 'https://mvnrepository.com/artifact/org.apache.bcel/bcel' }
@@ -42,3 +43,25 @@ dependencies {
 }
 
 sourceSets.main.java.srcDir("$buildDir/generated-src/antlr/main/")
+
+// --------------- GenTreeSrc ---------------
+
+def gentreesrcDir = "$buildDir/generated-src/gentreesrc/main/"
+
+configurations.create('gentreesrc')
+
+dependencies {
+    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.2.0'
+}
+
+tasks.register('gentreesrc', JavaExec) {
+
+    classpath = configurations.gentreesrc
+    main = 'de.clashsoft.gentreesrc.Main'
+    args = [ 'src/main/gentreesrc/FulibScenarios.gts', gentreesrcDir ]
+
+    inputs.dir("src/main/gentreesrc/")
+    outputs.dir(gentreesrcDir)
+}
+
+sourceSets.main.java.srcDir(files(gentreesrcDir).builtBy('gentreesrc'))
