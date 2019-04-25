@@ -33,6 +33,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.antlr/ST4
     compile group: 'org.antlr', name: 'ST4', version: '4.0.8'
 
+    // https://mvnrepository.com/artifact/commons-cli/commons-cli
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
     compile 'org.fulib:fulib:1.0.+'
