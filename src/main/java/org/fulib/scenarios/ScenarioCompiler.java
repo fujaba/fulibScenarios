@@ -14,10 +14,7 @@ import org.fulib.scenarios.parser.ScenarioParser;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.Tool;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 
 public class ScenarioCompiler implements Tool
@@ -28,11 +25,34 @@ public class ScenarioCompiler implements Tool
 
    // =============== Fields ===============
 
+   private PrintWriter out;
+   private PrintWriter err;
+
    private Config config = new Config();
 
    private List<Package> packages = new ArrayList<>();
 
    // =============== Properties ===============
+
+   public PrintWriter getOut()
+   {
+      return this.out;
+   }
+
+   public void setOut(PrintWriter out)
+   {
+      this.out = out;
+   }
+
+   public PrintWriter getErr()
+   {
+      return this.err;
+   }
+
+   public void setErr(PrintWriter err)
+   {
+      this.err = err;
+   }
 
    @Override
    public Set<SourceVersion> getSourceVersions()
@@ -45,15 +65,21 @@ public class ScenarioCompiler implements Tool
    @Override
    public int run(InputStream in, OutputStream out, OutputStream err, String... arguments)
    {
-      if (!this.readArguments(arguments))
-      {
-         return 1;
-      }
+      this.setOut(new PrintWriter(out));
+      this.setErr(new PrintWriter(err));
 
-      return this.run();
+      try
+      {
+         return this.run(arguments);
+      }
+      finally
+      {
+         this.getOut().flush();
+         this.getErr().flush();
+      }
    }
 
-   boolean readArguments(String[] arguments)
+   public int run(String[] arguments)
    {
       Options options = this.config.createOptions();
 
@@ -70,14 +96,14 @@ public class ScenarioCompiler implements Tool
          System.out.println(e.getMessage());
          formatter.printHelp(TOOL_NAME, options);
 
-         return false;
+         return 1;
       }
 
       this.config.readOptions(cmd);
-      return true;
+      return this.run();
    }
 
-   int run()
+   public int run()
    {
       this.discover();
       return 0;
@@ -131,13 +157,14 @@ public class ScenarioCompiler implements Tool
       // TODO use tool out and err streams
 
       final CharStream input;
-      try {
+      try
+      {
          input = CharStreams.fromPath(file.toPath());
       }
       catch (IOException e)
       {
-         System.err.println("failed to read scenario file " + file);
-         e.printStackTrace();
+         this.getErr().println("failed to read scenario file " + file);
+         e.printStackTrace(this.getErr());
          return null;
       }
 
@@ -149,7 +176,7 @@ public class ScenarioCompiler implements Tool
 
       if (syntaxErrors > 0)
       {
-         System.err.println(syntaxErrors + " syntax errors in scenario " + file);
+         this.getErr().println(syntaxErrors + " syntax errors in scenario " + file);
          return null;
       }
 
@@ -158,13 +185,13 @@ public class ScenarioCompiler implements Tool
          final ASTListener listener = new ASTListener();
          ParseTreeWalker.DEFAULT.walk(listener, context);
 
-         System.out.println("read scenario " + file);
+         this.getErr().println("read scenario " + file);
          return listener.getScenario();
       }
       catch (Exception e)
       {
-         System.err.println("failed to transform scenario " + file);
-         e.printStackTrace();
+         this.getErr().println("failed to transform scenario " + file);
+         e.printStackTrace(this.getErr());
          return null;
       }
    }
