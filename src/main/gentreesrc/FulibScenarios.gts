@@ -1,6 +1,7 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 org.fulib.scenarios.ast.Node {
+	Package(name: String, scenarios: [Scenario], /* register: Register */)
 	Scenario(name: String, sentences: [Sentence])
 
 	sentence.Sentence {
