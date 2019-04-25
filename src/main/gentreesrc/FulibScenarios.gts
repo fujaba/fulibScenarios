@@ -1,6 +1,8 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 org.fulib.scenarios.ast.Node {
+	Scenario(name: String, sentences: [Sentence])
+
 	expr.Expr {
 		primary.PrimaryExpr {
 			NumberLiteral(value: double)
