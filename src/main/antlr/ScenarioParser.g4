@@ -123,4 +123,4 @@ typeClause: (A | AN) name CARD?
 
 withClauses: withClause (sep withClause)*;
 withClause: WITH simpleName primaryExpr # SimpleWithClause
-          | WITH NUMBER name # NumberWithClause;
+          | WITH number name # NumberWithClause;
