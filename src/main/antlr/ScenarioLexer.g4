@@ -44,7 +44,7 @@ THAN:     'than';
 THAT:     'that';
 THE:      'the';
 THEN:     'then';
-THERE:    'there';
+THERE:    'There' | 'there';
 THROUGH:  'through';
 TO:       'to';
 WE:       'We' | 'we';
