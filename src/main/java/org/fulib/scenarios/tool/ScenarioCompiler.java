@@ -1,4 +1,4 @@
-package org.fulib.scenarios;
+package org.fulib.scenarios.tool;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -7,7 +7,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.*;
 import org.fulib.scenarios.ast.Package;
 import org.fulib.scenarios.ast.Scenario;
-import org.fulib.scenarios.config.Config;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;

@@ -1,5 +1,7 @@
 package org.fulib.scenarios;
 
+import org.fulib.scenarios.tool.ScenarioCompiler;
+
 public class Main
 {
    public static void main(String[] args)

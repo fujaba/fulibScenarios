@@ -1,4 +1,4 @@
-package org.fulib.scenarios.config;
+package org.fulib.scenarios.tool;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
