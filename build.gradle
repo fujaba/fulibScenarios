@@ -50,7 +50,7 @@ dependencies {
 
 // --------------- ANTLR ---------------
 
-def generatedANTLRDir = "$buildDir/generated-src/antlr/main/java/"
+def generatedANTLRDir = "$buildDir/generated-src/antlr/main/"
 
 sourceSets.main.java.srcDir(generatedANTLRDir)
 
