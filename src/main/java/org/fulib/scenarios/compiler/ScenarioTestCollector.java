@@ -351,7 +351,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
       {
          Clazz clazz = this.getModelManager().haveClass(className);
          FMethod method = this.getModelManager().haveMethod(clazz, methodName);
-         method.setReturnType("void");
+         method.writeReturnType("void");
 
 
          for (Map.Entry<String, String> entry : this.methodParams.entrySet())
@@ -365,7 +365,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
             {
                paramType = getAttrType(paramValue);
             }
-            method.getParams().put(paramName, paramType);
+            method.readParams().put(paramName, paramType);
          }
       }
    }
@@ -1290,7 +1290,7 @@ public class ScenarioTestCollector extends FulibScenariosBaseListener
 
       if (this.currentMethod.getMethodBody() != null) {
          String result = String.format("      return %s;\n", returnValue);
-         this.currentMethod.setReturnType(resultType);
+         this.currentMethod.writeReturnType(resultType);
          appendToCurrentMethodBody(result);
       }
 

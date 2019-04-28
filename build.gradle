@@ -25,6 +25,7 @@ configurations {
 }
 
 dependencies {
+    compile group: 'de.clashsoft', name: 'gentreesrc', version: '0.3.1'
     gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.3.1'
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
@@ -41,7 +42,8 @@ dependencies {
 
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
-    compile 'org.fulib:fulib:1.0.+'
+    compile files('libs/fulib-1.0.7.jar')
+    // compile 'org.fulib:fulib:1.0.+'
     compile 'org.fulib:fulibTools:1.0.+'
     compile 'org.fulib:fulibYaml:1.0.+'
 
