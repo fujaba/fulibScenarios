@@ -7,9 +7,12 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.*;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
+import org.fulib.scenarios.transform.NameResolver;
+import org.fulib.scenarios.transform.SymbolCollector;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.Tool;
@@ -105,6 +108,7 @@ public class ScenarioCompiler implements Tool
    public int run()
    {
       this.discover();
+      this.groups.forEach(this::processGroup);
       return 0;
    }
 
@@ -193,5 +197,14 @@ public class ScenarioCompiler implements Tool
          e.printStackTrace(this.getErr());
          return null;
       }
+   }
+
+   private void processGroup(ScenarioGroup scenarioGroup)
+   {
+      final Map<String, Decl> symbolTable = new HashMap<>();
+      scenarioGroup.accept(new SymbolCollector(symbolTable), null);
+      scenarioGroup.accept(new NameResolver(symbolTable), null);
+
+      // scenarioGroup.accept(new CodeGenerator(), null);
    }
 }
