@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
+import org.fulib.scenarios.transform.CodeGenerator;
 import org.fulib.scenarios.transform.NameResolver;
 import org.fulib.scenarios.transform.SymbolCollector;
 
@@ -204,7 +205,6 @@ public class ScenarioCompiler implements Tool
       final Map<String, Decl> symbolTable = new HashMap<>();
       scenarioGroup.accept(new SymbolCollector(symbolTable), null);
       scenarioGroup.accept(new NameResolver(symbolTable), null);
-
-      // scenarioGroup.accept(new CodeGenerator(), null);
+      scenarioGroup.accept(new CodeGenerator(this.config), null);
    }
 }
