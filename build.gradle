@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'antlr'
-    id 'de.clashsoft.gentreesrc-gradle' version '0.1.1'
+    id 'de.clashsoft.gentreesrc-gradle' version '0.3.0'
 }
 
 group 'org.fulib'
@@ -25,8 +25,8 @@ configurations {
 }
 
 dependencies {
-    compile group: 'de.clashsoft', name: 'gentreesrc', version: '0.3.1'
-    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.3.1'
+    compile group: 'de.clashsoft', name: 'gentreesrc', version: '0.4.0'
+    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.4.0'
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
