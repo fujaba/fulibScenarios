@@ -23,7 +23,8 @@ import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 import org.fulib.scenarios.tool.Config;
 
-public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>
+public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
+                                         Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Object>
 {
    private final Config config;
 
@@ -93,10 +94,79 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       for (VarDecl var : thereSentence.getVars())
       {
          this.bodyBuilder.append("Object ").append(var.getName()).append(" = ");
-         // TODO expr
-         this.bodyBuilder.append("\"test\"");
+         var.getExpr().accept(this, par);
          this.bodyBuilder.append(";\n");
       }
       return null;
+   }
+
+   // --------------- Expr.Visitor ---------------
+
+   @Override
+   public Object visit(Expr expr, Object par)
+   {
+      return null;
+   }
+
+   @Override
+   public Object visit(AttributeAccess attributeAccess, Object par)
+   {
+      attributeAccess.getReceiver().accept(this, par);
+      this.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null)))
+                      .append("()");
+      return null;
+   }
+
+   @Override
+   public Object visit(ExampleAccess exampleAccess, Object par)
+   {
+      exampleAccess.getExpr().accept(this, par);
+      return null;
+   }
+
+   @Override
+   public Object visit(CreationExpr creationExpr, Object par)
+   {
+      final String className = StrUtil.cap(creationExpr.getClassName().accept(Namer.INSTANCE, null));
+      final Clazz clazz = this.modelManager.haveClass(className);
+
+      this.bodyBuilder.append("new ").append(className).append("()");
+      for (NamedExpr attribute : creationExpr.getAttributes())
+      {
+         final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
+
+         this.modelManager.haveAttribute(clazz, attributeName, "Object"); // TODO proper type
+
+         this.bodyBuilder.append(".set").append(StrUtil.cap(attributeName)).append("(");
+         attribute.getExpr().accept(this, par);
+         this.bodyBuilder.append(")");
+      }
+      return null;
+   }
+
+   @Override
+   public Object visit(PrimaryExpr primaryExpr, Object par)
+   {
+      return null;
+   }
+
+   @Override
+   public Object visit(NameAccess nameAccess, Object par)
+   {
+      this.bodyBuilder.append(nameAccess.getName().accept(Namer.INSTANCE, null));
+      return null;
+   }
+
+   @Override
+   public Object visit(NumberLiteral numberLiteral, Object par)
+   {
+      return this.bodyBuilder.append(numberLiteral.getValue());
+   }
+
+   @Override
+   public Object visit(StringLiteral stringLiteral, Object par)
+   {
+      // TODO escape characters
+      return this.bodyBuilder.append('"').append(stringLiteral.getValue()).append('"');
    }
 }
