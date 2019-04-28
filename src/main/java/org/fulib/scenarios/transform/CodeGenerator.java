@@ -93,7 +93,8 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    {
       for (VarDecl var : thereSentence.getVars())
       {
-         this.bodyBuilder.append("Object ").append(var.getName()).append(" = ");
+         final String type = var.accept(new Typer(this.modelManager.getClassModel()), null);
+         this.bodyBuilder.append(type).append(' ').append(var.getName()).append(" = ");
          var.getExpr().accept(this, par);
          this.bodyBuilder.append(";\n");
       }
@@ -127,15 +128,16 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(CreationExpr creationExpr, Object par)
    {
-      final String className = StrUtil.cap(creationExpr.getClassName().accept(Namer.INSTANCE, null));
+      final String className = creationExpr.accept(new Typer(null), null);
       final Clazz clazz = this.modelManager.haveClass(className);
 
       this.bodyBuilder.append("new ").append(className).append("()");
       for (NamedExpr attribute : creationExpr.getAttributes())
       {
          final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
+         final String attributeType = attribute.getExpr().accept(new Typer(this.modelManager.getClassModel()), null);
 
-         this.modelManager.haveAttribute(clazz, attributeName, "Object"); // TODO proper type
+         this.modelManager.haveAttribute(clazz, attributeName, attributeType);
 
          this.bodyBuilder.append(".set").append(StrUtil.cap(attributeName)).append("(");
          attribute.getExpr().accept(this, par);
