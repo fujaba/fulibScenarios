@@ -5,8 +5,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.*;
-import org.fulib.scenarios.ast.Package;
 import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
@@ -29,7 +29,7 @@ public class ScenarioCompiler implements Tool
 
    private Config config = new Config();
 
-   private List<Package> packages = new ArrayList<>();
+   private List<ScenarioGroup> groups = new ArrayList<>();
 
    // =============== Properties ===============
 
@@ -147,7 +147,7 @@ public class ScenarioCompiler implements Tool
 
       if (!scenarios.isEmpty())
       {
-         this.packages.add(Package.of(packageName, scenarios));
+         this.groups.add(ScenarioGroup.of(packageName, scenarios));
       }
    }
 
