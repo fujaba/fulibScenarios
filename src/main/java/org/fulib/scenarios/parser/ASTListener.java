@@ -6,10 +6,16 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.fulib.StrUtil;
-import org.fulib.scenarios.ast.*;
+import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.Node;
+import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.decl.Name;
+import org.fulib.scenarios.ast.decl.UnresolvedName;
+import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
@@ -51,10 +57,10 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
    {
-      final List<Descriptor> descriptors = this.stack.stream().map(it -> (Descriptor) it)
-                                                     .collect(Collectors.toList());
+      final List<VarDecl> vars = this.stack.stream().map(it -> (VarDecl) it)
+                                                  .collect(Collectors.toList());
       this.stack.clear();
-      this.scenario.getSentences().add(ThereSentence.of(descriptors));
+      this.scenario.getSentences().add(ThereSentence.of(vars));
    }
 
    // --------------- Phrases ---------------
@@ -62,9 +68,9 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitDescriptor(ScenarioParser.DescriptorContext ctx)
    {
-      final Name name = name(ctx.name());
-      final Constructor ctor = (Constructor) this.stack.pop();
-      this.stack.push(Descriptor.of(name, ctor));
+      final String name = varName(ctx.name());
+      final CreationExpr ctor = (CreationExpr) this.stack.pop();
+      this.stack.push(VarDecl.of(name, ctor));
    }
 
    @Override
@@ -73,7 +79,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name className = name(ctx.typeClause().name());
       final List<NamedExpr> parameters = this.stack.stream().map(it -> (NamedExpr) it).collect(Collectors.toList());
       this.stack.clear();
-      this.stack.push(Constructor.of(className, parameters));
+      this.stack.push(CreationExpr.of(className, parameters));
    }
 
    @Override
@@ -145,28 +151,30 @@ public class ASTListener extends ScenarioParserBaseListener
       return context.WORD().stream().map(TerminalNode::getText).map(StrUtil::cap).collect(Collectors.joining(""));
    }
 
+   static String varName(ScenarioParser.NameContext context)
+   {
+      return context == null ? null : StrUtil.downFirstChar(joinCaps(context));
+   }
+
+   static String varName(ScenarioParser.SimpleNameContext context)
+   {
+      return context == null ? null : StrUtil.downFirstChar(context.WORD().getText());
+   }
+
    static Name name(ScenarioParser.SimpleNameContext simpleName)
    {
-      if (simpleName == null)
-      {
-         return null;
-      }
-
-      final String value = StrUtil.downFirstChar(simpleName.WORD().getText());
-      final String text = inputText(simpleName);
-      return Name.of(value, text);
+      return simpleName == null ? null : name(varName(simpleName), simpleName);
    }
 
    static Name name(ScenarioParser.NameContext multiName)
    {
-      if (multiName == null)
-      {
-         return null;
-      }
+      return multiName == null ? null : name(varName(multiName), multiName);
+   }
 
-      final String value = StrUtil.downFirstChar(joinCaps(multiName));
-      final String text = inputText(multiName);
-      return Name.of(value, text);
+   private static Name name(String value, ParserRuleContext rule)
+   {
+      final String text = inputText(rule);
+      return UnresolvedName.of(value, text);
    }
 
    static String inputText(ParserRuleContext ctx)

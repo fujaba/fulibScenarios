@@ -4,12 +4,21 @@ abstract org.fulib.scenarios.ast.Node {
 	ScenarioGroup(name: String, scenarios: [Scenario], /* register: Register */)
 	Scenario(name: String, sentences: [Sentence])
 
+	abstract decl.Decl(name: String) {
+		VarDecl(name: String, expr: Expr)
+	}
+
+	abstract decl.Name {
+		UnresolvedName(value: String, text: String)
+		ResolvedName(decl: Decl)
+	}
+
 	abstract sentence.Sentence {
-		ThereSentence(descriptors: [Descriptor]) // like CreatePhrase, but without an actor
+		ThereSentence(vars: [VarDecl]) // like CreatePhrase, but without an actor
 
 		/*
 		PhraseSentence(phrase: Phrase)
-		IsSentence(descriptor: Descriptor) // like ThereSentence, but only one declaration.
+		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 		*/
@@ -17,16 +26,13 @@ abstract org.fulib.scenarios.ast.Node {
 
 	abstract phrase.Phrase {
 		/*
-		CreatePhrase(actor: String, descriptors: [Descriptor]) // i.e. declarations with constructor calls
+		CreatePhrase(actor: String, vars: [VarDecl]) // i.e. declarations with constructor calls
 		WritePhrase(actor: String, lhs: Expr, rhs: Expr) // i.e. an assignment
 
 		CallPhrase(actor: String, receiver: Expr, name: Name, parameters: [NamedExpr]) // i.e. a method call
 		*/
 	}
 
-	Name(value: String, text: String)
-	Descriptor(name: Name, constructor: Constructor)
-	Constructor(className: Name, parameters: [NamedExpr])
 	NamedExpr(name: Name, expr: Expr)
 
 	abstract expr.Expr {
@@ -38,6 +44,8 @@ abstract org.fulib.scenarios.ast.Node {
 
 		access.AttributeAccess(name: Name, receiver: Expr)
 		access.ExampleAccess(value: Expr, expr: Expr)
+
+		call.CreationExpr(className: Name, attributes: [NamedExpr])
 
 		/*
 		abstract collection.CollectionExpr {
