@@ -23,6 +23,8 @@ public class NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scen
 {
    private final Map<String, Decl> symbolTable;
 
+   private VarDecl currentVar;
+
    public NameResolver(Map<String, Decl> symbolTable)
    {
       this.symbolTable = symbolTable;
@@ -65,8 +67,10 @@ public class NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scen
    {
       for (final VarDecl var : thereSentence.getVars())
       {
+         this.currentVar = var;
          var.setExpr(var.getExpr().accept(this, par));
       }
+      this.currentVar = null;
       return null;
    }
 
@@ -101,12 +105,20 @@ public class NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scen
    @Override
    public Expr visit(NameAccess nameAccess, Object par)
    {
-      final Name resolved = nameAccess.getName().accept(this, par);
-      if (resolved instanceof UnresolvedName)
+      if (nameAccess.getName() instanceof UnresolvedName)
       {
-         return StringLiteral.of(((UnresolvedName) resolved).getText());
+         final UnresolvedName unresolvedName = (UnresolvedName) nameAccess.getName();
+         final Decl target = this.symbolTable.get(unresolvedName.getValue());
+         if (target == null || target == this.currentVar)
+         {
+            return StringLiteral.of(unresolvedName.getText());
+         }
+         else
+         {
+            nameAccess.setName(ResolvedName.of(target));
+         }
       }
-      nameAccess.setName(resolved);
+
       return nameAccess;
    }
 
