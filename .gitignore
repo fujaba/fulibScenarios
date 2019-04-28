@@ -1,4 +1,9 @@
-.gradle/
-.idea/
-out/
-build/
+/.idea/
+/.gradle/
+
+/build/
+/out/
+/temp/
+/data/
+
+hs_err_pid*
