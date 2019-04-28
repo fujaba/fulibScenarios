@@ -4,8 +4,8 @@ abstract org.fulib.scenarios.ast.Node {
 	ScenarioGroup(name: String, scenarios: [Scenario], /* register: Register */)
 	Scenario(name: String, sentences: [Sentence])
 
-	abstract decl.Decl(name: String) {
-		VarDecl(name: String, expr: Expr)
+	abstract decl.Decl(name: String, type: String) {
+		VarDecl(name: String, type: String, expr: Expr)
 	}
 
 	abstract decl.Name {

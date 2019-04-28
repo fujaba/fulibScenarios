@@ -70,7 +70,7 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final String name = varName(ctx.name());
       final CreationExpr ctor = (CreationExpr) this.stack.pop();
-      this.stack.push(VarDecl.of(name, ctor));
+      this.stack.push(VarDecl.of(name, null, ctor));
    }
 
    @Override
