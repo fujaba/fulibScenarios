@@ -94,7 +94,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       for (VarDecl var : thereSentence.getVars())
       {
          final String type = var.accept(new Typer(this.modelManager.getClassModel()), null);
-         this.bodyBuilder.append(type).append(' ').append(var.getName()).append(" = ");
+         this.bodyBuilder.append("      ").append(type).append(' ').append(var.getName()).append(" = ");
          var.getExpr().accept(this, par);
          this.bodyBuilder.append(";\n");
       }
