@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'org.fulib'
-version '1.0-SNAPSHOT'
+version '1.0.1'
 
 sourceCompatibility = 1.8
 
@@ -41,7 +41,7 @@ dependencies {
 
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
-    compile files('libs/fulib-1.0.7.jar')
+    compile files('libs/fulib-1.0.8.jar')
     // compile 'org.fulib:fulib:1.0.+'
     compile 'org.fulib:fulibTools:1.0.+'
     compile 'org.fulib:fulibYaml:1.0.+'

@@ -74,7 +74,8 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       }
 
       final FMethod testMethod = new FMethod().writeName("test").writeReturnType("void")
-                                              .setMethodBody(this.bodyBuilder.toString());
+            .setAnnotations("@Test")
+            .setMethodBody(this.bodyBuilder.toString());
       this.classBuilder.getClazz().withMethods(testMethod);
 
       return null;
