@@ -4,6 +4,8 @@ plugins {
     id 'de.clashsoft.gentreesrc-gradle' version '0.3.0'
 }
 
+apply from: 'gradle/functional-test.gradle'
+
 group 'org.fulib'
 version '1.0.1'
 
