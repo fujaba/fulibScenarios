@@ -79,6 +79,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
             .setAnnotations("@Test")
             .setMethodBody(this.bodyBuilder.toString());
       this.classBuilder.getClazz().withMethods(testMethod);
+      this.classBuilder.getClazz().getImportList().add("import org.junit.Test;");
 
       return null;
    }
