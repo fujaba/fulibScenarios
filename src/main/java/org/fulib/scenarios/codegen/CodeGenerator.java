@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.codegen;
 
 import org.fulib.Generator;
 import org.fulib.StrUtil;
@@ -22,6 +22,8 @@ import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 import org.fulib.scenarios.tool.Config;
+import org.fulib.scenarios.transform.Namer;
+import org.fulib.scenarios.transform.Typer;
 
 public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
                                          Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Object>

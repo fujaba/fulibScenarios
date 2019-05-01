@@ -11,7 +11,7 @@ import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
-import org.fulib.scenarios.transform.CodeGenerator;
+import org.fulib.scenarios.codegen.CodeGenerator;
 import org.fulib.scenarios.transform.NameResolver;
 import org.fulib.scenarios.transform.SymbolCollector;
 
