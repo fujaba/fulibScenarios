@@ -15,11 +15,11 @@ abstract org.fulib.scenarios.ast.Node {
 
 	abstract sentence.Sentence {
 		ThereSentence(vars: [VarDecl]) // like CreatePhrase, but without an actor
+		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 
 		/*
 		PhraseSentence(phrase: Phrase)
 		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
-		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 		*/
 	}
@@ -47,16 +47,16 @@ abstract org.fulib.scenarios.ast.Node {
 
 		call.CreationExpr(className: Name, attributes: [NamedExpr])
 
+		abstract conditional.ConditionalExpr {
+			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
+			// ConditionalOperatorExpr(lhs: Expr, operator: ConditionalOperator, rhs: Expr)
+		}
+
 		/*
 		abstract collection.CollectionExpr {
 			RangeExpr(from: Expr, through: Expr)
 			ClosedRangeExpr(from: Expr, to: Expr)
 			ListExpr(elements: [Expr])
-		}
-
-		abstract conditional.ConditionalExpr {
-			AttributeCheckExpr(receiver: Expr, attribute: String, value: Expr)
-			ConditionalOperatorExpr(lhs: Expr, operator: ConditionalOperator, rhs: Expr)
 		}
 		*/
 	}
