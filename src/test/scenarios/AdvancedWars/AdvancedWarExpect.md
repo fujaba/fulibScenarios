@@ -1,5 +1,5 @@
 
-# Scenario Start Up.
+# Scenario Start Up with Expect.
 
 There is a Game. 
 
