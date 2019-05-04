@@ -126,7 +126,9 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final String text = ctx.STRING_LITERAL().getText();
       // TODO escape character processing
-      this.stack.push(StringLiteral.of(text));
+      // strip opening and closing quotes
+      final String value = text.substring(1, text.length() - 1);
+      this.stack.push(StringLiteral.of(value));
    }
 
    // TODO <it>
