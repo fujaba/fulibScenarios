@@ -8,10 +8,13 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 
@@ -71,6 +74,13 @@ public class NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scen
          var.setExpr(var.getExpr().accept(this, par));
       }
       this.currentVar = null;
+      return null;
+   }
+
+   @Override
+   public Object visit(ExpectSentence expectSentence, Object par)
+   {
+      expectSentence.getPredicates().replaceAll(it -> (ConditionalExpr) it.accept(this, par));
       return null;
    }
 
@@ -143,6 +153,20 @@ public class NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scen
          namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
       }
       return creationExpr;
+   }
+
+   @Override
+   public Expr visit(ConditionalExpr conditionalExpr, Object par)
+   {
+      return conditionalExpr;
+   }
+
+   @Override
+   public Expr visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   {
+      attributeCheckExpr.setReceiver(attributeCheckExpr.getReceiver().accept(this, par));
+      attributeCheckExpr.setValue(attributeCheckExpr.getValue().accept(this, par));
+      return attributeCheckExpr;
    }
 
    // --------------- Name.Visitor ---------------

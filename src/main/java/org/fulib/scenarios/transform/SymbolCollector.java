@@ -4,6 +4,7 @@ import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 
@@ -69,5 +70,11 @@ public class SymbolCollector implements ScenarioGroup.Visitor<Object, Object>, S
       }
 
       var.setName(var.getExpr().accept(Namer.INSTANCE, null));
+   }
+
+   @Override
+   public Object visit(ExpectSentence expectSentence, Object par)
+   {
+      return null;
    }
 }

@@ -12,6 +12,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
@@ -110,5 +112,17 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    public String visit(StringLiteral stringLiteral, Object par)
    {
       return "String";
+   }
+
+   @Override
+   public String visit(ConditionalExpr conditionalExpr, Object par)
+   {
+      return "boolean";
+   }
+
+   @Override
+   public String visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   {
+      return "boolean";
    }
 }

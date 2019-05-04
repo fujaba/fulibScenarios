@@ -16,9 +16,12 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 
 import java.util.ArrayDeque;
@@ -66,6 +69,13 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final List<VarDecl> vars = this.popAll(VarDecl.class);
       this.scenario.getSentences().add(ThereSentence.of(vars));
+   }
+
+   @Override
+   public void exitExpectSentence(ScenarioParser.ExpectSentenceContext ctx)
+   {
+      final List<ConditionalExpr> exprs = this.popAll(ConditionalExpr.class);
+      this.scenario.getSentences().add(ExpectSentence.of(exprs));
    }
 
    // --------------- Phrases ---------------
@@ -141,6 +151,15 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr value = (Expr) this.stack.pop();
       final Expr expr = (Expr) this.stack.pop();
       this.stack.push(ExampleAccess.of(value, expr));
+   }
+
+   @Override
+   public void exitAttrCheck(ScenarioParser.AttrCheckContext ctx)
+   {
+      final Expr receiver = (Expr) this.stack.pop();
+      final Name attribute = ctx.name() != null ? name(ctx.name()) : name(ctx.simpleName());
+      final Expr value = (Expr) this.stack.pop();
+      this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
    }
 
    // =============== Static Methods ===============
