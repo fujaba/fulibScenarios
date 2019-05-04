@@ -44,6 +44,13 @@ public class ASTListener extends ScenarioParserBaseListener
 
    // =============== Methods ===============
 
+   private <T> List<T> popAll(Class<T> type)
+   {
+      final List<T> result = this.stack.stream().map(type::cast).collect(Collectors.toList());
+      this.stack.clear();
+      return result;
+   }
+
    // --------------- Scenario ---------------
 
    @Override
@@ -57,9 +64,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
    {
-      final List<VarDecl> vars = this.stack.stream().map(it -> (VarDecl) it)
-                                                  .collect(Collectors.toList());
-      this.stack.clear();
+      final List<VarDecl> vars = this.popAll(VarDecl.class);
       this.scenario.getSentences().add(ThereSentence.of(vars));
    }
 
@@ -77,8 +82,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitConstructor(ScenarioParser.ConstructorContext ctx)
    {
       final Name className = name(ctx.typeClause().name());
-      final List<NamedExpr> parameters = this.stack.stream().map(it -> (NamedExpr) it).collect(Collectors.toList());
-      this.stack.clear();
+      final List<NamedExpr> parameters = this.popAll(NamedExpr.class);
       this.stack.push(CreationExpr.of(className, parameters));
    }
 
