@@ -202,9 +202,12 @@ public class ScenarioCompiler implements Tool
 
    private void processGroup(ScenarioGroup scenarioGroup)
    {
-      final Map<String, Decl> symbolTable = new HashMap<>();
-      scenarioGroup.accept(new SymbolCollector(symbolTable), null);
-      scenarioGroup.accept(new NameResolver(symbolTable), null);
+      for (Scenario scenario : scenarioGroup.getScenarios())
+      {
+         final Map<String, Decl> symbolTable = new HashMap<>();
+         scenario.accept(new SymbolCollector(symbolTable), null);
+         scenario.accept(new NameResolver(symbolTable), null);
+      }
       scenarioGroup.accept(new CodeGenerator(this.config), null);
    }
 }

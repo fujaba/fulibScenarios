@@ -2,7 +2,6 @@ package org.fulib.scenarios.transform;
 
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
-import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -20,9 +19,9 @@ import org.fulib.scenarios.ast.sentence.ThereSentence;
 
 import java.util.Map;
 
-public class NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
-                                        Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Expr>,
-                                        Name.Visitor<Object, Name>
+public class NameResolver
+   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Expr>,
+                 Name.Visitor<Object, Name>
 {
    private final Map<String, Decl> symbolTable;
 
@@ -31,18 +30,6 @@ public class NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scen
    public NameResolver(Map<String, Decl> symbolTable)
    {
       this.symbolTable = symbolTable;
-   }
-
-   // --------------- ScenarioGroup.Visitor ---------------
-
-   @Override
-   public Object visit(ScenarioGroup scenarioGroup, Object par)
-   {
-      for (final Scenario scenario : scenarioGroup.getScenarios())
-      {
-         scenario.accept(this, par);
-      }
-      return null;
    }
 
    // --------------- Scenario.Visitor ---------------
