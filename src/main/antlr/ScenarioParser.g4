@@ -57,7 +57,7 @@ primaryListElem: primary | primaryRange;
 
 condExpr: attrCheck /* | condOpExpr */;
 attrCheck: access HAS simpleName primary
-         | access HAS NUMBER name;
+         | access HAS number name;
 /*
 
 condOpExpr: access condOp access;
@@ -82,7 +82,7 @@ sentence: thereSentence
 thereSentence: THERE IS descriptor FULL_STOP
 | THERE ARE descriptor (sep descriptor)+ FULL_STOP;
 
-expectSentence: WE EXPECT thatClauses;
+expectSentence: WE EXPECT thatClauses FULL_STOP;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
