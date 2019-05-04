@@ -158,9 +158,9 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitAttrCheck(ScenarioParser.AttrCheckContext ctx)
    {
-      final Expr receiver = (Expr) this.stack.pop();
-      final Name attribute = ctx.name() != null ? name(ctx.name()) : name(ctx.simpleName());
       final Expr value = (Expr) this.stack.pop();
+      final Name attribute = ctx.name() != null ? name(ctx.name()) : name(ctx.simpleName());
+      final Expr receiver = (Expr) this.stack.pop();
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
    }
 
