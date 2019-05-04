@@ -90,6 +90,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
             .setMethodBody(this.bodyBuilder.toString());
       this.classBuilder.getClazz().withMethods(testMethod);
       this.classBuilder.getClazz().getImportList().add("import org.junit.Test;");
+      this.classBuilder.getClazz().getImportList().add("import static org.junit.Assert.assertEquals;");
 
       return null;
    }

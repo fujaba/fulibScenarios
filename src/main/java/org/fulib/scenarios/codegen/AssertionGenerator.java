@@ -1,5 +1,6 @@
 package org.fulib.scenarios.codegen;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.transform.Namer;
@@ -22,9 +23,9 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       codeGen.emit(", ");
       attributeCheckExpr.getReceiver().accept(codeGen, null);
       codeGen.emit(".get");
-      final String attributeName = attributeCheckExpr.getAttribute().accept(Namer.INSTANCE, null);
+      final String attributeName = StrUtil.cap(attributeCheckExpr.getAttribute().accept(Namer.INSTANCE, null));
       codeGen.emit(attributeName);
-      codeGen.emit("()");
+      codeGen.emit("())");
       return null;
    }
 }
