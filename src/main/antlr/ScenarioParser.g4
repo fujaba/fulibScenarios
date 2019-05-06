@@ -55,10 +55,10 @@ primaryListElem: primary | primaryRange;
 
 // Conditional
 
-/*
-condExpr: attrCheck | condOpExpr;
+condExpr: attrCheck /* | condOpExpr */;
 attrCheck: access HAS simpleName primary
-         | access HAS NUMBER name;
+         | access HAS number name;
+/*
 
 condOpExpr: access condOp access;
 condOp: eqOp | cmpOp | collOp;
@@ -72,17 +72,22 @@ collOp: CONTAINS | DOES NOT CONTAIN | IS IN | IS NOT IN;
 
 // --------------- Sentences ---------------
 
-sentence: thereSentence /* phrase FULL_STOP | | isSentence | expectSentence | diagramSentence */;
+sentence: thereSentence
+        | expectSentence
+        // | phrase FULL_STOP
+        // | isSentence
+        // | diagramSentence
+        ;
 
 thereSentence: THERE IS descriptor FULL_STOP
 | THERE ARE descriptor (sep descriptor)+ FULL_STOP;
 
-/*
-isSentence: name IS constructor;
-
-expectSentence: WE EXPECT thatClauses;
+expectSentence: WE EXPECT thatClauses FULL_STOP;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
+
+/*
+isSentence: name IS constructor;
 
 diagramSentence: IMG_START name IMG_SEP FILE_NAME IMG_END;
 */

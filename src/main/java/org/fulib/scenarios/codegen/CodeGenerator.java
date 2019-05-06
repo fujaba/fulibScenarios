@@ -15,10 +15,13 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 import org.fulib.scenarios.tool.Config;
@@ -40,6 +43,13 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    public CodeGenerator(Config config)
    {
       this.config = config;
+   }
+
+   // =============== Methods ===============
+
+   public void emit(String code)
+   {
+      this.bodyBuilder.append(code);
    }
 
    // --------------- ScenarioGroup.Visitor ---------------
@@ -80,6 +90,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
             .setMethodBody(this.bodyBuilder.toString());
       this.classBuilder.getClazz().withMethods(testMethod);
       this.classBuilder.getClazz().getImportList().add("import org.junit.Test;");
+      this.classBuilder.getClazz().getImportList().add("import static org.junit.Assert.assertEquals;");
 
       return null;
    }
@@ -100,6 +111,18 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          final String type = var.accept(new Typer(this.modelManager.getClassModel()), null);
          this.bodyBuilder.append("      ").append(type).append(' ').append(var.getName()).append(" = ");
          var.getExpr().accept(this, par);
+         this.bodyBuilder.append(";\n");
+      }
+      return null;
+   }
+
+   @Override
+   public Object visit(ExpectSentence expectSentence, Object par)
+   {
+      for (ConditionalExpr expr : expectSentence.getPredicates())
+      {
+         this.bodyBuilder.append("      ");
+         expr.accept(AssertionGenerator.INSTANCE, this);
          this.bodyBuilder.append(";\n");
       }
       return null;
@@ -174,5 +197,17 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    {
       // TODO escape characters
       return this.bodyBuilder.append('"').append(stringLiteral.getValue()).append('"');
+   }
+
+   @Override
+   public Object visit(ConditionalExpr conditionalExpr, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   {
+      throw new UnsupportedOperationException();
    }
 }

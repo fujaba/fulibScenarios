@@ -12,6 +12,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
@@ -37,11 +39,22 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    @Override
    public String visit(VarDecl varDecl, Object par)
    {
-      if (varDecl.getType() == null)
+      String type = varDecl.getType();
+      if (type != null)
       {
-         varDecl.setType(varDecl.getExpr().accept(this, par));
+         return type;
       }
-      return varDecl.getType();
+
+      // try to infer type
+      type = varDecl.getExpr().accept(this, par);
+      if (type != null)
+      {
+         varDecl.setType(type);
+         return type;
+      }
+
+      // TODO diagnostic
+      throw new IllegalStateException("could not infer type of variable " + varDecl.getName());
    }
 
    // --------------- Expr.Visitor ---------------
@@ -49,7 +62,7 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    @Override
    public String visit(Expr expr, Object par)
    {
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override
@@ -71,7 +84,8 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
          return role.getOther().getClazz().getName();
       }
 
-      return null;
+      // TODO diagnostic
+      throw new IllegalStateException(receiverType + " does not have attribute or role " + attributeName);
    }
 
    @Override
@@ -89,15 +103,18 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    @Override
    public String visit(PrimaryExpr primaryExpr, Object par)
    {
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override
    public String visit(NameAccess nameAccess, Object par)
    {
-      return nameAccess.getName() instanceof ResolvedName ?
-                ((ResolvedName) nameAccess.getName()).getDecl().getType() :
-                null;
+      if (nameAccess.getName() instanceof ResolvedName)
+      {
+         final Decl decl = ((ResolvedName) nameAccess.getName()).getDecl();
+         return decl.accept(this, par);
+      }
+      throw new IllegalStateException("unresolved name " + nameAccess.getName().accept(Namer.INSTANCE, null));
    }
 
    @Override
@@ -110,5 +127,17 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    public String visit(StringLiteral stringLiteral, Object par)
    {
       return "String";
+   }
+
+   @Override
+   public String visit(ConditionalExpr conditionalExpr, Object par)
+   {
+      return "boolean";
+   }
+
+   @Override
+   public String visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   {
+      return "boolean";
    }
 }
