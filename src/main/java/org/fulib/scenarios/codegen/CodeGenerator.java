@@ -155,7 +155,10 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       this.emitIndent();
       this.bodyBuilder.append("FulibTools.objectDiagrams().dumpPng(");
 
-      this.emitStringLiteral(diagramSentence.getFileName());
+      String dir = this.config.getInputDirs().get(0);
+      dir += "/" + this.modelManager.getClassModel().getPackageName();
+
+      this.emitStringLiteral(dir + "/" + diagramSentence.getFileName());
 
       this.bodyBuilder.append(", ");
       diagramSentence.getObject().accept(this, par);

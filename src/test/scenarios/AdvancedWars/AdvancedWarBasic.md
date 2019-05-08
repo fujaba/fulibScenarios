@@ -5,4 +5,5 @@ There is a Game.
 
 There is a Player with name Albert.
 
-![albert](temp/albert.png)
+![albert](images/albert.png)
+
