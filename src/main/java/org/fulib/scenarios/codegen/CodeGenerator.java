@@ -53,6 +53,23 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       this.bodyBuilder.append(code);
    }
 
+   private void emitStringLiteral(String text)
+   {
+      // TODO escape string literal
+      this.bodyBuilder.append('"').append(text).append('"');
+   }
+
+   private void emitIndent()
+   {
+      // TODO support multiple levels (required for if, for, ...)
+      this.bodyBuilder.append("      ");
+   }
+
+   private void addImport(String s)
+   {
+      this.classBuilder.getClazz().getImportList().add("import " + s + ";");
+   }
+
    // --------------- ScenarioGroup.Visitor ---------------
 
    @Override
@@ -86,12 +103,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          sentence.accept(this, par);
       }
 
-      final FMethod testMethod = new FMethod().writeName("test").writeReturnType("void")
-            .setAnnotations("@Test")
-            .setMethodBody(this.bodyBuilder.toString());
+      final FMethod testMethod = new FMethod().writeName("test").writeReturnType("void").setAnnotations("@Test")
+                                              .setMethodBody(this.bodyBuilder.toString());
       this.classBuilder.getClazz().withMethods(testMethod);
-      this.classBuilder.getClazz().getImportList().add("import org.junit.Test;");
-      this.classBuilder.getClazz().getImportList().add("import static org.junit.Assert.assertEquals;");
+      this.addImport("org.junit.Test");
+      this.addImport("static org.junit.Assert.assertEquals");
 
       return null;
    }
@@ -110,7 +126,9 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       for (VarDecl var : thereSentence.getVars())
       {
          final String type = var.accept(new Typer(this.modelManager.getClassModel()), null);
-         this.bodyBuilder.append("      ").append(type).append(' ').append(var.getName()).append(" = ");
+         this.emitIndent();
+
+         this.bodyBuilder.append(type).append(' ').append(var.getName()).append(" = ");
          var.getExpr().accept(this, par);
          this.bodyBuilder.append(";\n");
       }
@@ -122,7 +140,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    {
       for (ConditionalExpr expr : expectSentence.getPredicates())
       {
-         this.bodyBuilder.append("      ");
+         this.emitIndent();
          expr.accept(AssertionGenerator.INSTANCE, this);
          this.bodyBuilder.append(";\n");
       }
@@ -132,15 +150,12 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(DiagramSentence diagramSentence, Object par)
    {
-      this.classBuilder.getClazz().getImportList().add("import org.fulib.FulibTools;");
+      this.addImport("org.fulib.FulibTools");
 
-      this.bodyBuilder.append("      ");
+      this.emitIndent();
       this.bodyBuilder.append("FulibTools.objectDiagrams().dumpPng(");
 
-      // TODO escape string literal
-      this.bodyBuilder.append('"');
-      this.bodyBuilder.append(diagramSentence.getFileName());
-      this.bodyBuilder.append('"');
+      this.emitStringLiteral(diagramSentence.getFileName());
 
       this.bodyBuilder.append(", ");
       diagramSentence.getObject().accept(this, par);
@@ -216,8 +231,8 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(StringLiteral stringLiteral, Object par)
    {
-      // TODO escape characters
-      return this.bodyBuilder.append('"').append(stringLiteral.getValue()).append('"');
+      this.emitStringLiteral(stringLiteral.getValue());
+      return null;
    }
 
    @Override
