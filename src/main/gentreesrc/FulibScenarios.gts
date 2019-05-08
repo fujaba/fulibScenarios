@@ -16,11 +16,11 @@ abstract org.fulib.scenarios.ast.Node {
 	abstract sentence.Sentence {
 		ThereSentence(vars: [VarDecl]) // like CreatePhrase, but without an actor
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
+		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 
 		/*
 		PhraseSentence(phrase: Phrase)
 		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
-		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 		*/
 	}
 
