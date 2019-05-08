@@ -3,6 +3,7 @@ package org.fulib.scenarios.transform;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
@@ -61,6 +62,12 @@ public class SymbolCollector implements Scenario.Visitor<Object, Object>, Senten
 
    @Override
    public Object visit(ExpectSentence expectSentence, Object par)
+   {
+      return null;
+   }
+
+   @Override
+   public Object visit(DiagramSentence diagramSentence, Object par)
    {
       return null;
    }

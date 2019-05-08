@@ -21,6 +21,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
@@ -125,6 +126,26 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          expr.accept(AssertionGenerator.INSTANCE, this);
          this.bodyBuilder.append(";\n");
       }
+      return null;
+   }
+
+   @Override
+   public Object visit(DiagramSentence diagramSentence, Object par)
+   {
+      this.classBuilder.getClazz().getImportList().add("import org.fulib.FulibTools;");
+
+      this.bodyBuilder.append("      ");
+      this.bodyBuilder.append("FulibTools.objectDiagrams().dumpPng(");
+
+      // TODO escape string literal
+      this.bodyBuilder.append('"');
+      this.bodyBuilder.append(diagramSentence.getFileName());
+      this.bodyBuilder.append('"');
+
+      this.bodyBuilder.append(", ");
+      diagramSentence.getObject().accept(this, par);
+      this.bodyBuilder.append(");\n");
+
       return null;
    }
 

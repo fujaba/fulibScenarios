@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
@@ -68,6 +69,13 @@ public class NameResolver
    public Object visit(ExpectSentence expectSentence, Object par)
    {
       expectSentence.getPredicates().replaceAll(it -> (ConditionalExpr) it.accept(this, par));
+      return null;
+   }
+
+   @Override
+   public Object visit(DiagramSentence diagramSentence, Object par)
+   {
+      diagramSentence.setObject(diagramSentence.getObject().accept(this, par));
       return null;
    }
 
