@@ -21,6 +21,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.ExpectSentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 
@@ -76,6 +77,14 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final List<ConditionalExpr> exprs = this.popAll(ConditionalExpr.class);
       this.scenario.getSentences().add(ExpectSentence.of(exprs));
+   }
+
+   @Override
+   public void exitDiagramSentence(ScenarioParser.DiagramSentenceContext ctx)
+   {
+      final Expr object = (Expr) this.stack.pop();
+      final String fileName = ctx.fileName.getText();
+      this.scenario.getSentences().add(DiagramSentence.of(object, fileName));
    }
 
    // --------------- Phrases ---------------
