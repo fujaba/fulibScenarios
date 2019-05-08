@@ -76,7 +76,7 @@ sentence: thereSentence
         | expectSentence
         // | phrase FULL_STOP
         // | isSentence
-        // | diagramSentence
+        | diagramSentence
         ;
 
 thereSentence: THERE IS descriptor FULL_STOP
@@ -86,10 +86,10 @@ expectSentence: WE EXPECT thatClauses FULL_STOP;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
+diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
+
 /*
 isSentence: name IS constructor;
-
-diagramSentence: IMG_START name IMG_SEP FILE_NAME IMG_END;
 */
 
 // --------------- Phrases ---------------
