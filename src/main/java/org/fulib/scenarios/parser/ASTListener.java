@@ -48,6 +48,11 @@ public class ASTListener extends ScenarioParserBaseListener
 
    // =============== Methods ===============
 
+   private <T> T pop()
+   {
+      return (T) this.stack.pop();
+   }
+
    private <T> List<T> popAll(Class<T> type)
    {
       final List<T> result = this.stack.stream().map(type::cast).collect(Collectors.toList());
@@ -82,7 +87,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitDiagramSentence(ScenarioParser.DiagramSentenceContext ctx)
    {
-      final Expr object = (Expr) this.stack.pop();
+      final Expr object = this.pop();
       final String fileName = ctx.fileName.getText();
       this.scenario.getSentences().add(DiagramSentence.of(object, fileName));
    }
@@ -93,7 +98,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitDescriptor(ScenarioParser.DescriptorContext ctx)
    {
       final String name = varName(ctx.name());
-      final CreationExpr ctor = (CreationExpr) this.stack.pop();
+      final CreationExpr ctor = this.pop();
       this.stack.push(VarDecl.of(name, null, ctor));
    }
 
@@ -109,7 +114,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitSimpleWithClause(ScenarioParser.SimpleWithClauseContext ctx)
    {
       final Name name = name(ctx.simpleName());
-      final Expr expr = (Expr) this.stack.pop();
+      final Expr expr = this.pop();
       this.stack.push(NamedExpr.of(name, expr));
    }
 
@@ -117,7 +122,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitNumberWithClause(ScenarioParser.NumberWithClauseContext ctx)
    {
       final Name name = name(ctx.name());
-      final Expr expr = (Expr) this.stack.pop();
+      final Expr expr = this.pop();
       this.stack.push(NamedExpr.of(name, expr));
    }
 
@@ -152,24 +157,24 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitAttributeAccess(ScenarioParser.AttributeAccessContext ctx)
    {
       final Name name = name(ctx.name());
-      final Expr receiver = (Expr) this.stack.pop();
+      final Expr receiver = this.pop();
       this.stack.push(AttributeAccess.of(name, receiver));
    }
 
    @Override
    public void exitExampleAccess(ScenarioParser.ExampleAccessContext ctx)
    {
-      final Expr value = (Expr) this.stack.pop();
-      final Expr expr = (Expr) this.stack.pop();
+      final Expr value = this.pop();
+      final Expr expr = this.pop();
       this.stack.push(ExampleAccess.of(value, expr));
    }
 
    @Override
    public void exitAttrCheck(ScenarioParser.AttrCheckContext ctx)
    {
-      final Expr value = (Expr) this.stack.pop();
+      final Expr value = this.pop();
       final Name attribute = ctx.name() != null ? name(ctx.name()) : name(ctx.simpleName());
-      final Expr receiver = (Expr) this.stack.pop();
+      final Expr receiver = this.pop();
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
    }
 
