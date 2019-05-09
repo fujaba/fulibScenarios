@@ -7,7 +7,8 @@ import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.Map;
 
-public class SymbolCollector implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>
+public class SymbolCollector
+   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Decl.Visitor<Object, Object>
 {
    private final Map<String, Decl> symbolTable;
 
@@ -28,6 +29,25 @@ public class SymbolCollector implements Scenario.Visitor<Object, Object>, Senten
       return null;
    }
 
+   // --------------- Decl.Visitor ---------------
+
+   @Override
+   public Object visit(Decl decl, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(VarDecl varDecl, Object par)
+   {
+      if (varDecl.getName() == null)
+      {
+         varDecl.setName(varDecl.getExpr().accept(Namer.INSTANCE, null));
+      }
+      this.symbolTable.put(varDecl.getName(), varDecl);
+      return null;
+   }
+
    // --------------- Sentence.Visitor ---------------
 
    @Override
@@ -41,20 +61,9 @@ public class SymbolCollector implements Scenario.Visitor<Object, Object>, Senten
    {
       for (VarDecl var : thereSentence.getVars())
       {
-         this.completeVarName(var);
-         this.symbolTable.put(var.getName(), var);
+         var.accept(this, par);
       }
       return null;
-   }
-
-   private void completeVarName(VarDecl var)
-   {
-      if (var.getName() != null)
-      {
-         return;
-      }
-
-      var.setName(var.getExpr().accept(Namer.INSTANCE, null));
    }
 
    @Override
