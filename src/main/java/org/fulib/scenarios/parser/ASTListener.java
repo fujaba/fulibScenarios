@@ -54,10 +54,18 @@ public class ASTListener extends ScenarioParserBaseListener
       return (T) this.stack.pop();
    }
 
+   private <T> T popLast()
+   {
+      return (T) this.stack.removeLast();
+   }
+
    private <T> List<T> popAll(Class<T> type)
    {
-      final List<T> result = this.stack.stream().map(type::cast).collect(Collectors.toList());
-      this.stack.clear();
+      final List<T> result = new ArrayList<>();
+      while (!this.stack.isEmpty())
+      {
+         result.add(type.cast(this.stack.removeLast()));
+      }
       return result;
    }
 
@@ -96,7 +104,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
-      final Expr object = (Expr) this.stack.pollLast();
+      final Expr object = this.popLast();
       final List<NamedExpr> clauses = this.popAll(NamedExpr.class);
       this.scenario.getSentences().add(HasSentence.of(object, clauses));
    }
