@@ -10,6 +10,7 @@ import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -26,8 +27,9 @@ import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
-public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
-                                         Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Object>
+public class CodeGenerator
+   implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>, Decl.Visitor<Object, Object>,
+                 Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Object>
 {
    private final Config config;
 
@@ -109,6 +111,26 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       return null;
    }
 
+   // --------------- Decl.Visitor ---------------
+
+   @Override
+   public Object visit(Decl decl, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(VarDecl varDecl, Object par)
+   {
+      final String type = varDecl.accept(new Typer(this.modelManager.getClassModel()), null);
+      this.emitIndent();
+
+      this.bodyBuilder.append(type).append(' ').append(varDecl.getName()).append(" = ");
+      varDecl.getExpr().accept(this, par);
+      this.bodyBuilder.append(";\n");
+      return null;
+   }
+
    // --------------- Sentence.Visitor ---------------
 
    @Override
@@ -120,14 +142,9 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
-      for (VarDecl var : thereSentence.getVars())
+      for (VarDecl varDecl : thereSentence.getVars())
       {
-         final String type = var.accept(new Typer(this.modelManager.getClassModel()), null);
-         this.emitIndent();
-
-         this.bodyBuilder.append(type).append(' ').append(var.getName()).append(" = ");
-         var.getExpr().accept(this, par);
-         this.bodyBuilder.append(";\n");
+         varDecl.accept(this, par);
       }
       return null;
    }

@@ -18,8 +18,8 @@ import org.fulib.scenarios.ast.sentence.*;
 import java.util.Map;
 
 public class NameResolver
-   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Expr>,
-                 Name.Visitor<Object, Name>
+   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Decl.Visitor<Object, Object>,
+                 Expr.Visitor<Object, Expr>, Name.Visitor<Object, Name>
 {
    private final Map<String, Decl> symbolTable;
 
@@ -42,6 +42,23 @@ public class NameResolver
       return null;
    }
 
+   // --------------- Decl.Visitor ---------------
+
+   @Override
+   public Object visit(Decl decl, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(VarDecl varDecl, Object par)
+   {
+      this.currentVar = varDecl;
+      varDecl.setExpr(varDecl.getExpr().accept(this, par));
+      this.currentVar = null;
+      return null;
+   }
+
    // --------------- Sentence.Visitor ---------------
 
    @Override
@@ -55,10 +72,8 @@ public class NameResolver
    {
       for (final VarDecl var : thereSentence.getVars())
       {
-         this.currentVar = var;
-         var.setExpr(var.getExpr().accept(this, par));
+         var.accept(this, par);
       }
-      this.currentVar = null;
       return null;
    }
 
