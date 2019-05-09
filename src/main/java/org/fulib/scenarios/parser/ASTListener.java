@@ -127,8 +127,10 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(CreationExpr.of(className, parameters));
    }
 
+   // --------------- Clauses ---------------
+
    @Override
-   public void exitSimpleWithClause(ScenarioParser.SimpleWithClauseContext ctx)
+   public void exitNamedSimple(ScenarioParser.NamedSimpleContext ctx)
    {
       final Name name = name(ctx.simpleName());
       final Expr expr = this.pop();
@@ -136,23 +138,7 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitNumberWithClause(ScenarioParser.NumberWithClauseContext ctx)
-   {
-      final Name name = name(ctx.name());
-      final Expr expr = this.pop();
-      this.stack.push(NamedExpr.of(name, expr));
-   }
-
-   @Override
-   public void exitSimpleHasClause(ScenarioParser.SimpleHasClauseContext ctx)
-   {
-      final Name name = name(ctx.simpleName());
-      final Expr expr = this.pop();
-      this.stack.push(NamedExpr.of(name, expr));
-   }
-
-   @Override
-   public void exitNumberHasClause(ScenarioParser.NumberHasClauseContext ctx)
+   public void exitNamedNumber(ScenarioParser.NamedNumberContext ctx)
    {
       final Name name = name(ctx.name());
       final Expr expr = this.pop();
@@ -205,8 +191,9 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitAttrCheck(ScenarioParser.AttrCheckContext ctx)
    {
-      final Expr value = this.pop();
-      final Name attribute = ctx.name() != null ? name(ctx.name()) : name(ctx.simpleName());
+      final NamedExpr valueAndAttribute = this.pop();
+      final Expr value = valueAndAttribute.getExpr();
+      final Name attribute = valueAndAttribute.getName();
       final Expr receiver = this.pop();
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
    }

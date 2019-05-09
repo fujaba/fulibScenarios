@@ -56,10 +56,9 @@ primaryListElem: primary | primaryRange;
 // Conditional
 
 condExpr: attrCheck /* | condOpExpr */;
-attrCheck: access HAS simpleName primary
-         | access HAS number name;
-/*
+attrCheck: access HAS namedExpr;
 
+/*
 condOpExpr: access condOp access;
 condOp: eqOp | cmpOp | collOp;
 
@@ -91,8 +90,7 @@ diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 
 hasSentence: nameAccess hasClauses FULL_STOP;
 hasClauses: hasClause (sep hasClause)*;
-hasClause: HAS simpleName primaryExpr # SimpleHasClause
-         | HAS number name            # NumberHasClause;
+hasClause: HAS namedExpr;
 
 /*
 isSentence: name IS constructor;
@@ -133,5 +131,7 @@ typeClause: (A | AN) name CARD?
           | name CARDS;
 
 withClauses: withClause (sep withClause)*;
-withClause: WITH simpleName primaryExpr # SimpleWithClause
-          | WITH number name # NumberWithClause;
+withClause: WITH namedExpr;
+
+namedExpr: simpleName primaryExpr # NamedSimple
+         | number name            # NamedNumber;
