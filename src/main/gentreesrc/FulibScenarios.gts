@@ -17,6 +17,7 @@ abstract org.fulib.scenarios.ast.Node {
 		ThereSentence(vars: [VarDecl]) // like CreatePhrase, but without an actor
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
+		HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
 
 		/*
 		PhraseSentence(phrase: Phrase)

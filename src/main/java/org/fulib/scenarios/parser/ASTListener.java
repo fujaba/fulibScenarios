@@ -23,6 +23,7 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.ExpectSentence;
+import org.fulib.scenarios.ast.sentence.HasSentence;
 import org.fulib.scenarios.ast.sentence.ThereSentence;
 
 import java.util.ArrayDeque;
@@ -92,6 +93,14 @@ public class ASTListener extends ScenarioParserBaseListener
       this.scenario.getSentences().add(DiagramSentence.of(object, fileName));
    }
 
+   @Override
+   public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
+   {
+      final Expr object = (Expr) this.stack.pollLast();
+      final List<NamedExpr> clauses = this.popAll(NamedExpr.class);
+      this.scenario.getSentences().add(HasSentence.of(object, clauses));
+   }
+
    // --------------- Phrases ---------------
 
    @Override
@@ -120,6 +129,22 @@ public class ASTListener extends ScenarioParserBaseListener
 
    @Override
    public void exitNumberWithClause(ScenarioParser.NumberWithClauseContext ctx)
+   {
+      final Name name = name(ctx.name());
+      final Expr expr = this.pop();
+      this.stack.push(NamedExpr.of(name, expr));
+   }
+
+   @Override
+   public void exitSimpleHasClause(ScenarioParser.SimpleHasClauseContext ctx)
+   {
+      final Name name = name(ctx.simpleName());
+      final Expr expr = this.pop();
+      this.stack.push(NamedExpr.of(name, expr));
+   }
+
+   @Override
+   public void exitNumberHasClause(ScenarioParser.NumberHasClauseContext ctx)
    {
       final Name name = name(ctx.name());
       final Expr expr = this.pop();

@@ -77,6 +77,7 @@ sentence: thereSentence
         // | phrase FULL_STOP
         // | isSentence
         | diagramSentence
+        | hasSentence
         ;
 
 thereSentence: THERE IS descriptor FULL_STOP
@@ -87,6 +88,11 @@ thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
 diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
+
+hasSentence: nameAccess hasClauses FULL_STOP;
+hasClauses: hasClause (sep hasClause)*;
+hasClause: HAS simpleName primaryExpr # SimpleHasClause
+         | HAS number name            # NumberHasClause;
 
 /*
 isSentence: name IS constructor;

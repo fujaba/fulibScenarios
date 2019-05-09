@@ -13,10 +13,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.DiagramSentence;
-import org.fulib.scenarios.ast.sentence.ExpectSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.sentence.ThereSentence;
+import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.Map;
 
@@ -78,6 +75,20 @@ public class NameResolver
       diagramSentence.setObject(diagramSentence.getObject().accept(this, par));
       return null;
    }
+
+   @Override
+   public Object visit(HasSentence hasSentence, Object par)
+   {
+      hasSentence.setObject(hasSentence.getObject().accept(this, par));
+
+      for (final NamedExpr namedExpr : hasSentence.getClauses())
+      {
+         namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
+      }
+
+      return null;
+   }
+
 
    // --------------- Expr.Visitor ---------------
 

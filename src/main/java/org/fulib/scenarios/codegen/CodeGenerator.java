@@ -21,10 +21,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.DiagramSentence;
-import org.fulib.scenarios.ast.sentence.ExpectSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.sentence.ThereSentence;
+import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
@@ -166,6 +163,33 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
       return null;
    }
+
+   @Override
+   public Object visit(HasSentence hasSentence, Object par)
+   {
+      final String className = hasSentence.getObject().accept(new Typer(null), null);
+      final Clazz clazz = this.modelManager.haveClass(className);
+
+      this.emitIndent();
+      hasSentence.getObject().accept(this, par);
+
+      for (NamedExpr attribute : hasSentence.getClauses())
+      {
+         final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
+         final String attributeType = attribute.getExpr().accept(new Typer(this.modelManager.getClassModel()), null);
+
+         this.modelManager.haveAttribute(clazz, attributeName, attributeType);
+
+         this.bodyBuilder.append(".set").append(StrUtil.cap(attributeName)).append("(");
+         attribute.getExpr().accept(this, par);
+         this.bodyBuilder.append(")");
+      }
+
+      this.bodyBuilder.append(";\n");
+
+      return null;
+   }
+
 
    // --------------- Expr.Visitor ---------------
 
