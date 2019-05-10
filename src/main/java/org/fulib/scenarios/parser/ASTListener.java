@@ -21,10 +21,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.DiagramSentence;
-import org.fulib.scenarios.ast.sentence.ExpectSentence;
-import org.fulib.scenarios.ast.sentence.HasSentence;
-import org.fulib.scenarios.ast.sentence.ThereSentence;
+import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -107,6 +104,15 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr object = this.popLast();
       final List<NamedExpr> clauses = this.popAll(NamedExpr.class);
       this.scenario.getSentences().add(HasSentence.of(object, clauses));
+   }
+
+   @Override
+   public void exitIsSentence(ScenarioParser.IsSentenceContext ctx)
+   {
+      final String name = varName(ctx.name());
+      final Expr ctor = this.pop();
+      final VarDecl varDecl = VarDecl.of(name, null, ctor);
+      this.scenario.getSentences().add(IsSentence.of(varDecl));
    }
 
    // --------------- Phrases ---------------
