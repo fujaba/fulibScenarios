@@ -74,9 +74,9 @@ collOp: CONTAINS | DOES NOT CONTAIN | IS IN | IS NOT IN;
 sentence: thereSentence
         | expectSentence
         // | phrase FULL_STOP
-        // | isSentence
         | diagramSentence
         | hasSentence
+        | isSentence
         ;
 
 thereSentence: THERE IS descriptor FULL_STOP
@@ -92,9 +92,7 @@ hasSentence: nameAccess hasClauses FULL_STOP;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: HAS namedExpr;
 
-/*
-isSentence: name IS constructor;
-*/
+isSentence: name IS constructor FULL_STOP;
 
 // --------------- Phrases ---------------
 
