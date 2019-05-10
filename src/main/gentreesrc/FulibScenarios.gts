@@ -53,6 +53,11 @@ abstract org.fulib.scenarios.ast.Node {
 			// ConditionalOperatorExpr(lhs: Expr, operator: ConditionalOperator, rhs: Expr)
 		}
 
+		abstract collection.CollectionExpr {
+			ListExpr(elements: [Expr])
+			// RangeExpr(start: Expr, end: Expr)
+		}
+
 		/*
 		abstract collection.CollectionExpr {
 			RangeExpr(from: Expr, through: Expr)

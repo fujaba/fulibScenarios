@@ -7,6 +7,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -194,6 +196,19 @@ public class NameResolver
       attributeCheckExpr.setReceiver(attributeCheckExpr.getReceiver().accept(this, par));
       attributeCheckExpr.setValue(attributeCheckExpr.getValue().accept(this, par));
       return attributeCheckExpr;
+   }
+
+   @Override
+   public Expr visit(CollectionExpr collectionExpr, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Expr visit(ListExpr listExpr, Object par)
+   {
+      listExpr.getElements().replaceAll(it -> it.accept(this, par));
+      return listExpr;
    }
 
    // --------------- Name.Visitor ---------------

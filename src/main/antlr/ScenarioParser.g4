@@ -10,11 +10,11 @@ scenarioName: ~FULL_STOP+;
 
 // --------------- Expressions ---------------
 
-expr: access /* | collection */;
+expr: access | collection;
 
 // Primary
 primary: number | stringLiteral | it | nameAccess;
-primaryExpr: primary /* | primaryCollection */;
+primaryExpr: primary | primaryCollection;
 
 number: NUMBER;
 stringLiteral: STRING_LITERAL;
@@ -40,17 +40,17 @@ exampleAccess: primaryExpr FROM namedAccess;
 
 sep: COMMA | AND | COMMA AND;
 
-/*
-collection: range | list;
-primaryCollection: primaryRange | primaryList;
-
-range: access TO access | access THROUGH access;
-primaryRange: primary TO primary | primary THROUGH primary;
+collection: list /* | range */;
+primaryCollection: primaryList /* | primaryRange */;
 
 list: listElem (sep listElem)+;
-listElem: access | range;
+listElem: access /* | range */;
 primaryList: primaryListElem (sep primaryListElem)+;
-primaryListElem: primary | primaryRange;
+primaryListElem: primary /* | primaryRange */;
+
+/*
+range: access TO access | access THROUGH access;
+primaryRange: primary TO primary | primary THROUGH primary;
 */
 
 // Conditional

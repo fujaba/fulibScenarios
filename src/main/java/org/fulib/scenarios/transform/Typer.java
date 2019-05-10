@@ -12,6 +12,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -139,5 +141,58 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    public String visit(AttributeCheckExpr attributeCheckExpr, Object par)
    {
       return "boolean";
+   }
+
+   @Override
+   public String visit(CollectionExpr collectionExpr, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public String visit(ListExpr listExpr, Object par)
+   {
+      String commonType = null;
+      for (Expr element : listExpr.getElements())
+      {
+         final String elementType = element.accept(this, par);
+         if (commonType == null)
+         {
+            commonType = elementType;
+         }
+         else if (!commonType.equals(elementType))
+         {
+            // no common type -> use Object
+            return "List<Object>";
+         }
+      }
+
+      assert commonType != null : "empty list expression";
+      return "List<" + primitiveToWrapper(commonType) + ">";
+   }
+
+   public static String primitiveToWrapper(String primitive)
+   {
+      switch (primitive)
+      {
+      case "byte":
+         return "Byte";
+      case "short":
+         return "Short";
+      case "char":
+         return "Character";
+      case "int":
+         return "Integer";
+      case "long":
+         return "Long";
+      case "float":
+         return "Float";
+      case "double":
+         return "Double";
+      case "void":
+         return "Void";
+      default:
+         return primitive;
+      }
    }
 }
