@@ -19,9 +19,9 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
    public Object visit(AttributeCheckExpr attributeCheckExpr, CodeGenerator codeGen)
    {
       codeGen.emit("assertEquals(");
-      attributeCheckExpr.getValue().accept(codeGen, null);
+      attributeCheckExpr.getValue().accept(ExprGenerator.INSTANCE, codeGen);
       codeGen.emit(", ");
-      attributeCheckExpr.getReceiver().accept(codeGen, null);
+      attributeCheckExpr.getReceiver().accept(ExprGenerator.INSTANCE, codeGen);
       codeGen.emit(".get");
       final String attributeName = StrUtil.cap(attributeCheckExpr.getAttribute().accept(Namer.INSTANCE, null));
       codeGen.emit(attributeName);
