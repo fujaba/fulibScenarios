@@ -16,6 +16,7 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -60,6 +61,16 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final List<T> result = new ArrayList<>();
       while (!this.stack.isEmpty())
+      {
+         result.add(type.cast(this.stack.removeLast()));
+      }
+      return result;
+   }
+
+   private <T> List<T> pop(Class<T> type, int count)
+   {
+      final List<T> result = new ArrayList<>(count);
+      for (int i = 0; i < count; i++)
       {
          result.add(type.cast(this.stack.removeLast()));
       }
@@ -202,6 +213,20 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name attribute = valueAndAttribute.getName();
       final Expr receiver = this.pop();
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
+   }
+
+   @Override
+   public void exitList(ScenarioParser.ListContext ctx)
+   {
+      final List<Expr> elements = this.pop(Expr.class, ctx.listElem().size());
+      this.stack.push(ListExpr.of(elements));
+   }
+
+   @Override
+   public void exitPrimaryList(ScenarioParser.PrimaryListContext ctx)
+   {
+      final List<Expr> elements = this.pop(Expr.class, ctx.primaryListElem().size());
+      this.stack.push(ListExpr.of(elements));
    }
 
    // =============== Static Methods ===============
