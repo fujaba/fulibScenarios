@@ -3,7 +3,8 @@
 
 There is a Game. 
 
-There is a Player with name Albert.
+There is a Player with name Albert
+           and with state "at work".
 
 We expect that Albert has name "Albert".
 
