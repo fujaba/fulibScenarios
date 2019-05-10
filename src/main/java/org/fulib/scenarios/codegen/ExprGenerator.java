@@ -1,6 +1,8 @@
 package org.fulib.scenarios.codegen;
 
 import org.fulib.StrUtil;
+import org.fulib.builder.ClassModelBuilder;
+import org.fulib.classmodel.AssocRole;
 import org.fulib.classmodel.Clazz;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
@@ -55,16 +57,53 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       par.bodyBuilder.append("new ").append(className).append("()");
       for (NamedExpr attribute : creationExpr.getAttributes())
       {
-         final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
-         final String attributeType = attribute.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
-
-         par.modelManager.haveAttribute(clazz, attributeName, attributeType);
-
-         par.bodyBuilder.append(".set").append(StrUtil.cap(attributeName)).append("(");
-         attribute.getExpr().accept(this, par);
-         par.bodyBuilder.append(")");
+         generateSetterCall(par, clazz, attribute);
       }
       return null;
+   }
+
+   static void generateSetterCall(CodeGenerator par, Clazz clazz, NamedExpr attribute)
+   {
+      final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
+      final String attributeType = attribute.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
+
+      final boolean wither;
+      final AssocRole existingRole = clazz.getRole(attributeName);
+      if (existingRole != null)
+      {
+         // role exists, use it to find out if cardinality many
+         wither = existingRole.getCardinality() > 1;
+      }
+      else if (attributeType.startsWith("List<"))
+      {
+         // new value is multi-valued
+
+         final String otherType = attributeType.substring(5, attributeType.length() - 1); // strip List< and >
+         final Clazz otherClazz = clazz.getModel().getClazz(otherType);
+
+         if (otherClazz == null)
+         {
+            // was element type that we have no control over, e.g. List<String>
+            // TODO we need an aggregate attribute (?)
+            clazz.getImportList().add("import java.util.List;");
+            par.modelManager.haveAttribute(clazz, attributeName, attributeType);
+            wither = false;
+         }
+         else
+         {
+            par.modelManager.haveRole(clazz, attributeName, otherClazz, ClassModelBuilder.MANY);
+            wither = true;
+         }
+      }
+      else
+      {
+         par.modelManager.haveAttribute(clazz, attributeName, attributeType);
+         wither = false;
+      }
+
+      par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(attributeName)).append("(");
+      attribute.getExpr().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(")");
    }
 
    @Override

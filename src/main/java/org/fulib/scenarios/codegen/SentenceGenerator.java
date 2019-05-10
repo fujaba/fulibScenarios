@@ -1,12 +1,10 @@
 package org.fulib.scenarios.codegen;
 
-import org.fulib.StrUtil;
 import org.fulib.classmodel.Clazz;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
@@ -72,14 +70,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 
       for (NamedExpr attribute : hasSentence.getClauses())
       {
-         final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
-         final String attributeType = attribute.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
-
-         par.modelManager.haveAttribute(clazz, attributeName, attributeType);
-
-         par.bodyBuilder.append(".set").append(StrUtil.cap(attributeName)).append("(");
-         attribute.getExpr().accept(ExprGenerator.INSTANCE, par);
-         par.bodyBuilder.append(")");
+         ExprGenerator.generateSetterCall(par, clazz, attribute);
       }
 
       par.bodyBuilder.append(";\n");
