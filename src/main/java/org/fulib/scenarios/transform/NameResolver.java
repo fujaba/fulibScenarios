@@ -104,6 +104,12 @@ public class NameResolver
       return null;
    }
 
+   @Override
+   public Object visit(IsSentence isSentence, Object par)
+   {
+      isSentence.getDescriptor().accept(this, par);
+      return null;
+   }
 
    // --------------- Expr.Visitor ---------------
 
