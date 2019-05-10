@@ -18,10 +18,10 @@ abstract org.fulib.scenarios.ast.Node {
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 		HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
+		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 
 		/*
 		PhraseSentence(phrase: Phrase)
-		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 		*/
 	}
 
