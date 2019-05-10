@@ -18,6 +18,8 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
    @Override
    public Object visit(AttributeCheckExpr attributeCheckExpr, CodeGenerator codeGen)
    {
+      codeGen.addImport("static org.junit.Assert.assertEquals");
+
       codeGen.emit("assertEquals(");
       attributeCheckExpr.getValue().accept(ExprGenerator.INSTANCE, codeGen);
       codeGen.emit(", ");

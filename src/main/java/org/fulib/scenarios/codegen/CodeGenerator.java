@@ -83,11 +83,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          sentence.accept(SentenceGenerator.INSTANCE, this);
       }
 
+      this.addImport("org.junit.Test");
+
       final FMethod testMethod = new FMethod().writeName("test").writeReturnType("void").setAnnotations("@Test")
                                               .setMethodBody(this.bodyBuilder.toString());
       this.classBuilder.getClazz().withMethods(testMethod);
-      this.addImport("org.junit.Test");
-      this.addImport("static org.junit.Assert.assertEquals");
 
       return null;
    }
