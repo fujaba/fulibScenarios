@@ -16,6 +16,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -26,6 +28,8 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
+
+import java.util.List;
 
 public class CodeGenerator
    implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>, Decl.Visitor<Object, Object>,
@@ -295,5 +299,32 @@ public class CodeGenerator
    public Object visit(AttributeCheckExpr attributeCheckExpr, Object par)
    {
       throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(CollectionExpr collectionExpr, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(ListExpr listExpr, Object par)
+   {
+      this.addImport("java.util.ArrayList");
+      this.addImport("java.util.Arrays");
+
+      this.bodyBuilder.append("new ArrayList<>(Arrays.asList(");
+
+      final List<Expr> elements = listExpr.getElements();
+
+      elements.get(0).accept(this, par);
+      for (int i = 1; i < elements.size(); i++)
+      {
+         this.bodyBuilder.append(", ");
+         elements.get(i).accept(this, par);
+      }
+
+      this.bodyBuilder.append("))");
+      return null;
    }
 }
