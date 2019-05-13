@@ -42,7 +42,7 @@ SAME:     'same';
 SCENARIO: 'Scenario';
 THAN:     'than';
 THAT:     'that';
-THE:      'the';
+THE:      'The' | 'the';
 THEN:     'then';
 THERE:    'There' | 'there';
 THROUGH:  'through';
@@ -68,7 +68,7 @@ STRING_LITERAL: ['] ~[']* [']
 
 // --------------- Words ---------------
 
-WORD: [a-zA-Z][a-zA-Z0-9']*;
+WORD: [a-zA-Z][a-zA-Z0-9'-]*;
 
 // --------------- Whitespace ---------------
 
