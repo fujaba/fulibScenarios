@@ -8,6 +8,73 @@ scenario: header sentence* EOF;
 header: H1 SCENARIO scenarioName FULL_STOP;
 scenarioName: ~FULL_STOP+;
 
+// --------------- Sentences ---------------
+
+sentence: thereSentence
+        | isSentence
+        | hasSentence
+        | expectSentence
+        | diagramSentence
+        // | phrase FULL_STOP
+        ;
+
+// Definition
+
+thereSentence: THERE IS descriptor FULL_STOP
+| THERE ARE descriptor (sep descriptor)+ FULL_STOP;
+
+isSentence: name IS constructor FULL_STOP;
+
+descriptor: (name COMMA?)? constructor;
+constructor: typeClause withClauses?;
+typeClause: (A | AN) name CARD?
+          | name CARDS;
+
+withClauses: withClause (sep withClause)*;
+withClause: WITH namedExpr;
+
+namedExpr: simpleName primaryExpr # NamedSimple
+         | number name            # NamedNumber;
+
+hasSentence: nameAccess hasClauses FULL_STOP;
+hasClauses: hasClause (sep hasClause)*;
+hasClause: HAS namedExpr;
+
+// Testing
+
+expectSentence: WE EXPECT thatClauses FULL_STOP;
+thatClauses: thatClause (sep thatClause)*;
+thatClause: THAT condExpr;
+
+diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
+
+// --------------- Phrases ---------------
+
+/*
+actor: name | IT;
+phrase: createPhrase | callPhrase | writePhrase | answerPhrase;
+
+// Creation
+
+createPhrase: createSV descriptor (sep descriptor)*;
+createSV: WE CREATE | actor CREATES;
+
+// Calls
+
+callPhrase: callSV name ON expr withClauses?;
+callSV: WE CALL | actor CALLS;
+
+// Write
+
+writePhrase: writeSV named | writeSV source=expr INTO target=expr;
+writeSV: name (READS | WRITES) | WE (READ | WRITE);
+
+// Answer
+
+answerPhrase: answerSV WITH expr;
+answerSV: WE ANSWER | actor ANSWERS;
+*/
+
 // --------------- Expressions ---------------
 
 expr: access | collection;
@@ -68,68 +135,3 @@ cmpOp: IS LESS THAN | IS NOT LESS THAN | IS LESS EQUAL
      | IS GREATER THAN | IS GREATER EQUAL | IS NOT GREATER THAN;
 collOp: CONTAINS | DOES NOT CONTAIN | IS IN | IS NOT IN;
 */
-
-// --------------- Sentences ---------------
-
-sentence: thereSentence
-        | expectSentence
-        // | phrase FULL_STOP
-        | diagramSentence
-        | hasSentence
-        | isSentence
-        ;
-
-thereSentence: THERE IS descriptor FULL_STOP
-| THERE ARE descriptor (sep descriptor)+ FULL_STOP;
-
-expectSentence: WE EXPECT thatClauses FULL_STOP;
-thatClauses: thatClause (sep thatClause)*;
-thatClause: THAT condExpr;
-
-diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
-
-hasSentence: nameAccess hasClauses FULL_STOP;
-hasClauses: hasClause (sep hasClause)*;
-hasClause: HAS namedExpr;
-
-isSentence: name IS constructor FULL_STOP;
-
-// --------------- Phrases ---------------
-
-/*
-actor: name | IT;
-phrase: createPhrase | callPhrase | writePhrase | answerPhrase;
-
-// Creation
-
-createPhrase: createSV descriptor (sep descriptor)*;
-createSV: WE CREATE | actor CREATES;
-
-// Calls
-
-callPhrase: callSV name ON expr withClauses?;
-callSV: WE CALL | actor CALLS;
-
-// Write
-
-writePhrase: writeSV named | writeSV source=expr INTO target=expr;
-writeSV: name (READS | WRITES) | WE (READ | WRITE);
-
-// Answer
-
-answerPhrase: answerSV WITH expr;
-answerSV: WE ANSWER | actor ANSWERS;
-*/
-
-// --------------- Clauses ---------------
-
-descriptor: (name COMMA?)? constructor;
-constructor: typeClause withClauses?;
-typeClause: (A | AN) name CARD?
-          | name CARDS;
-
-withClauses: withClause (sep withClause)*;
-withClause: WITH namedExpr;
-
-namedExpr: simpleName primaryExpr # NamedSimple
-         | number name            # NamedNumber;
