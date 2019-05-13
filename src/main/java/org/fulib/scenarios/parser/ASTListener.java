@@ -24,10 +24,7 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ASTListener extends ScenarioParserBaseListener
@@ -57,22 +54,13 @@ public class ASTListener extends ScenarioParserBaseListener
       return (T) this.stack.removeLast();
    }
 
-   private <T> List<T> popAll(Class<T> type)
-   {
-      final List<T> result = new ArrayList<>();
-      while (!this.stack.isEmpty())
-      {
-         result.add(type.cast(this.stack.removeLast()));
-      }
-      return result;
-   }
-
    private <T> List<T> pop(Class<T> type, int count)
    {
-      final List<T> result = new ArrayList<>(count);
-      for (int i = 0; i < count; i++)
+      // strange logic, but end result is that the top of the stack ends up at the end of the list.
+      final List<T> result = new ArrayList<>(Collections.nCopies(count, null));
+      for (int i = count - 1; i >= 0; i--)
       {
-         result.add(type.cast(this.stack.removeLast()));
+         result.set(i, type.cast(this.stack.pop()));
       }
       return result;
    }
@@ -90,14 +78,14 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
    {
-      final List<VarDecl> vars = this.popAll(VarDecl.class);
+      final List<VarDecl> vars = this.pop(VarDecl.class, ctx.descriptor().size());
       this.scenario.getSentences().add(ThereSentence.of(vars));
    }
 
    @Override
    public void exitExpectSentence(ScenarioParser.ExpectSentenceContext ctx)
    {
-      final List<ConditionalExpr> exprs = this.popAll(ConditionalExpr.class);
+      final List<ConditionalExpr> exprs = this.pop(ConditionalExpr.class, ctx.thatClauses().thatClause().size());
       this.scenario.getSentences().add(ExpectSentence.of(exprs));
    }
 
@@ -113,7 +101,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
       final Expr object = this.popLast();
-      final List<NamedExpr> clauses = this.popAll(NamedExpr.class);
+      final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
       this.scenario.getSentences().add(HasSentence.of(object, clauses));
    }
 
@@ -140,7 +128,9 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitConstructor(ScenarioParser.ConstructorContext ctx)
    {
       final Name className = name(ctx.typeClause().name());
-      final List<NamedExpr> parameters = this.popAll(NamedExpr.class);
+      final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
+      final List<NamedExpr> parameters = this.pop(NamedExpr.class,
+                                                  withClauses != null ? withClauses.withClause().size() : 0);
       this.stack.push(CreationExpr.of(className, parameters));
    }
 
