@@ -1,6 +1,7 @@
 package org.fulib.scenarios;
 
 import org.fulib.Tools;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+@Ignore
 public class TestCodeGen
 {
    @Test
