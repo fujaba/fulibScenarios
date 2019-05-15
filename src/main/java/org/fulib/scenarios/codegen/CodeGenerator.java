@@ -8,8 +8,20 @@ import org.fulib.builder.ClassModelManager;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.ResolvedName;
+import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.primary.NameAccess;
+import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.tool.Config;
+import org.fulib.scenarios.transform.SymbolCollector;
+
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>
 {
@@ -95,6 +107,26 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       for (final Sentence sentence : scenario.getSentences())
       {
          sentence.accept(SentenceGenerator.INSTANCE, this);
+      }
+
+      if (this.config.isObjectDiagram() || this.config.isObjectDiagramSVG())
+      {
+         // TODO store symbol table in Scenario
+         final Map<String, Decl> symbolTable = new TreeMap<>();
+         scenario.accept(new SymbolCollector(symbolTable), null);
+
+         final List<Expr> exprs = symbolTable.values().stream().map(it -> NameAccess.of(ResolvedName.of(it)))
+                                             .collect(Collectors.toList());
+         final ListExpr listExpr = ListExpr.of(exprs);
+
+         if (this.config.isObjectDiagram())
+         {
+            DiagramSentence.of(listExpr, className + ".png").accept(SentenceGenerator.INSTANCE, this);
+         }
+         if (this.config.isObjectDiagramSVG())
+         {
+            DiagramSentence.of(listExpr, className + ".svg").accept(SentenceGenerator.INSTANCE, this);
+         }
       }
 
       this.addImport("org.junit.Test");

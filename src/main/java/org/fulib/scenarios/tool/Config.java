@@ -18,6 +18,9 @@ public class Config
    private boolean classDiagram;
    private boolean classDiagramSVG;
 
+   private boolean objectDiagram;
+   private boolean objectDiagramSVG;
+
    // =============== Properties ===============
 
    public String getModelDir()
@@ -65,6 +68,26 @@ public class Config
       this.classDiagramSVG = classDiagramSVG;
    }
 
+   public boolean isObjectDiagram()
+   {
+      return this.objectDiagram;
+   }
+
+   public void setObjectDiagram(boolean objectDiagram)
+   {
+      this.objectDiagram = objectDiagram;
+   }
+
+   public boolean isObjectDiagramSVG()
+   {
+      return this.objectDiagramSVG;
+   }
+
+   public void setObjectDiagramSVG(boolean objectDiagramSVG)
+   {
+      this.objectDiagramSVG = objectDiagramSVG;
+   }
+
    // =============== Methods ===============
 
    public Options createOptions()
@@ -80,7 +103,13 @@ public class Config
       options.addOption(testDir);
 
       options.addOption(new Option(null, "class-diagram", false, "generate class diagram as .png into model folder"));
-      options.addOption(new Option(null, "class-diagram-svg", false, "generate class diagram as .svg into model folder"));
+      options.addOption(
+         new Option(null, "class-diagram-svg", false, "generate class diagram as .svg into model folder"));
+
+      options.addOption(new Option(null, "object-diagram", false,
+                                   "append a statement to each test that generates an object diagram as .png"));
+      options.addOption(new Option(null, "object-diagram-svg", false,
+                                   "append a statement to each test that generates an object diagram as .svg"));
 
       return options;
    }
@@ -92,5 +121,7 @@ public class Config
       this.getInputDirs().addAll(cmd.getArgList());
       this.setClassDiagram(cmd.hasOption("class-diagram"));
       this.setClassDiagramSVG(cmd.hasOption("class-diagram-svg"));
+      this.setObjectDiagram(cmd.hasOption("object-diagram"));
+      this.setObjectDiagramSVG(cmd.hasOption("object-diagram-svg"));
    }
 }
