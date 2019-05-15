@@ -15,6 +15,9 @@ public class Config
    private String       testDir;
    private List<String> inputDirs = new ArrayList<>();
 
+   private boolean classDiagram;
+   private boolean classDiagramSVG;
+
    // =============== Properties ===============
 
    public String getModelDir()
@@ -42,6 +45,26 @@ public class Config
       return this.inputDirs;
    }
 
+   public boolean isClassDiagram()
+   {
+      return this.classDiagram;
+   }
+
+   public void setClassDiagram(boolean classDiagram)
+   {
+      this.classDiagram = classDiagram;
+   }
+
+   public boolean isClassDiagramSVG()
+   {
+      return this.classDiagramSVG;
+   }
+
+   public void setClassDiagramSVG(boolean classDiagramSVG)
+   {
+      this.classDiagramSVG = classDiagramSVG;
+   }
+
    // =============== Methods ===============
 
    public Options createOptions()
@@ -56,6 +79,9 @@ public class Config
       testDir.setRequired(false);
       options.addOption(testDir);
 
+      options.addOption(new Option(null, "class-diagram", false, "generate class diagram as .png into model folder"));
+      options.addOption(new Option(null, "class-diagram-svg", false, "generate class diagram as .svg into model folder"));
+
       return options;
    }
 
@@ -64,5 +90,7 @@ public class Config
       this.setModelDir(cmd.getOptionValue("modelDir", "src/main/java"));
       this.setTestDir(cmd.getOptionValue("testDir", "src/test/java"));
       this.getInputDirs().addAll(cmd.getArgList());
+      this.setClassDiagram(cmd.hasOption("class-diagram"));
+      this.setClassDiagramSVG(cmd.hasOption("class-diagram-svg"));
    }
 }

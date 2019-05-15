@@ -1,5 +1,6 @@
 package org.fulib.scenarios.codegen;
 
+import org.fulib.FulibTools;
 import org.fulib.Generator;
 import org.fulib.builder.ClassBuilder;
 import org.fulib.builder.ClassModelBuilder;
@@ -55,8 +56,10 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      this.modelManager = new ClassModelManager().havePackageName(scenarioGroup.getName())
-                                                 .haveMainJavaDir(this.config.getModelDir());
+      final String modelDir = this.config.getModelDir();
+      final String packageDir = scenarioGroup.getName().replace('.', '/');
+
+      this.modelManager = new ClassModelManager().havePackageName(scenarioGroup.getName()).haveMainJavaDir(modelDir);
       this.testBuilder = new ClassModelBuilder(scenarioGroup.getName(), this.config.getTestDir());
 
       for (final Scenario scenario : scenarioGroup.getScenarios())
@@ -66,6 +69,17 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
       new Generator().generate(this.modelManager.getClassModel());
       new Generator().generate(this.testBuilder.getClassModel());
+
+      if (this.config.isClassDiagram())
+      {
+         FulibTools.classDiagrams()
+                   .dumpPng(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.png");
+      }
+      if (this.config.isClassDiagramSVG())
+      {
+         FulibTools.classDiagrams()
+                   .dumpSVG(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
+      }
       return null;
    }
 
