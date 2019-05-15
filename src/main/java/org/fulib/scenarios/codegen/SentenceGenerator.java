@@ -42,18 +42,22 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(DiagramSentence diagramSentence, CodeGenerator par)
    {
+      // TODO determine from enclosing Scenario
+      final String sourceDir = par.config.getInputDirs().get(0);
+      final String packageDir = par.modelManager.getClassModel().getPackageName();
+      final String fileName = diagramSentence.getFileName();
+      final String format = fileName.endsWith(".svg") ? "SVG" : "Png";
+      final String target = sourceDir + "/" + packageDir + "/" + fileName;
+
       par.addImport("org.fulib.FulibTools");
 
       par.emitIndent();
-      par.bodyBuilder.append("FulibTools.objectDiagrams().dumpPng(");
+      par.bodyBuilder.append("FulibTools.objectDiagrams().dump").append(format).append("(");
 
-      String dir = par.config.getInputDirs().get(0);
-      dir += "/" + par.modelManager.getClassModel().getPackageName();
-
-      par.emitStringLiteral(dir + "/" + diagramSentence.getFileName());
+      par.emitStringLiteral(target);
 
       par.bodyBuilder.append(", ");
-      diagramSentence.getObject().accept(ExprGenerator.INSTANCE, par);
+      diagramSentence.getObject().accept(ExprGenerator.NO_LIST, par);
       par.bodyBuilder.append(");\n");
 
       return null;

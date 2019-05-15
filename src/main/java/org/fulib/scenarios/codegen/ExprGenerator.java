@@ -24,7 +24,7 @@ import java.util.List;
 
 public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
 {
-   INSTANCE;
+   INSTANCE, NO_LIST;
 
    @Override
    public Object visit(Expr expr, CodeGenerator par)
@@ -102,7 +102,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       }
 
       par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(attributeName)).append("(");
-      attribute.getExpr().accept(ExprGenerator.INSTANCE, par);
+      attribute.getExpr().accept(wither ? NO_LIST : INSTANCE, par);
       par.bodyBuilder.append(")");
    }
 
@@ -153,10 +153,13 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(ListExpr listExpr, CodeGenerator par)
    {
-      par.addImport("java.util.ArrayList");
-      par.addImport("java.util.Arrays");
+      if (this != NO_LIST)
+      {
+         par.addImport("java.util.ArrayList");
+         par.addImport("java.util.Arrays");
 
-      par.bodyBuilder.append("new ArrayList<>(Arrays.asList(");
+         par.bodyBuilder.append("new ArrayList<>(Arrays.asList(");
+      }
 
       final List<Expr> elements = listExpr.getElements();
 
@@ -167,7 +170,10 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
          elements.get(i).accept(this, par);
       }
 
-      par.bodyBuilder.append("))");
+      if (this != NO_LIST)
+      {
+         par.bodyBuilder.append("))");
+      }
       return null;
    }
 }
