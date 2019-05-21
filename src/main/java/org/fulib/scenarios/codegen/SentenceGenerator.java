@@ -2,7 +2,6 @@ package org.fulib.scenarios.codegen;
 
 import org.fulib.classmodel.Clazz;
 import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.transform.Typer;
@@ -20,11 +19,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(ThereSentence thereSentence, CodeGenerator par)
    {
-      for (VarDecl varDecl : thereSentence.getVars())
-      {
-         varDecl.accept(DeclGenerator.INSTANCE, par);
-      }
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override

@@ -12,6 +12,7 @@ import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
 import org.fulib.scenarios.codegen.CodeGenerator;
+import org.fulib.scenarios.transform.Desugar;
 import org.fulib.scenarios.transform.NameResolver;
 import org.fulib.scenarios.transform.SymbolCollector;
 
@@ -202,6 +203,7 @@ public class ScenarioCompiler implements Tool
 
    private void processGroup(ScenarioGroup scenarioGroup)
    {
+      scenarioGroup.accept(new Desugar(), null);
       for (Scenario scenario : scenarioGroup.getScenarios())
       {
          final Map<String, Decl> symbolTable = new HashMap<>();
