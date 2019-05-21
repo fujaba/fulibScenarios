@@ -19,7 +19,7 @@
 </head>
 <body>
 <div class="split top left">
-	<h2>Scenario</h2>	<br/> <textarea class="form-control" id="scenarioInput">
+	<h2>Scenario</h2>    <br/> <textarea class="form-control" id="scenarioInput">
 # Scenario Start Up.
 
 There is a Game.
@@ -36,15 +36,12 @@ There is a Player with name Albert.</textarea>
 					'Cmd-Enter': submit
 				}
 			});
-
-
-
 	</script>
-	Press <kbd>Ctrl-Enter</kbd> to compile and run.
+	Press <kbd>Ctrl-Enter</kbd> to <a href="#" onclick="submit()">compile and run</a>.
 </div>
 
 <div class="split top right">
-	<h2>Java Test Code</h2>	<br/> <textarea class="form-control" id="javaTestOutput">
+	<h2>Java Test Code</h2>    <br/> <textarea class="form-control" id="javaTestOutput">
 Game game = new Game();
 Player albert = new Player().setName("Albert").setState("at work");
 assertEquals("Albert", albert.getName());
@@ -57,14 +54,12 @@ albert.setPoints(42.0).setMood("happy");</textarea>
 				readOnly: true,
 				mode: 'text/x-java'
 			});
-
-
-
 	</script>
 </div>
 
 <div class="split bottom left">
 	<h2>Object Diagram</h2>        <br/>
+	<div class="svg" id="objectDiagram"></div>
 	<!--
 	<object id="objectDiagram" type="image/svg+xml" class="img-fluid"/>
 	-->
@@ -72,6 +67,7 @@ albert.setPoints(42.0).setMood("happy");</textarea>
 
 <div class="split bottom right">
 	<h2>Class Diagram</h2>        <br/>
+	<div class="svg" id="classDiagram"></div>
 	<!--
 	<object id="classDiagram" type="image/svg+xml" class="img-fluid"/>
 	-->
