@@ -149,8 +149,6 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       // user did not declare names, infer from attributes or class name
       for (NamedExpr attribute : thereSentence.getAttributes())
       {
-         /* TODO infer multiple names from multi-valued attributes
-                 e.g. There are students with names Alice and Bob.
          if (attribute.getExpr() instanceof ListExpr)
          {
             final List<Expr> elements = ((ListExpr) attribute.getExpr()).getElements();
@@ -163,7 +161,6 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
             }
          }
          else
-         */
          {
             final String potentialName = attribute.getExpr().accept(Namer.INSTANCE, null);
             if (potentialName != null)
