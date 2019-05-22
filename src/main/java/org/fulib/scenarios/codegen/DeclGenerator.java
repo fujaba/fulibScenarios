@@ -20,6 +20,11 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
       final String type = varDecl.accept(new Typer(par.modelManager.getClassModel()), null);
       par.emitIndent();
 
+      if (type.startsWith("List<"))
+      {
+         par.addImport("java.util.List");
+      }
+
       par.bodyBuilder.append(type).append(' ').append(varDecl.getName()).append(" = ");
       varDecl.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(";\n");
