@@ -10,7 +10,7 @@ public class WebService
 
       redirect.get("/github", "https://github.com/fujaba/fulib");
 
-      get("/scenarios/run", (req, res) -> "StudyRight studyRight = new StudyRight();");
+      get("/runcodegen", (req, res) -> "StudyRight studyRight = new StudyRight();");
 
       // http://localhost:4567
    }
