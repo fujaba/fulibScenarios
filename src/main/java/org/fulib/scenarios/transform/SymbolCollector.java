@@ -59,11 +59,7 @@ public class SymbolCollector
    @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
-      for (VarDecl var : thereSentence.getVars())
-      {
-         var.accept(this, par);
-      }
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override

@@ -25,7 +25,7 @@ public class NameResolver
 {
    private final Map<String, Decl> symbolTable;
 
-   private VarDecl currentVar;
+   private String lastVar;
 
    public NameResolver(Map<String, Decl> symbolTable)
    {
@@ -55,9 +55,7 @@ public class NameResolver
    @Override
    public Object visit(VarDecl varDecl, Object par)
    {
-      this.currentVar = varDecl;
       varDecl.setExpr(varDecl.getExpr().accept(this, par));
-      this.currentVar = null;
       return null;
    }
 
@@ -72,11 +70,7 @@ public class NameResolver
    @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
-      for (final VarDecl var : thereSentence.getVars())
-      {
-         var.accept(this, par);
-      }
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override
@@ -98,10 +92,12 @@ public class NameResolver
    {
       hasSentence.setObject(hasSentence.getObject().accept(this, par));
 
+      this.lastVar = hasSentence.getObject().accept(Namer.INSTANCE, null);
       for (final NamedExpr namedExpr : hasSentence.getClauses())
       {
          namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
       }
+      this.lastVar = null;
 
       return null;
    }
@@ -147,8 +143,10 @@ public class NameResolver
       if (nameAccess.getName() instanceof UnresolvedName)
       {
          final UnresolvedName unresolvedName = (UnresolvedName) nameAccess.getName();
-         final Decl target = this.symbolTable.get(unresolvedName.getValue());
-         if (target == null || target == this.currentVar)
+         final String unresolvedValue = unresolvedName.getValue();
+
+         final Decl target;
+         if (unresolvedValue.equals(this.lastVar) || (target = this.symbolTable.get(unresolvedValue)) == null)
          {
             return StringLiteral.of(unresolvedName.getText());
          }

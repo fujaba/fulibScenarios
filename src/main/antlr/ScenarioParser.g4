@@ -20,15 +20,14 @@ sentence: thereSentence
 
 // Definition
 
-thereSentence: THERE IS descriptor FULL_STOP
-| THERE ARE descriptor (sep descriptor)+ FULL_STOP;
+thereSentence: thereClause (sep thereClause)* FULL_STOP;
+thereClause: THERE IS simpleTypeClause name? withClauses? # SimpleThereClause
+           | THERE ARE multiTypeClause (name (sep name)+)? withClauses? # MultiThereClause;
 
-isSentence: name IS constructor FULL_STOP;
+isSentence: name IS simpleTypeClause withClauses? FULL_STOP;
 
-descriptor: (name COMMA?)? constructor;
-constructor: typeClause withClauses?;
-typeClause: (A | AN) name CARD?
-          | name CARDS;
+simpleTypeClause: (A | AN | THE) (simpleName | name CARD);
+multiTypeClause: name CARDS | name;
 
 withClauses: withClause (sep withClause)*;
 withClause: WITH namedExpr;
