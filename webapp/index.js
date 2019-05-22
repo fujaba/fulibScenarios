@@ -1,9 +1,9 @@
-const apiUrl = "https://api.fulib.org/v1";
+const apiUrl = "";
 
 function submit() {
 	const text = scenarioInputCodeMirror.getValue();
 
-	api("POST", apiUrl + "/scenario/run", {
+	api("POST", apiUrl + "/runcodegen", {
 		scenarioText: text
 	}, function(response) {
 		javaTestOutputCodeMirror.setValue(response.testMethods[0].body);

@@ -1,5 +1,7 @@
 package org.fulib.scenarios;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.*;
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
 public class TestCodeGenService
 {
    @Test
-   public void testCodeGenService() throws InterruptedException, IOException
+   public void testCodeGenService() throws InterruptedException, IOException, JSONException
    {
        // start server
       ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -35,8 +37,11 @@ public class TestCodeGenService
             "\n" +
             "There is a Party.\n" +
             "";
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put("text", scenarioText);
 
-      byte[] out = scenarioText.getBytes(StandardCharsets.UTF_8);
+      String jsonText = jsonObject.toString(3);
+      byte[] out = jsonText.getBytes(StandardCharsets.UTF_8);
       int length = out.length;
 
       http.setFixedLengthStreamingMode(length);
