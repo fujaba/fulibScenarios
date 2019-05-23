@@ -11,6 +11,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static spark.Spark.*;
 
@@ -27,11 +29,15 @@ public class WebService
 
       post("/runcodegen", WebService::runCodeGen);
 
+      Logger.getGlobal().info("scenario server started ... ");
+
       // http://localhost:4567
    }
 
    private static String runCodeGen(Request req, Response res) throws IOException
    {
+      Logger.getGlobal().info("run code gen ...");
+
       final Path codegendir = Files.createTempDirectory("codegendir");
       final Path srcDir = codegendir.resolve("src");
       final Path mainPackageDir = srcDir.resolve("example");
@@ -56,9 +62,15 @@ public class WebService
          Files.createDirectories(modelSrcDir);
          Files.createDirectories(testSrcDir);
 
-         // invoke compiler
-         Main.main(new String[] { "-m", modelSrcDir.toString(), "-t", testSrcDir.toString(), srcDir.toString(),
-            "--class-diagram-svg" });
+         try
+         {
+            Main.main(new String[]{"-m", modelSrcDir.toString(), "-t", testSrcDir.toString(), srcDir.toString(),
+                  "--class-diagram-svg"});
+         }
+         catch (Exception e)
+         {
+            Logger.getGlobal().log(Level.SEVERE, "Generator failed: ", e);
+         }
 
          final JSONObject result = new JSONObject();
 
