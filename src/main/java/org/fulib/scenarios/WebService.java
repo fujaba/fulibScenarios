@@ -6,13 +6,10 @@ import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -20,6 +17,10 @@ import static spark.Spark.*;
 
 public class WebService
 {
+   private static final String TEMP_DIR_PREFIX = "fulibScenarios";
+   private static final String PACKAGE_NAME = "webapp";
+   private static final String SCENARIO_FILE_NAME = "scenario.md";
+
    public static void main(String[] args)
    {
       staticFiles.externalLocation("webapp");
@@ -36,18 +37,16 @@ public class WebService
       // http://localhost:4567
    }
 
-   private static String runCodeGen(Request req, Response res) throws IOException
+   private static String runCodeGen(Request req, Response res) throws Exception
    {
-      Logger.getGlobal().info("run code gen ...");
-
-      final Path codegendir = Files.createTempDirectory("codegendir");
+      final Path codegendir = Files.createTempDirectory(TEMP_DIR_PREFIX);
       final Path srcDir = codegendir.resolve("src");
-      final Path mainPackageDir = srcDir.resolve("example");
-      final Path modelSrcDir = codegendir.resolve("modelsrc");
-      final Path testSrcDir = codegendir.resolve("testsrc");
-      final Path scenarioFile = mainPackageDir.resolve("scenario.md");
-      final Path exampleTestDir = testSrcDir.resolve("example");
-      final Path exampleModelDir = modelSrcDir.resolve("example");
+      final Path mainPackageDir = srcDir.resolve(PACKAGE_NAME);
+      final Path modelSrcDir = codegendir.resolve("model_src");
+      final Path testSrcDir = codegendir.resolve("test_src");
+      final Path scenarioFile = mainPackageDir.resolve(SCENARIO_FILE_NAME);
+      final Path modelClassesDir = codegendir.resolve("model_classes");
+      final Path testClassesDir = codegendir.resolve("test_classes");
 
       try
       {
@@ -64,17 +63,21 @@ public class WebService
          Files.createDirectories(modelSrcDir);
          Files.createDirectories(testSrcDir);
 
-         try
-         {
-            Main.main(new String[]{"-m", modelSrcDir.toString(), "-t", testSrcDir.toString(), srcDir.toString(),
-                  "--class-diagram-svg"});
-         }
-         catch (Exception e)
-         {
-            Logger.getGlobal().log(Level.SEVERE, "Generator failed: ", e);
-         }
+         final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+         // invoke scenario compiler
+         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir,
+                                                         testClassesDir, "--class-diagram-svg"
+                                                         // "--object-diagram-svg"
+         );
 
          final JSONObject result = new JSONObject();
+
+         result.put("exitCode", exitCode);
+
+         final String output = new String(out.toByteArray(), StandardCharsets.UTF_8);
+         Logger.getGlobal().finest(output);
+         result.put("output", output);
 
          // collect test methods
          final JSONArray methodArray = new JSONArray();
@@ -103,11 +106,13 @@ public class WebService
          final String svgText = new String(bytes, StandardCharsets.UTF_8);
          result.put("classDiagram", svgText);
 
+         // TODO read object diagram
+
          return result.toString(3);
       }
       catch (Exception e)
       {
-         e.printStackTrace();
+         Logger.getGlobal().throwing(WebService.class.getName(), "runCodeGen", e);
          return "{}";
       }
       finally
