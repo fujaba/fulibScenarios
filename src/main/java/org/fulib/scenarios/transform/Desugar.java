@@ -122,6 +122,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
             // bob.setCredits(_t0);
 
             final VarDecl temp = VarDecl.of(this.tempName(), null, attributeExpr);
+            result.add(IsSentence.of(temp));
 
             for (int i = 0; i < names.size(); i++)
             {

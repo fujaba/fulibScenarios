@@ -1,16 +1,16 @@
 package org.fulib.scenarios;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,40 +24,43 @@ public class WebService
 
       get("/github", (req, res) -> {
          res.redirect("https://github.com/fujaba/fulib");
-         return res;}
-      );
+         return res;
+      });
 
-      post("/runcodegen", (req, res) -> runCodeGen(req, res));
+      post("/runcodegen", WebService::runCodeGen);
 
       Logger.getGlobal().info("scenario server started ... ");
 
       // http://localhost:4567
    }
 
-   private static String runCodeGen(Request req, Response res) throws IOException, JSONException
+   private static String runCodeGen(Request req, Response res) throws IOException
    {
       Logger.getGlobal().info("run code gen ...");
+
+      final Path codegendir = Files.createTempDirectory("codegendir");
+      final Path srcDir = codegendir.resolve("src");
+      final Path mainPackageDir = srcDir.resolve("example");
+      final Path modelSrcDir = codegendir.resolve("modelsrc");
+      final Path testSrcDir = codegendir.resolve("testsrc");
+      final Path scenarioFile = mainPackageDir.resolve("scenario.md");
+      final Path exampleTestDir = testSrcDir.resolve("example");
+      final Path exampleModelDir = modelSrcDir.resolve("example");
+
       try
       {
-         String body = req.body();
+         final String body = req.body();
+         final JSONObject jsonObject = new JSONObject(body);
+         final String bodyText = jsonObject.getString("scenarioText");
 
-         JSONObject jsonObject = new JSONObject(body);
-
-         String bodyText = jsonObject.getString("scenarioText");
-
-         Path codegendir = Files.createTempDirectory("codegendir");
-         Path srcDir = codegendir.resolve("src");
+         // create source directory and write source scenario file
          Files.createDirectories(srcDir);
-         Path mainPackageDir = srcDir.resolve("example");
          Files.createDirectories(mainPackageDir);
-
-         Path modelSrcDir = codegendir.resolve("modelsrc");
-         Files.createDirectories(modelSrcDir);
-         Path testSrcDir = codegendir.resolve("testsrc");
-         Files.createDirectories(testSrcDir);
-
-         Path scenarioFile = mainPackageDir.resolve("scenario.md");
          Files.write(scenarioFile, bodyText.getBytes(StandardCharsets.UTF_8));
+
+         // create output directories
+         Files.createDirectories(modelSrcDir);
+         Files.createDirectories(testSrcDir);
 
          try
          {
@@ -69,9 +72,10 @@ public class WebService
             Logger.getGlobal().log(Level.SEVERE, "Generator failed: ", e);
          }
 
-         Path exampleTestDir = testSrcDir.resolve("example");
+         final JSONObject result = new JSONObject();
 
-         JSONArray methodArray = new JSONArray();
+         // collect test methods
+         final JSONArray methodArray = new JSONArray();
 
          Files.list(exampleTestDir).filter(file -> file.toString().endsWith(".java")).forEach(file -> {
             try
@@ -89,17 +93,13 @@ public class WebService
             {
                e.printStackTrace();
             }
-
          });
 
-
-         JSONObject result = new JSONObject();
          result.put("testMethods", methodArray);
 
-         Path exampleModelDir = modelSrcDir.resolve("example");
-         byte[] bytes = Files.readAllBytes(exampleModelDir.resolve("classDiagram.svg"));
-         String svgText = new String(bytes, StandardCharsets.UTF_8);
-
+         // read class diagram
+         final byte[] bytes = Files.readAllBytes(exampleModelDir.resolve("classDiagram.svg"));
+         final String svgText = new String(bytes, StandardCharsets.UTF_8);
          result.put("classDiagram", svgText);
 
          return result.toString(3);
@@ -107,8 +107,11 @@ public class WebService
       catch (Exception e)
       {
          e.printStackTrace();
+         return "{}";
       }
-
-      return "ups";
+      finally
+      {
+         Files.walk(codegendir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+      }
    }
 }
