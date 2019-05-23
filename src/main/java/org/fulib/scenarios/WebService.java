@@ -1,5 +1,6 @@
 package org.fulib.scenarios;
 
+import org.fulib.scenarios.tool.JavaCompiler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.Request;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
@@ -77,12 +79,11 @@ public class WebService
          // collect test methods
          final JSONArray methodArray = new JSONArray();
 
-         Files.list(exampleTestDir).filter(file -> file.toString().endsWith(".java")).forEach(file -> {
+         Files.walk(testSrcDir).filter(JavaCompiler::isJava).forEach(file -> {
             try
             {
-               byte[] bytes = Files.readAllBytes(file);
-
-               String firstTestBody = new String(bytes, StandardCharsets.UTF_8);
+               String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
+                                           .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
                JSONObject firstTestMethod = new JSONObject();
                firstTestMethod.put("name", file.getFileName().toString());
                firstTestMethod.put("body", firstTestBody);
@@ -98,7 +99,7 @@ public class WebService
          result.put("testMethods", methodArray);
 
          // read class diagram
-         final byte[] bytes = Files.readAllBytes(exampleModelDir.resolve("classDiagram.svg"));
+         final byte[] bytes = Files.readAllBytes(modelSrcDir.resolve(PACKAGE_NAME).resolve("classDiagram.svg"));
          final String svgText = new String(bytes, StandardCharsets.UTF_8);
          result.put("classDiagram", svgText);
 
@@ -111,7 +112,7 @@ public class WebService
       }
       finally
       {
-         Files.walk(codegendir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+         JavaCompiler.deleteRecursively(codegendir);
       }
    }
 }
