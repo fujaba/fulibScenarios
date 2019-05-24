@@ -6,6 +6,9 @@ function submit() {
 	api("POST", apiUrl + "/runcodegen", {
 		scenarioText: text
 	}, function(response) {
+		console.log(response.output)
+		console.log("exit code: " + response.exitCode)
+
 		javaTestOutputCodeMirror.setValue(response.testMethods[0].body);
 		document.getElementById("objectDiagram").innerHTML = response.objectDiagram;
 		document.getElementById("classDiagram").innerHTML = response.classDiagram;
@@ -18,9 +21,8 @@ function submit() {
 
 function api(method, url, body, handler) {
 	const requestBody = JSON.stringify(body);
-	console.log(requestBody);
-
     const request = new XMLHttpRequest();
+
     request.overrideMimeType("application/json");
     request.addEventListener("load", function () {
         handler(JSON.parse(this.responseText))
