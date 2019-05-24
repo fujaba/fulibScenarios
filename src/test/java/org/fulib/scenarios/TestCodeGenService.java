@@ -2,6 +2,7 @@ package org.fulib.scenarios;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -13,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+@Ignore
 public class TestCodeGenService
 {
    @Test
@@ -38,14 +40,14 @@ public class TestCodeGenService
             "There is a Party.\n" +
             "";
       JSONObject jsonObject = new JSONObject();
-      jsonObject.put("text", scenarioText);
+      jsonObject.put("scenarioText", scenarioText);
 
       String jsonText = jsonObject.toString(3);
       byte[] out = jsonText.getBytes(StandardCharsets.UTF_8);
       int length = out.length;
 
       http.setFixedLengthStreamingMode(length);
-      http.setRequestProperty("Content-Type", "application/text; charset=UTF-8");
+      http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
       http.connect();
       try(OutputStream os = http.getOutputStream()) {
          os.write(out);

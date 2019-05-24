@@ -1,6 +1,7 @@
 package org.fulib.scenarios;
 
 import org.fulib.scenarios.tool.Tools;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -8,7 +9,7 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 
-//@Ignore
+@Ignore
 public class TestCodeGen
 {
    @Test
