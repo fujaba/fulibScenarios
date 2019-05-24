@@ -141,6 +141,8 @@ public class JavaCompiler
       Path modelClassesDir, Path testClassesDir,//
       String... scenariocArgs) throws Exception
    {
+      final PrintStream printErr = new PrintStream(err, false, StandardCharsets.UTF_8.name());
+
       // prevent dock icon on Mac
       try (FakeProperty ignored = new FakeProperty("apply.awt.UIElement", "true"))
       {
@@ -170,15 +172,22 @@ public class JavaCompiler
 
          for (final Failure failure : testResult.getFailures())
          {
-            final PrintStream stream = new PrintStream(err, false, StandardCharsets.UTF_8.name());
-            stream.print(failure.getTestHeader());
-            stream.println("failed:");
+            printErr.print(failure.getTestHeader());
+            printErr.println("failed:");
 
-            failure.getException().printStackTrace(stream);
-            stream.flush();
+            failure.getException().printStackTrace(printErr);
          }
 
          return testResult.getFailureCount();
+      }
+      catch (Exception ex)
+      {
+         ex.printStackTrace(printErr);
+         return -4;
+      }
+      finally
+      {
+         printErr.flush();
       }
    }
 

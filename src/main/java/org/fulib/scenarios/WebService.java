@@ -76,44 +76,45 @@ public class WebService
          result.put("exitCode", exitCode);
 
          final String output = new String(out.toByteArray(), StandardCharsets.UTF_8);
-         Logger.getGlobal().finest(output);
          result.put("output", output);
 
-         // collect test methods
-         final JSONArray methodArray = new JSONArray();
+         if (exitCode == -4) // exception occurred
+         {
+            Logger.getGlobal().finest(output);
+         }
+         if (exitCode != -1) // scenarioc did not fail
+         {
+            // collect test methods
+            final JSONArray methodArray = new JSONArray();
 
-         Files.walk(testSrcDir).filter(JavaCompiler::isJava).forEach(file -> {
-            try
-            {
-               String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
-                                           .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
-               JSONObject firstTestMethod = new JSONObject();
-               firstTestMethod.put("name", file.getFileName().toString());
-               firstTestMethod.put("body", firstTestBody);
+            Files.walk(testSrcDir).filter(JavaCompiler::isJava).forEach(file -> {
+               try
+               {
+                  String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
+                                              .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
+                  JSONObject firstTestMethod = new JSONObject();
+                  firstTestMethod.put("name", file.getFileName().toString());
+                  firstTestMethod.put("body", firstTestBody);
 
-               methodArray.put(firstTestMethod);
-            }
-            catch (Exception e)
-            {
-               e.printStackTrace();
-            }
-         });
+                  methodArray.put(firstTestMethod);
+               }
+               catch (Exception e)
+               {
+                  e.printStackTrace();
+               }
+            });
 
-         result.put("testMethods", methodArray);
+            result.put("testMethods", methodArray);
 
-         // read class diagram
-         final byte[] bytes = Files.readAllBytes(modelSrcDir.resolve(PACKAGE_NAME).resolve("classDiagram.svg"));
-         final String svgText = new String(bytes, StandardCharsets.UTF_8);
-         result.put("classDiagram", svgText);
+            // read class diagram
+            final byte[] bytes = Files.readAllBytes(modelSrcDir.resolve(PACKAGE_NAME).resolve("classDiagram.svg"));
+            final String svgText = new String(bytes, StandardCharsets.UTF_8);
+            result.put("classDiagram", svgText);
 
-         // TODO read object diagram
+            // TODO read object diagram
+         }
 
          return result.toString(3);
-      }
-      catch (Exception e)
-      {
-         Logger.getGlobal().throwing(WebService.class.getName(), "runCodeGen", e);
-         return "{}";
       }
       finally
       {
