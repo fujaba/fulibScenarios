@@ -68,6 +68,16 @@ public class NameResolver
    }
 
    @Override
+   public Object visit(SentenceList sentenceList, Object par)
+   {
+      for (final Sentence item : sentenceList.getItems())
+      {
+         item.accept(this, par);
+      }
+      return null;
+   }
+
+   @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
       throw new UnsupportedOperationException();

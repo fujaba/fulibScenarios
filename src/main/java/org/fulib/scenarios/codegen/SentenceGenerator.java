@@ -18,6 +18,16 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
+   public Object visit(SentenceList sentenceList, CodeGenerator par)
+   {
+      for (final Sentence item : sentenceList.getItems())
+      {
+         item.accept(this, par);
+      }
+      return null;
+   }
+
+   @Override
    public Object visit(ThereSentence thereSentence, CodeGenerator par)
    {
       throw new UnsupportedOperationException();

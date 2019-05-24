@@ -14,13 +14,12 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
-                                   Sentence.Visitor<Object, Collection<? extends Sentence>>
+                                   Sentence.Visitor<Object, Sentence>
 {
    private int tempID;
 
@@ -46,30 +45,33 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      final List<Sentence> newSentences = scenario.getSentences().stream()
-                                                  .flatMap(sentence -> sentence.accept(this, par).stream())
-                                                  .collect(Collectors.toList());
-      scenario.setSentences(newSentences);
+      scenario.getSentences().replaceAll(it -> it.accept(this, par));
       return null;
    }
 
    // --------------- Sentence.Visitor ---------------
 
    @Override
-   public Collection<? extends Sentence> visit(Sentence sentence, Object par)
+   public Sentence visit(Sentence sentence, Object par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Collection<? extends Sentence> visit(ThereSentence thereSentence, Object par)
+   public Sentence visit(SentenceList sentenceList, Object par)
+   {
+      return sentenceList;
+   }
+
+   @Override
+   public Sentence visit(ThereSentence thereSentence, Object par)
    {
       final List<Sentence> result = new ArrayList<>();
       for (MultiDescriptor multiDesc : thereSentence.getDescriptors())
       {
          this.visit(multiDesc, result);
       }
-      return result;
+      return SentenceList.of(result);
    }
 
    private void visit(MultiDescriptor multiDesc, List<Sentence> result)
@@ -183,40 +185,40 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    }
 
    @Override
-   public Collection<? extends Sentence> visit(DiagramSentence diagramSentence, Object par)
+   public Sentence visit(DiagramSentence diagramSentence, Object par)
    {
-      return Collections.singletonList(diagramSentence);
+      return diagramSentence;
    }
 
    @Override
-   public Collection<? extends Sentence> visit(ExpectSentence expectSentence, Object par)
+   public Sentence visit(ExpectSentence expectSentence, Object par)
    {
-      return Collections.singletonList(expectSentence);
+      return expectSentence;
    }
 
    @Override
-   public Collection<? extends Sentence> visit(HasSentence hasSentence, Object par)
+   public Sentence visit(HasSentence hasSentence, Object par)
    {
-      return Collections.singletonList(hasSentence);
+      return hasSentence;
    }
 
    @Override
-   public Collection<? extends Sentence> visit(IsSentence isSentence, Object par)
+   public Sentence visit(IsSentence isSentence, Object par)
    {
-      return Collections.singletonList(isSentence);
+      return isSentence;
    }
 
    @Override
-   public Collection<? extends Sentence> visit(CreateSentence createSentence, Object par)
+   public Sentence visit(CreateSentence createSentence, Object par)
    {
       final List<Sentence> result = new ArrayList<>();
       this.visit(createSentence.getDescriptor(), result);
-      return result;
+      return SentenceList.of(result);
    }
 
    @Override
-   public Collection<? extends Sentence> visit(CallSentence callSentence, Object par)
+   public Sentence visit(CallSentence callSentence, Object par)
    {
-      return Collections.singletonList(callSentence);
+      return callSentence;
    }
 }
