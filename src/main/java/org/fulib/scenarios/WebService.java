@@ -76,13 +76,13 @@ public class WebService
          result.put("exitCode", exitCode);
 
          final String output = new String(out.toByteArray(), StandardCharsets.UTF_8);
-         result.put("output", output);
+         result.put("output", output.replace(codegendir.toString(), "."));
 
          if (exitCode < 0) // exception occurred
          {
             Logger.getGlobal().severe(output);
          }
-         if ((exitCode & 4) != 0) // scenarioc did not fail
+         if (exitCode == 0 || (exitCode & 4) != 0) // scenarioc did not fail
          {
             // collect test methods
             final JSONArray methodArray = new JSONArray();

@@ -178,7 +178,8 @@ public class Tools
             failure.getException().printStackTrace(printErr);
          }
 
-         return testResult.getFailureCount() << 2 | 3;
+         final int failureCount = testResult.getFailureCount();
+         return failureCount == 0 ? 0 : failureCount << 2 | 3;
       }
       catch (Exception ex)
       {

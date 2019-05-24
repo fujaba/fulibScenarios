@@ -9,21 +9,23 @@ function submit() {
 		console.log(response.output)
 		console.log("exit code: " + response.exitCode)
 
-		let javaCode;
-		if (response.testMethods && response.testMethods[0]) {
-			javaCode = response.testMethods[0].body;
+		let javaCode = '';
+		if (response.exitCode != 0) {
+			javaCode += response.output.split("\n").map(function(line) {
+            				return "// " + line;
+            			}).join("\n") + '\n';
 		}
-		else {
-			javaCode = response.output.split("\n").map(function(line) {
-				return "// " + line;
-			}).join("\n");
+		if (response.testMethods) {
+			for (testMethod of response.testMethods) {
+				javaCode += "// " + testMethod.name + '\n';
+				javaCode += testMethod.body;
+			}	
 		}
 		javaTestOutputCodeMirror.setValue(javaCode);
 
 		document.getElementById("objectDiagram").innerHTML = response.objectDiagram;
 		document.getElementById("classDiagram").innerHTML = response.classDiagram;
 
-		// TODO support multiple test methods
 		// TODO display errors
 	});
 }
