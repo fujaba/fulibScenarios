@@ -9,7 +9,17 @@ function submit() {
 		console.log(response.output)
 		console.log("exit code: " + response.exitCode)
 
-		javaTestOutputCodeMirror.setValue(response.testMethods[0].body);
+		let javaCode;
+		if (response.testMethods && response.testMethods[0]) {
+			javaCode = response.testMethods[0].body;
+		}
+		else {
+			javaCode = response.output.split("\n").map(function(line) {
+				return "// " + line;
+			}).join("\n");
+		}
+		javaTestOutputCodeMirror.setValue(javaCode);
+
 		document.getElementById("objectDiagram").innerHTML = response.objectDiagram;
 		document.getElementById("classDiagram").innerHTML = response.classDiagram;
 
