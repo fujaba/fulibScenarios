@@ -66,9 +66,8 @@ public class WebService
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
          // invoke scenario compiler
-         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir,
-                                                         testClassesDir, "--class-diagram-svg"
-                                                         // "--object-diagram-svg"
+         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
+               "--class-diagram-svg", "--object-diagram-svg"
          );
 
          final JSONObject result = new JSONObject();
@@ -106,7 +105,21 @@ public class WebService
          final String svgText = new String(bytes, StandardCharsets.UTF_8);
          result.put("classDiagram", svgText);
 
-         // TODO read object diagram
+         // read object diagram
+         final StringBuilder objectDiagramSvgText = new StringBuilder();
+         Path srcPackage = srcDir.resolve(PACKAGE_NAME);
+         Files.walk(srcPackage)
+               .filter(file ->
+                     file.toString().endsWith(".svg"))
+               .forEach(file -> {
+            try{
+               final byte[] objectDiagramBytes = Files.readAllBytes(file);
+               objectDiagramSvgText.append(new String(objectDiagramBytes));
+            } catch (Exception e) {
+
+            }
+         });
+         result.put("objectDiagram", objectDiagramSvgText.toString());
 
          return result.toString(3);
       }

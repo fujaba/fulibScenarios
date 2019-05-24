@@ -42,7 +42,8 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       final String packageDir = par.modelManager.getClassModel().getPackageName();
       final String fileName = diagramSentence.getFileName();
       final String format = fileName.endsWith(".svg") ? "SVG" : "Png";
-      final String target = sourceDir + "/" + packageDir + "/" + fileName;
+      String target = sourceDir + "/" + packageDir + "/" + fileName;
+      target = target.replaceAll("\\\\", "/");
 
       par.addImport("org.fulib.FulibTools");
 
