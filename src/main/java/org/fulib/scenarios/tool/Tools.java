@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class JavaCompiler
+public class Tools
 {
    // --------------- File Filters ---------------
 
@@ -38,7 +38,7 @@ public class JavaCompiler
    {
       try
       {
-         return Files.walk(sourceFolder).filter(JavaCompiler::isJava);
+         return Files.walk(sourceFolder).filter(Tools::isJava);
       }
       catch (IOException e)
       {
@@ -94,7 +94,7 @@ public class JavaCompiler
 
       ArrayList<String> args = new ArrayList<>();
 
-      Arrays.stream(sourceFolders).flatMap(JavaCompiler::collectJavaFiles).map(Path::toString).forEach(args::add);
+      Arrays.stream(sourceFolders).flatMap(Tools::collectJavaFiles).map(Path::toString).forEach(args::add);
 
       args.add("-d");
       args.add(outFolder.toString());
@@ -123,7 +123,7 @@ public class JavaCompiler
       {
          List<Class<?>> testClasses = new ArrayList<>();
 
-         Files.walk(testClassesDir).filter(JavaCompiler::isClass).sorted().forEach(path -> {
+         Files.walk(testClassesDir).filter(Tools::isClass).sorted().forEach(path -> {
             final String relativePath = testClassesDir.relativize(path).toString();
             final String className = relativePath.substring(0, relativePath.length() - ".class".length())
                   .replace('/', '.')
@@ -154,13 +154,15 @@ public class JavaCompiler
       Path modelClassesDir, Path testClassesDir,//
       String... scenariocArgs) throws Exception
    {
+      final PrintStream printErr = new PrintStream(err, false, StandardCharsets.UTF_8.name());
+
       // prevent dock icon on Mac
       try (FakeProperty ignored = new FakeProperty("apply.awt.UIElement", "true"))
       {
          final int scenarioc = scenarioc(out, err, srcDir, modelSrcDir, testSrcDir, scenariocArgs);
          if (scenarioc != 0)
          {
-            return -1;
+            return scenarioc << 2;
          }
 
          String classPath = System.getProperty("java.class.path");
@@ -168,30 +170,38 @@ public class JavaCompiler
          final int modelJavac = javac(out, err, classPath, modelClassesDir, modelSrcDir);
          if (modelJavac != 0)
          {
-            return -2;
+            return modelJavac << 2 | 1;
          }
 
          final String testClassPath = modelClassesDir + File.pathSeparator + classPath;
          final int testJavac = javac(out, err, testClassPath, testClassesDir, testSrcDir);
          if (testJavac != 0)
          {
-            return -3;
+            return testJavac << 2 | 2;
          }
 
          // call all test methods
-         final Result testResult = JavaCompiler.runTests(modelClassesDir, testClassesDir);
+         final Result testResult = Tools.runTests(modelClassesDir, testClassesDir);
 
          for (final Failure failure : testResult.getFailures())
          {
-            final PrintStream stream = new PrintStream(err, false, StandardCharsets.UTF_8.name());
-            stream.print(failure.getTestHeader());
-            stream.println("failed:");
+            printErr.print(failure.getTestHeader());
+            printErr.println("failed:");
 
-            failure.getException().printStackTrace(stream);
-            stream.flush();
+            failure.getException().printStackTrace(printErr);
          }
 
-         return testResult.getFailureCount();
+         final int failureCount = testResult.getFailureCount();
+         return failureCount == 0 ? 0 : failureCount << 2 | 3;
+      }
+      catch (Exception ex)
+      {
+         ex.printStackTrace(printErr);
+         return -1;
+      }
+      finally
+      {
+         printErr.flush();
       }
    }
 

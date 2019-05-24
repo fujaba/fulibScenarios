@@ -3,6 +3,7 @@ package org.fulib.scenarios;
 import static org.hamcrest.CoreMatchers.*;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -48,7 +49,7 @@ public class TestCodeGenService
       int length = out.length;
 
       http.setFixedLengthStreamingMode(length);
-      http.setRequestProperty("Content-Type", "application/text; charset=UTF-8");
+      http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
       http.connect();
       try(OutputStream os = http.getOutputStream()) {
          os.write(out);

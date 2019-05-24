@@ -1,6 +1,6 @@
 package org.fulib.scenarios;
 
-import org.fulib.scenarios.tool.JavaCompiler;
+import org.fulib.scenarios.tool.Tools;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.Request;
@@ -17,8 +17,8 @@ import static spark.Spark.*;
 
 public class WebService
 {
-   private static final String TEMP_DIR_PREFIX = "fulibScenarios";
-   private static final String PACKAGE_NAME = "webapp";
+   private static final String TEMP_DIR_PREFIX    = "fulibScenarios";
+   private static final String PACKAGE_NAME       = "webapp";
    private static final String SCENARIO_FILE_NAME = "scenario.md";
 
    public static void main(String[] args)
@@ -66,7 +66,9 @@ public class WebService
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
          // invoke scenario compiler
-         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
+//         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
+//               "--class-diagram-svg", "--object-diagram-svg"
+         final int exitCode = Tools.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
                "--class-diagram-svg", "--object-diagram-svg"
          );
 
@@ -75,62 +77,75 @@ public class WebService
          result.put("exitCode", exitCode);
 
          final String output = new String(out.toByteArray(), StandardCharsets.UTF_8);
-         Logger.getGlobal().finest(output);
-         result.put("output", output);
+         result.put("output", output.replace(codegendir.toString(), "."));
 
-         // collect test methods
-         final JSONArray methodArray = new JSONArray();
+         if (exitCode < 0) // exception occurred
+         {
+            Logger.getGlobal().severe(output);
+         }
 
-         Files.walk(testSrcDir).filter(JavaCompiler::isJava).forEach(file -> {
-            try
+         if (exitCode == 0 || (exitCode & 4) != 0) // scenarioc did not fail
+         {
+            // collect test methods
+            final JSONArray methodArray = new JSONArray();
+
+            Files.walk(testSrcDir).filter(Tools::isJava).forEach(file ->
             {
-               String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
-                                           .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
-               JSONObject firstTestMethod = new JSONObject();
-               firstTestMethod.put("name", file.getFileName().toString());
-               firstTestMethod.put("body", firstTestBody);
+               try
+               {
+                  String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
+                        .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
+                  JSONObject firstTestMethod = new JSONObject();
+                  firstTestMethod.put("name", file.getFileName().toString());
+                  firstTestMethod.put("body", firstTestBody);
 
-               methodArray.put(firstTestMethod);
-            }
-            catch (Exception e)
+                  methodArray.put(firstTestMethod);
+               }
+               catch (Exception e)
+               {
+                  e.printStackTrace();
+               }
+            });
+
+            result.put("testMethods", methodArray);
+
+            // read class diagram
+            final Path classDiagramFile = modelSrcDir.resolve(PACKAGE_NAME).resolve("classDiagram.svg");
+            if (Files.exists(classDiagramFile))
             {
-               e.printStackTrace();
+               final byte[] bytes = Files.readAllBytes(classDiagramFile);
+               final String svgText = new String(bytes, StandardCharsets.UTF_8);
+               result.put("classDiagram", svgText);
             }
-         });
 
-         result.put("testMethods", methodArray);
 
-         // read class diagram
-         final byte[] bytes = Files.readAllBytes(modelSrcDir.resolve(PACKAGE_NAME).resolve("classDiagram.svg"));
-         final String svgText = new String(bytes, StandardCharsets.UTF_8);
-         result.put("classDiagram", svgText);
+            // read object diagram
+            final StringBuilder objectDiagramSvgText = new StringBuilder();
+            Path srcPackage = srcDir.resolve(PACKAGE_NAME);
+            Files.walk(srcPackage)
+                  .filter(file ->
+                        file.toString().endsWith(".svg"))
+                  .forEach(file ->
+                  {
+                     try
+                     {
+                        final byte[] objectDiagramBytes = Files.readAllBytes(file);
+                        objectDiagramSvgText.append(new String(objectDiagramBytes));
+                     }
+                     catch (Exception e)
+                     {
 
-         // read object diagram
-         final StringBuilder objectDiagramSvgText = new StringBuilder();
-         Path srcPackage = srcDir.resolve(PACKAGE_NAME);
-         Files.walk(srcPackage)
-               .filter(file ->
-                     file.toString().endsWith(".svg"))
-               .forEach(file -> {
-            try{
-               final byte[] objectDiagramBytes = Files.readAllBytes(file);
-               objectDiagramSvgText.append(new String(objectDiagramBytes));
-            } catch (Exception e) {
+                     }
+                  });
+            result.put("objectDiagram", objectDiagramSvgText.toString());
+         }
 
-            }
-         });
-         result.put("objectDiagram", objectDiagramSvgText.toString());
-
+         res.type("application/json");
          return result.toString(3);
-      }
-      catch (Exception e)
-      {
-         Logger.getGlobal().throwing(WebService.class.getName(), "runCodeGen", e);
-         return "{}";
       }
       finally
       {
-         JavaCompiler.deleteRecursively(codegendir);
+         Tools.deleteRecursively(codegendir);
       }
    }
 }
