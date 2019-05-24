@@ -1,5 +1,6 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.scenarios.ast.MultiDescriptor;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
@@ -63,15 +64,23 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Collection<? extends Sentence> visit(ThereSentence thereSentence, Object par)
    {
-      final List<String> names = this.getNames(thereSentence);
-
       final List<Sentence> result = new ArrayList<>();
+      for (MultiDescriptor multiDesc : thereSentence.getDescriptors())
+      {
+         this.visit(multiDesc, result);
+      }
+      return result;
+   }
+
+   private void visit(MultiDescriptor multiDesc, List<Sentence> result)
+   {
+      final List<String> names = this.getNames(multiDesc);
       final List<VarDecl> varDecls = new ArrayList<>(names.size());
 
       // collect variable declarations from names
       for (String name : names)
       {
-         final CreationExpr expr = CreationExpr.of(thereSentence.getType(), Collections.emptyList());
+         final CreationExpr expr = CreationExpr.of(multiDesc.getType(), Collections.emptyList());
          final VarDecl varDecl = VarDecl.of(name, null, expr);
 
          varDecls.add(varDecl);
@@ -79,7 +88,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       }
 
       // collect attribute assignments
-      for (NamedExpr attribute : thereSentence.getAttributes())
+      for (NamedExpr attribute : multiDesc.getAttributes())
       {
          final Name attributeName = attribute.getName();
          final Expr attributeExpr = attribute.getExpr();
@@ -134,13 +143,11 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
             }
          }
       }
-
-      return result;
    }
 
-   private List<String> getNames(ThereSentence thereSentence)
+   private List<String> getNames(MultiDescriptor multiDesc)
    {
-      final List<String> names = thereSentence.getNames();
+      final List<String> names = multiDesc.getNames();
 
       if (!names.isEmpty())
       {
@@ -148,13 +155,13 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       }
 
       // user did not declare names, infer from attributes or class name
-      for (NamedExpr attribute : thereSentence.getAttributes())
+      for (NamedExpr attribute : multiDesc.getAttributes())
       {
          if (attribute.getExpr() instanceof ListExpr)
          {
             final List<Expr> elements = ((ListExpr) attribute.getExpr()).getElements();
-            final List<String> potentialNames = elements.stream().map(it -> it.accept(Namer.INSTANCE, null)).collect(
-               Collectors.toList());
+            final List<String> potentialNames = elements.stream().map(it -> it.accept(Namer.INSTANCE, null))
+                                                        .collect(Collectors.toList());
 
             if (!potentialNames.contains(null))
             {
@@ -171,7 +178,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
          }
       }
 
-      final String className = thereSentence.getType().accept(Namer.INSTANCE, null);
+      final String className = multiDesc.getType().accept(Namer.INSTANCE, null);
       return Collections.singletonList(className);
    }
 

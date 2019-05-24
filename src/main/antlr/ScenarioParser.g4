@@ -21,8 +21,12 @@ sentence: thereSentence
 // Definition
 
 thereSentence: thereClause (sep thereClause)* FULL_STOP;
-thereClause: THERE IS simpleTypeClause name? withClauses? # SimpleThereClause
-           | THERE ARE multiTypeClause (name (sep name)+)? withClauses? # MultiThereClause;
+thereClause: THERE IS simpleDescriptor
+           | THERE ARE multiDescriptor;
+
+descriptor: simpleDescriptor | multiDescriptor;
+simpleDescriptor: simpleTypeClause name? withClauses?;
+multiDescriptor: multiTypeClause (name (sep name)+)? withClauses?;
 
 isSentence: name IS simpleTypeClause withClauses? FULL_STOP;
 
