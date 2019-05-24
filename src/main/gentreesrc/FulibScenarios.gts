@@ -13,12 +13,20 @@ abstract org.fulib.scenarios.ast.Node {
 		ResolvedName(decl: Decl)
 	}
 
+	MultiDescriptor(type: Name, names: [String], attributes: [NamedExpr])
+
 	abstract sentence.Sentence {
-		ThereSentence(type: Name, names: [String], attributes: [NamedExpr]) // like CreatePhrase, but without an actor
+		SentenceList(items: [Sentence])
+
+		ThereSentence(descriptors: [MultiDescriptor]) // like CreateSentence, but without an actor
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 		HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
 		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
+
+		CreateSentence(actor: Name, descriptor: MultiDescriptor)
+
+		CallSentence(actor: Name, name: Name, receiver: Expr, body: [Sentence])
 
 		/*
 		PhraseSentence(phrase: Phrase)

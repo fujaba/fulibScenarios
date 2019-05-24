@@ -57,6 +57,16 @@ public class SymbolCollector
    }
 
    @Override
+   public Object visit(SentenceList sentenceList, Object par)
+   {
+      for (final Sentence item : sentenceList.getItems())
+      {
+         item.accept(this, par);
+      }
+      return null;
+   }
+
+   @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
       throw new UnsupportedOperationException();
@@ -84,6 +94,22 @@ public class SymbolCollector
    public Object visit(IsSentence isSentence, Object par)
    {
       isSentence.getDescriptor().accept(this, par);
+      return null;
+   }
+
+   @Override
+   public Object visit(CreateSentence createSentence, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(CallSentence callSentence, Object par)
+   {
+      for (final Sentence sentence : callSentence.getBody())
+      {
+         sentence.accept(this, par);
+      }
       return null;
    }
 }

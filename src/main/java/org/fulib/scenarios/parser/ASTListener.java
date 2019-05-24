@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.fulib.StrUtil;
+import org.fulib.scenarios.ast.MultiDescriptor;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Node;
 import org.fulib.scenarios.ast.Scenario;
@@ -76,7 +77,15 @@ public class ASTListener extends ScenarioParserBaseListener
    // --------------- Sentences ---------------
 
    @Override
-   public void exitSimpleThereClause(ScenarioParser.SimpleThereClauseContext ctx)
+   public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
+   {
+      final List<MultiDescriptor> descriptors = this.pop(MultiDescriptor.class, ctx.thereClause().size());
+
+      this.scenario.getSentences().add(ThereSentence.of(descriptors));
+   }
+
+   @Override
+   public void exitSimpleDescriptor(ScenarioParser.SimpleDescriptorContext ctx)
    {
       final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
 
@@ -85,13 +94,13 @@ public class ASTListener extends ScenarioParserBaseListener
       final List<NamedExpr> attributes = this.pop(NamedExpr.class,
                                                   withClauses != null ? withClauses.withClause().size() : 0);
 
-      this.scenario.getSentences().add(ThereSentence.of(type, name == null ?
-                                                                 Collections.emptyList() :
-                                                                 Collections.singletonList(name), attributes));
+      this.stack.push(MultiDescriptor
+                         .of(type, name == null ? Collections.emptyList() : Collections.singletonList(name),
+                             attributes));
    }
 
    @Override
-   public void exitMultiThereClause(ScenarioParser.MultiThereClauseContext ctx)
+   public void exitMultiDescriptor(ScenarioParser.MultiDescriptorContext ctx)
    {
       final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
 
@@ -100,7 +109,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final List<NamedExpr> attributes = this.pop(NamedExpr.class,
                                                   withClauses != null ? withClauses.withClause().size() : 0);
 
-      this.scenario.getSentences().add(ThereSentence.of(type, names, attributes));
+      this.stack.push(MultiDescriptor.of(type, names, attributes));
    }
 
    @Override
@@ -140,6 +149,25 @@ public class ASTListener extends ScenarioParserBaseListener
       final String name = varName(ctx.name());
       final VarDecl varDecl = VarDecl.of(name, null, ctor);
       this.scenario.getSentences().add(IsSentence.of(varDecl));
+   }
+
+   @Override
+   public void exitCreateSentence(ScenarioParser.CreateSentenceContext ctx)
+   {
+      final Name actor = name(ctx.actor().name()); // null if actor is "we"
+      final MultiDescriptor desc = this.pop();
+      final CreateSentence createSentence = CreateSentence.of(actor, desc);
+      this.scenario.getSentences().add(createSentence);
+   }
+
+   @Override
+   public void exitCallSentence(ScenarioParser.CallSentenceContext ctx)
+   {
+      final Name actor = name(ctx.actor().name()); // null if actor is "we"
+      final Name name = name(ctx.name());
+      final Expr receiver = this.pop();
+      final CallSentence callSentence = CallSentence.of(actor, name, receiver, new ArrayList<>());
+      this.scenario.getSentences().add(callSentence);
    }
 
    // --------------- Clauses ---------------

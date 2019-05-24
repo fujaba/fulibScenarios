@@ -1,18 +1,42 @@
 # Fulib Scenarios v0.1.0
 
-## General
+### General
 
 + Added command-line interface. #17 #18
 + Added test and model generation.
 
-## Expressions
+### Expressions
 
 + Added number, string literal and name expressions. #8 #9
 + Added attribute access expressions. #8 #9
 + Added 'has' conditional expressions. #23
 + Added creation clauses. #8 #9
 
-## Sentences
+### Sentences
 
 + Added expect sentences. #24
 + Added there sentences. #8 #9
+
+# Fulib Scenarios v0.2.0
+
+### Sentences
+
++ Added Diagram Sentences. #36
++ Added Has Sentences. #38
++ Added Is Sentences. #40
++ There Sentences can now declare multiple objects. #41
+
+### Expressions
+
++ Added List Expressions. #34
+
+### Syntax
+
+* Fixed the word 'The' not being treated as a keyword like 'the'.
+
+### Tooling
+
++ Added the `--class-diagram` and `--class-diagram-svg` options that enable generation of a class diagram in the model output folder in png or svg format. #50
++ Added the `--object-diagram` and `--object-diagram-svg` options that generate an additional object diagram dump of all objects in png or svg format at the end of each test. #51
++ Syntax Errors are now printed properly.
++ The exit code now reflects the number of errors.

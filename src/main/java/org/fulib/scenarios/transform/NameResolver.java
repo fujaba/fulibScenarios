@@ -68,6 +68,16 @@ public class NameResolver
    }
 
    @Override
+   public Object visit(SentenceList sentenceList, Object par)
+   {
+      for (final Sentence item : sentenceList.getItems())
+      {
+         item.accept(this, par);
+      }
+      return null;
+   }
+
+   @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
       throw new UnsupportedOperationException();
@@ -106,6 +116,30 @@ public class NameResolver
    public Object visit(IsSentence isSentence, Object par)
    {
       isSentence.getDescriptor().accept(this, par);
+      return null;
+   }
+
+   @Override
+   public Object visit(CreateSentence createSentence, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(CallSentence callSentence, Object par)
+   {
+      if (callSentence.getActor() != null)
+      {
+         callSentence.setActor(callSentence.getActor().accept(this, par));
+      }
+
+      // callSentence.setName(callSentence.getName().accept(this, par));
+      callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
+
+      for (final Sentence sentence : callSentence.getBody())
+      {
+         sentence.accept(this, par);
+      }
       return null;
    }
 

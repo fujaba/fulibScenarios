@@ -10,19 +10,27 @@ scenarioName: ~FULL_STOP+;
 
 // --------------- Sentences ---------------
 
+actor: WE | name;
+
 sentence: thereSentence
         | isSentence
         | hasSentence
         | expectSentence
         | diagramSentence
+        | createSentence
+        | callSentence
         // | phrase FULL_STOP
         ;
 
 // Definition
 
 thereSentence: thereClause (sep thereClause)* FULL_STOP;
-thereClause: THERE IS simpleTypeClause name? withClauses? # SimpleThereClause
-           | THERE ARE multiTypeClause (name (sep name)+)? withClauses? # MultiThereClause;
+thereClause: THERE IS simpleDescriptor
+           | THERE ARE multiDescriptor;
+
+descriptor: simpleDescriptor | multiDescriptor;
+simpleDescriptor: simpleTypeClause name? withClauses?;
+multiDescriptor: multiTypeClause (name (sep name)+)? withClauses?;
 
 isSentence: name IS simpleTypeClause withClauses? FULL_STOP;
 
@@ -38,6 +46,11 @@ namedExpr: simpleName primaryExpr # NamedSimple
 hasSentence: nameAccess hasClauses FULL_STOP;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: HAS namedExpr;
+
+createSentence: actor (CREATE | CREATES) simpleDescriptor FULL_STOP
+              | actor (CREATE | CREATES) multiDescriptor FULL_STOP;
+
+callSentence: actor (CALL | CALLS) name ON expr FULL_STOP;
 
 // Testing
 
