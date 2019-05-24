@@ -13,4 +13,4 @@ RUN mkdir webapp
 COPY webapp webapp
 RUN ls -al . webapp
 EXPOSE 4567
-CMD ["java", "-jar", "fulibScenarios-0.1.0.jar"]
+CMD ["java", "-jar", "fulibScenarios-0.2.0.jar"]
