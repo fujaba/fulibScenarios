@@ -10,11 +10,14 @@ scenarioName: ~FULL_STOP+;
 
 // --------------- Sentences ---------------
 
+actor: WE | name;
+
 sentence: thereSentence
         | isSentence
         | hasSentence
         | expectSentence
         | diagramSentence
+        | createSentence
         // | phrase FULL_STOP
         ;
 
@@ -42,6 +45,9 @@ namedExpr: simpleName primaryExpr # NamedSimple
 hasSentence: nameAccess hasClauses FULL_STOP;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: HAS namedExpr;
+
+createSentence: actor (CREATE | CREATES) simpleDescriptor FULL_STOP
+              | actor (CREATE | CREATES) multiDescriptor FULL_STOP;
 
 // Testing
 

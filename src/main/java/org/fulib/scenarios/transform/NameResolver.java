@@ -109,6 +109,12 @@ public class NameResolver
       return null;
    }
 
+   @Override
+   public Object visit(CreateSentence createSentence, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
    // --------------- Expr.Visitor ---------------
 
    @Override

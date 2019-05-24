@@ -83,4 +83,10 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       isSentence.getDescriptor().accept(DeclGenerator.INSTANCE, par);
       return null;
    }
+
+   @Override
+   public Object visit(CreateSentence createSentence, CodeGenerator par)
+   {
+      throw new UnsupportedOperationException();
+   }
 }

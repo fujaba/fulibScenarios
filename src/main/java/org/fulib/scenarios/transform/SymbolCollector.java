@@ -86,4 +86,10 @@ public class SymbolCollector
       isSentence.getDescriptor().accept(this, par);
       return null;
    }
+
+   @Override
+   public Object visit(CreateSentence createSentence, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
 }
