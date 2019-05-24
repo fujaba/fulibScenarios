@@ -1,44 +1,38 @@
 package org.fulib.scenarios.codegen;
 
+import org.fulib.FulibTools;
 import org.fulib.Generator;
-import org.fulib.StrUtil;
 import org.fulib.builder.ClassBuilder;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.builder.ClassModelManager;
-import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
-import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
-import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
-import org.fulib.scenarios.ast.expr.access.AttributeAccess;
-import org.fulib.scenarios.ast.expr.access.ExampleAccess;
-import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
-import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
-import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.ExpectSentence;
+import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.sentence.ThereSentence;
 import org.fulib.scenarios.tool.Config;
-import org.fulib.scenarios.transform.Namer;
-import org.fulib.scenarios.transform.Typer;
+import org.fulib.scenarios.transform.SymbolCollector;
 
-public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
-                                         Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Object>
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>
 {
-   private final Config config;
+   final Config config;
 
-   private ClassModelManager modelManager;
+   ClassModelManager modelManager;
    private ClassModelBuilder testBuilder;
 
    private ClassBuilder classBuilder;
 
-   private StringBuilder bodyBuilder;
+   StringBuilder bodyBuilder;
 
    public CodeGenerator(Config config)
    {
@@ -47,9 +41,26 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
    // =============== Methods ===============
 
-   public void emit(String code)
+   void emit(String code)
    {
       this.bodyBuilder.append(code);
+   }
+
+   void emitStringLiteral(String text)
+   {
+      // TODO escape string literal
+      this.bodyBuilder.append('"').append(text).append('"');
+   }
+
+   void emitIndent()
+   {
+      // TODO support multiple levels (required for if, for, ...)
+      this.bodyBuilder.append("      ");
+   }
+
+   void addImport(String s)
+   {
+      this.classBuilder.getClazz().getImportList().add("import " + s + ";");
    }
 
    // --------------- ScenarioGroup.Visitor ---------------
@@ -57,8 +68,10 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      this.modelManager = new ClassModelManager().havePackageName(scenarioGroup.getName())
-                                                 .haveMainJavaDir(this.config.getModelDir());
+      final String modelDir = this.config.getModelDir();
+      final String packageDir = scenarioGroup.getName().replace('.', '/');
+
+      this.modelManager = new ClassModelManager().havePackageName(scenarioGroup.getName()).haveMainJavaDir(modelDir);
       this.testBuilder = new ClassModelBuilder(scenarioGroup.getName(), this.config.getTestDir());
 
       for (final Scenario scenario : scenarioGroup.getScenarios())
@@ -68,6 +81,17 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
       new Generator().generate(this.modelManager.getClassModel());
       new Generator().generate(this.testBuilder.getClassModel());
+
+      if (this.config.isClassDiagram())
+      {
+         FulibTools.classDiagrams()
+                   .dumpPng(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.png");
+      }
+      if (this.config.isClassDiagramSVG())
+      {
+         FulibTools.classDiagrams()
+                   .dumpSVG(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
+      }
       return null;
    }
 
@@ -82,132 +106,35 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
       for (final Sentence sentence : scenario.getSentences())
       {
-         sentence.accept(this, par);
+         sentence.accept(SentenceGenerator.INSTANCE, this);
       }
 
-      final FMethod testMethod = new FMethod().writeName("test").writeReturnType("void")
-            .setAnnotations("@Test")
-            .setMethodBody(this.bodyBuilder.toString());
+      if (this.config.isObjectDiagram() || this.config.isObjectDiagramSVG())
+      {
+         // TODO store symbol table in Scenario
+         final Map<String, Decl> symbolTable = new TreeMap<>();
+         scenario.accept(new SymbolCollector(symbolTable), null);
+
+         final List<Expr> exprs = symbolTable.values().stream().map(it -> NameAccess.of(ResolvedName.of(it)))
+                                             .collect(Collectors.toList());
+         final ListExpr listExpr = ListExpr.of(exprs);
+
+         if (this.config.isObjectDiagram())
+         {
+            DiagramSentence.of(listExpr, className + ".png").accept(SentenceGenerator.INSTANCE, this);
+         }
+         if (this.config.isObjectDiagramSVG())
+         {
+            DiagramSentence.of(listExpr, className + ".svg").accept(SentenceGenerator.INSTANCE, this);
+         }
+      }
+
+      this.addImport("org.junit.Test");
+
+      final FMethod testMethod = new FMethod().writeName("test").writeReturnType("void").setAnnotations("@Test")
+                                              .setMethodBody(this.bodyBuilder.toString());
       this.classBuilder.getClazz().withMethods(testMethod);
-      this.classBuilder.getClazz().getImportList().add("import org.junit.Test;");
-      this.classBuilder.getClazz().getImportList().add("import static org.junit.Assert.assertEquals;");
 
       return null;
-   }
-
-   // --------------- Sentence.Visitor ---------------
-
-   @Override
-   public Object visit(Sentence sentence, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(ThereSentence thereSentence, Object par)
-   {
-      for (VarDecl var : thereSentence.getVars())
-      {
-         final String type = var.accept(new Typer(this.modelManager.getClassModel()), null);
-         this.bodyBuilder.append("      ").append(type).append(' ').append(var.getName()).append(" = ");
-         var.getExpr().accept(this, par);
-         this.bodyBuilder.append(";\n");
-      }
-      return null;
-   }
-
-   @Override
-   public Object visit(ExpectSentence expectSentence, Object par)
-   {
-      for (ConditionalExpr expr : expectSentence.getPredicates())
-      {
-         this.bodyBuilder.append("      ");
-         expr.accept(AssertionGenerator.INSTANCE, this);
-         this.bodyBuilder.append(";\n");
-      }
-      return null;
-   }
-
-   // --------------- Expr.Visitor ---------------
-
-   @Override
-   public Object visit(Expr expr, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(AttributeAccess attributeAccess, Object par)
-   {
-      attributeAccess.getReceiver().accept(this, par);
-      this.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null)))
-                      .append("()");
-      return null;
-   }
-
-   @Override
-   public Object visit(ExampleAccess exampleAccess, Object par)
-   {
-      exampleAccess.getExpr().accept(this, par);
-      return null;
-   }
-
-   @Override
-   public Object visit(CreationExpr creationExpr, Object par)
-   {
-      final String className = creationExpr.accept(new Typer(null), null);
-      final Clazz clazz = this.modelManager.haveClass(className);
-
-      this.bodyBuilder.append("new ").append(className).append("()");
-      for (NamedExpr attribute : creationExpr.getAttributes())
-      {
-         final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
-         final String attributeType = attribute.getExpr().accept(new Typer(this.modelManager.getClassModel()), null);
-
-         this.modelManager.haveAttribute(clazz, attributeName, attributeType);
-
-         this.bodyBuilder.append(".set").append(StrUtil.cap(attributeName)).append("(");
-         attribute.getExpr().accept(this, par);
-         this.bodyBuilder.append(")");
-      }
-      return null;
-   }
-
-   @Override
-   public Object visit(PrimaryExpr primaryExpr, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(NameAccess nameAccess, Object par)
-   {
-      this.bodyBuilder.append(nameAccess.getName().accept(Namer.INSTANCE, null));
-      return null;
-   }
-
-   @Override
-   public Object visit(NumberLiteral numberLiteral, Object par)
-   {
-      return this.bodyBuilder.append(numberLiteral.getValue());
-   }
-
-   @Override
-   public Object visit(StringLiteral stringLiteral, Object par)
-   {
-      // TODO escape characters
-      return this.bodyBuilder.append('"').append(stringLiteral.getValue()).append('"');
-   }
-
-   @Override
-   public Object visit(ConditionalExpr conditionalExpr, Object par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(AttributeCheckExpr attributeCheckExpr, Object par)
-   {
-      throw new UnsupportedOperationException();
    }
 }

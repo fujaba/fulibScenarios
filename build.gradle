@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'antlr'
     id 'de.clashsoft.gentreesrc-gradle' version '0.3.0'
 }
@@ -7,7 +8,7 @@ plugins {
 apply from: 'gradle/functional-test.gradle'
 
 group 'org.fulib'
-version '0.1.0'
+version '0.2.0'
 
 sourceCompatibility = 1.8
 
@@ -43,12 +44,17 @@ dependencies {
 
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
-    compile files('libs/fulib-1.0.8.jar')
-    // compile 'org.fulib:fulib:1.0.+'
+    compile files('libs/fulib-1.0.2-SNAPSHOT.jar')
+    compile 'org.fulib:fulib:1.0.+'
     compile 'org.fulib:fulibTools:1.0.+'
     compile 'org.fulib:fulibYaml:1.0.+'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile "com.sparkjava:spark-core:2.8.0"
+
+    compile group: 'org.json', name: 'json', version: '20090211'
+
+    // compile instead of testCompile because the web service uses it
+    compile group: 'junit', name: 'junit', version: '4.12'
 }
 
 // --------------- ANTLR ---------------
@@ -62,4 +68,11 @@ generateGrammarSource {
     def packageName = 'org.fulib.scenarios.parser'
     arguments += [ '-package', packageName ]
     outputDirectory = file("$generatedANTLRDir/${ packageName.replace('.', '/') }/")
+}
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.fulib.scenarios.WebService'
+    }
 }

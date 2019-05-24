@@ -14,13 +14,14 @@ abstract org.fulib.scenarios.ast.Node {
 	}
 
 	abstract sentence.Sentence {
-		ThereSentence(vars: [VarDecl]) // like CreatePhrase, but without an actor
+		ThereSentence(type: Name, names: [String], attributes: [NamedExpr]) // like CreatePhrase, but without an actor
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
+		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
+		HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
+		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 
 		/*
 		PhraseSentence(phrase: Phrase)
-		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
-		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 		*/
 	}
 
@@ -50,6 +51,11 @@ abstract org.fulib.scenarios.ast.Node {
 		abstract conditional.ConditionalExpr {
 			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
 			// ConditionalOperatorExpr(lhs: Expr, operator: ConditionalOperator, rhs: Expr)
+		}
+
+		abstract collection.CollectionExpr {
+			ListExpr(elements: [Expr])
+			// RangeExpr(start: Expr, end: Expr)
 		}
 
 		/*

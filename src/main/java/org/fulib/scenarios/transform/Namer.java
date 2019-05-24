@@ -8,6 +8,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -87,6 +89,19 @@ public enum Namer implements Expr.Visitor<Object, String>, Name.Visitor<Object, 
    @Override
    public String visit(AttributeCheckExpr attributeCheckExpr, Object par)
    {
+      return null;
+   }
+
+   @Override
+   public String visit(CollectionExpr collectionExpr, Object par)
+   {
+      return null;
+   }
+
+   @Override
+   public String visit(ListExpr listExpr, Object par)
+   {
+      // TODO maybe "e1,e2,e3" should be named "es" (i.e. common prefix)?
       return null;
    }
 

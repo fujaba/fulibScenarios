@@ -16,18 +16,15 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.ExpectSentence;
-import org.fulib.scenarios.ast.sentence.ThereSentence;
+import org.fulib.scenarios.ast.sentence.*;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ASTListener extends ScenarioParserBaseListener
@@ -47,10 +44,24 @@ public class ASTListener extends ScenarioParserBaseListener
 
    // =============== Methods ===============
 
-   private <T> List<T> popAll(Class<T> type)
+   private <T> T pop()
    {
-      final List<T> result = this.stack.stream().map(type::cast).collect(Collectors.toList());
-      this.stack.clear();
+      return (T) this.stack.pop();
+   }
+
+   private <T> T popLast()
+   {
+      return (T) this.stack.removeLast();
+   }
+
+   private <T> List<T> pop(Class<T> type, int count)
+   {
+      // strange logic, but end result is that the top of the stack ends up at the end of the list.
+      final List<T> result = new ArrayList<>(Collections.nCopies(count, null));
+      for (int i = count - 1; i >= 0; i--)
+      {
+         result.set(i, type.cast(this.stack.pop()));
+      }
       return result;
    }
 
@@ -65,50 +76,87 @@ public class ASTListener extends ScenarioParserBaseListener
    // --------------- Sentences ---------------
 
    @Override
-   public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
+   public void exitSimpleThereClause(ScenarioParser.SimpleThereClauseContext ctx)
    {
-      final List<VarDecl> vars = this.popAll(VarDecl.class);
-      this.scenario.getSentences().add(ThereSentence.of(vars));
+      final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
+
+      final Name type = typeName(ctx.simpleTypeClause());
+      final String name = varName(ctx.name());
+      final List<NamedExpr> attributes = this.pop(NamedExpr.class,
+                                                  withClauses != null ? withClauses.withClause().size() : 0);
+
+      this.scenario.getSentences().add(ThereSentence.of(type, name == null ?
+                                                                 Collections.emptyList() :
+                                                                 Collections.singletonList(name), attributes));
+   }
+
+   @Override
+   public void exitMultiThereClause(ScenarioParser.MultiThereClauseContext ctx)
+   {
+      final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
+
+      final Name type = typeName(ctx.multiTypeClause());
+      final List<String> names = ctx.name().stream().map(ASTListener::varName).collect(Collectors.toList());
+      final List<NamedExpr> attributes = this.pop(NamedExpr.class,
+                                                  withClauses != null ? withClauses.withClause().size() : 0);
+
+      this.scenario.getSentences().add(ThereSentence.of(type, names, attributes));
    }
 
    @Override
    public void exitExpectSentence(ScenarioParser.ExpectSentenceContext ctx)
    {
-      final List<ConditionalExpr> exprs = this.popAll(ConditionalExpr.class);
+      final List<ConditionalExpr> exprs = this.pop(ConditionalExpr.class, ctx.thatClauses().thatClause().size());
       this.scenario.getSentences().add(ExpectSentence.of(exprs));
    }
 
-   // --------------- Phrases ---------------
+   @Override
+   public void exitDiagramSentence(ScenarioParser.DiagramSentenceContext ctx)
+   {
+      final Expr object = this.pop();
+      final String fileName = ctx.fileName.getText();
+      this.scenario.getSentences().add(DiagramSentence.of(object, fileName));
+   }
 
    @Override
-   public void exitDescriptor(ScenarioParser.DescriptorContext ctx)
+   public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
+      final Expr object = this.popLast();
+      final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
+      this.scenario.getSentences().add(HasSentence.of(object, clauses));
+   }
+
+   @Override
+   public void exitIsSentence(ScenarioParser.IsSentenceContext ctx)
+   {
+      final Name className = typeName(ctx.simpleTypeClause());
+
+      final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
+      final List<NamedExpr> attributes = this.pop(NamedExpr.class,
+                                                  withClauses != null ? withClauses.withClause().size() : 0);
+
+      final Expr ctor = CreationExpr.of(className, attributes);
+
       final String name = varName(ctx.name());
-      final CreationExpr ctor = (CreationExpr) this.stack.pop();
-      this.stack.push(VarDecl.of(name, null, ctor));
+      final VarDecl varDecl = VarDecl.of(name, null, ctor);
+      this.scenario.getSentences().add(IsSentence.of(varDecl));
    }
 
-   @Override
-   public void exitConstructor(ScenarioParser.ConstructorContext ctx)
-   {
-      final Name className = name(ctx.typeClause().name());
-      final List<NamedExpr> parameters = this.popAll(NamedExpr.class);
-      this.stack.push(CreationExpr.of(className, parameters));
-   }
+   // --------------- Clauses ---------------
 
    @Override
-   public void exitSimpleWithClause(ScenarioParser.SimpleWithClauseContext ctx)
+   public void exitNamedSimple(ScenarioParser.NamedSimpleContext ctx)
    {
       final Name name = name(ctx.simpleName());
-      final Expr expr = (Expr) this.stack.pop();
+      final Expr expr = this.pop();
       this.stack.push(NamedExpr.of(name, expr));
    }
 
    @Override
-   public void exitNumberWithClause(ScenarioParser.NumberWithClauseContext ctx)
+   public void exitNamedNumber(ScenarioParser.NamedNumberContext ctx)
    {
       final Name name = name(ctx.name());
-      final Expr expr = (Expr) this.stack.pop();
+      final Expr expr = this.pop();
       this.stack.push(NamedExpr.of(name, expr));
    }
 
@@ -143,25 +191,40 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitAttributeAccess(ScenarioParser.AttributeAccessContext ctx)
    {
       final Name name = name(ctx.name());
-      final Expr receiver = (Expr) this.stack.pop();
+      final Expr receiver = this.pop();
       this.stack.push(AttributeAccess.of(name, receiver));
    }
 
    @Override
    public void exitExampleAccess(ScenarioParser.ExampleAccessContext ctx)
    {
-      final Expr value = (Expr) this.stack.pop();
-      final Expr expr = (Expr) this.stack.pop();
+      final Expr value = this.pop();
+      final Expr expr = this.pop();
       this.stack.push(ExampleAccess.of(value, expr));
    }
 
    @Override
    public void exitAttrCheck(ScenarioParser.AttrCheckContext ctx)
    {
-      final Expr value = (Expr) this.stack.pop();
-      final Name attribute = ctx.name() != null ? name(ctx.name()) : name(ctx.simpleName());
-      final Expr receiver = (Expr) this.stack.pop();
+      final NamedExpr valueAndAttribute = this.pop();
+      final Expr value = valueAndAttribute.getExpr();
+      final Name attribute = valueAndAttribute.getName();
+      final Expr receiver = this.pop();
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
+   }
+
+   @Override
+   public void exitList(ScenarioParser.ListContext ctx)
+   {
+      final List<Expr> elements = this.pop(Expr.class, ctx.listElem().size());
+      this.stack.push(ListExpr.of(elements));
+   }
+
+   @Override
+   public void exitPrimaryList(ScenarioParser.PrimaryListContext ctx)
+   {
+      final List<Expr> elements = this.pop(Expr.class, ctx.primaryListElem().size());
+      this.stack.push(ListExpr.of(elements));
    }
 
    // =============== Static Methods ===============
@@ -200,6 +263,30 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final String text = inputText(rule);
       return UnresolvedName.of(value, text);
+   }
+
+   static Name typeName(ScenarioParser.SimpleTypeClauseContext typeClause)
+   {
+      final ScenarioParser.SimpleNameContext simpleName = typeClause.simpleName();
+      return UnresolvedName.of(simpleName != null ? varName(simpleName) : varName(typeClause.name()), null);
+   }
+
+   static Name typeName(ScenarioParser.MultiTypeClauseContext typeClause)
+   {
+      final ScenarioParser.NameContext name = typeClause.name();
+      if (typeClause.CARDS() == null)
+      {
+         return name(name);
+      }
+
+      final String varName = varName(name);
+      if (!varName.endsWith("s"))
+      {
+         // TODO diagnostic
+         throw new IllegalStateException();
+      }
+
+      return UnresolvedName.of(varName.substring(0, varName.length() - 1), null);
    }
 
    static String inputText(ParserRuleContext ctx)

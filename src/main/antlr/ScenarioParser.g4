@@ -8,89 +8,44 @@ scenario: header sentence* EOF;
 header: H1 SCENARIO scenarioName FULL_STOP;
 scenarioName: ~FULL_STOP+;
 
-// --------------- Expressions ---------------
-
-expr: access /* | collection */;
-
-// Primary
-primary: number | stringLiteral | it | nameAccess;
-primaryExpr: primary /* | primaryCollection */;
-
-number: NUMBER;
-stringLiteral: STRING_LITERAL;
-it: IT;
-
-simpleName: THE? WORD;
-name: THE? WORD+;
-
-nameAccess: name;
-
-// string: (WORD | NUMBER)+;
-
-// Access
-
-access: primary | attributeAccess | exampleAccess;
-namedAccess: nameAccess | attributeAccess;
-named: namedAccess | exampleAccess;
-
-attributeAccess: name OF access;
-exampleAccess: primaryExpr FROM namedAccess;
-
-// Collections
-
-sep: COMMA | AND | COMMA AND;
-
-/*
-collection: range | list;
-primaryCollection: primaryRange | primaryList;
-
-range: access TO access | access THROUGH access;
-primaryRange: primary TO primary | primary THROUGH primary;
-
-list: listElem (sep listElem)+;
-listElem: access | range;
-primaryList: primaryListElem (sep primaryListElem)+;
-primaryListElem: primary | primaryRange;
-*/
-
-// Conditional
-
-condExpr: attrCheck /* | condOpExpr */;
-attrCheck: access HAS simpleName primary
-         | access HAS number name;
-/*
-
-condOpExpr: access condOp access;
-condOp: eqOp | cmpOp | collOp;
-
-eqOp: IS | IS NOT
-    | IS THE SAME AS | IS NOT THE SAME AS;
-cmpOp: IS LESS THAN | IS NOT LESS THAN | IS LESS EQUAL
-     | IS GREATER THAN | IS GREATER EQUAL | IS NOT GREATER THAN;
-collOp: CONTAINS | DOES NOT CONTAIN | IS IN | IS NOT IN;
-*/
-
 // --------------- Sentences ---------------
 
 sentence: thereSentence
+        | isSentence
+        | hasSentence
         | expectSentence
+        | diagramSentence
         // | phrase FULL_STOP
-        // | isSentence
-        // | diagramSentence
         ;
 
-thereSentence: THERE IS descriptor FULL_STOP
-| THERE ARE descriptor (sep descriptor)+ FULL_STOP;
+// Definition
+
+thereSentence: thereClause (sep thereClause)* FULL_STOP;
+thereClause: THERE IS simpleTypeClause name? withClauses? # SimpleThereClause
+           | THERE ARE multiTypeClause (name (sep name)+)? withClauses? # MultiThereClause;
+
+isSentence: name IS simpleTypeClause withClauses? FULL_STOP;
+
+simpleTypeClause: (A | AN | THE) (simpleName | name CARD);
+multiTypeClause: name CARDS | name;
+
+withClauses: withClause (sep withClause)*;
+withClause: WITH namedExpr;
+
+namedExpr: simpleName primaryExpr # NamedSimple
+         | number name            # NamedNumber;
+
+hasSentence: nameAccess hasClauses FULL_STOP;
+hasClauses: hasClause (sep hasClause)*;
+hasClause: HAS namedExpr;
+
+// Testing
 
 expectSentence: WE EXPECT thatClauses FULL_STOP;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
-/*
-isSentence: name IS constructor;
-
-diagramSentence: IMG_START name IMG_SEP FILE_NAME IMG_END;
-*/
+diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 
 // --------------- Phrases ---------------
 
@@ -119,13 +74,63 @@ answerPhrase: answerSV WITH expr;
 answerSV: WE ANSWER | actor ANSWERS;
 */
 
-// --------------- Clauses ---------------
+// --------------- Expressions ---------------
 
-descriptor: (name COMMA?)? constructor;
-constructor: typeClause withClauses?;
-typeClause: (A | AN) name CARD?
-          | name CARDS;
+expr: access | collection;
 
-withClauses: withClause (sep withClause)*;
-withClause: WITH simpleName primaryExpr # SimpleWithClause
-          | WITH number name # NumberWithClause;
+// Primary
+primary: number | stringLiteral | it | nameAccess;
+primaryExpr: primary | primaryCollection;
+
+number: NUMBER;
+stringLiteral: STRING_LITERAL;
+it: IT;
+
+simpleName: THE? WORD;
+name: THE? WORD+;
+
+nameAccess: name;
+
+// string: (WORD | NUMBER)+;
+
+// Access
+
+access: primary | attributeAccess | exampleAccess;
+namedAccess: nameAccess | attributeAccess;
+named: namedAccess | exampleAccess;
+
+attributeAccess: name OF access;
+exampleAccess: primaryExpr FROM namedAccess;
+
+// Collections
+
+sep: COMMA | AND | COMMA AND;
+
+collection: list /* | range */;
+primaryCollection: primaryList /* | primaryRange */;
+
+list: listElem (sep listElem)+;
+listElem: access /* | range */;
+primaryList: primaryListElem (sep primaryListElem)+;
+primaryListElem: primary /* | primaryRange */;
+
+/*
+range: access TO access | access THROUGH access;
+primaryRange: primary TO primary | primary THROUGH primary;
+*/
+
+// Conditional
+
+condExpr: attrCheck /* | condOpExpr */;
+attrCheck: access HAS namedExpr;
+
+/*
+condOpExpr: access condOp access;
+condOp: eqOp | cmpOp | collOp;
+
+eqOp: IS | IS NOT
+    | IS THE SAME AS | IS NOT THE SAME AS;
+cmpOp: IS LESS THAN | IS NOT LESS THAN | IS LESS EQUAL
+     | IS GREATER THAN | IS GREATER EQUAL | IS NOT GREATER THAN;
+collOp: CONTAINS | DOES NOT CONTAIN | IS IN | IS NOT IN;
+*/

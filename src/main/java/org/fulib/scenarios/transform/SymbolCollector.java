@@ -3,13 +3,12 @@ package org.fulib.scenarios.transform;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
-import org.fulib.scenarios.ast.sentence.ExpectSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.sentence.ThereSentence;
+import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.Map;
 
-public class SymbolCollector implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>
+public class SymbolCollector
+   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Decl.Visitor<Object, Object>
 {
    private final Map<String, Decl> symbolTable;
 
@@ -30,6 +29,25 @@ public class SymbolCollector implements Scenario.Visitor<Object, Object>, Senten
       return null;
    }
 
+   // --------------- Decl.Visitor ---------------
+
+   @Override
+   public Object visit(Decl decl, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(VarDecl varDecl, Object par)
+   {
+      if (varDecl.getName() == null)
+      {
+         varDecl.setName(varDecl.getExpr().accept(Namer.INSTANCE, null));
+      }
+      this.symbolTable.put(varDecl.getName(), varDecl);
+      return null;
+   }
+
    // --------------- Sentence.Visitor ---------------
 
    @Override
@@ -41,27 +59,31 @@ public class SymbolCollector implements Scenario.Visitor<Object, Object>, Senten
    @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
-      for (VarDecl var : thereSentence.getVars())
-      {
-         this.completeVarName(var);
-         this.symbolTable.put(var.getName(), var);
-      }
-      return null;
-   }
-
-   private void completeVarName(VarDecl var)
-   {
-      if (var.getName() != null)
-      {
-         return;
-      }
-
-      var.setName(var.getExpr().accept(Namer.INSTANCE, null));
+      throw new UnsupportedOperationException();
    }
 
    @Override
    public Object visit(ExpectSentence expectSentence, Object par)
    {
+      return null;
+   }
+
+   @Override
+   public Object visit(DiagramSentence diagramSentence, Object par)
+   {
+      return null;
+   }
+
+   @Override
+   public Object visit(HasSentence hasSentence, Object par)
+   {
+      return null;
+   }
+
+   @Override
+   public Object visit(IsSentence isSentence, Object par)
+   {
+      isSentence.getDescriptor().accept(this, par);
       return null;
    }
 }

@@ -7,25 +7,25 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.ExpectSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.sentence.ThereSentence;
+import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.Map;
 
 public class NameResolver
-   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Expr.Visitor<Object, Expr>,
-                 Name.Visitor<Object, Name>
+   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Decl.Visitor<Object, Object>,
+                 Expr.Visitor<Object, Expr>, Name.Visitor<Object, Name>
 {
    private final Map<String, Decl> symbolTable;
 
-   private VarDecl currentVar;
+   private String lastVar;
 
    public NameResolver(Map<String, Decl> symbolTable)
    {
@@ -44,6 +44,21 @@ public class NameResolver
       return null;
    }
 
+   // --------------- Decl.Visitor ---------------
+
+   @Override
+   public Object visit(Decl decl, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(VarDecl varDecl, Object par)
+   {
+      varDecl.setExpr(varDecl.getExpr().accept(this, par));
+      return null;
+   }
+
    // --------------- Sentence.Visitor ---------------
 
    @Override
@@ -55,19 +70,42 @@ public class NameResolver
    @Override
    public Object visit(ThereSentence thereSentence, Object par)
    {
-      for (final VarDecl var : thereSentence.getVars())
-      {
-         this.currentVar = var;
-         var.setExpr(var.getExpr().accept(this, par));
-      }
-      this.currentVar = null;
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override
    public Object visit(ExpectSentence expectSentence, Object par)
    {
       expectSentence.getPredicates().replaceAll(it -> (ConditionalExpr) it.accept(this, par));
+      return null;
+   }
+
+   @Override
+   public Object visit(DiagramSentence diagramSentence, Object par)
+   {
+      diagramSentence.setObject(diagramSentence.getObject().accept(this, par));
+      return null;
+   }
+
+   @Override
+   public Object visit(HasSentence hasSentence, Object par)
+   {
+      hasSentence.setObject(hasSentence.getObject().accept(this, par));
+
+      this.lastVar = hasSentence.getObject().accept(Namer.INSTANCE, null);
+      for (final NamedExpr namedExpr : hasSentence.getClauses())
+      {
+         namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
+      }
+      this.lastVar = null;
+
+      return null;
+   }
+
+   @Override
+   public Object visit(IsSentence isSentence, Object par)
+   {
+      isSentence.getDescriptor().accept(this, par);
       return null;
    }
 
@@ -105,8 +143,10 @@ public class NameResolver
       if (nameAccess.getName() instanceof UnresolvedName)
       {
          final UnresolvedName unresolvedName = (UnresolvedName) nameAccess.getName();
-         final Decl target = this.symbolTable.get(unresolvedName.getValue());
-         if (target == null || target == this.currentVar)
+         final String unresolvedValue = unresolvedName.getValue();
+
+         final Decl target;
+         if (unresolvedValue.equals(this.lastVar) || (target = this.symbolTable.get(unresolvedValue)) == null)
          {
             return StringLiteral.of(unresolvedName.getText());
          }
@@ -154,6 +194,19 @@ public class NameResolver
       attributeCheckExpr.setReceiver(attributeCheckExpr.getReceiver().accept(this, par));
       attributeCheckExpr.setValue(attributeCheckExpr.getValue().accept(this, par));
       return attributeCheckExpr;
+   }
+
+   @Override
+   public Expr visit(CollectionExpr collectionExpr, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Expr visit(ListExpr listExpr, Object par)
+   {
+      listExpr.getElements().replaceAll(it -> it.accept(this, par));
+      return listExpr;
    }
 
    // --------------- Name.Visitor ---------------
