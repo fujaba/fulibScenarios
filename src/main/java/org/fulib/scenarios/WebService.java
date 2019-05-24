@@ -114,6 +114,7 @@ public class WebService
             // TODO read object diagram
          }
 
+         res.type("application/json");
          return result.toString(3);
       }
       finally
