@@ -92,4 +92,14 @@ public class SymbolCollector
    {
       throw new UnsupportedOperationException();
    }
+
+   @Override
+   public Object visit(CallSentence callSentence, Object par)
+   {
+      for (final Sentence sentence : callSentence.getBody())
+      {
+         sentence.accept(this, par);
+      }
+      return null;
+   }
 }

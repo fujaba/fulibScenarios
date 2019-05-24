@@ -115,6 +115,24 @@ public class NameResolver
       throw new UnsupportedOperationException();
    }
 
+   @Override
+   public Object visit(CallSentence callSentence, Object par)
+   {
+      if (callSentence.getActor() != null)
+      {
+         callSentence.setActor(callSentence.getActor().accept(this, par));
+      }
+
+      // callSentence.setName(callSentence.getName().accept(this, par));
+      callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
+
+      for (final Sentence sentence : callSentence.getBody())
+      {
+         sentence.accept(this, par);
+      }
+      return null;
+   }
+
    // --------------- Expr.Visitor ---------------
 
    @Override

@@ -213,4 +213,10 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       this.visit(createSentence.getDescriptor(), result);
       return result;
    }
+
+   @Override
+   public Collection<? extends Sentence> visit(CallSentence callSentence, Object par)
+   {
+      return Collections.singletonList(callSentence);
+   }
 }

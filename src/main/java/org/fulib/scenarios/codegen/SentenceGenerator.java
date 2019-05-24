@@ -4,6 +4,7 @@ import org.fulib.classmodel.Clazz;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
@@ -88,5 +89,20 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    public Object visit(CreateSentence createSentence, CodeGenerator par)
    {
       throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(CallSentence callSentence, CodeGenerator par)
+   {
+      // TODO generate method
+
+      par.emitIndent();
+
+      callSentence.getReceiver().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append('.');
+      par.bodyBuilder.append(callSentence.getName().accept(Namer.INSTANCE, null));
+      par.bodyBuilder.append("();\n");
+
+      return null;
    }
 }

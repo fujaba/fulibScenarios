@@ -160,6 +160,16 @@ public class ASTListener extends ScenarioParserBaseListener
       this.scenario.getSentences().add(createSentence);
    }
 
+   @Override
+   public void exitCallSentence(ScenarioParser.CallSentenceContext ctx)
+   {
+      final Name actor = name(ctx.actor().name()); // null if actor is "we"
+      final Name name = name(ctx.name());
+      final Expr receiver = this.pop();
+      final CallSentence callSentence = CallSentence.of(actor, name, receiver, new ArrayList<>());
+      this.scenario.getSentences().add(callSentence);
+   }
+
    // --------------- Clauses ---------------
 
    @Override
