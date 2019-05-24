@@ -78,11 +78,11 @@ public class WebService
          final String output = new String(out.toByteArray(), StandardCharsets.UTF_8);
          result.put("output", output);
 
-         if (exitCode == -4) // exception occurred
+         if (exitCode < 0) // exception occurred
          {
-            Logger.getGlobal().finest(output);
+            Logger.getGlobal().severe(output);
          }
-         if (exitCode != -1) // scenarioc did not fail
+         if ((exitCode & 4) != 0) // scenarioc did not fail
          {
             // collect test methods
             final JSONArray methodArray = new JSONArray();
@@ -107,10 +107,17 @@ public class WebService
             result.put("testMethods", methodArray);
 
             // read class diagram
-            final byte[] bytes = Files.readAllBytes(modelSrcDir.resolve(PACKAGE_NAME).resolve("classDiagram.svg"));
-            final String svgText = new String(bytes, StandardCharsets.UTF_8);
-            result.put("classDiagram", svgText);
+            final Path classDiagramFile = modelSrcDir.resolve(PACKAGE_NAME).resolve("classDiagram.svg");
+            if (Files.exists(classDiagramFile))
+            {
+               final byte[] bytes = Files.readAllBytes(classDiagramFile);
+               final String svgText = new String(bytes, StandardCharsets.UTF_8);
+               result.put("classDiagram", svgText);
+            }
 
+         }
+         if (exitCode == 0) // everything succeeded
+         {
             // TODO read object diagram
          }
 

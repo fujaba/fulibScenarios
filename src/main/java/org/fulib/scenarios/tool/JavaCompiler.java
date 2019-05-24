@@ -149,7 +149,7 @@ public class JavaCompiler
          final int scenarioc = scenarioc(out, err, srcDir, modelSrcDir, testSrcDir, scenariocArgs);
          if (scenarioc != 0)
          {
-            return -1;
+            return scenarioc << 2;
          }
 
          String classPath = System.getProperty("java.class.path");
@@ -157,14 +157,14 @@ public class JavaCompiler
          final int modelJavac = javac(out, err, classPath, modelClassesDir, modelSrcDir);
          if (modelJavac != 0)
          {
-            return -2;
+            return modelJavac << 2 | 1;
          }
 
          final String testClassPath = modelClassesDir + File.pathSeparator + classPath;
          final int testJavac = javac(out, err, testClassPath, testClassesDir, testSrcDir);
          if (testJavac != 0)
          {
-            return -3;
+            return testJavac << 2 | 2;
          }
 
          // call all test methods
@@ -178,12 +178,12 @@ public class JavaCompiler
             failure.getException().printStackTrace(printErr);
          }
 
-         return testResult.getFailureCount();
+         return testResult.getFailureCount() << 2 | 3;
       }
       catch (Exception ex)
       {
          ex.printStackTrace(printErr);
-         return -4;
+         return -1;
       }
       finally
       {
