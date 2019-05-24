@@ -1,5 +1,6 @@
 package org.fulib.scenarios.tool;
 
+import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -8,10 +9,10 @@ import org.apache.commons.cli.*;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.codegen.CodeGenerator;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
-import org.fulib.scenarios.codegen.CodeGenerator;
 import org.fulib.scenarios.transform.Desugar;
 import org.fulib.scenarios.transform.NameResolver;
 import org.fulib.scenarios.transform.SymbolCollector;
@@ -35,6 +36,8 @@ public class ScenarioCompiler implements Tool
    private Config config = new Config();
 
    private List<ScenarioGroup> groups = new ArrayList<>();
+
+   private int errors;
 
    // =============== Properties ===============
 
@@ -97,10 +100,12 @@ public class ScenarioCompiler implements Tool
       }
       catch (ParseException e)
       {
-         System.out.println(e.getMessage());
-         formatter.printHelp(TOOL_NAME, options);
+         this.getErr().println(e.getMessage());
+         formatter
+            .printHelp(this.getErr(), formatter.getWidth(), TOOL_NAME, null, options, formatter.getLeftPadding(),
+                       formatter.getDescPadding(), null);
 
-         return 1;
+         return -1;
       }
 
       this.config.readOptions(cmd);
@@ -111,7 +116,7 @@ public class ScenarioCompiler implements Tool
    {
       this.discover();
       this.groups.forEach(this::processGroup);
-      return 0;
+      return this.errors;
    }
 
    private void discover()
@@ -159,8 +164,6 @@ public class ScenarioCompiler implements Tool
 
    private Scenario parseScenario(File file)
    {
-      // TODO use tool out and err streams
-
       final CharStream input;
       try
       {
@@ -173,14 +176,22 @@ public class ScenarioCompiler implements Tool
          return null;
       }
 
+      final ANTLRErrorListener errorListener = new ErrorListener(this.getOut());
+
       final ScenarioLexer lexer = new ScenarioLexer(input);
-      // TODO custom error reporting
+      lexer.removeErrorListeners();
+      lexer.addErrorListener(errorListener);
+
       final ScenarioParser parser = new ScenarioParser(new CommonTokenStream(lexer));
+      parser.removeErrorListeners();
+      parser.addErrorListener(errorListener);
+
       final ScenarioParser.ScenarioContext context = parser.scenario();
       final int syntaxErrors = parser.getNumberOfSyntaxErrors();
 
       if (syntaxErrors > 0)
       {
+         this.errors += syntaxErrors;
          this.getErr().println(syntaxErrors + " syntax errors in scenario " + file);
          return null;
       }
