@@ -1,6 +1,6 @@
 package org.fulib.scenarios;
 
-import org.fulib.scenarios.tool.JavaCompiler;
+import org.fulib.scenarios.tool.Tools;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.Request;
@@ -17,8 +17,8 @@ import static spark.Spark.*;
 
 public class WebService
 {
-   private static final String TEMP_DIR_PREFIX = "fulibScenarios";
-   private static final String PACKAGE_NAME = "webapp";
+   private static final String TEMP_DIR_PREFIX    = "fulibScenarios";
+   private static final String PACKAGE_NAME       = "webapp";
    private static final String SCENARIO_FILE_NAME = "scenario.md";
 
    public static void main(String[] args)
@@ -66,9 +66,9 @@ public class WebService
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
          // invoke scenario compiler
-         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir,
-                                                         testClassesDir, "--class-diagram-svg"
-                                                         // "--object-diagram-svg"
+         final int exitCode = Tools.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir,
+                                                  testClassesDir, "--class-diagram-svg"
+                                                  // "--object-diagram-svg"
          );
 
          final JSONObject result = new JSONObject();
@@ -87,7 +87,7 @@ public class WebService
             // collect test methods
             final JSONArray methodArray = new JSONArray();
 
-            Files.walk(testSrcDir).filter(JavaCompiler::isJava).forEach(file -> {
+            Files.walk(testSrcDir).filter(Tools::isJava).forEach(file -> {
                try
                {
                   String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
@@ -114,7 +114,6 @@ public class WebService
                final String svgText = new String(bytes, StandardCharsets.UTF_8);
                result.put("classDiagram", svgText);
             }
-
          }
          if (exitCode == 0) // everything succeeded
          {
@@ -126,7 +125,7 @@ public class WebService
       }
       finally
       {
-         JavaCompiler.deleteRecursively(codegendir);
+         Tools.deleteRecursively(codegendir);
       }
    }
 }

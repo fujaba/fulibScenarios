@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class JavaCompiler
+public class Tools
 {
    // --------------- File Filters ---------------
 
@@ -35,7 +35,7 @@ public class JavaCompiler
    {
       try
       {
-         return Files.walk(sourceFolder).filter(JavaCompiler::isJava);
+         return Files.walk(sourceFolder).filter(Tools::isJava);
       }
       catch (IOException e)
       {
@@ -91,7 +91,7 @@ public class JavaCompiler
 
       ArrayList<String> args = new ArrayList<>();
 
-      Arrays.stream(sourceFolders).flatMap(JavaCompiler::collectJavaFiles).map(Path::toString).forEach(args::add);
+      Arrays.stream(sourceFolders).flatMap(Tools::collectJavaFiles).map(Path::toString).forEach(args::add);
 
       args.add("-d");
       args.add(outFolder.toString());
@@ -111,7 +111,7 @@ public class JavaCompiler
       {
          List<Class<?>> testClasses = new ArrayList<>();
 
-         Files.walk(testClassesDir).filter(JavaCompiler::isClass).sorted().forEach(path -> {
+         Files.walk(testClassesDir).filter(Tools::isClass).sorted().forEach(path -> {
             final String relativePath = testClassesDir.relativize(path).toString();
             final String className = relativePath.substring(0, relativePath.length() - ".class".length())
                                                  .replace('/', '.');
@@ -168,7 +168,7 @@ public class JavaCompiler
          }
 
          // call all test methods
-         final Result testResult = JavaCompiler.runTests(modelClassesDir, testClassesDir);
+         final Result testResult = Tools.runTests(modelClassesDir, testClassesDir);
 
          for (final Failure failure : testResult.getFailures())
          {

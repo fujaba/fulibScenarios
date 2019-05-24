@@ -1,6 +1,6 @@
 package org.fulib.scenarios;
 
-import org.fulib.scenarios.tool.JavaCompiler;
+import org.fulib.scenarios.tool.Tools;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -20,8 +20,7 @@ public class TestCodeGen
       final Path testsFolder = Paths.get("temp", "tests");
       final Path modelFolder = Paths.get("temp", "model");
 
-      assertEquals(0, JavaCompiler
-                         .genCompileRun(System.out, System.err, srcFolder, modelFolder, testsFolder, modelOutFolder,
-                                        testOutFolder));
+      assertEquals(0, Tools.genCompileRun(System.out, System.err, srcFolder, modelFolder, testsFolder, modelOutFolder,
+                                          testOutFolder));
    }
 }
