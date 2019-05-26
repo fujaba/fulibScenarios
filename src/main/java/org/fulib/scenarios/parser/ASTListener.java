@@ -165,7 +165,7 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final Name name = name(ctx.name());
-      final Expr receiver = this.pop();
+      final Expr receiver = ctx.ON() != null ? this.pop() : null;
       final CallSentence callSentence = CallSentence.of(actor, name, receiver, new ArrayList<>());
       this.scenario.getSentences().add(callSentence);
    }

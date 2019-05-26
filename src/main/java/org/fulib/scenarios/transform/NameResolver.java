@@ -134,7 +134,10 @@ public class NameResolver
       }
 
       // callSentence.setName(callSentence.getName().accept(this, par));
-      callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
+      if (callSentence.getReceiver() != null)
+      {
+         callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
+      }
 
       for (final Sentence sentence : callSentence.getBody())
       {

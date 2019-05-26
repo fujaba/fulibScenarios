@@ -2,6 +2,7 @@ package org.fulib.scenarios.codegen;
 
 import org.fulib.classmodel.Clazz;
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.transform.Namer;
@@ -104,13 +105,22 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(CallSentence callSentence, CodeGenerator par)
    {
-      // TODO generate method
+      final Expr receiver = callSentence.getReceiver();
+      final String methodName = callSentence.getName().accept(Namer.INSTANCE, null);
 
       par.emitIndent();
 
-      callSentence.getReceiver().accept(ExprGenerator.INSTANCE, par);
+      if (receiver != null)
+      {
+         receiver.accept(ExprGenerator.INSTANCE, par);
+      }
+      else
+      {
+         par.bodyBuilder.append("this");
+      }
+
       par.bodyBuilder.append('.');
-      par.bodyBuilder.append(callSentence.getName().accept(Namer.INSTANCE, null));
+      par.bodyBuilder.append(methodName);
       par.bodyBuilder.append("();\n");
 
       return null;
