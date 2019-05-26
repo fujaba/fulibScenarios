@@ -1,6 +1,7 @@
 package org.fulib.scenarios.codegen;
 
 import org.fulib.classmodel.Clazz;
+import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
@@ -122,6 +123,36 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       par.bodyBuilder.append('.');
       par.bodyBuilder.append(methodName);
       par.bodyBuilder.append("();\n");
+
+      // generate method
+
+      final String returnType = "void"; // TODO infer from ResultSentence
+
+      final CodeGenerator bodyGen = new CodeGenerator(par.config);
+      bodyGen.modelManager = par.modelManager;
+      bodyGen.testManager = par.testManager;
+
+      if (receiver != null)
+      {
+         final String targetClassName = receiver
+                                                    .accept(new Typer(par.modelManager.getClassModel()), null);
+
+         bodyGen.clazz = par.modelManager.haveClass(targetClassName);
+      }
+      else
+      {
+         bodyGen.clazz = par.clazz; // == test class // TODO not within recursive call
+      }
+
+      bodyGen.method = new FMethod().setClazz(bodyGen.clazz).writeName(methodName).writeReturnType(returnType);
+      bodyGen.bodyBuilder = new StringBuilder();
+
+      for (Sentence sentence : callSentence.getBody())
+      {
+         sentence.accept(this, bodyGen);
+      }
+
+      bodyGen.method.setMethodBody(bodyGen.bodyBuilder.toString());
 
       return null;
    }
