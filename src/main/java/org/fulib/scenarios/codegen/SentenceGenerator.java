@@ -9,6 +9,8 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
+import java.util.List;
+
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 {
    INSTANCE;
@@ -108,8 +110,32 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    {
       final Expr receiver = callSentence.getReceiver();
       final String methodName = callSentence.getName().accept(Namer.INSTANCE, null);
+      final List<Sentence> body = callSentence.getBody();
 
       par.emitIndent();
+
+      final String returnType;
+
+      final Sentence lastSentence;
+      if (!body.isEmpty() && (lastSentence = body.get(body.size() - 1)) instanceof AnswerSentence)
+      {
+         final Expr result = ((AnswerSentence) lastSentence).getResult();
+         returnType = result.accept(new Typer(par.modelManager.getClassModel()), null);
+
+         String varName = result.accept(Namer.INSTANCE, par);
+         if (varName == null)
+         {
+            varName = methodName;
+         }
+
+         // TODO IsSentence does the same. We need a CallExpr and use desugar to create it and the method,
+         //      but currently we don't have access to Typer that early. Waiting for #26.
+         par.bodyBuilder.append(returnType).append(' ').append(varName).append(" = ");
+      }
+      else
+      {
+         returnType = "void";
+      }
 
       if (receiver != null)
       {
@@ -126,16 +152,13 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 
       // generate method
 
-      final String returnType = "void"; // TODO infer from ResultSentence
-
       final CodeGenerator bodyGen = new CodeGenerator(par.config);
       bodyGen.modelManager = par.modelManager;
       bodyGen.testManager = par.testManager;
 
       if (receiver != null)
       {
-         final String targetClassName = receiver
-                                                    .accept(new Typer(par.modelManager.getClassModel()), null);
+         final String targetClassName = receiver.accept(new Typer(par.modelManager.getClassModel()), null);
 
          bodyGen.clazz = par.modelManager.haveClass(targetClassName);
       }
@@ -147,7 +170,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       bodyGen.method = new FMethod().setClazz(bodyGen.clazz).writeName(methodName).writeReturnType(returnType);
       bodyGen.bodyBuilder = new StringBuilder();
 
-      for (Sentence sentence : callSentence.getBody())
+      for (Sentence sentence : body)
       {
          sentence.accept(this, bodyGen);
       }
