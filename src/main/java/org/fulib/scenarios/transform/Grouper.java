@@ -117,6 +117,12 @@ public enum Grouper
       return par.add(actorKey(callSentence.getActor()), callSentence)
                 .push(actorKey(callSentence.getName()), callSentence.getBody());
    }
+
+   @Override
+   public Frame visit(AnswerSentence answerSentence, Frame par)
+   {
+      return par.add(actorKey(answerSentence.getActor()), answerSentence); // TODO pop?
+   }
 }
 
 class Frame

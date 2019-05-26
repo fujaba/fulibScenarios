@@ -228,4 +228,10 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       this.visit(callSentence.getBody(), par);
       return callSentence;
    }
+
+   @Override
+   public Sentence visit(AnswerSentence answerSentence, Object par)
+   {
+      return answerSentence;
+   }
 }

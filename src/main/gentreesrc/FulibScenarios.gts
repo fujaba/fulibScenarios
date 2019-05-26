@@ -27,6 +27,7 @@ abstract org.fulib.scenarios.ast.Node {
 		CreateSentence(actor: Name, descriptor: MultiDescriptor)
 
 		CallSentence(actor: Name, name: Name, receiver: Expr, body: [Sentence])
+		AnswerSentence(actor: Name, result: Expr)
 
 		/*
 		PhraseSentence(phrase: Phrase)

@@ -146,6 +146,18 @@ public class NameResolver
       return null;
    }
 
+   @Override
+   public Object visit(AnswerSentence answerSentence, Object par)
+   {
+      if (answerSentence.getActor() != null)
+      {
+         answerSentence.setActor(answerSentence.getActor().accept(this, par));
+      }
+
+      answerSentence.setResult(answerSentence.getResult().accept(this, par));
+      return null;
+   }
+
    // --------------- Expr.Visitor ---------------
 
    @Override
