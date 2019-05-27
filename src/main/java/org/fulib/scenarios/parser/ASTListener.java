@@ -311,19 +311,14 @@ public class ASTListener extends ScenarioParserBaseListener
    static Name typeName(ScenarioParser.MultiTypeClauseContext typeClause)
    {
       final ScenarioParser.NameContext name = typeClause.name();
-      if (typeClause.CARDS() == null)
+      if (typeClause.CARDS() != null)
       {
          return name(name);
       }
 
       final String varName = varName(name);
-      if (!varName.endsWith("s"))
-      {
-         // TODO diagnostic
-         throw new IllegalStateException();
-      }
-
-      return UnresolvedName.of(varName.substring(0, varName.length() - 1), null);
+      final String singularVarName = varName.endsWith("s") ? varName.substring(0, varName.length() - 1) : varName;
+      return UnresolvedName.of(singularVarName, null);
    }
 
    static String inputText(ParserRuleContext ctx)
