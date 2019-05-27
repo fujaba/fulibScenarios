@@ -9,12 +9,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class Tools
@@ -106,15 +109,25 @@ public class Tools
 
    public static Result runTests(Path mainClassesDir, Path testClassesDir)
    {
+      URL[] classPathUrls = new URL[0];
+      try
+      {
+         classPathUrls = new URL[]{mainClassesDir.toUri().toURL(), testClassesDir.toUri().toURL()};
+      }
+      catch (MalformedURLException e)
+      {
+         Logger.getGlobal().log(Level.SEVERE, "could not build classpath", e);
+      }
       try (URLClassLoader classLoader = new URLClassLoader(
-         new URL[] { mainClassesDir.toUri().toURL(), testClassesDir.toUri().toURL() }))
+            classPathUrls))
       {
          List<Class<?>> testClasses = new ArrayList<>();
 
          Files.walk(testClassesDir).filter(Tools::isClass).sorted().forEach(path -> {
             final String relativePath = testClassesDir.relativize(path).toString();
             final String className = relativePath.substring(0, relativePath.length() - ".class".length())
-                                                 .replace('/', '.');
+                  .replace('/', '.')
+                  .replace('\\', '.');
             try
             {
                final Class<?> testClass = Class.forName(className, true, classLoader);

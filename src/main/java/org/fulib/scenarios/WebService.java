@@ -66,9 +66,10 @@ public class WebService
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
          // invoke scenario compiler
-         final int exitCode = Tools.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir,
-                                                  testClassesDir, "--class-diagram-svg"
-                                                  // "--object-diagram-svg"
+//         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
+//               "--class-diagram-svg", "--object-diagram-svg"
+         final int exitCode = Tools.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
+               "--class-diagram-svg", "--object-diagram-svg"
          );
 
          final JSONObject result = new JSONObject();
@@ -82,16 +83,18 @@ public class WebService
          {
             Logger.getGlobal().severe(output);
          }
+
          if (exitCode == 0 || (exitCode & 4) != 0) // scenarioc did not fail
          {
             // collect test methods
             final JSONArray methodArray = new JSONArray();
 
-            Files.walk(testSrcDir).filter(Tools::isJava).forEach(file -> {
+            Files.walk(testSrcDir).filter(Tools::isJava).forEach(file ->
+            {
                try
                {
                   String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
-                                              .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
+                        .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
                   JSONObject firstTestMethod = new JSONObject();
                   firstTestMethod.put("name", file.getFileName().toString());
                   firstTestMethod.put("body", firstTestBody);
@@ -114,10 +117,27 @@ public class WebService
                final String svgText = new String(bytes, StandardCharsets.UTF_8);
                result.put("classDiagram", svgText);
             }
-         }
-         if (exitCode == 0) // everything succeeded
-         {
-            // TODO read object diagram
+
+
+            // read object diagram
+            final StringBuilder objectDiagramSvgText = new StringBuilder();
+            Path srcPackage = srcDir.resolve(PACKAGE_NAME);
+            Files.walk(srcPackage)
+                  .filter(file ->
+                        file.toString().endsWith(".svg"))
+                  .forEach(file ->
+                  {
+                     try
+                     {
+                        final byte[] objectDiagramBytes = Files.readAllBytes(file);
+                        objectDiagramSvgText.append(new String(objectDiagramBytes));
+                     }
+                     catch (Exception e)
+                     {
+
+                     }
+                  });
+            result.put("objectDiagram", objectDiagramSvgText.toString());
          }
 
          res.type("application/json");

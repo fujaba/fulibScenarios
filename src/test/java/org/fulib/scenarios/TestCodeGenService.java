@@ -1,5 +1,6 @@
 package org.fulib.scenarios;
 
+import static org.hamcrest.CoreMatchers.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Ignore;
@@ -14,7 +15,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-@Ignore
+import static org.junit.Assert.assertThat;
+
 public class TestCodeGenService
 {
    @Test
@@ -59,9 +61,13 @@ public class TestCodeGenService
       BufferedReader bufferedReader = new BufferedReader(streamReader);
       String body = bufferedReader.lines().collect(Collectors.joining("\n"));
 
-
-
       System.out.println(body);
+
+      JSONObject jsonResult = new JSONObject(body);
+      assertThat(jsonResult.getString("classDiagram"), notNullValue());
+      assertThat(jsonResult.getInt("exitCode"), equalTo(0));
+      assertThat(jsonResult.getString("output"), notNullValue());
+      assertThat(jsonResult.getJSONArray("testMethods"), notNullValue());
 
    }
 }
