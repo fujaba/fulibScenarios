@@ -9,9 +9,7 @@ deploy:
     - docker build -t "$DOCKER_USERNAME"/fulib_scenarios:latest .
     - docker push "$DOCKER_USERNAME"/fulib_scenarios:latest
   on:
-    branches: 
-      only: 
-        - webapp
+    branch: webapp
 
 after_deploy:
   - "./travis-deploy.sh"
