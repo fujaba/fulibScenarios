@@ -9,3 +9,10 @@ Init creates SEStudent with name Alice and Bob and Carli and Chris Robin and
                        
 Init creates SEStudent with name Ali and with studentId m20. 
 
+We call testInit.
+
+TestInit creates an SEStudent with name Testus and with studentId m00.
+
+TestInit answers with Testus.
+
+We expect that Testus has studentId m00.

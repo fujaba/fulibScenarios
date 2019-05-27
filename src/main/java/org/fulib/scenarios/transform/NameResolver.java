@@ -134,12 +134,27 @@ public class NameResolver
       }
 
       // callSentence.setName(callSentence.getName().accept(this, par));
-      callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
+      if (callSentence.getReceiver() != null)
+      {
+         callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
+      }
 
       for (final Sentence sentence : callSentence.getBody())
       {
          sentence.accept(this, par);
       }
+      return null;
+   }
+
+   @Override
+   public Object visit(AnswerSentence answerSentence, Object par)
+   {
+      if (answerSentence.getActor() != null)
+      {
+         answerSentence.setActor(answerSentence.getActor().accept(this, par));
+      }
+
+      answerSentence.setResult(answerSentence.getResult().accept(this, par));
       return null;
    }
 

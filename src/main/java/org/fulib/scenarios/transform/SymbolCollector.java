@@ -112,4 +112,10 @@ public class SymbolCollector
       }
       return null;
    }
+
+   @Override
+   public Object visit(AnswerSentence answerSentence, Object par)
+   {
+      return null;
+   }
 }

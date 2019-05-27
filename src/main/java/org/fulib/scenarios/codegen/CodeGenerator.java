@@ -2,9 +2,8 @@ package org.fulib.scenarios.codegen;
 
 import org.fulib.FulibTools;
 import org.fulib.Generator;
-import org.fulib.builder.ClassBuilder;
-import org.fulib.builder.ClassModelBuilder;
 import org.fulib.builder.ClassModelManager;
+import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
@@ -28,9 +27,10 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    final Config config;
 
    ClassModelManager modelManager;
-   private ClassModelBuilder testBuilder;
+   ClassModelManager testManager;
 
-   private ClassBuilder classBuilder;
+   Clazz   clazz;
+   FMethod method;
 
    StringBuilder bodyBuilder;
 
@@ -60,7 +60,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
    void addImport(String s)
    {
-      this.classBuilder.getClazz().getImportList().add("import " + s + ";");
+      this.clazz.getImportList().add("import " + s + ";");
    }
 
    // --------------- ScenarioGroup.Visitor ---------------
@@ -69,10 +69,12 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
       final String modelDir = this.config.getModelDir();
-      final String packageDir = scenarioGroup.getName().replace('.', '/');
+      final String packageName = scenarioGroup.getName();
+      final String packageDir = packageName.replace('.', '/');
 
-      this.modelManager = new ClassModelManager().havePackageName(scenarioGroup.getName()).haveMainJavaDir(modelDir);
-      this.testBuilder = new ClassModelBuilder(scenarioGroup.getName(), this.config.getTestDir());
+      this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+      this.testManager = new ClassModelManager().havePackageName(packageName)
+                                                .haveMainJavaDir(this.config.getTestDir());
 
       for (final Scenario scenario : scenarioGroup.getScenarios())
       {
@@ -80,7 +82,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       }
 
       new Generator().generate(this.modelManager.getClassModel());
-      new Generator().generate(this.testBuilder.getClassModel());
+      new Generator().generate(this.testManager.getClassModel());
 
       if (this.config.isClassDiagram())
       {
@@ -101,8 +103,13 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    public Object visit(Scenario scenario, Object par)
    {
       final String className = scenario.getName().replaceAll("\\W", "");
-      this.classBuilder = this.testBuilder.buildClass(className);
+
+      this.clazz = this.testManager.haveClass(className);
+      this.method = new FMethod().setClazz(this.clazz).writeName("test").writeReturnType("void")
+                                 .setAnnotations("@Test");
       this.bodyBuilder = new StringBuilder();
+
+      this.addImport("org.junit.Test");
 
       for (final Sentence sentence : scenario.getSentences())
       {
@@ -129,11 +136,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          }
       }
 
-      this.addImport("org.junit.Test");
-
-      final FMethod testMethod = new FMethod().writeName("test").writeReturnType("void").setAnnotations("@Test")
-                                              .setMethodBody(this.bodyBuilder.toString());
-      this.classBuilder.getClazz().withMethods(testMethod);
+      this.method.setMethodBody(this.bodyBuilder.toString());
 
       return null;
    }

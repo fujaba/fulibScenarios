@@ -45,7 +45,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      scenario.getSentences().replaceAll(it -> it.accept(this, par));
+      this.visit(scenario.getSentences(), par);
       return null;
    }
 
@@ -57,9 +57,15 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       throw new UnsupportedOperationException();
    }
 
+   private void visit(List<Sentence> sentences, Object par)
+   {
+      sentences.replaceAll(it -> it.accept(this, par));
+   }
+
    @Override
    public Sentence visit(SentenceList sentenceList, Object par)
    {
+      this.visit(sentenceList.getItems(), par);
       return sentenceList;
    }
 
@@ -219,6 +225,13 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Sentence visit(CallSentence callSentence, Object par)
    {
+      this.visit(callSentence.getBody(), par);
       return callSentence;
+   }
+
+   @Override
+   public Sentence visit(AnswerSentence answerSentence, Object par)
+   {
+      return answerSentence;
    }
 }
