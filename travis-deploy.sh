@@ -14,19 +14,19 @@ state=$(curl -u "$RANCHER_ACCESS":$"RANCHER_KEY" ${rancherUrl} | jq -r '.state')
 while [[ "$state" !=  "upgraded"  ]] && [[ ${retry} -ge 0 ]]
     do
         state=$(curl -u "$RANCHER_ACCESS":$"RANCHER_KEY" ${rancherUrl} | jq -r '.state')
-        retry=${retry}-1
+        retry="$(($retry-1))"
         sleep 1
 done
 
 echo "Finishing upgrade ..."
-curl -u "$RANCHER_ACCESS":$"RANCHER_KEY" ${rancherUrl}?action=finishupgrade
+curl -u "${RANCHER_ACCESS}:${RANCHER_KEY}" ${rancherUrl}?action=finishupgrade
 
 retry=60
 state=$(curl -u "$RANCHER_ACCESS":$"RANCHER_KEY" ${rancherUrl} | jq -r '.state')
 while [[ "$state" !=  "active"  ]] && [[ ${retry} -ge 0 ]]
     do
         state=$(curl -u "$RANCHER_ACCESS":$"RANCHER_KEY" ${rancherUrl} | jq -r '.state')
-        retry=${retry}-1
+        retry="$(($retry-1))"
         sleep 1
 done
 
