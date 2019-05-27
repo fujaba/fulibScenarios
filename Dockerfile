@@ -3,7 +3,6 @@ FROM gradle:jdk8 as builder
 COPY --chown=gradle:gradle . /scenarios
 WORKDIR /scenarios
 RUN gradle shadowJar
-RUN ls -al build/libs
 
 FROM openjdk
 RUN mkdir /scenarios

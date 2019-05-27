@@ -6,7 +6,7 @@ docker push "$DOCKER_USERNAME"/fulib_scenarios:latest
 # update on rancher
 rancherUrl="http://avocado.uniks.de:8080/v2-beta/projects/1a5/services/1s173"
 
-curl -u "$RANCHER_ACCESS":$"RANCHER_KEY" -X POST -H 'Content-Type: application/json' -d '{"inServiceStrategy": { "startFirst": true, "secondaryLaunchConfigs": []}}' ${rancherUrl}?action=upgrade
+curl -u "${RANCHER_ACCESS}:${RANCHER_KEY}" -X POST -H 'Content-Type: application/json' -d '{"inServiceStrategy": { "startFirst": true, "secondaryLaunchConfigs": []}}' ${rancherUrl}?action=upgrade
 
 echo "Waiting for upgrade ..."
 retry=60
