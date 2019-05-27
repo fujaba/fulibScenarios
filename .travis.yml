@@ -1,6 +1,11 @@
-language: generic
+# --------------- General Settings ---------------
+
+language: java
+jdk: oraclejdk8
 services:
   - docker
+
+# --------------- Rancher Deployment via webapp branch ---------------
 
 before_install:
   - sudo apt-get update
@@ -11,3 +16,14 @@ deploy:
   script: bash travis-deploy.sh
   on:
     branch: webapp
+
+# --------------- Gradle Cache ---------------
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
