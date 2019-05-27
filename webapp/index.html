@@ -13,18 +13,8 @@
 	      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.css"
 	      integrity="sha256-I8NyGs4wjbMuBSUE40o55W6k6P7tu/7G28/JGUUYCIs="
 	      crossorigin="anonymous"/>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.js"
-	        integrity="sha256-2I1PtOi9LsvUCUPXmB064faXMlnry57bYMG9OrM4njM="
-	        crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/mode/clike/clike.min.js"
-	        integrity="sha256-HnYJC51WJ0XHacXrq46EjSN7w8oLeRkecFIN8fVl0D8="
-	        crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/mode/markdown/markdown.min.js"
-	        integrity="sha256-BZXkUzlSBobUXEiSFbDIbTc/DOqhNdegF/iK5m99kbk="
-	        crossorigin="anonymous"></script>
 	<!-- Custom -->
 	<link rel="stylesheet" href="style.css">
-	<script type="text/javascript" src="index.js"></script>
 </head>
 <body>
 <div class="split top left">
@@ -35,50 +25,22 @@ There are Player with name Alice and Bob.
 There is a Game with title Ludo.
 Ludo has participants Alice and Bob.
 </textarea>
-	<script type="text/javascript">
-			var scenarioInput = document.getElementById("scenarioInput");
-			var scenarioInputCodeMirror = CodeMirror.fromTextArea(scenarioInput, {
-				mode: 'markdown',
-				lineNumbers: true,
-				lineWrapping: true,
-				styleActiveLine: true,
-				extraKeys: {
-					'Ctrl-Enter': submit,
-					'Cmd-Enter': submit
-				}
-			});
-	</script>
 	Press <kbd>Ctrl-Enter</kbd> to <a href="#" onclick="submit()">compile and run</a>.
 </div>
 
 <div class="split top right">
 	<h2>Java Test Code</h2>    <br/> <textarea class="form-control" id="javaTestOutput">
 // press Ctrl-Enter within the scenario editor to generate Java. </textarea>
-	<script type="text/javascript">
-			var javaTestOutput = document.getElementById("javaTestOutput");
-			var javaTestOutputCodeMirror = CodeMirror.fromTextArea(javaTestOutput, {
-				lineNumbers: true,
-				matchBrackets: true,
-				readOnly: true,
-				mode: 'text/x-java'
-			});
-	</script>
 </div>
 
 <div class="split bottom left">
 	<h2>Object Diagram</h2>        <br/>
 	<div class="svg" id="objectDiagram"></div>
-	<!--
-	<object id="objectDiagram" type="image/svg+xml" class="img-fluid"/>
-	-->
 </div>
 
 <div class="split bottom right">
 	<h2>Class Diagram</h2>        <br/>
 	<div class="svg" id="classDiagram"></div>
-	<!--
-	<object id="classDiagram" type="image/svg+xml" class="img-fluid"/>
-	-->
 </div>
 
 
@@ -92,6 +54,18 @@ Ludo has participants Alice and Bob.
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+<!-- CodeMirror JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.js"
+        integrity="sha256-2I1PtOi9LsvUCUPXmB064faXMlnry57bYMG9OrM4njM="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/mode/clike/clike.min.js"
+        integrity="sha256-HnYJC51WJ0XHacXrq46EjSN7w8oLeRkecFIN8fVl0D8="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/mode/markdown/markdown.min.js"
+        integrity="sha256-BZXkUzlSBobUXEiSFbDIbTc/DOqhNdegF/iK5m99kbk="
+        crossorigin="anonymous"></script>
+<!-- Custom JS -->
+<script type="text/javascript" src="index.js"></script>
 
 </body>
 </html>

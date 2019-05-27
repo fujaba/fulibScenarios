@@ -19,7 +19,7 @@ function submit() {
 			for (testMethod of response.testMethods) {
 				javaCode += "// " + testMethod.name + '\n';
 				javaCode += testMethod.body;
-			}	
+			}
 		}
 		javaTestOutputCodeMirror.setValue(javaCode);
 
@@ -43,3 +43,23 @@ function api(method, url, body, handler) {
     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     request.send(requestBody);
 }
+
+var scenarioInput = document.getElementById("scenarioInput");
+var scenarioInputCodeMirror = CodeMirror.fromTextArea(scenarioInput, {
+	mode: 'markdown',
+	lineNumbers: true,
+	lineWrapping: true,
+	styleActiveLine: true,
+	extraKeys: {
+		'Ctrl-Enter': submit,
+		'Cmd-Enter': submit
+	}
+});
+
+var javaTestOutput = document.getElementById("javaTestOutput");
+var javaTestOutputCodeMirror = CodeMirror.fromTextArea(javaTestOutput, {
+	lineNumbers: true,
+	matchBrackets: true,
+	readOnly: true,
+	mode: 'text/x-java'
+});
