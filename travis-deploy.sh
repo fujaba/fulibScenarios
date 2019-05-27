@@ -18,6 +18,8 @@ while [[ "$state" !=  "upgraded"  ]] && [[ ${retry} -ge 0 ]]
         sleep 1
 done
 
+sleep 2
+
 echo "Finishing upgrade ..."
 curl -u "$RANCHER_ACCESS:$RANCHER_KEY" "${rancherUrl}?action=finishupgrade"
 
