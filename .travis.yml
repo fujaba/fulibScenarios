@@ -2,16 +2,16 @@ language: generic
 services:
   - docker
 
-jobs:
-  include:
-    - stage: gralde build
-      deploy:
-        provider: script
-        script: 
-          - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          - docker build -t "$DOCKER_USERNAME"/fulib_scenarios:latest .
-          - docker push "$DOCKER_USERNAME"/fulib_scenarios:latest
-        on:
-          branches: 
-            only: 
-              - webapp
+deploy:
+  provider: script
+  script: 
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t "$DOCKER_USERNAME"/fulib_scenarios:latest .
+    - docker push "$DOCKER_USERNAME"/fulib_scenarios:latest
+  on:
+    branches: 
+      only: 
+        - webapp
+
+after_deploy:
+  - "./travis-deploy.sh"
