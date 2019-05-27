@@ -11,6 +11,5 @@ WORKDIR /scenarios
 COPY --from=builder /scenarios/build/libs .
 RUN mkdir webapp
 COPY webapp webapp
-RUN ls -al . webapp
 EXPOSE 4567
 CMD ["java", "-jar", "fulibScenarios-0.2.0.jar"]
