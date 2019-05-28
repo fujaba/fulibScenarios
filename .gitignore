@@ -7,6 +7,6 @@
 /data/
 
 hs_err_pid*
-src/test/scenarios/AdvancedWars/images/albert.png
+src/test/scenarios/**/*.png
 
 *.iml
