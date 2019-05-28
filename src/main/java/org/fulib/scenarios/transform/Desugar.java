@@ -57,15 +57,26 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       throw new UnsupportedOperationException();
    }
 
-   private void visit(List<Sentence> sentences, Object par)
-   {
-      sentences.replaceAll(it -> it.accept(this, par));
-   }
-
    @Override
    public Sentence visit(SentenceList sentenceList, Object par)
    {
-      this.visit(sentenceList.getItems(), par);
+      final List<Sentence> oldItems = sentenceList.getItems();
+      final List<Sentence> newItems = new ArrayList<>(oldItems.size());
+
+      for (Sentence sentence : oldItems)
+      {
+         final Sentence result = sentence.accept(this, par);
+         if (result instanceof FlattenSentenceList)
+         {
+            newItems.addAll(((FlattenSentenceList) result).getItems());
+         }
+         else
+         {
+            newItems.add(result);
+         }
+      }
+
+      sentenceList.setItems(newItems);
       return sentenceList;
    }
 
@@ -77,7 +88,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       {
          this.visit(multiDesc, result);
       }
-      return SentenceList.of(result);
+      return new FlattenSentenceList(result);
    }
 
    private void visit(MultiDescriptor multiDesc, List<Sentence> result)
@@ -219,7 +230,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    {
       final List<Sentence> result = new ArrayList<>();
       this.visit(createSentence.getDescriptor(), result);
-      return SentenceList.of(result);
+      return new FlattenSentenceList(result);
    }
 
    @Override
@@ -233,5 +244,13 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    public Sentence visit(AnswerSentence answerSentence, Object par)
    {
       return answerSentence;
+   }
+}
+
+class FlattenSentenceList extends SentenceList.Impl
+{
+   public FlattenSentenceList(List<Sentence> items)
+   {
+      super(items);
    }
 }

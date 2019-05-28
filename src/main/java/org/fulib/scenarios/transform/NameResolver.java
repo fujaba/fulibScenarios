@@ -2,6 +2,7 @@ package org.fulib.scenarios.transform;
 
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -17,19 +18,25 @@ import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class NameResolver
-   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Decl.Visitor<Object, Object>,
-                 Expr.Visitor<Object, Expr>, Name.Visitor<Object, Name>
+public enum NameResolver
+   implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>, Sentence.Visitor<Scope, Object>,
+                 Decl.Visitor<Scope, Object>, Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
-   private final Map<String, Decl> symbolTable;
+   INSTANCE;
 
-   private String lastVar;
+   // --------------- ScenarioGroup.Visitor ---------------
 
-   public NameResolver(Map<String, Decl> symbolTable)
+   @Override
+   public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      this.symbolTable = symbolTable;
+      for (final Scenario scenario : scenarioGroup.getScenarios())
+      {
+         scenario.accept(this, par);
+      }
+      return null;
    }
 
    // --------------- Scenario.Visitor ---------------
@@ -37,20 +44,20 @@ public class NameResolver
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      scenario.getBody().accept(this, par);
+      scenario.getBody().accept(this, new EmptyScope());
       return null;
    }
 
    // --------------- Decl.Visitor ---------------
 
    @Override
-   public Object visit(Decl decl, Object par)
+   public Object visit(Decl decl, Scope par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Object visit(VarDecl varDecl, Object par)
+   public Object visit(VarDecl varDecl, Scope par)
    {
       varDecl.setExpr(varDecl.getExpr().accept(this, par));
       return null;
@@ -59,71 +66,75 @@ public class NameResolver
    // --------------- Sentence.Visitor ---------------
 
    @Override
-   public Object visit(Sentence sentence, Object par)
+   public Object visit(Sentence sentence, Scope par)
    {
       return null;
    }
 
    @Override
-   public Object visit(SentenceList sentenceList, Object par)
+   public Object visit(SentenceList sentenceList, Scope par)
    {
+      BasicScope scope = new BasicScope(par);
+
       for (final Sentence item : sentenceList.getItems())
       {
-         item.accept(this, par);
+         item.accept(SymbolCollector.INSTANCE, scope.decls);
+         item.accept(this, scope);
       }
       return null;
    }
 
    @Override
-   public Object visit(ThereSentence thereSentence, Object par)
+   public Object visit(ThereSentence thereSentence, Scope par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Object visit(ExpectSentence expectSentence, Object par)
+   public Object visit(ExpectSentence expectSentence, Scope par)
    {
       expectSentence.getPredicates().replaceAll(it -> (ConditionalExpr) it.accept(this, par));
       return null;
    }
 
    @Override
-   public Object visit(DiagramSentence diagramSentence, Object par)
+   public Object visit(DiagramSentence diagramSentence, Scope par)
    {
       diagramSentence.setObject(diagramSentence.getObject().accept(this, par));
       return null;
    }
 
    @Override
-   public Object visit(HasSentence hasSentence, Object par)
+   public Object visit(HasSentence hasSentence, Scope par)
    {
       hasSentence.setObject(hasSentence.getObject().accept(this, par));
 
-      this.lastVar = hasSentence.getObject().accept(Namer.INSTANCE, null);
+      final String name = hasSentence.getObject().accept(Namer.INSTANCE, null);
+      final Scope scope = name != null ? new HidingScope(name, par) : par;
+
       for (final NamedExpr namedExpr : hasSentence.getClauses())
       {
-         namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
+         namedExpr.setExpr(namedExpr.getExpr().accept(this, scope));
       }
-      this.lastVar = null;
 
       return null;
    }
 
    @Override
-   public Object visit(IsSentence isSentence, Object par)
+   public Object visit(IsSentence isSentence, Scope par)
    {
       isSentence.getDescriptor().accept(this, par);
       return null;
    }
 
    @Override
-   public Object visit(CreateSentence createSentence, Object par)
+   public Object visit(CreateSentence createSentence, Scope par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Object visit(CallSentence callSentence, Object par)
+   public Object visit(CallSentence callSentence, Scope par)
    {
       if (callSentence.getActor() != null)
       {
@@ -141,7 +152,7 @@ public class NameResolver
    }
 
    @Override
-   public Object visit(AnswerSentence answerSentence, Object par)
+   public Object visit(AnswerSentence answerSentence, Scope par)
    {
       if (answerSentence.getActor() != null)
       {
@@ -155,41 +166,41 @@ public class NameResolver
    // --------------- Expr.Visitor ---------------
 
    @Override
-   public Expr visit(Expr expr, Object par)
+   public Expr visit(Expr expr, Scope par)
    {
       return expr;
    }
 
    @Override
-   public Expr visit(AttributeAccess attributeAccess, Object par)
+   public Expr visit(AttributeAccess attributeAccess, Scope par)
    {
       attributeAccess.setReceiver(attributeAccess.getReceiver().accept(this, par));
       return attributeAccess;
    }
 
    @Override
-   public Expr visit(ExampleAccess exampleAccess, Object par)
+   public Expr visit(ExampleAccess exampleAccess, Scope par)
    {
       exampleAccess.setExpr(exampleAccess.getExpr().accept(this, par));
       return exampleAccess;
    }
 
    @Override
-   public Expr visit(PrimaryExpr primaryExpr, Object par)
+   public Expr visit(PrimaryExpr primaryExpr, Scope par)
    {
       return primaryExpr;
    }
 
    @Override
-   public Expr visit(NameAccess nameAccess, Object par)
+   public Expr visit(NameAccess nameAccess, Scope par)
    {
       if (nameAccess.getName() instanceof UnresolvedName)
       {
          final UnresolvedName unresolvedName = (UnresolvedName) nameAccess.getName();
          final String unresolvedValue = unresolvedName.getValue();
 
-         final Decl target;
-         if (unresolvedValue.equals(this.lastVar) || (target = this.symbolTable.get(unresolvedValue)) == null)
+         final Decl target = par.resolve(unresolvedValue);
+         if (target == null)
          {
             return StringLiteral.of(unresolvedName.getText());
          }
@@ -203,19 +214,19 @@ public class NameResolver
    }
 
    @Override
-   public Expr visit(NumberLiteral numberLiteral, Object par)
+   public Expr visit(NumberLiteral numberLiteral, Scope par)
    {
       return numberLiteral;
    }
 
    @Override
-   public Expr visit(StringLiteral stringLiteral, Object par)
+   public Expr visit(StringLiteral stringLiteral, Scope par)
    {
       return stringLiteral;
    }
 
    @Override
-   public Expr visit(CreationExpr creationExpr, Object par)
+   public Expr visit(CreationExpr creationExpr, Scope par)
    {
       creationExpr.setClassName(creationExpr.getClassName().accept(this, par));
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
@@ -226,13 +237,13 @@ public class NameResolver
    }
 
    @Override
-   public Expr visit(ConditionalExpr conditionalExpr, Object par)
+   public Expr visit(ConditionalExpr conditionalExpr, Scope par)
    {
       return conditionalExpr;
    }
 
    @Override
-   public Expr visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   public Expr visit(AttributeCheckExpr attributeCheckExpr, Scope par)
    {
       attributeCheckExpr.setReceiver(attributeCheckExpr.getReceiver().accept(this, par));
       attributeCheckExpr.setValue(attributeCheckExpr.getValue().accept(this, par));
@@ -240,13 +251,13 @@ public class NameResolver
    }
 
    @Override
-   public Expr visit(CollectionExpr collectionExpr, Object par)
+   public Expr visit(CollectionExpr collectionExpr, Scope par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Expr visit(ListExpr listExpr, Object par)
+   public Expr visit(ListExpr listExpr, Scope par)
    {
       listExpr.getElements().replaceAll(it -> it.accept(this, par));
       return listExpr;
@@ -255,21 +266,73 @@ public class NameResolver
    // --------------- Name.Visitor ---------------
 
    @Override
-   public Name visit(Name name, Object par)
+   public Name visit(Name name, Scope par)
    {
       return name;
    }
 
    @Override
-   public Name visit(ResolvedName resolvedName, Object par)
+   public Name visit(ResolvedName resolvedName, Scope par)
    {
       return resolvedName;
    }
 
    @Override
-   public Name visit(UnresolvedName unresolvedName, Object par)
+   public Name visit(UnresolvedName unresolvedName, Scope par)
    {
-      final Decl decl = this.symbolTable.get(unresolvedName.getValue());
+      final Decl decl = par.resolve(unresolvedName.getValue());
       return decl == null ? unresolvedName : ResolvedName.of(decl);
+   }
+}
+
+interface Scope
+{
+   Decl resolve(String name);
+}
+
+class EmptyScope implements Scope
+{
+   @Override
+   public Decl resolve(String name)
+   {
+      return null;
+   }
+}
+
+class BasicScope implements Scope
+{
+   final Map<String, Decl> decls;
+
+   final Scope outer;
+
+   public BasicScope(Scope outer)
+   {
+      this.outer = outer;
+      this.decls = new HashMap<>();
+   }
+
+   @Override
+   public Decl resolve(String name)
+   {
+      Decl inner = this.decls.get(name);
+      return inner != null ? inner : this.outer.resolve(name);
+   }
+}
+
+class HidingScope implements Scope
+{
+   final String name;
+   final Scope  outer;
+
+   HidingScope(String name, Scope outer)
+   {
+      this.name = name;
+      this.outer = outer;
+   }
+
+   @Override
+   public Decl resolve(String name)
+   {
+      return this.name.equals(name) ? null : this.outer.resolve(name);
    }
 }
