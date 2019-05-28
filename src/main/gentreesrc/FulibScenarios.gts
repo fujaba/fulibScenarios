@@ -29,6 +29,8 @@ abstract org.fulib.scenarios.ast.Node {
 		CallSentence(actor: Name, name: Name, receiver: Expr, body: SentenceList)
 		AnswerSentence(actor: Name, result: Expr)
 
+		ExprSentence(expr: Expr)
+
 		/*
 		PhraseSentence(phrase: Phrase)
 		*/

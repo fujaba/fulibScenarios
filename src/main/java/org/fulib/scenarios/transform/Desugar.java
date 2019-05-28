@@ -245,6 +245,12 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    {
       return answerSentence;
    }
+
+   @Override
+   public Sentence visit(ExprSentence exprSentence, Object par)
+   {
+      return exprSentence;
+   }
 }
 
 class FlattenSentenceList extends SentenceList.Impl

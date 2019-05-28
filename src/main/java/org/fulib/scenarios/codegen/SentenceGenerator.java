@@ -191,4 +191,13 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 
       return null;
    }
+
+   @Override
+   public Object visit(ExprSentence exprSentence, CodeGenerator par)
+   {
+      par.emitIndent();
+      exprSentence.getExpr().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(";\n");
+      return null;
+   }
 }

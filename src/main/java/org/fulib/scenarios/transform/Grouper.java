@@ -120,6 +120,12 @@ public enum Grouper
    {
       return par.add(actorKey(answerSentence.getActor()), answerSentence); // TODO pop?
    }
+
+   @Override
+   public Frame visit(ExprSentence exprSentence, Frame par)
+   {
+      return par.add(exprSentence);
+   }
 }
 
 class Frame

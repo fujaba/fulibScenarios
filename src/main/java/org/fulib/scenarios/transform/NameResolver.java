@@ -163,6 +163,13 @@ public enum NameResolver
       return null;
    }
 
+   @Override
+   public Object visit(ExprSentence exprSentence, Scope par)
+   {
+      exprSentence.setExpr(exprSentence.getExpr().accept(this, par));
+      return null;
+   }
+
    // --------------- Expr.Visitor ---------------
 
    @Override

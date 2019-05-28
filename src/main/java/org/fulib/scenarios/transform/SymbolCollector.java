@@ -94,4 +94,10 @@ public enum SymbolCollector
    {
       return null;
    }
+
+   @Override
+   public Object visit(ExprSentence exprSentence, Map<String, Decl> par)
+   {
+      return null;
+   }
 }
