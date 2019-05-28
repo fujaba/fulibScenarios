@@ -1,11 +1,11 @@
 
 # Scenario for the init method.
 
-There is StudyRight.
+There is the StudyRight.
 
 We call init on StudyRight.
 
-Init creates a Student with name Carli and with uni StudyRight
+Init creates a Student with name Carli
 and with credits 0 and with motivation 65.
 
 Init creates a Room with topic math and with 23 credits
