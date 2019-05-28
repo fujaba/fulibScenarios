@@ -8,6 +8,7 @@ import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -45,7 +46,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      this.visit(scenario.getSentences(), par);
+      scenario.setBody((SentenceList) scenario.getBody().accept(this, par));
       return null;
    }
 
@@ -57,15 +58,26 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       throw new UnsupportedOperationException();
    }
 
-   private void visit(List<Sentence> sentences, Object par)
-   {
-      sentences.replaceAll(it -> it.accept(this, par));
-   }
-
    @Override
    public Sentence visit(SentenceList sentenceList, Object par)
    {
-      this.visit(sentenceList.getItems(), par);
+      final List<Sentence> oldItems = sentenceList.getItems();
+      final List<Sentence> newItems = new ArrayList<>(oldItems.size());
+
+      for (Sentence sentence : oldItems)
+      {
+         final Sentence result = sentence.accept(this, par);
+         if (result instanceof FlattenSentenceList)
+         {
+            newItems.addAll(((FlattenSentenceList) result).getItems());
+         }
+         else
+         {
+            newItems.add(result);
+         }
+      }
+
+      sentenceList.setItems(newItems);
       return sentenceList;
    }
 
@@ -77,7 +89,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
       {
          this.visit(multiDesc, result);
       }
-      return SentenceList.of(result);
+      return new FlattenSentenceList(result);
    }
 
    private void visit(MultiDescriptor multiDesc, List<Sentence> result)
@@ -219,19 +231,42 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    {
       final List<Sentence> result = new ArrayList<>();
       this.visit(createSentence.getDescriptor(), result);
-      return SentenceList.of(result);
+      return new FlattenSentenceList(result);
    }
 
    @Override
    public Sentence visit(CallSentence callSentence, Object par)
    {
-      this.visit(callSentence.getBody(), par);
-      return callSentence;
+      final CallExpr call = callSentence.getCall();
+      call.setBody((SentenceList) call.getBody().accept(this, par));
+
+      final String name = call.accept(Namer.INSTANCE, null);
+      if (name == null)
+      {
+         return ExprSentence.of(call);
+      }
+
+      final VarDecl varDecl = VarDecl.of(name, null, call);
+      return IsSentence.of(varDecl);
    }
 
    @Override
    public Sentence visit(AnswerSentence answerSentence, Object par)
    {
       return answerSentence;
+   }
+
+   @Override
+   public Sentence visit(ExprSentence exprSentence, Object par)
+   {
+      return exprSentence;
+   }
+}
+
+class FlattenSentenceList extends SentenceList.Impl
+{
+   public FlattenSentenceList(List<Sentence> items)
+   {
+      super(items);
    }
 }

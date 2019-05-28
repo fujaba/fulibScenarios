@@ -8,7 +8,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.*;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
-import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.codegen.CodeGenerator;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
@@ -16,7 +15,6 @@ import org.fulib.scenarios.parser.ScenarioParser;
 import org.fulib.scenarios.transform.Desugar;
 import org.fulib.scenarios.transform.Grouper;
 import org.fulib.scenarios.transform.NameResolver;
-import org.fulib.scenarios.transform.SymbolCollector;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.Tool;
@@ -217,12 +215,7 @@ public class ScenarioCompiler implements Tool
    {
       scenarioGroup.accept(Grouper.INSTANCE, null);
       scenarioGroup.accept(new Desugar(), null);
-      for (Scenario scenario : scenarioGroup.getScenarios())
-      {
-         final Map<String, Decl> symbolTable = new HashMap<>();
-         scenario.accept(new SymbolCollector(symbolTable), null);
-         scenario.accept(new NameResolver(symbolTable), null);
-      }
+      scenarioGroup.accept(NameResolver.INSTANCE, null);
       scenarioGroup.accept(new CodeGenerator(this.config), null);
    }
 }

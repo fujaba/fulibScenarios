@@ -111,28 +111,31 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
       this.addImport("org.junit.Test");
 
-      for (final Sentence sentence : scenario.getSentences())
-      {
-         sentence.accept(SentenceGenerator.INSTANCE, this);
-      }
+      scenario.getBody().accept(SentenceGenerator.INSTANCE, this);
 
       if (this.config.isObjectDiagram() || this.config.isObjectDiagramSVG())
       {
-         // TODO store symbol table in Scenario
+         // collect top-level variables
          final Map<String, Decl> symbolTable = new TreeMap<>();
-         scenario.accept(new SymbolCollector(symbolTable), null);
-
-         final List<Expr> exprs = symbolTable.values().stream().map(it -> NameAccess.of(ResolvedName.of(it)))
-                                             .collect(Collectors.toList());
-         final ListExpr listExpr = ListExpr.of(exprs);
-
-         if (this.config.isObjectDiagram())
+         for (final Sentence item : scenario.getBody().getItems())
          {
-            DiagramSentence.of(listExpr, className + ".png").accept(SentenceGenerator.INSTANCE, this);
+            item.accept(SymbolCollector.INSTANCE, symbolTable);
          }
-         if (this.config.isObjectDiagramSVG())
+
+         if (!symbolTable.isEmpty())
          {
-            DiagramSentence.of(listExpr, className + ".svg").accept(SentenceGenerator.INSTANCE, this);
+            final List<Expr> exprs = symbolTable.values().stream().map(it -> NameAccess.of(ResolvedName.of(it)))
+                                                .collect(Collectors.toList());
+            final ListExpr listExpr = ListExpr.of(exprs);
+
+            if (this.config.isObjectDiagram())
+            {
+               DiagramSentence.of(listExpr, className + ".png").accept(SentenceGenerator.INSTANCE, this);
+            }
+            if (this.config.isObjectDiagramSVG())
+            {
+               DiagramSentence.of(listExpr, className + ".svg").accept(SentenceGenerator.INSTANCE, this);
+            }
          }
       }
 

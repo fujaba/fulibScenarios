@@ -7,6 +7,7 @@ import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -16,6 +17,10 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.AnswerSentence;
+import org.fulib.scenarios.ast.sentence.Sentence;
+
+import java.util.List;
 
 public enum Namer implements Expr.Visitor<Object, String>, Name.Visitor<Object, String>
 {
@@ -54,6 +59,23 @@ public enum Namer implements Expr.Visitor<Object, String>, Name.Visitor<Object, 
          }
       }
       return creationExpr.getClassName().accept(this, par);
+   }
+
+   @Override
+   public String visit(CallExpr callExpr, Object par)
+   {
+      final List<Sentence> body = callExpr.getBody().getItems();
+
+      final Sentence lastSentence;
+      if (!body.isEmpty() && (lastSentence = body.get(body.size() - 1)) instanceof AnswerSentence)
+      {
+         final Expr result = ((AnswerSentence) lastSentence).getResult();
+         return result.accept(this, null);
+      }
+      else
+      {
+         return null;
+      }
    }
 
    @Override

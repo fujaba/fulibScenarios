@@ -1,120 +1,101 @@
 package org.fulib.scenarios.transform;
 
-import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.Map;
 
-public class SymbolCollector
-   implements Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Object>, Decl.Visitor<Object, Object>
+public enum SymbolCollector
+   implements Decl.Visitor<Map<String, Decl>, Object>, Sentence.Visitor<Map<String, Decl>, Object>
 {
-   private final Map<String, Decl> symbolTable;
-
-   public SymbolCollector(Map<String, Decl> symbolTable)
-   {
-      this.symbolTable = symbolTable;
-   }
-
-   // --------------- Scenario.Visitor ---------------
-
-   @Override
-   public Object visit(Scenario scenario, Object par)
-   {
-      for (final Sentence sentence : scenario.getSentences())
-      {
-         sentence.accept(this, par);
-      }
-      return null;
-   }
+   INSTANCE;
 
    // --------------- Decl.Visitor ---------------
 
    @Override
-   public Object visit(Decl decl, Object par)
+   public Object visit(Decl decl, Map<String, Decl> par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Object visit(VarDecl varDecl, Object par)
+   public Object visit(VarDecl varDecl, Map<String, Decl> par)
    {
       if (varDecl.getName() == null)
       {
          varDecl.setName(varDecl.getExpr().accept(Namer.INSTANCE, null));
       }
-      this.symbolTable.put(varDecl.getName(), varDecl);
+      par.put(varDecl.getName(), varDecl);
       return null;
    }
 
    // --------------- Sentence.Visitor ---------------
 
    @Override
-   public Object visit(Sentence sentence, Object par)
+   public Object visit(Sentence sentence, Map<String, Decl> par)
    {
       return null;
    }
 
    @Override
-   public Object visit(SentenceList sentenceList, Object par)
+   public Object visit(SentenceList sentenceList, Map<String, Decl> par)
    {
-      for (final Sentence item : sentenceList.getItems())
-      {
-         item.accept(this, par);
-      }
+      // the sentence list encapsulates declarations, so does not expose them here.
       return null;
    }
 
    @Override
-   public Object visit(ThereSentence thereSentence, Object par)
+   public Object visit(ThereSentence thereSentence, Map<String, Decl> par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Object visit(ExpectSentence expectSentence, Object par)
+   public Object visit(ExpectSentence expectSentence, Map<String, Decl> par)
    {
       return null;
    }
 
    @Override
-   public Object visit(DiagramSentence diagramSentence, Object par)
+   public Object visit(DiagramSentence diagramSentence, Map<String, Decl> par)
    {
       return null;
    }
 
    @Override
-   public Object visit(HasSentence hasSentence, Object par)
+   public Object visit(HasSentence hasSentence, Map<String, Decl> par)
    {
       return null;
    }
 
    @Override
-   public Object visit(IsSentence isSentence, Object par)
+   public Object visit(IsSentence isSentence, Map<String, Decl> par)
    {
       isSentence.getDescriptor().accept(this, par);
       return null;
    }
 
    @Override
-   public Object visit(CreateSentence createSentence, Object par)
+   public Object visit(CreateSentence createSentence, Map<String, Decl> par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public Object visit(CallSentence callSentence, Object par)
+   public Object visit(CallSentence callSentence, Map<String, Decl> par)
    {
-      for (final Sentence sentence : callSentence.getBody())
-      {
-         sentence.accept(this, par);
-      }
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(AnswerSentence answerSentence, Map<String, Decl> par)
+   {
       return null;
    }
 
    @Override
-   public Object visit(AnswerSentence answerSentence, Object par)
+   public Object visit(ExprSentence exprSentence, Map<String, Decl> par)
    {
       return null;
    }

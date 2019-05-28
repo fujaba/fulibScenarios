@@ -3,6 +3,7 @@ package org.fulib.scenarios.transform;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Name;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.ArrayList;
@@ -47,13 +48,9 @@ public enum Grouper
       top.key = ACTOR_TEST;
       top.target = new ArrayList<>();
 
-      Frame current = top;
-      for (final Sentence sentence : scenario.getSentences())
-      {
-         current = sentence.accept(this, current);
-      }
+      /*final Frame result = */scenario.getBody().accept(this, top);
 
-      scenario.setSentences(top.target);
+      scenario.getBody().setItems(top.target);
       return null;
    }
 
@@ -114,14 +111,22 @@ public enum Grouper
    @Override
    public Frame visit(CallSentence callSentence, Frame par)
    {
+      final CallExpr callExpr = callSentence.getCall();
+      final List<Sentence> sentences = callExpr.getBody().getItems();
       return par.add(actorKey(callSentence.getActor()), callSentence)
-                .push(actorKey(callSentence.getName()), callSentence.getBody());
+                .push(actorKey(callExpr.getName()), sentences);
    }
 
    @Override
    public Frame visit(AnswerSentence answerSentence, Frame par)
    {
       return par.add(actorKey(answerSentence.getActor()), answerSentence); // TODO pop?
+   }
+
+   @Override
+   public Frame visit(ExprSentence exprSentence, Frame par)
+   {
+      return par.add(exprSentence);
    }
 }
 
