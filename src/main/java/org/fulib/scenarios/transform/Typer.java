@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -20,6 +21,10 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.AnswerSentence;
+import org.fulib.scenarios.ast.sentence.Sentence;
+
+import java.util.List;
 
 public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object, String>
 {
@@ -100,6 +105,23 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    public String visit(CreationExpr creationExpr, Object par)
    {
       return StrUtil.cap(creationExpr.getClassName().accept(Namer.INSTANCE, null));
+   }
+
+   @Override
+   public String visit(CallExpr callExpr, Object par)
+   {
+      final List<Sentence> body = callExpr.getBody().getItems();
+
+      final Sentence lastSentence;
+      if (!body.isEmpty() && (lastSentence = body.get(body.size() - 1)) instanceof AnswerSentence)
+      {
+         final Expr result = ((AnswerSentence) lastSentence).getResult();
+         return result.accept(this, null);
+      }
+      else
+      {
+         return "void";
+      }
    }
 
    @Override

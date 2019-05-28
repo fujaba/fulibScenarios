@@ -26,7 +26,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 		CreateSentence(actor: Name, descriptor: MultiDescriptor)
 
-		CallSentence(actor: Name, name: Name, receiver: Expr, body: SentenceList)
+		CallSentence(actor: Name, call: CallExpr)
 		AnswerSentence(actor: Name, result: Expr)
 
 		ExprSentence(expr: Expr)
@@ -58,6 +58,7 @@ abstract org.fulib.scenarios.ast.Node {
 		access.ExampleAccess(value: Expr, expr: Expr)
 
 		call.CreationExpr(className: Name, attributes: [NamedExpr])
+		call.CallExpr(name: Name, receiver: Expr, body: SentenceList)
 
 		abstract conditional.ConditionalExpr {
 			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)

@@ -7,6 +7,7 @@ import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -136,19 +137,7 @@ public enum NameResolver
    @Override
    public Object visit(CallSentence callSentence, Scope par)
    {
-      if (callSentence.getActor() != null)
-      {
-         callSentence.setActor(callSentence.getActor().accept(this, par));
-      }
-
-      // callSentence.setName(callSentence.getName().accept(this, par));
-      if (callSentence.getReceiver() != null)
-      {
-         callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
-      }
-
-      callSentence.getBody().accept(this, par);
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override
@@ -241,6 +230,18 @@ public enum NameResolver
          namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
       }
       return creationExpr;
+   }
+
+   @Override
+   public Expr visit(CallExpr callExpr, Scope par)
+   {
+      final Expr receiver = callExpr.getReceiver();
+      if (receiver != null)
+      {
+         callExpr.setReceiver(receiver.accept(this, par));
+      }
+      callExpr.getBody().accept(this, par);
+      return callExpr;
    }
 
    @Override

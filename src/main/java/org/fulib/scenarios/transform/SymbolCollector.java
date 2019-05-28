@@ -85,8 +85,7 @@ public enum SymbolCollector
    @Override
    public Object visit(CallSentence callSentence, Map<String, Decl> par)
    {
-      callSentence.getBody().accept(this, par);
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override

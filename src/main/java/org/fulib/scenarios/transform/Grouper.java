@@ -3,6 +3,7 @@ package org.fulib.scenarios.transform;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Name;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.ArrayList;
@@ -110,9 +111,10 @@ public enum Grouper
    @Override
    public Frame visit(CallSentence callSentence, Frame par)
    {
-      final List<Sentence> sentences = callSentence.getBody().getItems();
+      final CallExpr callExpr = callSentence.getCall();
+      final List<Sentence> sentences = callExpr.getBody().getItems();
       return par.add(actorKey(callSentence.getActor()), callSentence)
-                .push(actorKey(callSentence.getName()), sentences);
+                .push(actorKey(callExpr.getName()), sentences);
    }
 
    @Override

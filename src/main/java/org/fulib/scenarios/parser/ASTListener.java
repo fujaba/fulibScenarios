@@ -16,6 +16,7 @@ import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
@@ -164,7 +165,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name name = name(ctx.name());
       final Expr receiver = ctx.ON() != null ? this.pop() : null;
       final SentenceList body = SentenceList.of(new ArrayList<>());
-      final CallSentence callSentence = CallSentence.of(actor, name, receiver, body);
+      final CallExpr callExpr = CallExpr.of(name, receiver, body);
+      final CallSentence callSentence = CallSentence.of(actor, callExpr);
       this.stack.push(callSentence);
    }
 

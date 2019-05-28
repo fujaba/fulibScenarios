@@ -4,10 +4,12 @@ import org.fulib.StrUtil;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.classmodel.AssocRole;
 import org.fulib.classmodel.Clazz;
+import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -17,6 +19,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
@@ -104,6 +107,57 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(attributeName)).append("(");
       attribute.getExpr().accept(wither ? NO_LIST : INSTANCE, par);
       par.bodyBuilder.append(")");
+   }
+
+   @Override
+   public Object visit(CallExpr callExpr, CodeGenerator par)
+   {
+      final Expr receiver = callExpr.getReceiver();
+      final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
+      final List<Sentence> body = callExpr.getBody().getItems();
+
+      if (receiver != null)
+      {
+         receiver.accept(ExprGenerator.INSTANCE, par);
+      }
+      else
+      {
+         par.bodyBuilder.append("this");
+      }
+
+      par.bodyBuilder.append('.');
+      par.bodyBuilder.append(methodName);
+      par.bodyBuilder.append("()");
+
+      // generate method
+
+      final String returnType = callExpr.accept(new Typer(par.modelManager.getClassModel()), null);
+
+      final CodeGenerator bodyGen = new CodeGenerator(par.config);
+      bodyGen.modelManager = par.modelManager;
+      bodyGen.testManager = par.testManager;
+
+      if (receiver != null)
+      {
+         final String targetClassName = receiver.accept(new Typer(par.modelManager.getClassModel()), null);
+
+         bodyGen.clazz = par.modelManager.haveClass(targetClassName);
+      }
+      else
+      {
+         bodyGen.clazz = par.clazz; // == test class // TODO not within recursive call
+      }
+
+      bodyGen.method = new FMethod().setClazz(bodyGen.clazz).writeName(methodName).writeReturnType(returnType);
+      bodyGen.bodyBuilder = new StringBuilder();
+
+      for (Sentence sentence : body)
+      {
+         sentence.accept(SentenceGenerator.INSTANCE, bodyGen);
+      }
+
+      bodyGen.method.setMethodBody(bodyGen.bodyBuilder.toString());
+      return null;
    }
 
    @Override

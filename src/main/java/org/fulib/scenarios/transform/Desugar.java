@@ -8,6 +8,7 @@ import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -236,8 +237,17 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Sentence visit(CallSentence callSentence, Object par)
    {
-      this.visit(callSentence.getBody(), par);
-      return callSentence;
+      final CallExpr call = callSentence.getCall();
+      call.setBody((SentenceList) call.getBody().accept(this, par));
+
+      final String name = call.accept(Namer.INSTANCE, null);
+      if (name == null)
+      {
+         return ExprSentence.of(call);
+      }
+
+      final VarDecl varDecl = VarDecl.of(name, null, call);
+      return IsSentence.of(varDecl);
    }
 
    @Override
