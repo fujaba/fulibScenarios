@@ -37,10 +37,7 @@ public class NameResolver
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      for (final Sentence sentence : scenario.getSentences())
-      {
-         sentence.accept(this, par);
-      }
+      scenario.getBody().accept(this, par);
       return null;
    }
 
@@ -139,10 +136,7 @@ public class NameResolver
          callSentence.setReceiver(callSentence.getReceiver().accept(this, par));
       }
 
-      for (final Sentence sentence : callSentence.getBody())
-      {
-         sentence.accept(this, par);
-      }
+      callSentence.getBody().accept(this, par);
       return null;
    }
 

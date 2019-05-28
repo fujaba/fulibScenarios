@@ -47,13 +47,9 @@ public enum Grouper
       top.key = ACTOR_TEST;
       top.target = new ArrayList<>();
 
-      Frame current = top;
-      for (final Sentence sentence : scenario.getSentences())
-      {
-         current = sentence.accept(this, current);
-      }
+      /*final Frame result = */scenario.getBody().accept(this, top);
 
-      scenario.setSentences(top.target);
+      scenario.getBody().setItems(top.target);
       return null;
    }
 
@@ -114,8 +110,9 @@ public enum Grouper
    @Override
    public Frame visit(CallSentence callSentence, Frame par)
    {
+      final List<Sentence> sentences = callSentence.getBody().getItems();
       return par.add(actorKey(callSentence.getActor()), callSentence)
-                .push(actorKey(callSentence.getName()), callSentence.getBody());
+                .push(actorKey(callSentence.getName()), sentences);
    }
 
    @Override

@@ -2,7 +2,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 abstract org.fulib.scenarios.ast.Node {
 	ScenarioGroup(name: String, scenarios: [Scenario], /* register: Register */)
-	Scenario(name: String, sentences: [Sentence])
+	Scenario(name: String, body: SentenceList)
 
 	abstract decl.Decl(name: String, type: String) {
 		VarDecl(name: String, type: String, expr: Expr)
@@ -26,7 +26,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 		CreateSentence(actor: Name, descriptor: MultiDescriptor)
 
-		CallSentence(actor: Name, name: Name, receiver: Expr, body: [Sentence])
+		CallSentence(actor: Name, name: Name, receiver: Expr, body: SentenceList)
 		AnswerSentence(actor: Name, result: Expr)
 
 		/*

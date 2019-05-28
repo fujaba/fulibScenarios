@@ -13,7 +13,6 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.DiagramSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.transform.SymbolCollector;
 
@@ -111,10 +110,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
       this.addImport("org.junit.Test");
 
-      for (final Sentence sentence : scenario.getSentences())
-      {
-         sentence.accept(SentenceGenerator.INSTANCE, this);
-      }
+      scenario.getBody().accept(SentenceGenerator.INSTANCE, this);
 
       if (this.config.isObjectDiagram() || this.config.isObjectDiagramSVG())
       {

@@ -22,10 +22,7 @@ public class SymbolCollector
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      for (final Sentence sentence : scenario.getSentences())
-      {
-         sentence.accept(this, par);
-      }
+      scenario.getBody().accept(this, par);
       return null;
    }
 
@@ -106,10 +103,7 @@ public class SymbolCollector
    @Override
    public Object visit(CallSentence callSentence, Object par)
    {
-      for (final Sentence sentence : callSentence.getBody())
-      {
-         sentence.accept(this, par);
-      }
+      callSentence.getBody().accept(this, par);
       return null;
    }
 

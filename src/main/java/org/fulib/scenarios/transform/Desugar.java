@@ -45,7 +45,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      this.visit(scenario.getSentences(), par);
+      scenario.setBody((SentenceList) scenario.getBody().accept(this, par));
       return null;
    }
 

@@ -111,7 +111,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    {
       final Expr receiver = callSentence.getReceiver();
       final String methodName = callSentence.getName().accept(Namer.INSTANCE, null);
-      final List<Sentence> body = callSentence.getBody();
+      final List<Sentence> body = callSentence.getBody().getItems();
 
       par.emitIndent();
 

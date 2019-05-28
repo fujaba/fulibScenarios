@@ -32,7 +32,7 @@ public class ASTListener extends ScenarioParserBaseListener
 {
    // =============== Fields ===============
 
-   private final Scenario scenario = Scenario.of(null, new ArrayList<>());
+   private Scenario scenario;
 
    private Deque<Node> stack = new ArrayDeque<>();
 
@@ -50,11 +50,6 @@ public class ASTListener extends ScenarioParserBaseListener
       return (T) this.stack.pop();
    }
 
-   private <T> T popLast()
-   {
-      return (T) this.stack.removeLast();
-   }
-
    private <T> List<T> pop(Class<T> type, int count)
    {
       // strange logic, but end result is that the top of the stack ends up at the end of the list.
@@ -69,9 +64,12 @@ public class ASTListener extends ScenarioParserBaseListener
    // --------------- Scenario ---------------
 
    @Override
-   public void exitScenarioName(ScenarioParser.ScenarioNameContext ctx)
+   public void exitScenario(ScenarioParser.ScenarioContext ctx)
    {
-      this.scenario.setName(inputText(ctx));
+      final String name = inputText(ctx.header().scenarioName());
+      final List<Sentence> sentences = this.pop(Sentence.class, ctx.sentence().size());
+      final SentenceList body = SentenceList.of(sentences);
+      this.scenario = Scenario.of(name, body);
    }
 
    // --------------- Sentences ---------------
@@ -80,8 +78,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
    {
       final List<MultiDescriptor> descriptors = this.pop(MultiDescriptor.class, ctx.thereClause().size());
-
-      this.scenario.getSentences().add(ThereSentence.of(descriptors));
+      this.stack.push(ThereSentence.of(descriptors));
    }
 
    @Override
@@ -116,7 +113,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitExpectSentence(ScenarioParser.ExpectSentenceContext ctx)
    {
       final List<ConditionalExpr> exprs = this.pop(ConditionalExpr.class, ctx.thatClauses().thatClause().size());
-      this.scenario.getSentences().add(ExpectSentence.of(exprs));
+      this.stack.push(ExpectSentence.of(exprs));
    }
 
    @Override
@@ -124,15 +121,15 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Expr object = this.pop();
       final String fileName = ctx.fileName.getText();
-      this.scenario.getSentences().add(DiagramSentence.of(object, fileName));
+      this.stack.push(DiagramSentence.of(object, fileName));
    }
 
    @Override
    public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
-      final Expr object = this.popLast();
       final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
-      this.scenario.getSentences().add(HasSentence.of(object, clauses));
+      final Expr object = this.pop();
+      this.stack.push(HasSentence.of(object, clauses));
    }
 
    @Override
@@ -148,7 +145,7 @@ public class ASTListener extends ScenarioParserBaseListener
 
       final String name = varName(ctx.name());
       final VarDecl varDecl = VarDecl.of(name, null, ctor);
-      this.scenario.getSentences().add(IsSentence.of(varDecl));
+      this.stack.push(IsSentence.of(varDecl));
    }
 
    @Override
@@ -157,7 +154,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final MultiDescriptor desc = this.pop();
       final CreateSentence createSentence = CreateSentence.of(actor, desc);
-      this.scenario.getSentences().add(createSentence);
+      this.stack.push(createSentence);
    }
 
    @Override
@@ -166,8 +163,9 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final Name name = name(ctx.name());
       final Expr receiver = ctx.ON() != null ? this.pop() : null;
-      final CallSentence callSentence = CallSentence.of(actor, name, receiver, new ArrayList<>());
-      this.scenario.getSentences().add(callSentence);
+      final SentenceList body = SentenceList.of(new ArrayList<>());
+      final CallSentence callSentence = CallSentence.of(actor, name, receiver, body);
+      this.stack.push(callSentence);
    }
 
    @Override
@@ -176,7 +174,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final Expr result = this.pop();
       final AnswerSentence answerSentence = AnswerSentence.of(actor, result);
-      this.scenario.getSentences().add(answerSentence);
+      this.stack.push(answerSentence);
    }
 
    // --------------- Clauses ---------------
