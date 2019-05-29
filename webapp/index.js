@@ -1,8 +1,78 @@
+// =============== Constants ===============
+
 const apiUrl = "";
+
+const examples = [
+	'Definitions', [
+		'Simple Definitions',
+		'Complex Definitions',
+	],
+	'Testing', [
+		'Expectations',
+		'Diagrams',
+	],
+	'Methods', [
+		'Calling',
+	],
+];
+
+const exampleSelect = document.getElementById('exampleSelect');
+
+const scenarioInput = document.getElementById("scenarioInput");
+const scenarioInputCodeMirror = CodeMirror.fromTextArea(scenarioInput, {
+	mode: 'markdown',
+	lineNumbers: true,
+	lineWrapping: true,
+	styleActiveLine: true,
+	extraKeys: {
+		'Ctrl-Enter': submit,
+		'Cmd-Enter': submit
+	}
+});
+
+const javaTestOutput = document.getElementById("javaTestOutput");
+const javaTestOutputCodeMirror = CodeMirror.fromTextArea(javaTestOutput, {
+	lineNumbers: true,
+	matchBrackets: true,
+	readOnly: true,
+	mode: 'text/x-java'
+});
+
+// =============== Initialization ===============
+
+init()
+
+function init() {
+	for (let i = 0; i < examples.length; i += 2) {
+		const groupName = examples[i];
+		const groupItems = examples[i + 1];
+
+		const optgroup = document.createElement("optgroup");
+		optgroup.label = groupName;
+
+		for (let groupItem of groupItems) {
+			const option = document.createElement("option");
+
+			option.value = groupName + "/" + groupItem.replace(" ", "");
+			option.label = groupItem;
+			option.innerText = groupItem;
+
+			optgroup.appendChild(option);
+		}
+
+		exampleSelect.appendChild(optgroup);
+	}
+
+	selectExample("")
+}
+
+// =============== Functions ===============
+
+// --------------- Event Handlers ---------------
 
 function submit() {
 	const text = scenarioInputCodeMirror.getValue();
-	
+
 	javaTestOutputCodeMirror.setValue("// loading...");
 
 	api("POST", apiUrl + "/runcodegen", {
@@ -32,76 +102,6 @@ function submit() {
 	});
 }
 
-
-function api(method, url, body, handler) {
-	const requestBody = JSON.stringify(body);
-    const request = new XMLHttpRequest();
-
-    request.overrideMimeType("application/json");
-    request.addEventListener("load", function () {
-        handler(JSON.parse(this.responseText))
-    });
-    request.open("POST", url, true);
-    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    request.send(requestBody);
-}
-
-var scenarioInput = document.getElementById("scenarioInput");
-var scenarioInputCodeMirror = CodeMirror.fromTextArea(scenarioInput, {
-	mode: 'markdown',
-	lineNumbers: true,
-	lineWrapping: true,
-	styleActiveLine: true,
-	extraKeys: {
-		'Ctrl-Enter': submit,
-		'Cmd-Enter': submit
-	}
-});
-
-var javaTestOutput = document.getElementById("javaTestOutput");
-var javaTestOutputCodeMirror = CodeMirror.fromTextArea(javaTestOutput, {
-	lineNumbers: true,
-	matchBrackets: true,
-	readOnly: true,
-	mode: 'text/x-java'
-});
-
-const examples = [
-	'Definitions', [
-		'Simple Definitions',
-		'Complex Definitions',
-	],
-	'Testing', [
-		'Expectations',
-		'Diagrams',
-	],
-	'Methods', [
-		'Calling',
-	],
-];
-
-const exampleSelect = document.getElementById('exampleSelect');
-
-for (let i = 0; i < examples.length; i += 2) {
-	const groupName = examples[i];
-	const groupItems = examples[i + 1];
-
-	const optgroup = document.createElement("optgroup");
-	optgroup.label = groupName;
-
-	for (let groupItem of groupItems) {
-		const option = document.createElement("option");
-		
-		option.value = groupName + "/" + groupItem.replace(" ", "");
-		option.label = groupItem;
-		option.innerText = groupItem;
-		
-		optgroup.appendChild(option);
-	}
-
-	exampleSelect.appendChild(optgroup);
-}
-
 function selectExample(value) {
 	if (!value) {
 		scenarioInputCodeMirror.setValue("// start typing your scenario or select an example using the dropdown above.");
@@ -116,7 +116,7 @@ function selectExample(value) {
     request.addEventListener("load", function () {
     	if (this.status == 200) {
     		const text = this.responseText;
-        	scenarioInputCodeMirror.setValue(text);	
+        	scenarioInputCodeMirror.setValue(text);
     	}
     	else {
     		scenarioInputCodeMirror.setValue("// failed to load " + url + ": " + this.status);
@@ -126,4 +126,17 @@ function selectExample(value) {
     request.send();
 }
 
-selectExample("")
+// --------------- Helpers ---------------
+
+function api(method, url, body, handler) {
+	const requestBody = JSON.stringify(body);
+    const request = new XMLHttpRequest();
+
+    request.overrideMimeType("application/json");
+    request.addEventListener("load", function () {
+        handler(JSON.parse(this.responseText))
+    });
+    request.open("POST", url, true);
+    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    request.send(requestBody);
+}
