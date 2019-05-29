@@ -1,18 +1,19 @@
 // basis for plugin
 
 def taskName = 'compileScenarios'
-def sourceDir = 'src/test/scenarios'
+def sourceDirs = [ 'src/test/scenarios', 'webapp/examples/' ]
 def modelOutputDir = "$buildDir/generated-src/scenarios/main/"
 def testOutputDir = "$buildDir/generated-src/scenarios/test/"
 
 tasks.register(taskName, JavaExec) {
     classpath = sourceSets.main.runtimeClasspath // change this in plugin
     main = 'org.fulib.scenarios.Main'
-    args = [ '-m', modelOutputDir, '-t', testOutputDir, sourceDir ]
 
-    onlyIf { file(sourceDir).exists() }
+    args = [ '-m', modelOutputDir, '-t', testOutputDir ] + sourceDirs
 
-    inputs.dir(sourceDir)
+    onlyIf { sourceDirs.any { file(it).exists()} }
+
+    sourceDirs.each { inputs.dir(it) }
     outputs.dir(modelOutputDir)
     outputs.dir(testOutputDir)
 }
