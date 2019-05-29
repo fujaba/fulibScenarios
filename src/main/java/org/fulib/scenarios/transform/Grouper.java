@@ -120,7 +120,7 @@ public enum Grouper
    @Override
    public Frame visit(AnswerSentence answerSentence, Frame par)
    {
-      return par.add(actorKey(answerSentence.getActor()), answerSentence); // TODO pop?
+      return par.addLast(actorKey(answerSentence.getActor()), answerSentence);
    }
 
    @Override
@@ -173,7 +173,12 @@ class Frame
 
    Frame add(String key, Sentence sentence)
    {
-      return this.pop(key).add(sentence);
+      return this.popIncompatible(key).add(sentence);
+   }
+
+   Frame addLast(String key, Sentence sentence)
+   {
+      return this.add(key, sentence).popToDefinition(key).pop();
    }
 
    Frame push(String key, List<Sentence> target)
@@ -185,10 +190,25 @@ class Frame
       return newTop;
    }
 
-   Frame pop(String key)
+   Frame pop()
+   {
+      return this.next;
+   }
+
+   Frame popIncompatible(String key)
    {
       Frame result = this;
       while (!keyMatches(key, result.key))
+      {
+         result = result.next;
+      }
+      return result;
+   }
+
+   Frame popToDefinition(String key)
+   {
+      Frame result = this;
+      while (!result.key.contains(key))
       {
          result = result.next;
       }
