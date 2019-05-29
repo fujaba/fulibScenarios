@@ -18,13 +18,13 @@
 </head>
 <body>
 <div class="split top left">
-	<h2>Scenario</h2>    <br/> <textarea class="form-control" id="scenarioInput">
-# Scenario Start Up.
-
-There are Player with name Alice and Bob.
-There is a Game with title Ludo.
-Ludo has participants Alice and Bob.
-</textarea>
+	<h2>Scenario</h2>
+	<p>
+	Load Example: <select id="exampleSelect" onchange="selectExample(this.value)">
+		<option value="">-</option>
+	</select>
+	<textarea class="form-control" id="scenarioInput"></textarea>
+	<p>
 	Press <kbd>Ctrl-Enter</kbd> to <a href="#" onclick="submit()">compile and run</a>.
 </div>
 

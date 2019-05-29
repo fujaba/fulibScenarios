@@ -2,6 +2,8 @@ const apiUrl = "";
 
 function submit() {
 	const text = scenarioInputCodeMirror.getValue();
+	
+	javaTestOutputCodeMirror.setValue("// loading...");
 
 	api("POST", apiUrl + "/runcodegen", {
 		scenarioText: text
@@ -63,3 +65,65 @@ var javaTestOutputCodeMirror = CodeMirror.fromTextArea(javaTestOutput, {
 	readOnly: true,
 	mode: 'text/x-java'
 });
+
+const examples = [
+	'Definitions', [
+		'Simple Definitions',
+		'Complex Definitions',
+	],
+	'Testing', [
+		'Expectations',
+		'Diagrams',
+	],
+	'Methods', [
+		'Calling',
+	],
+];
+
+const exampleSelect = document.getElementById('exampleSelect');
+
+for (let i = 0; i < examples.length; i += 2) {
+	const groupName = examples[i];
+	const groupItems = examples[i + 1];
+
+	const optgroup = document.createElement("optgroup");
+	optgroup.label = groupName;
+
+	for (let groupItem of groupItems) {
+		const option = document.createElement("option");
+		
+		option.value = groupName + "/" + groupItem.replace(" ", "");
+		option.label = groupItem;
+		option.innerText = groupItem;
+		
+		optgroup.appendChild(option);
+	}
+
+	exampleSelect.appendChild(optgroup);
+}
+
+function selectExample(value) {
+	if (!value) {
+		scenarioInputCodeMirror.setValue("// start typing your scenario or select an example using the dropdown above.");
+		return;
+	}
+
+	const url = "examples/" + value + ".md";
+	const request = new XMLHttpRequest();
+
+	scenarioInputCodeMirror.setValue("// loading...");
+
+    request.addEventListener("load", function () {
+    	if (this.status == 200) {
+    		const text = this.responseText;
+        	scenarioInputCodeMirror.setValue(text);	
+    	}
+    	else {
+    		scenarioInputCodeMirror.setValue("// failed to load " + url + ": " + this.status);
+    	}
+    });
+    request.open("GET", url, true);
+    request.send();
+}
+
+selectExample("")
