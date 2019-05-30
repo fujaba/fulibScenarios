@@ -2,6 +2,7 @@ package org.fulib.scenarios.transform;
 
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
@@ -22,9 +23,10 @@ import org.fulib.scenarios.ast.sentence.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum NameResolver
-   implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>, Sentence.Visitor<Scope, Object>,
-                 Decl.Visitor<Scope, Object>, Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
+public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
+                                       Scenario.Visitor<Object, Object>, Sentence.Visitor<Scope, Object>,
+                                       Decl.Visitor<Scope, Object>, Expr.Visitor<Scope, Expr>,
+                                       Name.Visitor<Scope, Name>
 {
    INSTANCE;
 
@@ -33,7 +35,19 @@ public enum NameResolver
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      for (final Scenario scenario : scenarioGroup.getScenarios())
+      for (final ScenarioFile file : scenarioGroup.getFiles())
+      {
+         file.accept(this, par);
+      }
+      return null;
+   }
+
+   // --------------- ScenarioFile.Visitor ---------------
+
+   @Override
+   public Object visit(ScenarioFile scenarioFile, Object par)
+   {
+      for (final Scenario scenario : scenarioFile.getScenarios())
       {
          scenario.accept(this, par);
       }
