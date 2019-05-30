@@ -1,7 +1,7 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 abstract org.fulib.scenarios.ast.Node {
-	ScenarioGroup(name: String, files: [ScenarioFile])
+	ScenarioGroup(sourceDir: String, packageDir: String, files: [ScenarioFile])
 	ScenarioFile(name: String, scenarios: [Scenario])
 	Scenario(name: String, body: SentenceList)
 

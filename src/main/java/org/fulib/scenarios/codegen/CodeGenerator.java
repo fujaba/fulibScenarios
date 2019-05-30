@@ -28,6 +28,8 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 {
    final Config config;
 
+   ScenarioGroup group;
+
    ClassModelManager modelManager;
    ClassModelManager testManager;
 
@@ -70,9 +72,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
+      this.group = scenarioGroup;
+
       final String modelDir = this.config.getModelDir();
-      final String packageName = scenarioGroup.getName();
-      final String packageDir = packageName.replace('.', '/');
+      final String packageDir = scenarioGroup.getPackageDir();
+      final String packageName = packageDir.replace('/', '.');
 
       this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
       this.testManager = new ClassModelManager().havePackageName(packageName)

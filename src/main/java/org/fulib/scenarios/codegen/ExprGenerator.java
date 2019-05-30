@@ -134,6 +134,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       final String returnType = callExpr.accept(new Typer(par.modelManager.getClassModel()), null);
 
       final CodeGenerator bodyGen = new CodeGenerator(par.config);
+      bodyGen.group = par.group;
       bodyGen.modelManager = par.modelManager;
       bodyGen.testManager = par.testManager;
 

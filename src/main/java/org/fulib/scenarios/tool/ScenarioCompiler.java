@@ -125,22 +125,22 @@ public class ScenarioCompiler implements Tool
          final File inputDir = new File(inputDirName);
          if (inputDir.exists() && inputDir.isDirectory())
          {
-            this.discover(inputDir, "");
+            this.discover(inputDir, inputDir, "");
          }
       }
    }
 
-   private void discover(File srcDir, String packageName)
+   private void discover(File sourceDir, File dir, String packageDir)
    {
       List<ScenarioFile> scenarioFiles = new ArrayList<>();
 
-      for (File file : Objects.requireNonNull(srcDir.listFiles()))
+      for (File file : Objects.requireNonNull(dir.listFiles()))
       {
          final String fileName = file.getName();
          if (file.isDirectory())
          {
-            final String newPackage = packageName.isEmpty() ? fileName : packageName + "." + fileName;
-            this.discover(file, newPackage);
+            final String newPackage = packageDir.isEmpty() ? fileName : packageDir + "/" + fileName;
+            this.discover(sourceDir, file, newPackage);
          }
          else if ("Register.md".equals(fileName))
          {
@@ -159,7 +159,7 @@ public class ScenarioCompiler implements Tool
 
       if (!scenarioFiles.isEmpty())
       {
-         this.groups.add(ScenarioGroup.of(packageName, scenarioFiles));
+         this.groups.add(ScenarioGroup.of(sourceDir.toString(), packageDir, scenarioFiles));
       }
    }
 
