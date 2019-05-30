@@ -31,19 +31,6 @@ abstract org.fulib.scenarios.ast.Node {
 		AnswerSentence(actor: Name, result: Expr)
 
 		ExprSentence(expr: Expr)
-
-		/*
-		PhraseSentence(phrase: Phrase)
-		*/
-	}
-
-	abstract phrase.Phrase {
-		/*
-		CreatePhrase(actor: String, vars: [VarDecl]) // i.e. declarations with constructor calls
-		WritePhrase(actor: String, lhs: Expr, rhs: Expr) // i.e. an assignment
-
-		CallPhrase(actor: String, receiver: Expr, name: Name, parameters: [NamedExpr]) // i.e. a method call
-		*/
 	}
 
 	NamedExpr(name: Name, expr: Expr)
@@ -70,13 +57,5 @@ abstract org.fulib.scenarios.ast.Node {
 			ListExpr(elements: [Expr])
 			// RangeExpr(start: Expr, end: Expr)
 		}
-
-		/*
-		abstract collection.CollectionExpr {
-			RangeExpr(from: Expr, through: Expr)
-			ClosedRangeExpr(from: Expr, to: Expr)
-			ListExpr(elements: [Expr])
-		}
-		*/
 	}
 }
