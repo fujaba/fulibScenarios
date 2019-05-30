@@ -2,16 +2,18 @@ package org.fulib.scenarios;
 
 import org.fulib.scenarios.tool.Tools;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
@@ -66,8 +68,6 @@ public class WebService
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
          // invoke scenario compiler
-//         final int exitCode = JavaCompiler.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
-//               "--class-diagram-svg", "--object-diagram-svg"
          final int exitCode = Tools.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
                "--class-diagram-svg", "--object-diagram-svg"
          );
@@ -89,23 +89,7 @@ public class WebService
             // collect test methods
             final JSONArray methodArray = new JSONArray();
 
-            Files.walk(testSrcDir).filter(Tools::isJava).forEach(file ->
-            {
-               try
-               {
-                  String firstTestBody = Files.lines(file).filter(it -> it.startsWith("      "))
-                        .map(it -> it.substring(6)).collect(Collectors.joining("\n"));
-                  JSONObject firstTestMethod = new JSONObject();
-                  firstTestMethod.put("name", file.getFileName().toString());
-                  firstTestMethod.put("body", firstTestBody);
-
-                  methodArray.put(firstTestMethod);
-               }
-               catch (Exception e)
-               {
-                  e.printStackTrace();
-               }
-            });
+            Files.walk(testSrcDir).filter(Tools::isJava).forEach(file -> readTestMethod(methodArray, file));
 
             result.put("testMethods", methodArray);
 
@@ -146,6 +130,49 @@ public class WebService
       finally
       {
          Tools.deleteRecursively(codegendir);
+      }
+   }
+
+   private static void readTestMethod(JSONArray methodArray, Path file)
+   {
+      try
+      {
+         tryReadTestMethod(methodArray, file);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
+   private static void tryReadTestMethod(JSONArray methodArray, Path file) throws IOException, JSONException
+   {
+      final List<String> lines = Files.readAllLines(file);
+      String methodName = null;
+      StringBuilder methodBody = null;
+
+      for (String line : lines)
+      {
+         final int end;
+         if (line.startsWith("   public ") && (end = line.indexOf(')')) >= 0)
+         {
+            methodName = line.substring("   public ".length(), end + 1);
+            methodBody = new StringBuilder();
+         }
+         else if (methodName != null && "   }".equals(line))
+         {
+            final JSONObject method = new JSONObject();
+            method.put("name", methodName);
+            method.put("body", methodBody.toString());
+            methodArray.put(method);
+
+            methodName = null;
+            methodBody = null;
+         }
+         else if (methodName != null && line.startsWith("      "))
+         {
+            methodBody.append(line, 6, line.length()).append("\n");
+         }
       }
    }
 }
