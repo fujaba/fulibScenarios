@@ -46,7 +46,7 @@ abstract org.fulib.scenarios.ast.Node {
 		access.ExampleAccess(value: Expr, expr: Expr)
 
 		call.CreationExpr(className: Name, attributes: [NamedExpr])
-		call.CallExpr(name: Name, receiver: Expr, body: SentenceList)
+		call.CallExpr(name: Name, receiver: Expr, arguments: [NamedExpr], body: SentenceList)
 
 		abstract conditional.ConditionalExpr {
 			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
