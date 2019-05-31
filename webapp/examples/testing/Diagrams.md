@@ -7,7 +7,7 @@ There is a Store with name Amazon.
 Amazon has products Shoes and Cool SSD.
 
 // You can draw object diagrams using the markdown syntax for images.
-![Amazon](amazon.png)
+![Amazon](images/amazon.png)
 
 // It also supports multiple objects at once.
-![Shoes, Cool SSD](products.png)
+![Shoes, Cool SSD](images/products.png)

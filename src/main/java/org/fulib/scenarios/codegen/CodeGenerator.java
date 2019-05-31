@@ -6,6 +6,7 @@ import org.fulib.builder.ClassModelManager;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.ResolvedName;
@@ -22,9 +23,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>
+public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
+                                         Scenario.Visitor<Object, Object>
 {
    final Config config;
+
+   ScenarioGroup group;
 
    ClassModelManager modelManager;
    ClassModelManager testManager;
@@ -68,17 +72,19 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
+      this.group = scenarioGroup;
+
       final String modelDir = this.config.getModelDir();
-      final String packageName = scenarioGroup.getName();
-      final String packageDir = packageName.replace('.', '/');
+      final String packageDir = scenarioGroup.getPackageDir();
+      final String packageName = packageDir.replace('/', '.');
 
       this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
       this.testManager = new ClassModelManager().havePackageName(packageName)
                                                 .haveMainJavaDir(this.config.getTestDir());
 
-      for (final Scenario scenario : scenarioGroup.getScenarios())
+      for (final ScenarioFile file : scenarioGroup.getFiles())
       {
-         scenario.accept(this, par);
+         file.accept(this, par);
       }
 
       new Generator().generate(this.modelManager.getClassModel());
@@ -97,15 +103,31 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       return null;
    }
 
+   // --------------- ScenarioFile.Visitor ---------------
+
+   @Override
+   public Object visit(ScenarioFile scenarioFile, Object par)
+   {
+      final String className = scenarioFile.getName().replaceAll("\\W", "") + "Test";
+
+      this.clazz = this.testManager.haveClass(className);
+
+      for (final Scenario scenario : scenarioFile.getScenarios())
+      {
+         scenario.accept(this, par);
+      }
+
+      return null;
+   }
+
    // --------------- Scenario.Visitor ---------------
 
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      final String className = scenario.getName().replaceAll("\\W", "");
+      final String methodName = "scenario" + scenario.getName().replaceAll("\\W", "");
 
-      this.clazz = this.testManager.haveClass(className);
-      this.method = new FMethod().setClazz(this.clazz).writeName("test").writeReturnType("void")
+      this.method = new FMethod().setClazz(this.clazz).writeName(methodName).writeReturnType("void")
                                  .setAnnotations("@Test");
       this.bodyBuilder = new StringBuilder();
 
@@ -130,11 +152,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 
             if (this.config.isObjectDiagram())
             {
-               DiagramSentence.of(listExpr, className + ".png").accept(SentenceGenerator.INSTANCE, this);
+               DiagramSentence.of(listExpr, methodName + ".png").accept(SentenceGenerator.INSTANCE, this);
             }
             if (this.config.isObjectDiagramSVG())
             {
-               DiagramSentence.of(listExpr, className + ".svg").accept(SentenceGenerator.INSTANCE, this);
+               DiagramSentence.of(listExpr, methodName + ".svg").accept(SentenceGenerator.INSTANCE, this);
             }
          }
       }

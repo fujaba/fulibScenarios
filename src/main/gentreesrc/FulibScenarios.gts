@@ -1,7 +1,8 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 abstract org.fulib.scenarios.ast.Node {
-	ScenarioGroup(name: String, scenarios: [Scenario], /* register: Register */)
+	ScenarioGroup(sourceDir: String, packageDir: String, files: [ScenarioFile])
+	ScenarioFile(name: String, scenarios: [Scenario])
 	Scenario(name: String, body: SentenceList)
 
 	abstract decl.Decl(name: String, type: String) {
@@ -30,19 +31,6 @@ abstract org.fulib.scenarios.ast.Node {
 		AnswerSentence(actor: Name, result: Expr)
 
 		ExprSentence(expr: Expr)
-
-		/*
-		PhraseSentence(phrase: Phrase)
-		*/
-	}
-
-	abstract phrase.Phrase {
-		/*
-		CreatePhrase(actor: String, vars: [VarDecl]) // i.e. declarations with constructor calls
-		WritePhrase(actor: String, lhs: Expr, rhs: Expr) // i.e. an assignment
-
-		CallPhrase(actor: String, receiver: Expr, name: Name, parameters: [NamedExpr]) // i.e. a method call
-		*/
 	}
 
 	NamedExpr(name: Name, expr: Expr)
@@ -58,7 +46,7 @@ abstract org.fulib.scenarios.ast.Node {
 		access.ExampleAccess(value: Expr, expr: Expr)
 
 		call.CreationExpr(className: Name, attributes: [NamedExpr])
-		call.CallExpr(name: Name, receiver: Expr, body: SentenceList)
+		call.CallExpr(name: Name, receiver: Expr, arguments: [NamedExpr], body: SentenceList)
 
 		abstract conditional.ConditionalExpr {
 			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
@@ -69,13 +57,5 @@ abstract org.fulib.scenarios.ast.Node {
 			ListExpr(elements: [Expr])
 			// RangeExpr(start: Expr, end: Expr)
 		}
-
-		/*
-		abstract collection.CollectionExpr {
-			RangeExpr(from: Expr, through: Expr)
-			ClosedRangeExpr(from: Expr, to: Expr)
-			ListExpr(elements: [Expr])
-		}
-		*/
 	}
 }

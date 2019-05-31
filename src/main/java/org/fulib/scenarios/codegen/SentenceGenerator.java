@@ -48,8 +48,8 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    public Object visit(DiagramSentence diagramSentence, CodeGenerator par)
    {
       // TODO determine from enclosing Scenario
-      final String sourceDir = par.config.getInputDirs().get(0);
-      final String packageDir = par.modelManager.getClassModel().getPackageName();
+      final String sourceDir = par.group.getSourceDir();
+      final String packageDir = par.group.getPackageDir();
       final String fileName = diagramSentence.getFileName();
       final String format = fileName.endsWith(".svg") ? "SVG" : "Png";
       String target = sourceDir + "/" + packageDir + "/" + fileName;

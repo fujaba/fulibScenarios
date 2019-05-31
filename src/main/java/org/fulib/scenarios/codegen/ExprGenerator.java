@@ -24,6 +24,7 @@ import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
 {
@@ -127,13 +128,19 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
 
       par.bodyBuilder.append('.');
       par.bodyBuilder.append(methodName);
-      par.bodyBuilder.append("()");
+      par.bodyBuilder.append('(');
+
+      final List<NamedExpr> arguments = callExpr.getArguments();
+      this.emitList(par, arguments.stream().map(NamedExpr::getExpr).collect(Collectors.toList()));
+
+      par.bodyBuilder.append(')');
 
       // generate method
 
       final String returnType = callExpr.accept(new Typer(par.modelManager.getClassModel()), null);
 
       final CodeGenerator bodyGen = new CodeGenerator(par.config);
+      bodyGen.group = par.group;
       bodyGen.modelManager = par.modelManager;
       bodyGen.testManager = par.testManager;
 
@@ -150,6 +157,13 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
 
       bodyGen.method = new FMethod().setClazz(bodyGen.clazz).writeName(methodName).writeReturnType(returnType);
       bodyGen.bodyBuilder = new StringBuilder();
+
+      for (final NamedExpr argument : arguments)
+      {
+         final String name = argument.getName().accept(Namer.INSTANCE, null);
+         final String type = argument.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
+         bodyGen.method.readParams().put(name, type);
+      }
 
       for (Sentence sentence : body)
       {
@@ -217,17 +231,22 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
 
       final List<Expr> elements = listExpr.getElements();
 
-      elements.get(0).accept(this, par);
-      for (int i = 1; i < elements.size(); i++)
-      {
-         par.bodyBuilder.append(", ");
-         elements.get(i).accept(this, par);
-      }
+      this.emitList(par, elements);
 
       if (this != NO_LIST)
       {
          par.bodyBuilder.append("))");
       }
       return null;
+   }
+
+   private void emitList(CodeGenerator par, List<Expr> elements)
+   {
+      elements.get(0).accept(this, par);
+      for (int i = 1; i < elements.size(); i++)
+      {
+         par.bodyBuilder.append(", ");
+         elements.get(i).accept(this, par);
+      }
    }
 }

@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.*;
-import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.codegen.CodeGenerator;
 import org.fulib.scenarios.parser.ASTListener;
@@ -125,43 +125,45 @@ public class ScenarioCompiler implements Tool
          final File inputDir = new File(inputDirName);
          if (inputDir.exists() && inputDir.isDirectory())
          {
-            this.discover(inputDir, "");
+            this.discover(inputDir, inputDir, "");
          }
       }
    }
 
-   private void discover(File srcDir, String packageName)
+   private void discover(File sourceDir, File dir, String packageDir)
    {
-      List<Scenario> scenarios = new ArrayList<>();
+      List<ScenarioFile> scenarioFiles = new ArrayList<>();
 
-      for (File file : Objects.requireNonNull(srcDir.listFiles()))
+      for (File file : Objects.requireNonNull(dir.listFiles()))
       {
+         final String fileName = file.getName();
          if (file.isDirectory())
          {
-            final String newPackage = packageName.isEmpty() ? file.getName() : packageName + "." + file.getName();
-            this.discover(file, newPackage);
+            final String newPackage = packageDir.isEmpty() ? fileName : packageDir + "/" + fileName;
+            this.discover(sourceDir, file, newPackage);
          }
-         else if ("Register.md".equals(file.getName()))
+         else if ("Register.md".equals(fileName))
          {
             // TODO handle Register.md
          }
-         else if (file.getName().endsWith(".md"))
+         else if (fileName.endsWith(".md"))
          {
-            final Scenario scenario = this.parseScenario(file);
-            if (scenario != null)
+            final ScenarioFile scenarioFile = this.parseScenario(file);
+            if (scenarioFile != null)
             {
-               scenarios.add(scenario);
+               scenarioFile.setName(fileName.substring(0, fileName.length() - 3));
+               scenarioFiles.add(scenarioFile);
             }
          }
       }
 
-      if (!scenarios.isEmpty())
+      if (!scenarioFiles.isEmpty())
       {
-         this.groups.add(ScenarioGroup.of(packageName, scenarios));
+         this.groups.add(ScenarioGroup.of(sourceDir.toString(), packageDir, scenarioFiles));
       }
    }
 
-   private Scenario parseScenario(File file)
+   private ScenarioFile parseScenario(File file)
    {
       final CharStream input;
       try
@@ -185,7 +187,7 @@ public class ScenarioCompiler implements Tool
       parser.removeErrorListeners();
       parser.addErrorListener(errorListener);
 
-      final ScenarioParser.ScenarioContext context = parser.scenario();
+      final ScenarioParser.FileContext context = parser.file();
       final int syntaxErrors = parser.getNumberOfSyntaxErrors();
 
       if (syntaxErrors > 0)
@@ -201,7 +203,7 @@ public class ScenarioCompiler implements Tool
          ParseTreeWalker.DEFAULT.walk(listener, context);
 
          this.getErr().println("read scenario " + file);
-         return listener.getScenario();
+         return listener.getFile();
       }
       catch (Exception e)
       {

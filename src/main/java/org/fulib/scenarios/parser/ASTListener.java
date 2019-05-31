@@ -6,10 +6,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.fulib.StrUtil;
-import org.fulib.scenarios.ast.MultiDescriptor;
-import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.Node;
-import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
@@ -33,15 +30,15 @@ public class ASTListener extends ScenarioParserBaseListener
 {
    // =============== Fields ===============
 
-   private Scenario scenario;
+   private ScenarioFile file;
 
    private Deque<Node> stack = new ArrayDeque<>();
 
    // =============== Properties ===============
 
-   public Scenario getScenario()
+   public ScenarioFile getFile()
    {
-      return this.scenario;
+      return this.file;
    }
 
    // =============== Methods ===============
@@ -65,12 +62,20 @@ public class ASTListener extends ScenarioParserBaseListener
    // --------------- Scenario ---------------
 
    @Override
+   public void exitFile(ScenarioParser.FileContext ctx)
+   {
+      final List<Scenario> scenarios = this.pop(Scenario.class, ctx.scenario().size());
+      this.file = ScenarioFile.of(null, scenarios);
+   }
+
+   @Override
    public void exitScenario(ScenarioParser.ScenarioContext ctx)
    {
       final String name = inputText(ctx.header().scenarioName());
       final List<Sentence> sentences = this.pop(Sentence.class, ctx.sentence().size());
       final SentenceList body = SentenceList.of(sentences);
-      this.scenario = Scenario.of(name, body);
+      final Scenario scenario = Scenario.of(name, body);
+      this.stack.push(scenario);
    }
 
    // --------------- Sentences ---------------
@@ -163,9 +168,11 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final Name name = name(ctx.name());
+      final List<NamedExpr> args = this.pop(NamedExpr.class,
+                                            ctx.withClauses() != null ? ctx.withClauses().withClause().size() : 0);
       final Expr receiver = ctx.ON() != null ? this.pop() : null;
       final SentenceList body = SentenceList.of(new ArrayList<>());
-      final CallExpr callExpr = CallExpr.of(name, receiver, body);
+      final CallExpr callExpr = CallExpr.of(name, receiver, args, body);
       final CallSentence callSentence = CallSentence.of(actor, callExpr);
       this.stack.push(callSentence);
    }
