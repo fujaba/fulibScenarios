@@ -78,6 +78,12 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
          // role exists, use it to find out if cardinality many
          wither = existingRole.getCardinality() > 1;
       }
+      else if (clazz.getModel().getClazz(attributeType) != null)
+      {
+         final Clazz otherClazz = clazz.getModel().getClazz(attributeType);
+         par.modelManager.haveRole(clazz, attributeName, otherClazz, ClassModelBuilder.ONE);
+         wither = false;
+      }
       else if (attributeType.startsWith("List<"))
       {
          // new value is multi-valued
@@ -131,8 +137,9 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       par.bodyBuilder.append('(');
 
       final List<NamedExpr> arguments = callExpr.getArguments();
-      this.emitList(par, arguments.stream().map(NamedExpr::getExpr).collect(Collectors.toList()));
-
+      if (arguments.size() > 0) {
+         this.emitList(par, arguments.stream().map(NamedExpr::getExpr).collect(Collectors.toList()));
+      }
       par.bodyBuilder.append(')');
 
       // generate method

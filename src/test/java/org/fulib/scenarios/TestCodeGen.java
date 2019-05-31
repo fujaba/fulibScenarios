@@ -24,4 +24,17 @@ public class TestCodeGen
       assertEquals(0, Tools.genCompileRun(System.out, System.err, srcFolder, modelFolder, testsFolder, modelOutFolder,
                                           testOutFolder));
    }
+
+   @Test
+   public void testToOneAssoc() throws Exception
+   {
+      final Path srcFolder = Paths.get("src", "test", "scenarios", "ToOneAssoc");
+      final Path testOutFolder = Paths.get("temp", "out", "test");
+      final Path modelOutFolder = Paths.get("temp", "out", "model");
+      final Path testsFolder = Paths.get("temp", "tests");
+      final Path modelFolder = Paths.get("temp", "model");
+
+      assertEquals(0, Tools.genCompileRun(System.out, System.err, srcFolder, modelFolder, testsFolder, modelOutFolder,
+            testOutFolder));
+   }
 }
