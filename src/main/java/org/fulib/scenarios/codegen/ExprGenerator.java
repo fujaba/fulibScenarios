@@ -55,7 +55,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(CreationExpr creationExpr, CodeGenerator par)
    {
-      final String className = creationExpr.accept(new Typer(null), null);
+      final String className = creationExpr.accept(Typer.INSTANCE, null);
       final Clazz clazz = par.modelManager.haveClass(className);
 
       par.bodyBuilder.append("new ").append(className).append("()");
@@ -69,7 +69,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    static void generateSetterCall(CodeGenerator par, Clazz clazz, NamedExpr attribute)
    {
       final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
-      final String attributeType = attribute.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
+      final String attributeType = attribute.getExpr().accept(Typer.INSTANCE, null);
 
       final boolean wither;
       final AssocRole existingRole = clazz.getRole(attributeName);
@@ -144,7 +144,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
 
       // generate method
 
-      final String returnType = callExpr.accept(new Typer(par.modelManager.getClassModel()), null);
+      final String returnType = callExpr.accept(Typer.INSTANCE, null);
 
       final CodeGenerator bodyGen = new CodeGenerator(par.config);
       bodyGen.group = par.group;
@@ -153,7 +153,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
 
       if (receiver != null)
       {
-         final String targetClassName = receiver.accept(new Typer(par.modelManager.getClassModel()), null);
+         final String targetClassName = receiver.accept(Typer.INSTANCE, null);
 
          bodyGen.clazz = par.modelManager.haveClass(targetClassName);
       }
@@ -168,7 +168,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       for (final NamedExpr argument : arguments)
       {
          final String name = argument.getName().accept(Namer.INSTANCE, null);
-         final String type = argument.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
+         final String type = argument.getExpr().accept(Typer.INSTANCE, null);
          bodyGen.method.readParams().put(name, type);
       }
 

@@ -72,7 +72,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(HasSentence hasSentence, CodeGenerator par)
    {
-      final String className = hasSentence.getObject().accept(new Typer(null), null);
+      final String className = hasSentence.getObject().accept(Typer.INSTANCE, null);
       final Clazz clazz = par.modelManager.haveClass(className);
 
       par.emitIndent();
