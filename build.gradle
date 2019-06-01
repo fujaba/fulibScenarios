@@ -28,7 +28,7 @@ configurations {
 }
 
 dependencies {
-    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.4.0'
+    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.5.0'
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
