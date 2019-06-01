@@ -6,29 +6,9 @@ import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.Map;
 
-public enum SymbolCollector
-   implements Decl.Visitor<Map<String, Decl>, Object>, Sentence.Visitor<Map<String, Decl>, Object>
+public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Object>
 {
    INSTANCE;
-
-   // --------------- Decl.Visitor ---------------
-
-   @Override
-   public Object visit(Decl decl, Map<String, Decl> par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(VarDecl varDecl, Map<String, Decl> par)
-   {
-      if (varDecl.getName() == null)
-      {
-         varDecl.setName(varDecl.getExpr().accept(Namer.INSTANCE, null));
-      }
-      par.put(varDecl.getName(), varDecl);
-      return null;
-   }
 
    // --------------- Sentence.Visitor ---------------
 
@@ -72,7 +52,12 @@ public enum SymbolCollector
    @Override
    public Object visit(IsSentence isSentence, Map<String, Decl> par)
    {
-      isSentence.getDescriptor().accept(this, par);
+      final VarDecl varDecl = isSentence.getDescriptor();
+      if (varDecl.getName() == null)
+      {
+         varDecl.setName(varDecl.getExpr().accept(Namer.INSTANCE, null));
+      }
+      par.put(varDecl.getName(), varDecl);
       return null;
    }
 
