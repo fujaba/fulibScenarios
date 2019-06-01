@@ -5,7 +5,17 @@ abstract org.fulib.scenarios.ast.Node {
 	ScenarioFile(name: String, scenarios: [Scenario])
 	Scenario(name: String, body: SentenceList)
 
+	// TODO remove type
 	abstract decl.Decl(name: String, type: String) {
+		ClassDecl(name: String, type: String, // == name
+		          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl])
+
+		AttributeDecl(owner: ClassDecl, name: String, type: String)
+		AssociationDecl(owner: ClassDecl, name: String, cardinality: int, target: ClassDecl, type: String, // == target
+		                other: AssociationDecl?)
+		MethodDecl(owner: ClassDecl, name: String, parameters: [ParameterDecl], type: String, body: SentenceList)
+		ParameterDecl(owner: MethodDecl, name: String, type: String)
+
 		VarDecl(name: String, type: String, expr: Expr)
 	}
 
