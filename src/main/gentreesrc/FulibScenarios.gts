@@ -7,7 +7,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 	// TODO remove type
 	abstract decl.Decl(name: String, type: String) {
-		ClassDecl(name: String, type: String, // == name
+		ClassDecl(group: ScenarioGroup, name: String, type: String, // == name
 		          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl])
 
 		AttributeDecl(owner: ClassDecl, name: String, type: String)

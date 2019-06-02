@@ -36,7 +36,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      final Scope scope = new GlobalClassScope(scenarioGroup.getClasses());
+      final Scope scope = new GroupScope(scenarioGroup);
       for (final ScenarioFile file : scenarioGroup.getFiles())
       {
          file.accept(this, scope);
@@ -334,23 +334,37 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    // =============== Static Methods ===============
 
+   static ScenarioGroup getGroup(Scope scope)
+   {
+      Scope outer;
+      while ((outer = scope.getOuter()) != null)
+      {
+         scope = outer;
+      }
+      return ((GroupScope) scope).getGroup();
+   }
+
    static ClassDecl resolveClass(Scope scope, Expr expr)
    {
       return resolveClass(scope, expr.accept(Typer.INSTANCE, null));
    }
 
-   static ClassDecl resolveClass(Scope par, String name)
+   static ClassDecl resolveClass(Scope scope, String name)
    {
-      final Scope global = Scope.getGlobal(par);
-      ClassDecl decl = (ClassDecl) global.resolve(name);
+      return resolveClass(getGroup(scope), name);
+   }
+
+   static ClassDecl resolveClass(ScenarioGroup group, String name)
+   {
+      ClassDecl decl = group.getClasses().get(name);
 
       if (decl != null)
       {
          return decl;
       }
 
-      decl = ClassDecl.of(name, name, new LinkedHashMap<>(), new LinkedHashMap<>(), new ArrayList<>());
-      global.add(decl);
+      decl = ClassDecl.of(group, name, name, new LinkedHashMap<>(), new LinkedHashMap<>(), new ArrayList<>());
+      group.getClasses().put(name, decl);
       return decl;
    }
 
@@ -400,16 +414,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
 interface Scope
 {
-   static Scope getGlobal(Scope scope)
-   {
-      Scope outer;
-      while ((outer = scope.getOuter()) != null)
-      {
-         scope = outer;
-      }
-      return scope;
-   }
-
    Scope getOuter();
 
    Decl resolve(String name);
@@ -417,13 +421,13 @@ interface Scope
    void add(Decl decl);
 }
 
-class GlobalClassScope implements Scope
+class GroupScope implements Scope
 {
-   final Map<String, ClassDecl> classes;
+   final ScenarioGroup group;
 
-   GlobalClassScope(Map<String, ClassDecl> classes)
+   GroupScope(ScenarioGroup group)
    {
-      this.classes = classes;
+      this.group = group;
    }
 
    @Override
@@ -432,16 +436,21 @@ class GlobalClassScope implements Scope
       return null;
    }
 
+   public ScenarioGroup getGroup()
+   {
+      return this.group;
+   }
+
    @Override
    public Decl resolve(String name)
    {
-      return this.classes.get(name);
+      return this.group.getClasses().get(name);
    }
 
    @Override
    public void add(Decl decl)
    {
-      this.classes.put(decl.getName(), (ClassDecl) decl);
+      this.group.getClasses().put(decl.getName(), (ClassDecl) decl);
    }
 }
 
