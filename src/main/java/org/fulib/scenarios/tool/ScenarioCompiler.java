@@ -159,7 +159,7 @@ public class ScenarioCompiler implements Tool
 
       if (!scenarioFiles.isEmpty())
       {
-         this.groups.add(ScenarioGroup.of(sourceDir.toString(), packageDir, scenarioFiles));
+         this.groups.add(ScenarioGroup.of(sourceDir.toString(), packageDir, scenarioFiles, new HashMap<>()));
       }
    }
 

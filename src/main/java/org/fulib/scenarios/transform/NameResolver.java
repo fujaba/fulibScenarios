@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
-                                       Scenario.Visitor<Object, Object>, Sentence.Visitor<Scope, Object>,
+public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
+                                       Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Object>,
                                        Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
    INSTANCE;
@@ -36,9 +36,10 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
+      final Scope scope = new GlobalClassScope(scenarioGroup.getClasses());
       for (final ScenarioFile file : scenarioGroup.getFiles())
       {
-         file.accept(this, par);
+         file.accept(this, scope);
       }
       return null;
    }
@@ -46,7 +47,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    // --------------- ScenarioFile.Visitor ---------------
 
    @Override
-   public Object visit(ScenarioFile scenarioFile, Object par)
+   public Object visit(ScenarioFile scenarioFile, Scope par)
    {
       for (final Scenario scenario : scenarioFile.getScenarios())
       {
@@ -58,9 +59,9 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    // --------------- Scenario.Visitor ---------------
 
    @Override
-   public Object visit(Scenario scenario, Object par)
+   public Object visit(Scenario scenario, Scope par)
    {
-      scenario.getBody().accept(this, new EmptyScope());
+      scenario.getBody().accept(this, par);
       return null;
    }
 
@@ -382,8 +383,15 @@ interface Scope
    void add(Decl decl);
 }
 
-class EmptyScope implements Scope
+class GlobalClassScope implements Scope
 {
+   final Map<String, ClassDecl> classes;
+
+   GlobalClassScope(Map<String, ClassDecl> classes)
+   {
+      this.classes = classes;
+   }
+
    @Override
    public Scope getOuter()
    {
@@ -393,13 +401,13 @@ class EmptyScope implements Scope
    @Override
    public Decl resolve(String name)
    {
-      return null;
+      return this.classes.get(name);
    }
 
    @Override
    public void add(Decl decl)
    {
-      throw new UnsupportedOperationException();
+      this.classes.put(decl.getName(), (ClassDecl) decl);
    }
 }
 
