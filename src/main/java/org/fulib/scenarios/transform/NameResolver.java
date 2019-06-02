@@ -127,6 +127,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       final VarDecl varDecl = isSentence.getDescriptor();
       varDecl.setExpr(varDecl.getExpr().accept(this, par));
+
+      if (varDecl.getType() == null)
+      {
+         varDecl.setType(varDecl.getExpr().accept(Typer.INSTANCE, null));
+      }
       return null;
    }
 
