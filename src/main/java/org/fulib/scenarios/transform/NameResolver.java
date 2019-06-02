@@ -173,6 +173,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Expr visit(AttributeAccess attributeAccess, Scope par)
    {
       attributeAccess.setReceiver(attributeAccess.getReceiver().accept(this, par));
+      attributeAccess.setName(getAttributeOrAssociation(par, attributeAccess.getReceiver(), attributeAccess.getName()));
       return attributeAccess;
    }
 
@@ -250,8 +251,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       // generate method
 
-      final String receiverType = callExpr.getReceiver().accept(Typer.INSTANCE, null);
-      final ClassDecl receiverClass = resolveClass(par, receiverType);
+      final ClassDecl receiverClass = resolveClass(par, callExpr.getReceiver());
 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
       final MethodDecl method = resolveMethod(receiverClass, methodName);
@@ -293,6 +293,8 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       attributeCheckExpr.setReceiver(attributeCheckExpr.getReceiver().accept(this, par));
       attributeCheckExpr.setValue(attributeCheckExpr.getValue().accept(this, par));
+      attributeCheckExpr
+         .setAttribute(getAttributeOrAssociation(par, attributeCheckExpr.getReceiver(), attributeCheckExpr.getAttribute()));
       return attributeCheckExpr;
    }
 
@@ -332,6 +334,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    // =============== Static Methods ===============
 
+   static ClassDecl resolveClass(Scope scope, Expr expr)
+   {
+      return resolveClass(scope, expr.accept(Typer.INSTANCE, null));
+   }
+
    static ClassDecl resolveClass(Scope par, String name)
    {
       final Scope global = Scope.getGlobal(par);
@@ -361,6 +368,33 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       final MethodDecl decl = MethodDecl.of(classDecl, name, new ArrayList<>(), null, body);
       classDecl.getMethods().add(decl);
       return decl;
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
+   {
+      if (name.accept(ExtractDecl.INSTANCE, null) != null)
+      {
+         return name;
+      }
+
+      return getAttributeOrAssociation(resolveClass(scope, receiver), name.accept(Namer.INSTANCE, null));
+   }
+
+   static Name getAttributeOrAssociation(ClassDecl receiverClass, String name)
+   {
+      final AttributeDecl attribute = receiverClass.getAttributes().get(name);
+      if (attribute != null)
+      {
+         return ResolvedName.of(attribute);
+      }
+
+      final AssociationDecl association = receiverClass.getAssociations().get(name);
+      if (association != null)
+      {
+         return ResolvedName.of(association);
+      }
+
+      throw new IllegalStateException("unresolved attribute " + receiverClass.getName() + "." + name);
    }
 }
 
