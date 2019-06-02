@@ -20,7 +20,9 @@ import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
@@ -239,7 +241,43 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       {
          callExpr.setReceiver(receiver.accept(this, par));
       }
+      for (final NamedExpr argument : callExpr.getArguments())
+      {
+         argument.setExpr(argument.getExpr().accept(this, par));
+      }
       callExpr.getBody().accept(this, par);
+
+      // generate method
+
+      final String receiverType = callExpr.getReceiver().accept(Typer.INSTANCE, null);
+      final ClassDecl receiverClass = resolveClass(par, receiverType);
+
+      final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
+      final MethodDecl method = resolveMethod(receiverClass, methodName);
+
+      if (method.getType() == null) // newly created method
+      {
+         final String returnType = callExpr.accept(Typer.INSTANCE, null);
+         method.setType(returnType);
+
+         for (final NamedExpr argument : callExpr.getArguments())
+         {
+            final String name = argument.getName().accept(Namer.INSTANCE, null);
+            final Expr expr = argument.getExpr();
+            final String type = expr.accept(Typer.INSTANCE, null);
+            final ParameterDecl param = ParameterDecl.of(method, name, type);
+
+            argument.setName(ResolvedName.of(param));
+            method.getParameters().add(param);
+         }
+      }
+      else
+      {
+         // TODO match parameters and arguments
+      }
+
+      method.getBody().getItems().addAll(callExpr.getBody().getItems()); // TODO replace arguments with parameter names
+
       return callExpr;
    }
 
@@ -289,6 +327,39 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       final Decl decl = par.resolve(unresolvedName.getValue());
       return decl == null ? unresolvedName : ResolvedName.of(decl);
+   }
+
+   // =============== Static Methods ===============
+
+   static ClassDecl resolveClass(Scope par, String name)
+   {
+      final Scope global = Scope.getGlobal(par);
+      ClassDecl decl = (ClassDecl) global.resolve(name);
+
+      if (decl != null)
+      {
+         return decl;
+      }
+
+      decl = ClassDecl.of(name, name, new LinkedHashMap<>(), new LinkedHashMap<>(), new ArrayList<>());
+      global.add(decl);
+      return decl;
+   }
+
+   static MethodDecl resolveMethod(ClassDecl classDecl, String name)
+   {
+      for (final MethodDecl decl : classDecl.getMethods())
+      {
+         if (name.equals(decl.getName()))
+         {
+            return decl;
+         }
+      }
+
+      final SentenceList body = SentenceList.of(new ArrayList<>());
+      final MethodDecl decl = MethodDecl.of(classDecl, name, new ArrayList<>(), null, body);
+      classDecl.getMethods().add(decl);
+      return decl;
    }
 }
 

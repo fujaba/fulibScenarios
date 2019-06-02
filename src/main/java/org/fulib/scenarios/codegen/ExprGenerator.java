@@ -4,7 +4,6 @@ import org.fulib.StrUtil;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.classmodel.AssocRole;
 import org.fulib.classmodel.Clazz;
-import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -142,42 +141,6 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       }
       par.bodyBuilder.append(')');
 
-      // generate method
-
-      final String returnType = callExpr.accept(Typer.INSTANCE, null);
-
-      final CodeGenerator bodyGen = new CodeGenerator(par.config);
-      bodyGen.group = par.group;
-      bodyGen.modelManager = par.modelManager;
-      bodyGen.testManager = par.testManager;
-
-      if (receiver != null)
-      {
-         final String targetClassName = receiver.accept(Typer.INSTANCE, null);
-
-         bodyGen.clazz = par.modelManager.haveClass(targetClassName);
-      }
-      else
-      {
-         bodyGen.clazz = par.clazz; // == test class // TODO not within recursive call
-      }
-
-      bodyGen.method = new FMethod().setClazz(bodyGen.clazz).writeName(methodName).writeReturnType(returnType);
-      bodyGen.bodyBuilder = new StringBuilder();
-
-      for (final NamedExpr argument : arguments)
-      {
-         final String name = argument.getName().accept(Namer.INSTANCE, null);
-         final String type = argument.getExpr().accept(Typer.INSTANCE, null);
-         bodyGen.method.readParams().put(name, type);
-      }
-
-      for (Sentence sentence : body)
-      {
-         sentence.accept(SentenceGenerator.INSTANCE, bodyGen);
-      }
-
-      bodyGen.method.setMethodBody(bodyGen.bodyBuilder.toString());
       return null;
    }
 
