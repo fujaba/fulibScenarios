@@ -4,6 +4,8 @@ import org.fulib.scenarios.ast.decl.Decl;
 
 public interface Scope
 {
+   <T> T getEnclosing(Class<T> type);
+
    Scope getOuter();
 
    Decl resolve(String name);

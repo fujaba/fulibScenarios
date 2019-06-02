@@ -14,14 +14,15 @@ public class GroupScope implements Scope
    }
 
    @Override
+   public <T> T getEnclosing(Class<T> type)
+   {
+      return type.isAssignableFrom(ScenarioGroup.class) ? (T) this.group : null;
+   }
+
+   @Override
    public Scope getOuter()
    {
       return null;
-   }
-
-   public ScenarioGroup getGroup()
-   {
-      return this.group;
    }
 
    @Override

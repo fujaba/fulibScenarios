@@ -351,16 +351,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    // =============== Static Methods ===============
 
-   static ScenarioGroup getGroup(Scope scope)
-   {
-      Scope outer;
-      while ((outer = scope.getOuter()) != null)
-      {
-         scope = outer;
-      }
-      return ((GroupScope) scope).getGroup();
-   }
-
    static ClassDecl resolveClass(Scope scope, Expr expr)
    {
       return resolveClass(scope, expr.accept(Typer.INSTANCE, null));
@@ -368,7 +358,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    static ClassDecl resolveClass(Scope scope, String name)
    {
-      return resolveClass(getGroup(scope), name);
+      return resolveClass(scope.getEnclosing(ScenarioGroup.class), name);
    }
 
    static ClassDecl resolveClass(ScenarioGroup group, String name)
