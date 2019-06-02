@@ -1,10 +1,8 @@
 package org.fulib.scenarios.codegen;
 
-import org.fulib.classmodel.Clazz;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.transform.Typer;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 {
@@ -72,15 +70,12 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(HasSentence hasSentence, CodeGenerator par)
    {
-      final String className = hasSentence.getObject().accept(Typer.INSTANCE, null);
-      final Clazz clazz = par.modelManager.haveClass(className);
-
       par.emitIndent();
       hasSentence.getObject().accept(ExprGenerator.INSTANCE, par);
 
       for (NamedExpr attribute : hasSentence.getClauses())
       {
-         ExprGenerator.generateSetterCall(par, clazz, attribute);
+         ExprGenerator.generateSetterCall(par, attribute);
       }
 
       par.bodyBuilder.append(";\n");

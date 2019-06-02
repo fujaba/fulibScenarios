@@ -173,7 +173,8 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Expr visit(AttributeAccess attributeAccess, Scope par)
    {
       attributeAccess.setReceiver(attributeAccess.getReceiver().accept(this, par));
-      attributeAccess.setName(getAttributeOrAssociation(par, attributeAccess.getReceiver(), attributeAccess.getName()));
+      attributeAccess
+         .setName(getAttributeOrAssociation(par, attributeAccess.getReceiver(), attributeAccess.getName()));
       return attributeAccess;
    }
 
@@ -227,10 +228,15 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Expr visit(CreationExpr creationExpr, Scope par)
    {
-      creationExpr.setClassName(creationExpr.getClassName().accept(this, par));
+      final String className = creationExpr.getClassName().accept(Namer.INSTANCE, par);
+      final ClassDecl classDecl = resolveClass(par, className);
+
+      creationExpr.setClassName(ResolvedName.of(classDecl));
+
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
          namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
+         namedExpr.setName(resolveAttributeOrAssociation(classDecl, namedExpr.getName(), namedExpr.getExpr()));
       }
       return creationExpr;
    }
@@ -277,7 +283,8 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          // TODO match parameters and arguments
       }
 
-      method.getBody().getItems().addAll(callExpr.getBody().getItems()); // TODO replace arguments with parameter names
+      method.getBody().getItems()
+            .addAll(callExpr.getBody().getItems()); // TODO replace arguments with parameter names
 
       return callExpr;
    }
@@ -293,8 +300,8 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       attributeCheckExpr.setReceiver(attributeCheckExpr.getReceiver().accept(this, par));
       attributeCheckExpr.setValue(attributeCheckExpr.getValue().accept(this, par));
-      attributeCheckExpr
-         .setAttribute(getAttributeOrAssociation(par, attributeCheckExpr.getReceiver(), attributeCheckExpr.getAttribute()));
+      attributeCheckExpr.setAttribute(
+         getAttributeOrAssociation(par, attributeCheckExpr.getReceiver(), attributeCheckExpr.getAttribute()));
       return attributeCheckExpr;
    }
 
@@ -382,6 +389,118 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       final MethodDecl decl = MethodDecl.of(classDecl, name, new ArrayList<>(), null, body);
       classDecl.getMethods().add(decl);
       return decl;
+   }
+
+   static Name resolveAttributeOrAssociation(ClassDecl classDecl, Name name, Expr rhs)
+   {
+      if (name.accept(ExtractDecl.INSTANCE, null) != null)
+      {
+         // already resolved
+         return name;
+      }
+
+      return ResolvedName.of(resolveAttributeOrAssociation(classDecl, name.accept(Namer.INSTANCE, null), rhs));
+   }
+
+   static Decl resolveAttributeOrAssociation(ClassDecl classDecl, String attributeName, Expr rhs)
+   {
+      final AttributeDecl existingAttribute = classDecl.getAttributes().get(attributeName);
+      if (existingAttribute != null)
+      {
+         return existingAttribute;
+      }
+
+      final AssociationDecl existingAssociation = classDecl.getAssociations().get(attributeName);
+      if (existingAssociation != null)
+      {
+         return existingAssociation;
+      }
+
+      final String attributeType = rhs.accept(Typer.INSTANCE, null);
+      final ClassDecl otherClass;
+
+      if (attributeType.startsWith("List<"))
+      {
+         // new value is multi-valued
+
+         final String otherType = attributeType.substring(5, attributeType.length() - 1); // strip List< and >
+         otherClass = classDecl.getGroup().getClasses().get(otherType);
+
+         if (otherClass == null)
+         {
+            // was element type that we have no control over, e.g. List<String>
+            return resolveAttribute(classDecl, attributeName, attributeType);
+         }
+         else
+         {
+            return resolveAssociation(classDecl, attributeName, otherClass, 2);
+         }
+      }
+      else if ((otherClass = classDecl.getGroup().getClasses().get(attributeType)) != null)
+      {
+         return resolveAssociation(classDecl, attributeName, otherClass, 1);
+      }
+      else
+      {
+         return resolveAttribute(classDecl, attributeName, attributeType);
+      }
+   }
+
+   static AttributeDecl resolveAttribute(ClassDecl classDecl, String name, String type)
+   {
+      final AttributeDecl existing = classDecl.getAttributes().get(name);
+      if (existing != null)
+      {
+         final String existingType = existing.getType();
+         if (!type.equals(existingType))
+         {
+            throw new IllegalStateException(
+               "mismatched attribute type " + classDecl.getName() + "." + name + ": " + existingType + " vs "
+               + type);
+         }
+
+         return existing;
+      }
+
+      final AttributeDecl attribute = AttributeDecl.of(classDecl, name, type);
+      classDecl.getAttributes().put(name, attribute);
+      return attribute;
+   }
+
+   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, ClassDecl otherClass, int cardinality)
+   {
+      final AssociationDecl existing = classDecl.getAssociations().get(name);
+      if (existing != null)
+      {
+         if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
+         {
+            throw new IllegalStateException(
+               "mismatched association type " + classDecl.getName() + "." + name + ": " + cardinalityString(
+                  existing.getCardinality()) + " " + existing.getTarget().getName() + " vs " + cardinalityString(
+                  cardinality) + " " + otherClass.getName());
+         }
+
+         return existing;
+      }
+
+      final AssociationDecl association = AssociationDecl
+                                             .of(classDecl, name, cardinality, otherClass, otherClass.getType(),
+                                                 null);
+      final AssociationDecl other = AssociationDecl
+                                       .of(otherClass, classDecl.getName(), 1, classDecl, classDecl.getType(), null);
+
+      association.setOther(other);
+      other.setOther(association);
+
+      classDecl.getAssociations().put(association.getName(), association);
+      otherClass.getAssociations().put(other.getName(), other);
+
+      return association;
+   }
+
+   private static String cardinalityString(int cardinality)
+   {
+      return cardinality == 1 ? "one" : "many";
    }
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
