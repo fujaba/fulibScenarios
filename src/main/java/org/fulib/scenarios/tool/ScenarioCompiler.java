@@ -132,7 +132,7 @@ public class ScenarioCompiler implements Tool
 
    private void discover(File sourceDir, File dir, String packageDir)
    {
-      List<ScenarioFile> scenarioFiles = new ArrayList<>();
+      Map<String, ScenarioFile> scenarioFiles = new HashMap<>();
 
       for (File file : Objects.requireNonNull(dir.listFiles()))
       {
@@ -151,15 +151,21 @@ public class ScenarioCompiler implements Tool
             final ScenarioFile scenarioFile = this.parseScenario(file);
             if (scenarioFile != null)
             {
-               scenarioFile.setName(fileName.substring(0, fileName.length() - 3));
-               scenarioFiles.add(scenarioFile);
+               final String name = fileName.substring(0, fileName.length() - 3);
+               scenarioFile.setName(name);
+               scenarioFiles.put(name, scenarioFile);
             }
          }
       }
 
       if (!scenarioFiles.isEmpty())
       {
-         this.groups.add(ScenarioGroup.of(sourceDir.toString(), packageDir, scenarioFiles, new HashMap<>()));
+         final ScenarioGroup group = ScenarioGroup.of(sourceDir.toString(), packageDir, scenarioFiles, new HashMap<>());
+         for (final ScenarioFile file : scenarioFiles.values())
+         {
+            file.setGroup(group);
+         }
+         this.groups.add(group);
       }
    }
 

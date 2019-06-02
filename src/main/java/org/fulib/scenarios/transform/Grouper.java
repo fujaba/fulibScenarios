@@ -33,7 +33,7 @@ public enum Grouper implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      for (final ScenarioFile file : scenarioGroup.getFiles())
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
          file.accept(this, par);
       }
@@ -45,7 +45,7 @@ public enum Grouper implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    @Override
    public Object visit(ScenarioFile scenarioFile, Object par)
    {
-      for (final Scenario scenario : scenarioFile.getScenarios())
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          scenario.accept(this, par);
       }

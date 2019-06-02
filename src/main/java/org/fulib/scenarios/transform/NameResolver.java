@@ -41,7 +41,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
       final Scope scope = new GroupScope(scenarioGroup);
-      for (final ScenarioFile file : scenarioGroup.getFiles())
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
          file.accept(this, scope);
       }
@@ -53,7 +53,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(ScenarioFile scenarioFile, Scope par)
    {
-      for (final Scenario scenario : scenarioFile.getScenarios())
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          scenario.accept(this, par);
       }

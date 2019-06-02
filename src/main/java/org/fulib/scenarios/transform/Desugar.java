@@ -31,7 +31,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioF
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      for (final ScenarioFile file : scenarioGroup.getFiles())
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
          file.accept(this, par);
       }
@@ -43,7 +43,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioF
    @Override
    public Object visit(ScenarioFile scenarioFile, Object par)
    {
-      for (final Scenario scenario : scenarioFile.getScenarios())
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          scenario.accept(this, par);
       }
