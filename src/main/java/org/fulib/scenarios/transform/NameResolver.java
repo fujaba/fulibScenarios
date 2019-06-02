@@ -25,7 +25,9 @@ import org.fulib.scenarios.transform.scope.HidingScope;
 import org.fulib.scenarios.transform.scope.Scope;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
                                        Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Object>,
@@ -78,11 +80,12 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(SentenceList sentenceList, Scope par)
    {
-      BasicScope scope = new BasicScope(par);
+      final Map<String, Decl> decls = new HashMap<>();
+      final BasicScope scope = new BasicScope(decls, par);
 
       for (final Sentence item : sentenceList.getItems())
       {
-         item.accept(SymbolCollector.INSTANCE, scope.getDecls());
+         item.accept(SymbolCollector.INSTANCE, decls);
          item.accept(this, scope);
       }
       return null;
