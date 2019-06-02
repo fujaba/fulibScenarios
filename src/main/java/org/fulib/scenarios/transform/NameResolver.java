@@ -19,11 +19,13 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.transform.scope.BasicScope;
+import org.fulib.scenarios.transform.scope.GroupScope;
+import org.fulib.scenarios.transform.scope.HidingScope;
+import org.fulib.scenarios.transform.scope.Scope;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
                                        Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Object>,
@@ -80,7 +82,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       for (final Sentence item : sentenceList.getItems())
       {
-         item.accept(SymbolCollector.INSTANCE, scope.decls);
+         item.accept(SymbolCollector.INSTANCE, scope.getDecls());
          item.accept(this, scope);
       }
       return null;
@@ -533,109 +535,5 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       }
 
       throw new IllegalStateException("unresolved attribute " + receiverClass.getName() + "." + name);
-   }
-}
-
-interface Scope
-{
-   Scope getOuter();
-
-   Decl resolve(String name);
-
-   void add(Decl decl);
-}
-
-class GroupScope implements Scope
-{
-   final ScenarioGroup group;
-
-   GroupScope(ScenarioGroup group)
-   {
-      this.group = group;
-   }
-
-   @Override
-   public Scope getOuter()
-   {
-      return null;
-   }
-
-   public ScenarioGroup getGroup()
-   {
-      return this.group;
-   }
-
-   @Override
-   public Decl resolve(String name)
-   {
-      return this.group.getClasses().get(name);
-   }
-
-   @Override
-   public void add(Decl decl)
-   {
-      this.group.getClasses().put(decl.getName(), (ClassDecl) decl);
-   }
-}
-
-class BasicScope implements Scope
-{
-   final Map<String, Decl> decls;
-
-   final Scope outer;
-
-   public BasicScope(Scope outer)
-   {
-      this.outer = outer;
-      this.decls = new HashMap<>();
-   }
-
-   @Override
-   public Scope getOuter()
-   {
-      return this.outer;
-   }
-
-   @Override
-   public Decl resolve(String name)
-   {
-      Decl inner = this.decls.get(name);
-      return inner != null ? inner : this.outer.resolve(name);
-   }
-
-   @Override
-   public void add(Decl decl)
-   {
-      this.decls.put(decl.getName(), decl);
-   }
-}
-
-class HidingScope implements Scope
-{
-   final String name;
-   final Scope  outer;
-
-   HidingScope(String name, Scope outer)
-   {
-      this.name = name;
-      this.outer = outer;
-   }
-
-   @Override
-   public Scope getOuter()
-   {
-      return this.outer;
-   }
-
-   @Override
-   public Decl resolve(String name)
-   {
-      return this.name.equals(name) ? null : this.outer.resolve(name);
-   }
-
-   @Override
-   public void add(Decl decl)
-   {
-      this.outer.add(decl);
    }
 }
