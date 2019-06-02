@@ -294,15 +294,41 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
 interface Scope
 {
+   static Scope getGlobal(Scope scope)
+   {
+      Scope outer;
+      while ((outer = scope.getOuter()) != null)
+      {
+         scope = outer;
+      }
+      return scope;
+   }
+
+   Scope getOuter();
+
    Decl resolve(String name);
+
+   void add(Decl decl);
 }
 
 class EmptyScope implements Scope
 {
    @Override
+   public Scope getOuter()
+   {
+      return null;
+   }
+
+   @Override
    public Decl resolve(String name)
    {
       return null;
+   }
+
+   @Override
+   public void add(Decl decl)
+   {
+      throw new UnsupportedOperationException();
    }
 }
 
@@ -319,10 +345,22 @@ class BasicScope implements Scope
    }
 
    @Override
+   public Scope getOuter()
+   {
+      return this.outer;
+   }
+
+   @Override
    public Decl resolve(String name)
    {
       Decl inner = this.decls.get(name);
       return inner != null ? inner : this.outer.resolve(name);
+   }
+
+   @Override
+   public void add(Decl decl)
+   {
+      this.decls.put(decl.getName(), decl);
    }
 }
 
@@ -338,8 +376,20 @@ class HidingScope implements Scope
    }
 
    @Override
+   public Scope getOuter()
+   {
+      return this.outer;
+   }
+
+   @Override
    public Decl resolve(String name)
    {
       return this.name.equals(name) ? null : this.outer.resolve(name);
+   }
+
+   @Override
+   public void add(Decl decl)
+   {
+      this.outer.add(decl);
    }
 }
