@@ -12,3 +12,4 @@ hs_err_pid*
 
 src/test/scenarios/**/*.png
 webapp/examples/**/*/products.png
+webapp/examples/testing/images/amazon.png
