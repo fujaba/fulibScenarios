@@ -25,6 +25,7 @@ public class WebService
 
    public static void main(String[] args)
    {
+      port(4567);
       staticFiles.externalLocation("webapp");
 
       get("/github", (req, res) -> {

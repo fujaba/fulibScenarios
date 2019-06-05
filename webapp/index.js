@@ -3,15 +3,15 @@
 const apiUrl = "";
 
 const examples = [
-	'Definitions', [
+	'definitions', [
 		'Simple Definitions',
 		'Complex Definitions',
 	],
-	'Testing', [
+	'testing', [
 		'Expectations',
 		'Diagrams',
 	],
-	'Methods', [
+	'methods', [
 		'Calling',
 	],
 ];
@@ -104,7 +104,10 @@ function submit() {
 
 function selectExample(value) {
 	if (!value) {
-		scenarioInputCodeMirror.setValue("// start typing your scenario or select an example using the dropdown above.");
+		scenarioInputCodeMirror.setValue(""
+		    + "// start typing your scenario or select an example using the dropdown above.\n\n"
+		    + "# Scenario My First. \n\n"
+            + "There is . \n");
 		return;
 	}
 
@@ -117,6 +120,9 @@ function selectExample(value) {
     	if (this.status == 200) {
     		const text = this.responseText;
         	scenarioInputCodeMirror.setValue(text);
+
+        	// auto run code gen
+        	submit();
     	}
     	else {
     		scenarioInputCodeMirror.setValue("// failed to load " + url + ": " + this.status);

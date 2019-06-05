@@ -25,8 +25,7 @@ import java.util.Map;
 
 public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
                                        Scenario.Visitor<Object, Object>, Sentence.Visitor<Scope, Object>,
-                                       Decl.Visitor<Scope, Object>, Expr.Visitor<Scope, Expr>,
-                                       Name.Visitor<Scope, Name>
+                                       Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
    INSTANCE;
 
@@ -60,21 +59,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Object visit(Scenario scenario, Object par)
    {
       scenario.getBody().accept(this, new EmptyScope());
-      return null;
-   }
-
-   // --------------- Decl.Visitor ---------------
-
-   @Override
-   public Object visit(Decl decl, Scope par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(VarDecl varDecl, Scope par)
-   {
-      varDecl.setExpr(varDecl.getExpr().accept(this, par));
       return null;
    }
 
@@ -138,7 +122,8 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(IsSentence isSentence, Scope par)
    {
-      isSentence.getDescriptor().accept(this, par);
+      final VarDecl varDecl = isSentence.getDescriptor();
+      varDecl.setExpr(varDecl.getExpr().accept(this, par));
       return null;
    }
 

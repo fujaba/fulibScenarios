@@ -18,3 +18,6 @@ There are Students
 with name Bob, Carlo, and Tim,
 with credits 15, 30, 35,
 and with university university.
+
+There is the Professor Albert. 
+Albert has assistents Alice and Bob. 

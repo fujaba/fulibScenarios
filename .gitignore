@@ -7,7 +7,8 @@
 /data/
 
 hs_err_pid*
-src/test/scenarios/**/*.png
 
 *.iml
 webapp/examples/testing/images/
+src/test/scenarios/**/*.png
+webapp/examples/**/*/products.png
