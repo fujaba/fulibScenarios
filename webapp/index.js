@@ -3,15 +3,15 @@
 const apiUrl = "";
 
 const examples = [
-	'Definitions', [
+	'definitions', [
 		'Simple Definitions',
 		'Complex Definitions',
 	],
-	'Testing', [
+	'testing', [
 		'Expectations',
 		'Diagrams',
 	],
-	'Methods', [
+	'methods', [
 		'Calling',
 	],
 ];
