@@ -20,7 +20,6 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.transform.scope.BasicScope;
 import org.fulib.scenarios.transform.scope.DelegatingScope;
 import org.fulib.scenarios.transform.scope.HidingScope;
 import org.fulib.scenarios.transform.scope.Scope;
@@ -176,7 +175,21 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Object visit(SentenceList sentenceList, Scope par)
    {
       final Map<String, Decl> decls = new HashMap<>();
-      final BasicScope scope = new BasicScope(decls, par);
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            final Decl decl = decls.get(name);
+            return decl != null ? decl : super.resolve(name);
+         }
+
+         @Override
+         public void add(Decl decl)
+         {
+            decls.put(decl.getName(), decl);
+         }
+      };
 
       for (final Sentence item : sentenceList.getItems())
       {
@@ -432,7 +445,16 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          }
       }
 
-      callExpr.getBody().accept(this, new BasicScope(decls, par));
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            final Decl decl = decls.get(name);
+            return decl != null ? decl : super.resolve(name);
+         }
+      };
+      callExpr.getBody().accept(this, scope);
 
       // set return type if necessary. has to happen after body resolution!
       if (isNew)
