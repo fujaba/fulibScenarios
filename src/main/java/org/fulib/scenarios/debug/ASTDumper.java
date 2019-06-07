@@ -120,25 +120,66 @@ public class ASTDumper
 
    private void collectProperty(String key, Object value, Map<String, Object> attributes, Map<String, Object> children)
    {
-      if (!(value instanceof Collection))
+      if (value instanceof Collection)
+      {
+         this.collectProperties(key, (Collection) value, attributes, children);
+      }
+      else if (value instanceof Map)
+      {
+         this.collectProperties(key, (Map) value, attributes, children);
+      }
+      else
       {
          (this.isNode(value) ? children : attributes).put(key, value);
+      }
+   }
+
+   private void collectProperties(String key, Map<?, ?> value, Map<String, Object> attributes, Map<String, Object> children)
+   {
+      if (value.isEmpty())
+      {
+         attributes.put(key, "{}");
          return;
       }
 
-      final Collection collection = (Collection) value;
-      if (collection.isEmpty())
+      final int maxKeyLength = value.keySet().stream().map(Object::toString).mapToInt(String::length).max()
+                                    .getAsInt();
+      final String format = key + "[%" + maxKeyLength + "s]";
+      final Map<String, Object> rest = new TreeMap<>();
+
+      for (Map.Entry<?, ?> entry : value.entrySet())
+      {
+         final String entryKey = entry.getKey().toString();
+         final Object entryValue = entry.getValue();
+         if (this.isNode(entryValue))
+         {
+            children.put(String.format(format, entryKey), entryValue);
+            rest.put(entryKey, getID(entryValue));
+         }
+         else
+         {
+            rest.put(entryKey, entryValue);
+         }
+      }
+
+      attributes.put(key, rest.toString());
+   }
+
+   private void collectProperties(String key, Collection<?> value, Map<String, Object> attributes,
+      Map<String, Object> children)
+   {
+      if (value.isEmpty())
       {
          attributes.put(key, "[]");
          return;
       }
 
-      final int size = collection.size();
+      final int size = value.size();
       final String format = key + "[%" + ((int) Math.log10(size) + 1) + "d]";
       final Object[] rest = new Object[size];
 
       int index = 0;
-      for (Object item : collection)
+      for (Object item : value)
       {
          if (this.isNode(item))
          {
