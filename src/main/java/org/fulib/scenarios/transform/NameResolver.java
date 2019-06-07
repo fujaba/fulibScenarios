@@ -522,7 +522,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    static ClassDecl resolveClass(Scope scope, String name)
    {
-      return resolveClass(scope.getEnclosing(ScenarioGroup.class), name);
+      return (ClassDecl) scope.resolve(name);
    }
 
    static ClassDecl resolveClass(ScenarioGroup group, String name)
