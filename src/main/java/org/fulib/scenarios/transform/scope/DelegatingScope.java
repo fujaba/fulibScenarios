@@ -18,12 +18,6 @@ public abstract class DelegatingScope implements Scope
    }
 
    @Override
-   public Scope getOuter()
-   {
-      return this.outer;
-   }
-
-   @Override
    public Decl resolve(String name)
    {
       return this.outer.resolve(name);

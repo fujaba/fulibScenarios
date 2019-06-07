@@ -40,11 +40,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       final Scope scope = new Scope()
       {
-         @Override
-         public Scope getOuter()
-         {
-            return null;
-         }
 
          @Override
          public <T> T getEnclosing(Class<T> type)
