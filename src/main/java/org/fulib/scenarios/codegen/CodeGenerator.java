@@ -8,6 +8,7 @@ import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
@@ -31,7 +32,6 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    ScenarioGroup group;
 
    ClassModelManager modelManager;
-   ClassModelManager testManager;
 
    Clazz   clazz;
    FMethod method;
@@ -78,17 +78,15 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
+      // generate model
       this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
-      this.testManager = new ClassModelManager().havePackageName(packageName)
-                                                .haveMainJavaDir(this.config.getTestDir());
 
-      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      for (ClassDecl classDecl : scenarioGroup.getClasses().values())
       {
-         file.accept(this, par);
+         classDecl.accept(DeclGenerator.INSTANCE, this);
       }
 
       new Generator().generate(this.modelManager.getClassModel());
-      new Generator().generate(this.testManager.getClassModel());
 
       if (this.config.isClassDiagram())
       {
@@ -100,6 +98,18 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          FulibTools.classDiagrams()
                    .dumpSVG(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
       }
+
+      // generate test
+      this.modelManager = new ClassModelManager().havePackageName(packageName)
+                                                 .haveMainJavaDir(this.config.getTestDir());
+
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      {
+         file.accept(this, par);
+      }
+
+      new Generator().generate(this.modelManager.getClassModel());
+
       return null;
    }
 
@@ -108,12 +118,14 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ScenarioFile scenarioFile, Object par)
    {
-      this.clazz = this.testManager.haveClass(scenarioFile.getClassDecl().getName());
+      this.clazz = this.modelManager.haveClass(scenarioFile.getClassDecl().getName());
 
       for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          scenario.accept(this, par);
       }
+
+      scenarioFile.getClassDecl().accept(DeclGenerator.INSTANCE, this);
 
       return null;
    }
