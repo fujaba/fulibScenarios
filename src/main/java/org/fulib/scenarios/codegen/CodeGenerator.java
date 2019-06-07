@@ -82,7 +82,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       this.testManager = new ClassModelManager().havePackageName(packageName)
                                                 .haveMainJavaDir(this.config.getTestDir());
 
-      for (final ScenarioFile file : scenarioGroup.getFiles())
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
          file.accept(this, par);
       }
@@ -108,11 +108,9 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ScenarioFile scenarioFile, Object par)
    {
-      final String className = scenarioFile.getName().replaceAll("\\W", "") + "Test";
+      this.clazz = this.testManager.haveClass(scenarioFile.getClassDecl().getName());
 
-      this.clazz = this.testManager.haveClass(className);
-
-      for (final Scenario scenario : scenarioFile.getScenarios())
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          scenario.accept(this, par);
       }
@@ -125,7 +123,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      final String methodName = "scenario" + scenario.getName().replaceAll("\\W", "");
+      final String methodName = scenario.getMethodDecl().getName();
 
       this.method = new FMethod().setClazz(this.clazz).writeName(methodName).writeReturnType("void")
                                  .setAnnotations("@Test");

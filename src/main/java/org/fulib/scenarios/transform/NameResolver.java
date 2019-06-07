@@ -1,5 +1,6 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
@@ -19,10 +20,7 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.transform.scope.BasicScope;
-import org.fulib.scenarios.transform.scope.GroupScope;
-import org.fulib.scenarios.transform.scope.HidingScope;
-import org.fulib.scenarios.transform.scope.Scope;
+import org.fulib.scenarios.transform.scope.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,9 +49,26 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(ScenarioFile scenarioFile, Scope par)
    {
+      final ScenarioGroup group = scenarioFile.getGroup();
+      final String className = scenarioFile.getName().replaceAll("\\W", "") + "Test";
+      final ClassDecl classDecl = ClassDecl
+                                     .of(group, className, className, new LinkedHashMap<>(), new LinkedHashMap<>(),
+                                         new ArrayList<>());
+
+      // group.getClasses().put(className, classDecl);
+      scenarioFile.setClassDecl(classDecl);
+
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public <T> T getEnclosing(Class<T> type)
+         {
+            return type.isAssignableFrom(ScenarioFile.class) ? (T) scenarioFile : super.getEnclosing(type);
+         }
+      };
       for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
-         scenario.accept(this, par);
+         scenario.accept(this, scope);
       }
       return null;
    }
@@ -63,7 +78,35 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(Scenario scenario, Scope par)
    {
-      scenario.getBody().accept(this, par);
+      final ClassDecl classDecl = scenario.getFile().getClassDecl();
+      final String methodName = "scenario" + scenario.getName().replaceAll("\\W", "");
+      final SentenceList body = scenario.getBody();
+      final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, "void", body);
+
+      final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
+      methodDecl.setParameters(Collections.singletonList(thisParam));
+
+      classDecl.getMethods().add(methodDecl);
+      scenario.setMethodDecl(methodDecl);
+
+      body.accept(this, new DelegatingScope(par)
+      {
+         @Override
+         public <T> T getEnclosing(Class<T> type)
+         {
+            return type.isAssignableFrom(MethodDecl.class) ?
+                      (T) methodDecl :
+                      type.isAssignableFrom(ClassDecl.class) ?
+                         (T) classDecl :
+                         type.isAssignableFrom(Scenario.class) ? (T) scenario : super.getEnclosing(type);
+         }
+
+         @Override
+         public Decl resolve(String name)
+         {
+            return "this".equals(name) ? thisParam : super.resolve(name);
+         }
+      });
       return null;
    }
 
@@ -236,7 +279,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Expr visit(CreationExpr creationExpr, Scope par)
    {
-      final String className = creationExpr.getClassName().accept(Namer.INSTANCE, par);
+      final String className = StrUtil.cap(creationExpr.getClassName().accept(Namer.INSTANCE, par));
       final ClassDecl classDecl = resolveClass(par, className);
 
       creationExpr.setClassName(ResolvedName.of(classDecl));
@@ -293,8 +336,8 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          // check if arguments and parameters match (by label)
          final String params = parameters.stream().skip(1).map(ParameterDecl::getName)
                                          .collect(Collectors.joining(" "));
-            final String args = arguments.stream().map(NamedExpr::getName).map(n -> n.accept(Namer.INSTANCE, null))
-                                         .collect(Collectors.joining(" "));
+         final String args = arguments.stream().map(NamedExpr::getName).map(n -> n.accept(Namer.INSTANCE, null))
+                                      .collect(Collectors.joining(" "));
 
          if (!params.equals(args))
          {

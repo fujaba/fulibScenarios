@@ -2,8 +2,8 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 abstract org.fulib.scenarios.ast.Node {
 	ScenarioGroup(sourceDir: String, packageDir: String, files: [String:ScenarioFile], classes: [String:ClassDecl])
-	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario])
-	Scenario(file: ScenarioFile, name: String, body: SentenceList)
+	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl)
+	Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
 	// TODO remove type
 	abstract decl.Decl(name: String, type: String) {
