@@ -40,7 +40,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       final Scope scope = new Scope()
       {
-
          @Override
          public Decl resolve(String name)
          {
@@ -50,7 +49,9 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          @Override
          public void add(Decl decl)
          {
-            scenarioGroup.getClasses().put(decl.getName(), (ClassDecl) decl);
+            final ClassDecl classDecl = (ClassDecl) decl;
+            classDecl.setGroup(scenarioGroup);
+            scenarioGroup.getClasses().put(decl.getName(), classDecl);
          }
       };
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
@@ -76,7 +77,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       final Scope scope = new DelegatingScope(par)
       {
-
          @Override
          public Decl resolve(String name)
          {
@@ -150,7 +150,12 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          @Override
          public void add(Decl decl)
          {
-            decls.put(decl.getName(), decl);
+            if (decl instanceof VarDecl)
+            {
+               decls.put(decl.getName(), decl);
+               return;
+            }
+            super.add(decl);
          }
       };
 
@@ -490,20 +495,14 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    static ClassDecl resolveClass(Scope scope, String name)
    {
-      return (ClassDecl) scope.resolve(name);
-   }
-
-   static ClassDecl resolveClass(ScenarioGroup group, String name)
-   {
-      ClassDecl decl = group.getClasses().get(name);
-
-      if (decl != null)
+      final ClassDecl resolve = (ClassDecl) scope.resolve(name);
+      if (resolve != null)
       {
-         return decl;
+         return resolve;
       }
 
-      decl = ClassDecl.of(group, name, name, new LinkedHashMap<>(), new LinkedHashMap<>(), new ArrayList<>());
-      group.getClasses().put(name, decl);
+      final ClassDecl decl = ClassDecl.of(null, name, name, new LinkedHashMap<>(), new LinkedHashMap<>(), new ArrayList<>());
+      scope.add(decl);
       return decl;
    }
 
