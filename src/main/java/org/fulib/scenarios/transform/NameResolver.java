@@ -42,12 +42,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       {
 
          @Override
-         public <T> T getEnclosing(Class<T> type)
-         {
-            return type.isAssignableFrom(ScenarioGroup.class) ? (T) scenarioGroup : null;
-         }
-
-         @Override
          public Decl resolve(String name)
          {
             return scenarioGroup.getClasses().get(name);
@@ -82,19 +76,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       final Scope scope = new DelegatingScope(par)
       {
-         @Override
-         public <T> T getEnclosing(Class<T> type)
-         {
-            if (type.isAssignableFrom(ClassDecl.class))
-            {
-               return (T) classDecl;
-            }
-            if (type.isAssignableFrom(ScenarioFile.class))
-            {
-               return (T) scenarioFile;
-            }
-            return super.getEnclosing(type);
-         }
 
          @Override
          public Decl resolve(String name)
@@ -127,19 +108,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       body.accept(this, new DelegatingScope(par)
       {
-         @Override
-         public <T> T getEnclosing(Class<T> type)
-         {
-            if (type.isAssignableFrom(MethodDecl.class))
-            {
-               return (T) methodDecl;
-            }
-            if (type.isAssignableFrom(Scenario.class))
-            {
-               return (T) scenario;
-            }
-            return super.getEnclosing(type);
-         }
 
          @Override
          public Decl resolve(String name)

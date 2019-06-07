@@ -12,12 +12,6 @@ public abstract class DelegatingScope implements Scope
    }
 
    @Override
-   public <T> T getEnclosing(Class<T> type)
-   {
-      return this.outer.getEnclosing(type);
-   }
-
-   @Override
    public Decl resolve(String name)
    {
       return this.outer.resolve(name);
