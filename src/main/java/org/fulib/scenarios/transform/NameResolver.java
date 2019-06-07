@@ -24,10 +24,8 @@ import org.fulib.scenarios.transform.scope.GroupScope;
 import org.fulib.scenarios.transform.scope.HidingScope;
 import org.fulib.scenarios.transform.scope.Scope;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
                                        Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Object>,
@@ -254,16 +252,22 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Expr visit(CallExpr callExpr, Scope par)
    {
+      final List<NamedExpr> arguments = callExpr.getArguments();
       final Expr receiver = callExpr.getReceiver();
       if (receiver != null)
       {
          callExpr.setReceiver(receiver.accept(this, par));
       }
-      for (final NamedExpr argument : callExpr.getArguments())
+      else
+      {
+         final Decl thisDecl = par.resolve("this");
+         final NameAccess getThis = NameAccess.of(ResolvedName.of(thisDecl));
+         callExpr.setReceiver(getThis);
+      }
+      for (final NamedExpr argument : arguments)
       {
          argument.setExpr(argument.getExpr().accept(this, par));
       }
-      callExpr.getBody().accept(this, par);
 
       // generate method
 
@@ -271,30 +275,74 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
       final MethodDecl method = resolveMethod(receiverClass, methodName);
+      final List<ParameterDecl> parameters = method.getParameters();
+      final boolean isNew = method.getType() == null;
+      final Map<String, Decl> decls = new HashMap<>();
 
-      if (method.getType() == null) // newly created method
+      if (isNew)
       {
-         final String returnType = callExpr.accept(Typer.INSTANCE, null);
-         method.setType(returnType);
-
-         for (final NamedExpr argument : callExpr.getArguments())
-         {
-            final String name = argument.getName().accept(Namer.INSTANCE, null);
-            final Expr expr = argument.getExpr();
-            final String type = expr.accept(Typer.INSTANCE, null);
-            final ParameterDecl param = ParameterDecl.of(method, name, type);
-
-            argument.setName(ResolvedName.of(param));
-            method.getParameters().add(param);
-         }
+         // this parameter
+         final ParameterDecl thisParam = ParameterDecl.of(method, "this", receiverClass.getType());
+         parameters.add(thisParam);
+         decls.put("this", thisParam);
       }
       else
       {
-         // TODO match parameters and arguments
+         decls.put("this", parameters.get(0));
+
+         // check if arguments and parameters match (by label)
+         final String params = parameters.stream().skip(1).map(ParameterDecl::getName)
+                                         .collect(Collectors.joining(" "));
+            final String args = arguments.stream().map(NamedExpr::getName).map(n -> n.accept(Namer.INSTANCE, null))
+                                         .collect(Collectors.joining(" "));
+
+         if (!params.equals(args))
+         {
+            throw new IllegalStateException(
+               "mismatching parameters and arguments:\nparameters: " + params + "\narguments : " + args);
+         }
       }
 
-      method.getBody().getItems()
-            .addAll(callExpr.getBody().getItems()); // TODO replace arguments with parameter names
+      // match arguments and parameters
+      for (int i = 0; i < arguments.size(); i++)
+      {
+         final NamedExpr argument = arguments.get(i);
+         final String name = argument.getName().accept(Namer.INSTANCE, null);
+         final Expr expr = argument.getExpr();
+         final ParameterDecl param;
+
+         if (isNew)
+         {
+            final String type = expr.accept(Typer.INSTANCE, null);
+            param = ParameterDecl.of(method, name, type);
+            parameters.add(param);
+         }
+         else
+         {
+            param = parameters.get(i + 1);
+         }
+
+         argument.setName(ResolvedName.of(param));
+         decls.put(name, param);
+
+         // references to the expression name refer to the parameter
+         final String exprName = expr.accept(Namer.INSTANCE, null);
+         if (exprName != null)
+         {
+            decls.put(exprName, param);
+         }
+      }
+
+      callExpr.getBody().accept(this, new BasicScope(decls, par));
+
+      // set return type if necessary. has to happen after body resolution!
+      if (isNew)
+      {
+         final String returnType = callExpr.accept(Typer.INSTANCE, null);
+         method.setType(returnType);
+      }
+
+      method.getBody().getItems().addAll(callExpr.getBody().getItems());
 
       return callExpr;
    }

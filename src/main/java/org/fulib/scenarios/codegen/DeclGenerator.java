@@ -80,7 +80,11 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
 
       for (final ParameterDecl parameter : methodDecl.getParameters())
       {
-         method.readParams().put(parameter.getName(), parameter.getType());
+         final String name = parameter.getName();
+         if (!"this".equals(name))
+         {
+            method.readParams().put(name, parameter.getType());
+         }
       }
 
       return null;

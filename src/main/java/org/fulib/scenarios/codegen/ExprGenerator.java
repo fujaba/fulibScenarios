@@ -17,7 +17,6 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.transform.ExtractDecl;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
@@ -78,21 +77,9 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(CallExpr callExpr, CodeGenerator par)
    {
-      final Expr receiver = callExpr.getReceiver();
-      final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
-      final List<Sentence> body = callExpr.getBody().getItems();
-
-      if (receiver != null)
-      {
-         receiver.accept(ExprGenerator.INSTANCE, par);
-      }
-      else
-      {
-         par.bodyBuilder.append("this");
-      }
-
+      callExpr.getReceiver().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append('.');
-      par.bodyBuilder.append(methodName);
+      par.bodyBuilder.append(callExpr.getName().accept(Namer.INSTANCE, null));
       par.bodyBuilder.append('(');
 
       final List<NamedExpr> arguments = callExpr.getArguments();
