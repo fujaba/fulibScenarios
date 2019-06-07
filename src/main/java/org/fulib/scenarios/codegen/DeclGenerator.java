@@ -87,6 +87,11 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
          }
       }
 
+      par.bodyBuilder = new StringBuilder();
+      methodDecl.getBody().accept(SentenceGenerator.INSTANCE, par);
+      method.setMethodBody(par.bodyBuilder.toString());
+      par.bodyBuilder = null;
+
       return null;
    }
 
