@@ -157,12 +157,14 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       hasSentence.setObject(hasSentence.getObject().accept(this, par));
 
+      final ClassDecl objectClass = resolveClass(par, hasSentence.getObject());
       final String name = hasSentence.getObject().accept(Namer.INSTANCE, null);
       final Scope scope = name != null ? new HidingScope(name, par) : par;
 
       for (final NamedExpr namedExpr : hasSentence.getClauses())
       {
          namedExpr.setExpr(namedExpr.getExpr().accept(this, scope));
+         namedExpr.setName(resolveAttributeOrAssociation(objectClass, namedExpr.getName(), namedExpr.getExpr()));
       }
 
       return null;
