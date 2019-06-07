@@ -11,3 +11,9 @@ Amazon has products Shoes and Cool SSD.
 
 // It also supports multiple objects at once.
 ![Shoes, Cool SSD](images/products.png)
+
+// The Web Service shows SVG format.
+![Shoes, Cool SSD](images/products.svg)
+
+// You may show your objects as yaml.
+![Shoes, Cool SSD](images/products.yaml)
