@@ -8,3 +8,5 @@ and with num 42
 and with text "hello world".
 
 ![lot1](placeWithPalette.png)
+
+![lot1](placeWithPalette.yaml)

@@ -1,6 +1,7 @@
 package org.fulib.scenarios;
 
 import org.fulib.scenarios.tool.Tools;
+import org.fulib.yaml.YamlIdMap;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -12,6 +13,35 @@ import static org.junit.Assert.assertEquals;
 @Ignore
 public class TestCodeGen
 {
+
+   public class Car {
+      String name;
+
+      public String getName()
+      {
+         return name;
+      }
+
+      public void setName(String name)
+      {
+         this.name = name;
+      }
+   }
+
+
+   @Test
+   public void testYamlDump()
+   {
+      Car car = new Car();
+      car.setName("Herbie");
+
+      String text = new YamlIdMap(car.getClass().getPackage().getName())
+            .encode(car);
+
+      System.out.println(text);
+   }
+
+
    @Test
    public void testGenCompileRun() throws Exception
    {

@@ -109,13 +109,22 @@ public class WebService
             Path srcPackage = srcDir.resolve(PACKAGE_NAME);
             Files.walk(srcPackage)
                   .filter(file ->
-                        file.toString().endsWith(".svg"))
+                        file.toString().endsWith(".svg") || file.toString().endsWith(".yaml"))
                   .forEach(file ->
                   {
                      try
                      {
                         final byte[] objectDiagramBytes = Files.readAllBytes(file);
-                        objectDiagramSvgText.append(new String(objectDiagramBytes));
+                        String openTag = "<p>";
+                        String closeTag = "</p>";
+                        if (file.toString().endsWith(".yaml")) {
+                           openTag = "<pre>\n";
+                           closeTag = "</pre>";
+                        }
+
+                        String text = String.format("<h4>%s</h4>\n%s%s%s\n", file.getFileName(),
+                              openTag, new String(objectDiagramBytes), closeTag);
+                        objectDiagramSvgText.append(text);
                      }
                      catch (Exception e)
                      {

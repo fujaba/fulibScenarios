@@ -51,7 +51,12 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       final String sourceDir = par.group.getSourceDir();
       final String packageDir = par.group.getPackageDir();
       final String fileName = diagramSentence.getFileName();
-      final String format = fileName.endsWith(".svg") ? "SVG" : "Png";
+      String format = fileName.endsWith(".svg") ? "SVG" : "Png";
+
+      if (fileName.endsWith("yaml")) {
+         format = "Yaml";
+      }
+
       String target = sourceDir + "/" + packageDir + "/" + fileName;
       target = target.replaceAll("\\\\", "/");
 
