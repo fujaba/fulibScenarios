@@ -91,7 +91,21 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          @Override
          public <T> T getEnclosing(Class<T> type)
          {
-            return type.isAssignableFrom(ScenarioFile.class) ? (T) scenarioFile : super.getEnclosing(type);
+            if (type.isAssignableFrom(ClassDecl.class))
+            {
+               return (T) classDecl;
+            }
+            if (type.isAssignableFrom(ScenarioFile.class))
+            {
+               return (T) scenarioFile;
+            }
+            return super.getEnclosing(type);
+         }
+
+         @Override
+         public Decl resolve(String name)
+         {
+            return className.equals(name) ? classDecl : super.resolve(name);
          }
       };
       for (final Scenario scenario : scenarioFile.getScenarios().values())
@@ -122,17 +136,29 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          @Override
          public <T> T getEnclosing(Class<T> type)
          {
-            return type.isAssignableFrom(MethodDecl.class) ?
-                      (T) methodDecl :
-                      type.isAssignableFrom(ClassDecl.class) ?
-                         (T) classDecl :
-                         type.isAssignableFrom(Scenario.class) ? (T) scenario : super.getEnclosing(type);
+            if (type.isAssignableFrom(MethodDecl.class))
+            {
+               return (T) methodDecl;
+            }
+            if (type.isAssignableFrom(Scenario.class))
+            {
+               return (T) scenario;
+            }
+            return super.getEnclosing(type);
          }
 
          @Override
          public Decl resolve(String name)
          {
-            return "this".equals(name) ? thisParam : super.resolve(name);
+            if ("this".equals(name))
+            {
+               return thisParam;
+            }
+            if (methodName.equals(name))
+            {
+               return methodDecl;
+            }
+            return super.resolve(name);
          }
       });
       return null;
