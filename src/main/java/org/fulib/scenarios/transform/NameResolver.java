@@ -20,7 +20,10 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.transform.scope.*;
+import org.fulib.scenarios.transform.scope.BasicScope;
+import org.fulib.scenarios.transform.scope.DelegatingScope;
+import org.fulib.scenarios.transform.scope.HidingScope;
+import org.fulib.scenarios.transform.scope.Scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,7 +39,32 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      final Scope scope = new GroupScope(scenarioGroup);
+      final Scope scope = new Scope()
+      {
+         @Override
+         public Scope getOuter()
+         {
+            return null;
+         }
+
+         @Override
+         public <T> T getEnclosing(Class<T> type)
+         {
+            return type.isAssignableFrom(ScenarioGroup.class) ? (T) scenarioGroup : null;
+         }
+
+         @Override
+         public Decl resolve(String name)
+         {
+            return scenarioGroup.getClasses().get(name);
+         }
+
+         @Override
+         public void add(Decl decl)
+         {
+            scenarioGroup.getClasses().put(decl.getName(), (ClassDecl) decl);
+         }
+      };
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
          file.accept(this, scope);
