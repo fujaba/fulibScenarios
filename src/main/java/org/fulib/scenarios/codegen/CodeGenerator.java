@@ -24,8 +24,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
-                                         Scenario.Visitor<Object, Object>
+public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>
 {
    final Config config;
 
@@ -120,59 +119,73 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    {
       this.clazz = this.modelManager.haveClass(scenarioFile.getClassDecl().getName());
 
+      // before class gen: add diagram sentences if necessary
       for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
-         scenario.accept(this, par);
+         this.addDiagramSentences(scenario);
       }
 
       scenarioFile.getClassDecl().accept(DeclGenerator.INSTANCE, this);
 
+      // after class gen: add @Test and import to scenario methods
+      this.addImport("org.junit.Test");
+
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
+      {
+         final String methodName = scenario.getMethodDecl().getName();
+         getFMethod(this.clazz, methodName).setAnnotations("@Test");
+      }
+
       return null;
    }
 
-   // --------------- Scenario.Visitor ---------------
-
-   @Override
-   public Object visit(Scenario scenario, Object par)
+   private void addDiagramSentences(Scenario scenario)
    {
-      final String methodName = scenario.getMethodDecl().getName();
-
-      this.method = new FMethod().setClazz(this.clazz).writeName(methodName).writeReturnType("void")
-                                 .setAnnotations("@Test");
-      this.bodyBuilder = new StringBuilder();
-
-      this.addImport("org.junit.Test");
-
-      scenario.getBody().accept(SentenceGenerator.INSTANCE, this);
-
-      if (this.config.isObjectDiagram() || this.config.isObjectDiagramSVG())
+      if (!this.config.isObjectDiagram() && !this.config.isObjectDiagramSVG())
       {
-         // collect top-level variables
-         final Map<String, Decl> symbolTable = new TreeMap<>();
-         for (final Sentence item : scenario.getBody().getItems())
-         {
-            item.accept(SymbolCollector.INSTANCE, symbolTable);
-         }
-
-         if (!symbolTable.isEmpty())
-         {
-            final List<Expr> exprs = symbolTable.values().stream().map(it -> NameAccess.of(ResolvedName.of(it)))
-                                                .collect(Collectors.toList());
-            final ListExpr listExpr = ListExpr.of(exprs);
-
-            if (this.config.isObjectDiagram())
-            {
-               DiagramSentence.of(listExpr, methodName + ".png").accept(SentenceGenerator.INSTANCE, this);
-            }
-            if (this.config.isObjectDiagramSVG())
-            {
-               DiagramSentence.of(listExpr, methodName + ".svg").accept(SentenceGenerator.INSTANCE, this);
-            }
-         }
+         return;
       }
 
-      this.method.setMethodBody(this.bodyBuilder.toString());
+      final String methodName = scenario.getMethodDecl().getName();
+      final List<Sentence> sentences = scenario.getBody().getItems();
 
-      return null;
+      // collect top-level variables
+      final Map<String, Decl> symbolTable = new TreeMap<>();
+      for (final Sentence item : sentences)
+      {
+         item.accept(SymbolCollector.INSTANCE, symbolTable);
+      }
+
+      if (symbolTable.isEmpty())
+      {
+         return;
+      }
+
+      final List<Expr> exprs = symbolTable.values().stream().map(it -> NameAccess.of(ResolvedName.of(it)))
+                                          .collect(Collectors.toList());
+      final ListExpr listExpr = ListExpr.of(exprs);
+
+      if (this.config.isObjectDiagram())
+      {
+         final DiagramSentence diagramSentence = DiagramSentence.of(listExpr, methodName + ".png");
+         sentences.add(diagramSentence);
+      }
+      if (this.config.isObjectDiagramSVG())
+      {
+         final DiagramSentence diagramSentence = DiagramSentence.of(listExpr, methodName + ".svg");
+         sentences.add(diagramSentence);
+      }
+   }
+
+   private static FMethod getFMethod(Clazz clazz, String name)
+   {
+      for (final FMethod fMethod : clazz.getMethods())
+      {
+         if (name.equals(fMethod.readName()))
+         {
+            return fMethod;
+         }
+      }
+      throw new RuntimeException("method " + clazz.getName() + "." + name + " not found");
    }
 }
