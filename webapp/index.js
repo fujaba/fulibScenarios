@@ -3,20 +3,21 @@
 const apiUrl = "";
 
 const examples = [
-	'Definitions', [
+	'definitions', [
 		'Simple Definitions',
 		'Complex Definitions',
 	],
-	'Testing', [
+	'testing', [
 		'Expectations',
 		'Diagrams',
 	],
-	'Methods', [
+	'methods', [
 		'Calling',
 	],
 ];
 
 const exampleSelect = document.getElementById('exampleSelect');
+var selectedExample = "";
 
 const scenarioInput = document.getElementById("scenarioInput");
 const scenarioInputCodeMirror = CodeMirror.fromTextArea(scenarioInput, {
@@ -73,6 +74,10 @@ function init() {
 function submit() {
 	const text = scenarioInputCodeMirror.getValue();
 
+	if ( ! selectedExample) {
+	    localStorage.setItem('fulibScenario', text);
+	}
+
 	javaTestOutputCodeMirror.setValue("// loading...");
 
 	api("POST", apiUrl + "/runcodegen", {
@@ -103,8 +108,21 @@ function submit() {
 }
 
 function selectExample(value) {
+    selectedExample = value;
+
 	if (!value) {
-		scenarioInputCodeMirror.setValue("// start typing your scenario or select an example using the dropdown above.");
+	    const oldValue = localStorage.getItem('fulibScenario');
+
+	    if (oldValue) {
+	        scenarioInputCodeMirror.setValue(oldValue);
+	        submit();
+	    }
+	    else {
+		    scenarioInputCodeMirror.setValue(""
+		        + "// start typing your scenario or select an example using the dropdown above.\n\n"
+		        + "# Scenario My First. \n\n"
+                + "There is a Car with name Herbie. \n");
+	    }
 		return;
 	}
 
@@ -117,6 +135,9 @@ function selectExample(value) {
     	if (this.status == 200) {
     		const text = this.responseText;
         	scenarioInputCodeMirror.setValue(text);
+
+        	// auto run code gen
+        	submit();
     	}
     	else {
     		scenarioInputCodeMirror.setValue("// failed to load " + url + ": " + this.status);

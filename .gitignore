@@ -9,6 +9,6 @@
 hs_err_pid*
 
 *.iml
-
+webapp/examples/testing/images/
 src/test/scenarios/**/*.png
 webapp/examples/**/*/products.png
