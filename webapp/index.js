@@ -3,15 +3,15 @@
 const apiUrl = "";
 
 const examples = [
-	'definitions', [
+	'Definitions', [
 		'Simple Definitions',
 		'Complex Definitions',
 	],
-	'testing', [
+	'Testing', [
 		'Expectations',
 		'Diagrams',
 	],
-	'methods', [
+	'Methods', [
 		'Calling',
 	],
 ];
@@ -54,7 +54,7 @@ function init() {
 		for (let groupItem of groupItems) {
 			const option = document.createElement("option");
 
-			option.value = groupName + "/" + groupItem.replace(" ", "");
+			option.value = groupName.toLowerCase() + "/" + groupItem.replace(" ", "");
 			option.label = groupItem;
 			option.innerText = groupItem;
 
