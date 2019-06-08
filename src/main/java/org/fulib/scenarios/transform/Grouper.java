@@ -1,6 +1,7 @@
 package org.fulib.scenarios.transform;
 
 import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -9,8 +10,8 @@ import org.fulib.scenarios.ast.sentence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum Grouper
-   implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>, Sentence.Visitor<Frame, Frame>
+public enum Grouper implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
+                                  Scenario.Visitor<Object, Object>, Sentence.Visitor<Frame, Frame>
 {
    INSTANCE;
 
@@ -32,7 +33,19 @@ public enum Grouper
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      for (final Scenario scenario : scenarioGroup.getScenarios())
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      {
+         file.accept(this, par);
+      }
+      return null;
+   }
+
+   // --------------- ScenarioFile.Visitor ---------------
+
+   @Override
+   public Object visit(ScenarioFile scenarioFile, Object par)
+   {
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          scenario.accept(this, par);
       }
@@ -48,7 +61,8 @@ public enum Grouper
       top.key = ACTOR_TEST;
       top.target = new ArrayList<>();
 
-      /*final Frame result = */scenario.getBody().accept(this, top);
+      /*final Frame result = */
+      scenario.getBody().accept(this, top);
 
       scenario.getBody().setItems(top.target);
       return null;
@@ -113,8 +127,7 @@ public enum Grouper
    {
       final CallExpr callExpr = callSentence.getCall();
       final List<Sentence> sentences = callExpr.getBody().getItems();
-      return par.add(actorKey(callSentence.getActor()), callSentence)
-                .push(actorKey(callExpr.getName()), sentences);
+      return par.add(actorKey(callSentence.getActor()), callSentence).push(actorKey(callExpr.getName()), sentences);
    }
 
    @Override

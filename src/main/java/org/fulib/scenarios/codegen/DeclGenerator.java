@@ -1,8 +1,8 @@
 package org.fulib.scenarios.codegen;
 
-import org.fulib.scenarios.ast.decl.Decl;
-import org.fulib.scenarios.ast.decl.VarDecl;
-import org.fulib.scenarios.transform.Typer;
+import org.fulib.classmodel.Clazz;
+import org.fulib.classmodel.FMethod;
+import org.fulib.scenarios.ast.decl.*;
 
 public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
 {
@@ -15,17 +15,103 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    }
 
    @Override
+   public Object visit(ClassDecl classDecl, CodeGenerator par)
+   {
+      par.modelManager.haveClass(classDecl.getName());
+
+      for (final AttributeDecl attributeDecl : classDecl.getAttributes().values())
+      {
+         attributeDecl.accept(this, par);
+      }
+
+      for (final AssociationDecl associationDecl : classDecl.getAssociations().values())
+      {
+         associationDecl.accept(this, par);
+      }
+
+      for (final MethodDecl method : classDecl.getMethods())
+      {
+         method.accept(this, par);
+      }
+
+      return null;
+   }
+
+   @Override
+   public Object visit(AttributeDecl attributeDecl, CodeGenerator par)
+   {
+      final Clazz clazz = par.modelManager.haveClass(attributeDecl.getOwner().getName());
+
+      par.modelManager.haveAttribute(clazz, attributeDecl.getName(), attributeDecl.getType());
+
+      return null;
+   }
+
+   @Override
+   public Object visit(AssociationDecl associationDecl, CodeGenerator par)
+   {
+      final Clazz clazz = par.modelManager.haveClass(associationDecl.getOwner().getName());
+
+      final Clazz otherClazz = par.modelManager.haveClass(associationDecl.getType());
+
+      final AssociationDecl other = associationDecl.getOther();
+      if (other != null)
+      {
+         par.modelManager.haveRole(clazz, associationDecl.getName(), otherClazz, associationDecl.getCardinality(),
+                                   other.getName(), other.getCardinality());
+      }
+      else
+      {
+         par.modelManager.haveRole(clazz, associationDecl.getName(), otherClazz, associationDecl.getCardinality());
+      }
+
+      return null;
+   }
+
+   @Override
+   public Object visit(MethodDecl methodDecl, CodeGenerator par)
+   {
+      final Clazz clazz = par.modelManager.haveClass(methodDecl.getOwner().getName());
+
+      final FMethod method = new FMethod();
+      method.setClazz(clazz);
+      method.writeName(methodDecl.getName());
+      method.writeReturnType(methodDecl.getType());
+
+      for (final ParameterDecl parameter : methodDecl.getParameters())
+      {
+         final String name = parameter.getName();
+         if (!"this".equals(name))
+         {
+            method.readParams().put(name, parameter.getType());
+         }
+      }
+
+      par.bodyBuilder = new StringBuilder();
+      methodDecl.getBody().accept(SentenceGenerator.INSTANCE, par);
+      method.setMethodBody(par.bodyBuilder.toString());
+      par.bodyBuilder = null;
+
+      return null;
+   }
+
+   @Override
+   public Object visit(ParameterDecl parameterDecl, CodeGenerator par)
+   {
+      throw new UnsupportedOperationException("handled by visit(MethodDecl, ...)");
+   }
+
+   @Override
    public Object visit(VarDecl varDecl, CodeGenerator par)
    {
-      final String type = varDecl.accept(new Typer(par.modelManager.getClassModel()), null);
       par.emitIndent();
 
-      if (type.startsWith("List<"))
+      if (varDecl.getType().startsWith("List<"))
       {
          par.addImport("java.util.List");
       }
 
-      par.bodyBuilder.append(type).append(' ').append(varDecl.getName()).append(" = ");
+      par.bodyBuilder.append(varDecl.getType()).append(' ').append(varDecl.getName()).append(" = ");
       varDecl.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(";\n");
       return null;

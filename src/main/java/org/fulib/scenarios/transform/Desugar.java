@@ -1,9 +1,6 @@
 package org.fulib.scenarios.transform;
 
-import org.fulib.scenarios.ast.MultiDescriptor;
-import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.Scenario;
-import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
@@ -19,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
-                                   Sentence.Visitor<Object, Sentence>
+public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
+                                   Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Sentence>
 {
    private int tempID;
 
@@ -34,7 +31,19 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, Scenario.
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      for (final Scenario scenario : scenarioGroup.getScenarios())
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      {
+         file.accept(this, par);
+      }
+      return null;
+   }
+
+   // --------------- ScenarioFile.Visitor ---------------
+
+   @Override
+   public Object visit(ScenarioFile scenarioFile, Object par)
+   {
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          scenario.accept(this, par);
       }

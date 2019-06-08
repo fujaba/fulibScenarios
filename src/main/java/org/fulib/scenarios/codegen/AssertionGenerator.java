@@ -37,8 +37,7 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       codeGen.emit(StrUtil.cap(attributeName.accept(Namer.INSTANCE, null)));
       codeGen.emit("()");
 
-      switch (AttributeAccess.of(attributeName, receiver)
-                             .accept(new Typer(codeGen.modelManager.getClassModel()), null))
+      switch (AttributeAccess.of(attributeName, receiver).accept(Typer.INSTANCE, null))
       {
       case "float":
       case "double":

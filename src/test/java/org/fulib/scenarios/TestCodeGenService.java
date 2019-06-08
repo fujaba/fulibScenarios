@@ -40,6 +40,8 @@ public class TestCodeGenService
             "# Scenario simple. \n" +
             "\n" +
             "There is a Party.\n" +
+            "\n" +
+            "![Party](party.yaml)\n" +
             "";
       JSONObject jsonObject = new JSONObject();
       jsonObject.put("scenarioText", scenarioText);

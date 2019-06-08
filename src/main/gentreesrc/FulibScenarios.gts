@@ -1,10 +1,21 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 abstract org.fulib.scenarios.ast.Node {
-	ScenarioGroup(name: String, scenarios: [Scenario], /* register: Register */)
-	Scenario(name: String, body: SentenceList)
+	ScenarioGroup(sourceDir: String, packageDir: String, files: [String:ScenarioFile], classes: [String:ClassDecl])
+	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl)
+	Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
+	// TODO remove type
 	abstract decl.Decl(name: String, type: String) {
+		ClassDecl(group: ScenarioGroup, name: String, type: String, // == name
+		          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl])
+
+		AttributeDecl(owner: ClassDecl, name: String, type: String)
+		AssociationDecl(owner: ClassDecl, name: String, cardinality: int, target: ClassDecl, type: String, // == target
+		                other: AssociationDecl?)
+		MethodDecl(owner: ClassDecl, name: String, parameters: [ParameterDecl], type: String, body: SentenceList)
+		ParameterDecl(owner: MethodDecl, name: String, type: String)
+
 		VarDecl(name: String, type: String, expr: Expr)
 	}
 
@@ -30,19 +41,6 @@ abstract org.fulib.scenarios.ast.Node {
 		AnswerSentence(actor: Name, result: Expr)
 
 		ExprSentence(expr: Expr)
-
-		/*
-		PhraseSentence(phrase: Phrase)
-		*/
-	}
-
-	abstract phrase.Phrase {
-		/*
-		CreatePhrase(actor: String, vars: [VarDecl]) // i.e. declarations with constructor calls
-		WritePhrase(actor: String, lhs: Expr, rhs: Expr) // i.e. an assignment
-
-		CallPhrase(actor: String, receiver: Expr, name: Name, parameters: [NamedExpr]) // i.e. a method call
-		*/
 	}
 
 	NamedExpr(name: Name, expr: Expr)
@@ -58,7 +56,7 @@ abstract org.fulib.scenarios.ast.Node {
 		access.ExampleAccess(value: Expr, expr: Expr)
 
 		call.CreationExpr(className: Name, attributes: [NamedExpr])
-		call.CallExpr(name: Name, receiver: Expr, body: SentenceList)
+		call.CallExpr(name: Name, receiver: Expr, arguments: [NamedExpr], body: SentenceList)
 
 		abstract conditional.ConditionalExpr {
 			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
@@ -69,13 +67,5 @@ abstract org.fulib.scenarios.ast.Node {
 			ListExpr(elements: [Expr])
 			// RangeExpr(start: Expr, end: Expr)
 		}
-
-		/*
-		abstract collection.CollectionExpr {
-			RangeExpr(from: Expr, through: Expr)
-			ClosedRangeExpr(from: Expr, to: Expr)
-			ListExpr(elements: [Expr])
-		}
-		*/
 	}
 }

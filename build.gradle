@@ -8,7 +8,7 @@ plugins {
 apply from: 'gradle/functional-test.gradle'
 
 group 'org.fulib'
-version '0.2.0'
+version '0.3.0'
 
 sourceCompatibility = 1.8
 
@@ -28,7 +28,7 @@ configurations {
 }
 
 dependencies {
-    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.4.0'
+    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.5.0'
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
@@ -44,7 +44,7 @@ dependencies {
 
     compile 'org.slf4j:slf4j-nop:1.7.25'
 
-    compile files('libs/fulib-1.0.2-SNAPSHOT.jar', 'libs/fulibYaml-1.0.3-SNAPSHOT.jar')
+    compile files('libs/fulib-1.0.2-SNAPSHOT.jar', 'libs/fulibYaml-1.0.3-SNAPSHOT.jar', 'libs/fulibTools-1.0.2-SNAPSHOT.jar')
     // compile 'org.fulib:fulib:1.0.+'
     compile 'org.fulib:fulibTools:1.0.+'
     // compile 'org.fulib:fulibYaml:1.0.+'

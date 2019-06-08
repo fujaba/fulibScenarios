@@ -1,10 +1,8 @@
 package org.fulib.scenarios.codegen;
 
-import org.fulib.classmodel.Clazz;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.transform.Typer;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 {
@@ -48,10 +46,15 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    public Object visit(DiagramSentence diagramSentence, CodeGenerator par)
    {
       // TODO determine from enclosing Scenario
-      final String sourceDir = par.config.getInputDirs().get(0);
-      final String packageDir = par.modelManager.getClassModel().getPackageName();
+      final String sourceDir = par.group.getSourceDir();
+      final String packageDir = par.group.getPackageDir();
       final String fileName = diagramSentence.getFileName();
-      final String format = fileName.endsWith(".svg") ? "SVG" : "Png";
+      String format = fileName.endsWith(".svg") ? "SVG" : "Png";
+
+      if (fileName.endsWith("yaml")) {
+         format = "Yaml";
+      }
+
       String target = sourceDir + "/" + packageDir + "/" + fileName;
       target = target.replaceAll("\\\\", "/");
 
@@ -72,15 +75,12 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(HasSentence hasSentence, CodeGenerator par)
    {
-      final String className = hasSentence.getObject().accept(new Typer(null), null);
-      final Clazz clazz = par.modelManager.haveClass(className);
-
       par.emitIndent();
       hasSentence.getObject().accept(ExprGenerator.INSTANCE, par);
 
       for (NamedExpr attribute : hasSentence.getClauses())
       {
-         ExprGenerator.generateSetterCall(par, clazz, attribute);
+         ExprGenerator.generateSetterCall(par, attribute);
       }
 
       par.bodyBuilder.append(";\n");

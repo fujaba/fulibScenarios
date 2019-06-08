@@ -4,7 +4,9 @@ options { tokenVocab = ScenarioLexer; }
 
 // =============== Scenarios ===============
 
-scenario: header sentence* EOF;
+file: scenario* EOF;
+
+scenario: header sentence*;
 header: H1 SCENARIO scenarioName FULL_STOP;
 scenarioName: ~FULL_STOP+;
 
@@ -51,7 +53,7 @@ hasClause: HAS namedExpr;
 createSentence: actor (CREATE | CREATES) simpleDescriptor FULL_STOP
               | actor (CREATE | CREATES) multiDescriptor FULL_STOP;
 
-callSentence: actor (CALL | CALLS) name (ON expr)? FULL_STOP;
+callSentence: actor (CALL | CALLS) name (ON expr)? withClauses? FULL_STOP;
 
 answerSentence: actor (ANSWER | ANSWERS) WITH expr FULL_STOP;
 

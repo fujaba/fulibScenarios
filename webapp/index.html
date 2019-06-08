@@ -1,48 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>Scenario</title>
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet"
-	      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-	      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-	      crossorigin="anonymous">
-	<!-- CodeMirror -->
-	<link rel="stylesheet"
-	      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.css"
-	      integrity="sha256-I8NyGs4wjbMuBSUE40o55W6k6P7tu/7G28/JGUUYCIs="
-	      crossorigin="anonymous"/>
-	<!-- Custom -->
-	<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Scenario</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <!-- CodeMirror -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.css"
+          integrity="sha256-I8NyGs4wjbMuBSUE40o55W6k6P7tu/7G28/JGUUYCIs="
+          crossorigin="anonymous"/>
+    <!-- Custom -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="split top left">
-	<h2>Scenario</h2>    <br/> <textarea class="form-control" id="scenarioInput">
-# Scenario Start Up.
+<div class="row" style="margin: 1rem">
+    <div class="col-md-12 col-lg-6">
+        <h2>Scenario</h2>
+        <p>
+            Load Example: <select id="exampleSelect" onchange="selectExample(this.value)">
+            <option value="">-</option>
+        </select>
+        </p>
+            <textarea class="form-control" id="scenarioInput"></textarea>
+        <a href="#" onclick="submit()">Press <kbd>Ctrl-Enter</kbd> to compile and run</a>.
+    </div>
 
-There are Player with name Alice and Bob.
-There is a Game with title Ludo.
-Ludo has participants Alice and Bob.
-</textarea>
-	Press <kbd>Ctrl-Enter</kbd> to <a href="#" onclick="submit()">compile and run</a>.
-</div>
-
-<div class="split top right">
-	<h2>Java Test Code</h2>    <br/> <textarea class="form-control" id="javaTestOutput">
+    <div class="col-md-12 col-lg-6">
+        <h2>Java Test Code</h2>    <br/>
+        <p></p>
+        <textarea class="form-control" id="javaTestOutput">
 // press Ctrl-Enter within the scenario editor to generate Java.
-// This is version 2019.05.16:06
+// This is version 2019.06.05 18:02
 </textarea>
+    </div>
 </div>
 
-<div class="split bottom left">
-	<h2>Object Diagram</h2>        <br/>
-	<div class="svg" id="objectDiagram"></div>
-</div>
+<div class="row" style="margin: 1rem">
+    <div class="col-md-12 col-lg-6">
+        <h2>Object Diagram</h2>        <br/>
+        <div class="svg" id="objectDiagram"></div>
+    </div>
 
-<div class="split bottom right">
-	<h2>Class Diagram</h2>        <br/>
-	<div class="svg" id="classDiagram"></div>
+    <div class="col-md-12 col-lg-6">
+        <h2>Class Diagram</h2>        <br/>
+        <div class="svg" id="classDiagram"></div>
+    </div>
 </div>
 
 

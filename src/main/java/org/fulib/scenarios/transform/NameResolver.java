@@ -1,7 +1,9 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
@@ -18,13 +20,16 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.transform.scope.DelegatingScope;
+import org.fulib.scenarios.transform.scope.HidingScope;
+import org.fulib.scenarios.transform.scope.Scope;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public enum NameResolver
-   implements ScenarioGroup.Visitor<Object, Object>, Scenario.Visitor<Object, Object>, Sentence.Visitor<Scope, Object>,
-                 Decl.Visitor<Scope, Object>, Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
+public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
+                                       Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Object>,
+                                       Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
    INSTANCE;
 
@@ -33,9 +38,54 @@ public enum NameResolver
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Object par)
    {
-      for (final Scenario scenario : scenarioGroup.getScenarios())
+      final Scope scope = new Scope()
       {
-         scenario.accept(this, par);
+         @Override
+         public Decl resolve(String name)
+         {
+            return scenarioGroup.getClasses().get(name);
+         }
+
+         @Override
+         public void add(Decl decl)
+         {
+            final ClassDecl classDecl = (ClassDecl) decl;
+            classDecl.setGroup(scenarioGroup);
+            scenarioGroup.getClasses().put(decl.getName(), classDecl);
+         }
+      };
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      {
+         file.accept(this, scope);
+      }
+      return null;
+   }
+
+   // --------------- ScenarioFile.Visitor ---------------
+
+   @Override
+   public Object visit(ScenarioFile scenarioFile, Scope par)
+   {
+      final ScenarioGroup group = scenarioFile.getGroup();
+      final String className = scenarioFile.getName().replaceAll("\\W", "") + "Test";
+      final ClassDecl classDecl = ClassDecl
+                                     .of(group, className, className, new LinkedHashMap<>(), new LinkedHashMap<>(),
+                                         new ArrayList<>());
+
+      // group.getClasses().put(className, classDecl);
+      scenarioFile.setClassDecl(classDecl);
+
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return className.equals(name) ? classDecl : super.resolve(name);
+         }
+      };
+      for (final Scenario scenario : scenarioFile.getScenarios().values())
+      {
+         scenario.accept(this, scope);
       }
       return null;
    }
@@ -43,24 +93,36 @@ public enum NameResolver
    // --------------- Scenario.Visitor ---------------
 
    @Override
-   public Object visit(Scenario scenario, Object par)
+   public Object visit(Scenario scenario, Scope par)
    {
-      scenario.getBody().accept(this, new EmptyScope());
-      return null;
-   }
+      final ClassDecl classDecl = scenario.getFile().getClassDecl();
+      final String methodName = "scenario" + scenario.getName().replaceAll("\\W", "");
+      final SentenceList body = scenario.getBody();
+      final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, "void", body);
 
-   // --------------- Decl.Visitor ---------------
+      final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
+      methodDecl.setParameters(Collections.singletonList(thisParam));
 
-   @Override
-   public Object visit(Decl decl, Scope par)
-   {
-      throw new UnsupportedOperationException();
-   }
+      classDecl.getMethods().add(methodDecl);
+      scenario.setMethodDecl(methodDecl);
 
-   @Override
-   public Object visit(VarDecl varDecl, Scope par)
-   {
-      varDecl.setExpr(varDecl.getExpr().accept(this, par));
+      body.accept(this, new DelegatingScope(par)
+      {
+
+         @Override
+         public Decl resolve(String name)
+         {
+            if ("this".equals(name))
+            {
+               return thisParam;
+            }
+            if (methodName.equals(name))
+            {
+               return methodDecl;
+            }
+            return super.resolve(name);
+         }
+      });
       return null;
    }
 
@@ -75,11 +137,31 @@ public enum NameResolver
    @Override
    public Object visit(SentenceList sentenceList, Scope par)
    {
-      BasicScope scope = new BasicScope(par);
+      final Map<String, Decl> decls = new HashMap<>();
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            final Decl decl = decls.get(name);
+            return decl != null ? decl : super.resolve(name);
+         }
+
+         @Override
+         public void add(Decl decl)
+         {
+            if (decl instanceof VarDecl)
+            {
+               decls.put(decl.getName(), decl);
+               return;
+            }
+            super.add(decl);
+         }
+      };
 
       for (final Sentence item : sentenceList.getItems())
       {
-         item.accept(SymbolCollector.INSTANCE, scope.decls);
+         item.accept(SymbolCollector.INSTANCE, decls);
          item.accept(this, scope);
       }
       return null;
@@ -110,12 +192,14 @@ public enum NameResolver
    {
       hasSentence.setObject(hasSentence.getObject().accept(this, par));
 
+      final ClassDecl objectClass = resolveClass(par, hasSentence.getObject());
       final String name = hasSentence.getObject().accept(Namer.INSTANCE, null);
       final Scope scope = name != null ? new HidingScope(name, par) : par;
 
       for (final NamedExpr namedExpr : hasSentence.getClauses())
       {
          namedExpr.setExpr(namedExpr.getExpr().accept(this, scope));
+         namedExpr.setName(resolveAttributeOrAssociation(objectClass, namedExpr.getName(), namedExpr.getExpr()));
       }
 
       return null;
@@ -124,7 +208,13 @@ public enum NameResolver
    @Override
    public Object visit(IsSentence isSentence, Scope par)
    {
-      isSentence.getDescriptor().accept(this, par);
+      final VarDecl varDecl = isSentence.getDescriptor();
+      varDecl.setExpr(varDecl.getExpr().accept(this, par));
+
+      if (varDecl.getType() == null)
+      {
+         varDecl.setType(varDecl.getExpr().accept(Typer.INSTANCE, null));
+      }
       return null;
    }
 
@@ -171,6 +261,8 @@ public enum NameResolver
    public Expr visit(AttributeAccess attributeAccess, Scope par)
    {
       attributeAccess.setReceiver(attributeAccess.getReceiver().accept(this, par));
+      attributeAccess
+         .setName(getAttributeOrAssociation(par, attributeAccess.getReceiver(), attributeAccess.getName()));
       return attributeAccess;
    }
 
@@ -224,10 +316,15 @@ public enum NameResolver
    @Override
    public Expr visit(CreationExpr creationExpr, Scope par)
    {
-      creationExpr.setClassName(creationExpr.getClassName().accept(this, par));
+      final String className = StrUtil.cap(creationExpr.getClassName().accept(Namer.INSTANCE, par));
+      final ClassDecl classDecl = resolveClass(par, className);
+
+      creationExpr.setClassName(ResolvedName.of(classDecl));
+
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
          namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
+         namedExpr.setName(resolveAttributeOrAssociation(classDecl, namedExpr.getName(), namedExpr.getExpr()));
       }
       return creationExpr;
    }
@@ -235,12 +332,107 @@ public enum NameResolver
    @Override
    public Expr visit(CallExpr callExpr, Scope par)
    {
+      final List<NamedExpr> arguments = callExpr.getArguments();
       final Expr receiver = callExpr.getReceiver();
       if (receiver != null)
       {
          callExpr.setReceiver(receiver.accept(this, par));
       }
-      callExpr.getBody().accept(this, par);
+      else
+      {
+         final Decl thisDecl = par.resolve("this");
+         final NameAccess getThis = NameAccess.of(ResolvedName.of(thisDecl));
+         callExpr.setReceiver(getThis);
+      }
+      for (final NamedExpr argument : arguments)
+      {
+         argument.setExpr(argument.getExpr().accept(this, par));
+      }
+
+      // generate method
+
+      final ClassDecl receiverClass = resolveClass(par, callExpr.getReceiver());
+
+      final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
+      final MethodDecl method = resolveMethod(receiverClass, methodName);
+      final List<ParameterDecl> parameters = method.getParameters();
+      final boolean isNew = method.getType() == null;
+      final Map<String, Decl> decls = new HashMap<>();
+
+      if (isNew)
+      {
+         // this parameter
+         final ParameterDecl thisParam = ParameterDecl.of(method, "this", receiverClass.getType());
+         parameters.add(thisParam);
+         decls.put("this", thisParam);
+      }
+      else
+      {
+         decls.put("this", parameters.get(0));
+
+         // check if arguments and parameters match (by label)
+         final String params = parameters.stream().skip(1).map(ParameterDecl::getName)
+                                         .collect(Collectors.joining(" "));
+         final String args = arguments.stream().map(NamedExpr::getName).map(n -> n.accept(Namer.INSTANCE, null))
+                                      .collect(Collectors.joining(" "));
+
+         if (!params.equals(args))
+         {
+            throw new IllegalStateException(
+               "mismatching parameters and arguments:\nparameters: " + params + "\narguments : " + args);
+         }
+      }
+
+      // match arguments and parameters
+      for (int i = 0; i < arguments.size(); i++)
+      {
+         final NamedExpr argument = arguments.get(i);
+         final String name = argument.getName().accept(Namer.INSTANCE, null);
+         final Expr expr = argument.getExpr();
+         final ParameterDecl param;
+
+         if (isNew)
+         {
+            final String type = expr.accept(Typer.INSTANCE, null);
+            param = ParameterDecl.of(method, name, type);
+            parameters.add(param);
+         }
+         else
+         {
+            param = parameters.get(i + 1);
+         }
+
+         argument.setName(ResolvedName.of(param));
+         decls.put(name, param);
+
+         // references to the expression name refer to the parameter
+         final String exprName = expr.accept(Namer.INSTANCE, null);
+         if (exprName != null)
+         {
+            decls.put(exprName, param);
+         }
+      }
+
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            final Decl decl = decls.get(name);
+            return decl != null ? decl : super.resolve(name);
+         }
+      };
+      callExpr.getBody().accept(this, scope);
+
+      // set return type if necessary. has to happen after body resolution!
+      if (isNew)
+      {
+         final String returnType = callExpr.accept(Typer.INSTANCE, null);
+         method.setType(returnType);
+      }
+
+      method.getBody().getItems().addAll(callExpr.getBody().getItems());
+
       return callExpr;
    }
 
@@ -255,6 +447,8 @@ public enum NameResolver
    {
       attributeCheckExpr.setReceiver(attributeCheckExpr.getReceiver().accept(this, par));
       attributeCheckExpr.setValue(attributeCheckExpr.getValue().accept(this, par));
+      attributeCheckExpr.setAttribute(
+         getAttributeOrAssociation(par, attributeCheckExpr.getReceiver(), attributeCheckExpr.getAttribute()));
       return attributeCheckExpr;
    }
 
@@ -291,56 +485,179 @@ public enum NameResolver
       final Decl decl = par.resolve(unresolvedName.getValue());
       return decl == null ? unresolvedName : ResolvedName.of(decl);
    }
-}
 
-interface Scope
-{
-   Decl resolve(String name);
-}
+   // =============== Static Methods ===============
 
-class EmptyScope implements Scope
-{
-   @Override
-   public Decl resolve(String name)
+   static ClassDecl resolveClass(Scope scope, Expr expr)
    {
-      return null;
-   }
-}
-
-class BasicScope implements Scope
-{
-   final Map<String, Decl> decls;
-
-   final Scope outer;
-
-   public BasicScope(Scope outer)
-   {
-      this.outer = outer;
-      this.decls = new HashMap<>();
+      return resolveClass(scope, expr.accept(Typer.INSTANCE, null));
    }
 
-   @Override
-   public Decl resolve(String name)
+   static ClassDecl resolveClass(Scope scope, String name)
    {
-      Decl inner = this.decls.get(name);
-      return inner != null ? inner : this.outer.resolve(name);
-   }
-}
+      final ClassDecl resolve = (ClassDecl) scope.resolve(name);
+      if (resolve != null)
+      {
+         return resolve;
+      }
 
-class HidingScope implements Scope
-{
-   final String name;
-   final Scope  outer;
-
-   HidingScope(String name, Scope outer)
-   {
-      this.name = name;
-      this.outer = outer;
+      final ClassDecl decl = ClassDecl.of(null, name, name, new LinkedHashMap<>(), new LinkedHashMap<>(), new ArrayList<>());
+      scope.add(decl);
+      return decl;
    }
 
-   @Override
-   public Decl resolve(String name)
+   static MethodDecl resolveMethod(ClassDecl classDecl, String name)
    {
-      return this.name.equals(name) ? null : this.outer.resolve(name);
+      for (final MethodDecl decl : classDecl.getMethods())
+      {
+         if (name.equals(decl.getName()))
+         {
+            return decl;
+         }
+      }
+
+      final SentenceList body = SentenceList.of(new ArrayList<>());
+      final MethodDecl decl = MethodDecl.of(classDecl, name, new ArrayList<>(), null, body);
+      classDecl.getMethods().add(decl);
+      return decl;
+   }
+
+   static Name resolveAttributeOrAssociation(ClassDecl classDecl, Name name, Expr rhs)
+   {
+      if (name.accept(ExtractDecl.INSTANCE, null) != null)
+      {
+         // already resolved
+         return name;
+      }
+
+      return ResolvedName.of(resolveAttributeOrAssociation(classDecl, name.accept(Namer.INSTANCE, null), rhs));
+   }
+
+   static Decl resolveAttributeOrAssociation(ClassDecl classDecl, String attributeName, Expr rhs)
+   {
+      final AttributeDecl existingAttribute = classDecl.getAttributes().get(attributeName);
+      if (existingAttribute != null)
+      {
+         return existingAttribute;
+      }
+
+      final AssociationDecl existingAssociation = classDecl.getAssociations().get(attributeName);
+      if (existingAssociation != null)
+      {
+         return existingAssociation;
+      }
+
+      final String attributeType = rhs.accept(Typer.INSTANCE, null);
+      final ClassDecl otherClass;
+
+      if (attributeType.startsWith("List<"))
+      {
+         // new value is multi-valued
+
+         final String otherType = attributeType.substring(5, attributeType.length() - 1); // strip List< and >
+         otherClass = classDecl.getGroup().getClasses().get(otherType);
+
+         if (otherClass == null)
+         {
+            // was element type that we have no control over, e.g. List<String>
+            return resolveAttribute(classDecl, attributeName, attributeType);
+         }
+         else
+         {
+            return resolveAssociation(classDecl, attributeName, otherClass, 2);
+         }
+      }
+      else if ((otherClass = classDecl.getGroup().getClasses().get(attributeType)) != null)
+      {
+         return resolveAssociation(classDecl, attributeName, otherClass, 1);
+      }
+      else
+      {
+         return resolveAttribute(classDecl, attributeName, attributeType);
+      }
+   }
+
+   static AttributeDecl resolveAttribute(ClassDecl classDecl, String name, String type)
+   {
+      final AttributeDecl existing = classDecl.getAttributes().get(name);
+      if (existing != null)
+      {
+         final String existingType = existing.getType();
+         if (!type.equals(existingType))
+         {
+            throw new IllegalStateException(
+               "mismatched attribute type " + classDecl.getName() + "." + name + ": " + existingType + " vs "
+               + type);
+         }
+
+         return existing;
+      }
+
+      final AttributeDecl attribute = AttributeDecl.of(classDecl, name, type);
+      classDecl.getAttributes().put(name, attribute);
+      return attribute;
+   }
+
+   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, ClassDecl otherClass, int cardinality)
+   {
+      final AssociationDecl existing = classDecl.getAssociations().get(name);
+      if (existing != null)
+      {
+         if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
+         {
+            throw new IllegalStateException(
+               "mismatched association type " + classDecl.getName() + "." + name + ": " + cardinalityString(
+                  existing.getCardinality()) + " " + existing.getTarget().getName() + " vs " + cardinalityString(
+                  cardinality) + " " + otherClass.getName());
+         }
+
+         return existing;
+      }
+
+      final AssociationDecl association = AssociationDecl
+                                             .of(classDecl, name, cardinality, otherClass, otherClass.getType(),
+                                                 null);
+      final AssociationDecl other = AssociationDecl
+                                       .of(otherClass, classDecl.getName(), 1, classDecl, classDecl.getType(), null);
+
+      association.setOther(other);
+      other.setOther(association);
+
+      classDecl.getAssociations().put(association.getName(), association);
+      otherClass.getAssociations().put(other.getName(), other);
+
+      return association;
+   }
+
+   private static String cardinalityString(int cardinality)
+   {
+      return cardinality == 1 ? "one" : "many";
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
+   {
+      if (name.accept(ExtractDecl.INSTANCE, null) != null)
+      {
+         return name;
+      }
+
+      return getAttributeOrAssociation(resolveClass(scope, receiver), name.accept(Namer.INSTANCE, null));
+   }
+
+   static Name getAttributeOrAssociation(ClassDecl receiverClass, String name)
+   {
+      final AttributeDecl attribute = receiverClass.getAttributes().get(name);
+      if (attribute != null)
+      {
+         return ResolvedName.of(attribute);
+      }
+
+      final AssociationDecl association = receiverClass.getAssociations().get(name);
+      if (association != null)
+      {
+         return ResolvedName.of(association);
+      }
+
+      throw new IllegalStateException("unresolved attribute " + receiverClass.getName() + "." + name);
    }
 }
