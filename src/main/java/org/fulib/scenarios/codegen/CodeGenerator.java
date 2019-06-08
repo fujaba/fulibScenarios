@@ -19,10 +19,10 @@ import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.transform.SymbolCollector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>
 {
@@ -161,8 +161,16 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          return;
       }
 
-      final List<Expr> exprs = symbolTable.values().stream().map(it -> NameAccess.of(ResolvedName.of(it)))
-                                          .collect(Collectors.toList());
+      final Map<String, ClassDecl> classes = scenario.getFile().getGroup().getClasses();
+      final List<Expr> exprs = new ArrayList<>();
+      for (Decl it : symbolTable.values())
+      {
+         // only add variables with types from the data model (i.e. exclude String, double, ... variables)
+         if (classes.get(it.getType()) != null)
+         {
+            exprs.add(NameAccess.of(ResolvedName.of(it)));
+         }
+      }
       final ListExpr listExpr = ListExpr.of(exprs);
 
       if (this.config.isObjectDiagram())
