@@ -1,11 +1,9 @@
 package org.fulib.scenarios.codegen;
 
 import org.fulib.StrUtil;
-import org.fulib.builder.ClassModelBuilder;
-import org.fulib.classmodel.AssocRole;
-import org.fulib.classmodel.Clazz;
-import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.decl.AssociationDecl;
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -19,7 +17,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.transform.ExtractDecl;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
@@ -55,61 +53,21 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(CreationExpr creationExpr, CodeGenerator par)
    {
-      final String className = creationExpr.accept(new Typer(null), null);
-      final Clazz clazz = par.modelManager.haveClass(className);
+      final String className = creationExpr.accept(Typer.INSTANCE, null);
 
       par.bodyBuilder.append("new ").append(className).append("()");
       for (NamedExpr attribute : creationExpr.getAttributes())
       {
-         generateSetterCall(par, clazz, attribute);
+         generateSetterCall(par, attribute);
       }
       return null;
    }
 
-   static void generateSetterCall(CodeGenerator par, Clazz clazz, NamedExpr attribute)
+   static void generateSetterCall(CodeGenerator par, NamedExpr attribute)
    {
       final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
-      final String attributeType = attribute.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
-
-      final boolean wither;
-      final AssocRole existingRole = clazz.getRole(attributeName);
-      if (existingRole != null)
-      {
-         // role exists, use it to find out if cardinality many
-         wither = existingRole.getCardinality() > 1;
-      }
-      else if (clazz.getModel().getClazz(attributeType) != null)
-      {
-         final Clazz otherClazz = clazz.getModel().getClazz(attributeType);
-         par.modelManager.haveRole(clazz, attributeName, otherClazz, ClassModelBuilder.ONE);
-         wither = false;
-      }
-      else if (attributeType.startsWith("List<"))
-      {
-         // new value is multi-valued
-
-         final String otherType = attributeType.substring(5, attributeType.length() - 1); // strip List< and >
-         final Clazz otherClazz = clazz.getModel().getClazz(otherType);
-
-         if (otherClazz == null)
-         {
-            // was element type that we have no control over, e.g. List<String>
-            // TODO we need an aggregate attribute (?)
-            clazz.getImportList().add("import java.util.List;");
-            par.modelManager.haveAttribute(clazz, attributeName, attributeType);
-            wither = false;
-         }
-         else
-         {
-            par.modelManager.haveRole(clazz, attributeName, otherClazz, ClassModelBuilder.MANY);
-            wither = true;
-         }
-      }
-      else
-      {
-         par.modelManager.haveAttribute(clazz, attributeName, attributeType);
-         wither = false;
-      }
+      final Decl decl = attribute.getName().accept(ExtractDecl.INSTANCE, null);
+      final boolean wither = decl instanceof AssociationDecl && ((AssociationDecl) decl).getCardinality() != 1;
 
       par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(attributeName)).append("(");
       attribute.getExpr().accept(wither ? NO_LIST : INSTANCE, par);
@@ -119,21 +77,9 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(CallExpr callExpr, CodeGenerator par)
    {
-      final Expr receiver = callExpr.getReceiver();
-      final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
-      final List<Sentence> body = callExpr.getBody().getItems();
-
-      if (receiver != null)
-      {
-         receiver.accept(ExprGenerator.INSTANCE, par);
-      }
-      else
-      {
-         par.bodyBuilder.append("this");
-      }
-
+      callExpr.getReceiver().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append('.');
-      par.bodyBuilder.append(methodName);
+      par.bodyBuilder.append(callExpr.getName().accept(Namer.INSTANCE, null));
       par.bodyBuilder.append('(');
 
       final List<NamedExpr> arguments = callExpr.getArguments();
@@ -142,42 +88,6 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       }
       par.bodyBuilder.append(')');
 
-      // generate method
-
-      final String returnType = callExpr.accept(new Typer(par.modelManager.getClassModel()), null);
-
-      final CodeGenerator bodyGen = new CodeGenerator(par.config);
-      bodyGen.group = par.group;
-      bodyGen.modelManager = par.modelManager;
-      bodyGen.testManager = par.testManager;
-
-      if (receiver != null)
-      {
-         final String targetClassName = receiver.accept(new Typer(par.modelManager.getClassModel()), null);
-
-         bodyGen.clazz = par.modelManager.haveClass(targetClassName);
-      }
-      else
-      {
-         bodyGen.clazz = par.clazz; // == test class // TODO not within recursive call
-      }
-
-      bodyGen.method = new FMethod().setClazz(bodyGen.clazz).writeName(methodName).writeReturnType(returnType);
-      bodyGen.bodyBuilder = new StringBuilder();
-
-      for (final NamedExpr argument : arguments)
-      {
-         final String name = argument.getName().accept(Namer.INSTANCE, null);
-         final String type = argument.getExpr().accept(new Typer(par.modelManager.getClassModel()), null);
-         bodyGen.method.readParams().put(name, type);
-      }
-
-      for (Sentence sentence : body)
-      {
-         sentence.accept(SentenceGenerator.INSTANCE, bodyGen);
-      }
-
-      bodyGen.method.setMethodBody(bodyGen.bodyBuilder.toString());
       return null;
    }
 

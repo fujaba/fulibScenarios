@@ -1,11 +1,21 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 
 abstract org.fulib.scenarios.ast.Node {
-	ScenarioGroup(sourceDir: String, packageDir: String, files: [ScenarioFile])
-	ScenarioFile(name: String, scenarios: [Scenario])
-	Scenario(name: String, body: SentenceList)
+	ScenarioGroup(sourceDir: String, packageDir: String, files: [String:ScenarioFile], classes: [String:ClassDecl])
+	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl)
+	Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
+	// TODO remove type
 	abstract decl.Decl(name: String, type: String) {
+		ClassDecl(group: ScenarioGroup, name: String, type: String, // == name
+		          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl])
+
+		AttributeDecl(owner: ClassDecl, name: String, type: String)
+		AssociationDecl(owner: ClassDecl, name: String, cardinality: int, target: ClassDecl, type: String, // == target
+		                other: AssociationDecl?)
+		MethodDecl(owner: ClassDecl, name: String, parameters: [ParameterDecl], type: String, body: SentenceList)
+		ParameterDecl(owner: MethodDecl, name: String, type: String)
+
 		VarDecl(name: String, type: String, expr: Expr)
 	}
 

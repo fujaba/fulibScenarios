@@ -1,13 +1,7 @@
 package org.fulib.scenarios.transform;
 
 import org.fulib.StrUtil;
-import org.fulib.classmodel.AssocRole;
-import org.fulib.classmodel.Attribute;
-import org.fulib.classmodel.ClassModel;
-import org.fulib.classmodel.Clazz;
-import org.fulib.scenarios.ast.decl.Decl;
-import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -26,43 +20,9 @@ import org.fulib.scenarios.ast.sentence.Sentence;
 
 import java.util.List;
 
-public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object, String>
+public enum Typer implements Expr.Visitor<Object, String>, Name.Visitor<Object, String>
 {
-   private final ClassModel classModel;
-
-   public Typer(ClassModel classModel)
-   {
-      this.classModel = classModel;
-   }
-
-   // --------------- VarDecl.Visitor ---------------
-
-   @Override
-   public String visit(Decl decl, Object par)
-   {
-      return decl.getType();
-   }
-
-   @Override
-   public String visit(VarDecl varDecl, Object par)
-   {
-      String type = varDecl.getType();
-      if (type != null)
-      {
-         return type;
-      }
-
-      // try to infer type
-      type = varDecl.getExpr().accept(this, par);
-      if (type != null)
-      {
-         varDecl.setType(type);
-         return type;
-      }
-
-      // TODO diagnostic
-      throw new IllegalStateException("could not infer type of variable " + varDecl.getName());
-   }
+   INSTANCE;
 
    // --------------- Expr.Visitor ---------------
 
@@ -75,24 +35,7 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    @Override
    public String visit(AttributeAccess attributeAccess, Object par)
    {
-      final String attributeName = attributeAccess.getName().accept(Namer.INSTANCE, null);
-      final String receiverType = attributeAccess.getReceiver().accept(this, par);
-      final Clazz receiverClazz = this.classModel.getClazz(receiverType);
-
-      final Attribute attribute = receiverClazz.getAttribute(attributeName);
-      if (attribute != null)
-      {
-         return attribute.getType();
-      }
-
-      final AssocRole role = receiverClazz.getRole(attributeName);
-      if (role != null)
-      {
-         return role.getOther().getClazz().getName();
-      }
-
-      // TODO diagnostic
-      throw new IllegalStateException(receiverType + " does not have attribute or role " + attributeName);
+      return attributeAccess.getName().accept(this, par);
    }
 
    @Override
@@ -133,12 +76,7 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
    @Override
    public String visit(NameAccess nameAccess, Object par)
    {
-      if (nameAccess.getName() instanceof ResolvedName)
-      {
-         final Decl decl = ((ResolvedName) nameAccess.getName()).getDecl();
-         return decl.accept(this, par);
-      }
-      throw new IllegalStateException("unresolved name " + nameAccess.getName().accept(Namer.INSTANCE, null));
+      return nameAccess.getName().accept(this, par);
    }
 
    @Override
@@ -192,6 +130,29 @@ public class Typer implements Decl.Visitor<Object, String>, Expr.Visitor<Object,
       assert commonType != null : "empty list expression";
       return "List<" + primitiveToWrapper(commonType) + ">";
    }
+
+   // --------------- Name.Visitor ---------------
+
+   @Override
+   public String visit(Name name, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public String visit(UnresolvedName unresolvedName, Object par)
+   {
+      // TODO diagnostic
+      throw new IllegalStateException("unresolved name " + unresolvedName.getValue());
+   }
+
+   @Override
+   public String visit(ResolvedName resolvedName, Object par)
+   {
+      return resolvedName.getDecl().getType();
+   }
+
+   // =============== Static Methods ===============
 
    public static String primitiveToWrapper(String primitive)
    {
