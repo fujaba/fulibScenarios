@@ -149,6 +149,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       final String methodName = scenario.getMethodDecl().getName();
       final List<Sentence> sentences = scenario.getBody().getItems();
 
+      if (sentences.isEmpty())
+      {
+         return;
+      }
+
       // collect top-level variables
       final Map<String, Decl> symbolTable = new TreeMap<>();
       for (final Sentence item : sentences)
@@ -171,6 +176,12 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
             exprs.add(NameAccess.of(ResolvedName.of(it)));
          }
       }
+
+      if (exprs.isEmpty())
+      {
+         return;
+      }
+
       final ListExpr listExpr = ListExpr.of(exprs);
 
       if (this.config.isObjectDiagram())
