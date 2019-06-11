@@ -1,5 +1,6 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
@@ -19,12 +20,45 @@ import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.ast.type.*;
 
 import java.util.List;
 
-public enum Namer implements Expr.Visitor<Object, String>, Name.Visitor<Object, String>
+public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, String>, Name.Visitor<Object, String>
 {
    INSTANCE;
+
+   // --------------- Type.Visitor ---------------
+
+   @Override
+   public String visit(Type type, Object par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public String visit(UnresolvedType unresolvedType, Object par)
+   {
+      return unresolvedType.getName();
+   }
+
+   @Override
+   public String visit(ClassType classType, Object par)
+   {
+      return classType.getClassDecl().getName();
+   }
+
+   @Override
+   public String visit(ListType listType, Object par)
+   {
+      return "List";
+   }
+
+   @Override
+   public String visit(PrimitiveType primitiveType, Object par)
+   {
+      return primitiveType.getJavaName();
+   }
 
    // --------------- Expr.Visitor ---------------
 
@@ -58,7 +92,7 @@ public enum Namer implements Expr.Visitor<Object, String>, Name.Visitor<Object, 
             return exprName;
          }
       }
-      return creationExpr.getClassName().accept(this, par);
+      return StrUtil.downFirstChar(creationExpr.getType().accept(this, par));
    }
 
    @Override

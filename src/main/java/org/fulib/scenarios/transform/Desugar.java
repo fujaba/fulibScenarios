@@ -1,5 +1,6 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
@@ -208,7 +209,8 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioF
       }
 
       final String className = multiDesc.getType().accept(Namer.INSTANCE, null);
-      return Collections.singletonList(className);
+      final String objectName = StrUtil.downFirstChar(className);
+      return Collections.singletonList(objectName);
    }
 
    @Override

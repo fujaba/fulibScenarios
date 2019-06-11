@@ -16,7 +16,9 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.tool.Config;
+import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.SymbolCollector;
 
 import java.util.ArrayList;
@@ -149,6 +151,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       final String methodName = scenario.getMethodDecl().getName();
       final List<Sentence> sentences = scenario.getBody().getItems();
 
+      if (sentences.isEmpty())
+      {
+         return;
+      }
+
       // collect top-level variables
       final Map<String, Decl> symbolTable = new TreeMap<>();
       for (final Sentence item : sentences)
@@ -166,11 +173,19 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       for (Decl it : symbolTable.values())
       {
          // only add variables with types from the data model (i.e. exclude String, double, ... variables)
-         if (classes.get(it.getType()) != null)
+         final Type type = it.getType();
+         final String typeName = type.accept(Namer.INSTANCE, null);
+         if (classes.get(typeName) != null)
          {
             exprs.add(NameAccess.of(ResolvedName.of(it)));
          }
       }
+
+      if (exprs.isEmpty())
+      {
+         return;
+      }
+
       final ListExpr listExpr = ListExpr.of(exprs);
 
       if (this.config.isObjectDiagram())
