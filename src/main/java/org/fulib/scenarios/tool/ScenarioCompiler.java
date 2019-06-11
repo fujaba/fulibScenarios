@@ -160,7 +160,8 @@ public class ScenarioCompiler implements Tool
 
       if (!scenarioFiles.isEmpty())
       {
-         final ScenarioGroup group = ScenarioGroup.of(sourceDir.toString(), packageDir, scenarioFiles, new HashMap<>());
+         final ScenarioGroup group = ScenarioGroup
+                                        .of(sourceDir.toString(), packageDir, scenarioFiles, new HashMap<>());
          for (final ScenarioFile file : scenarioFiles.values())
          {
             file.setGroup(group);
@@ -219,9 +220,25 @@ public class ScenarioCompiler implements Tool
 
    private void processGroup(ScenarioGroup scenarioGroup)
    {
-      scenarioGroup.accept(Grouper.INSTANCE, null);
-      scenarioGroup.accept(new Desugar(), null);
-      scenarioGroup.accept(NameResolver.INSTANCE, null);
-      scenarioGroup.accept(new CodeGenerator(this.config), null);
+      String stage = null;
+      try
+      {
+         // TODO pattern: list of Phase objects
+         stage = "group";
+         scenarioGroup.accept(Grouper.INSTANCE, null);
+         stage = "desugar";
+         scenarioGroup.accept(new Desugar(), null);
+         stage = "resolve";
+         scenarioGroup.accept(NameResolver.INSTANCE, null);
+         stage = "codegen";
+         scenarioGroup.accept(new CodeGenerator(this.config), null);
+      }
+      catch (Exception ex)
+      {
+         this.err.println("failed to execute stage '" + stage + "' on group '" + scenarioGroup.getSourceDir() + "/"
+                          + scenarioGroup.getPackageDir() + "' due to exception:");
+         ex.printStackTrace(this.err);
+         this.errors++;
+      }
    }
 }
