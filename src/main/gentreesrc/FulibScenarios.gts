@@ -24,6 +24,13 @@ abstract org.fulib.scenarios.ast.Node {
 		ResolvedName(decl: Decl)
 	}
 
+	abstract type.Type {
+		UnresolvedType(name: String)
+		ClassType(classDecl: ClassDecl)
+		ListType(elementType: Type)
+		import PrimitiveType
+	}
+
 	MultiDescriptor(type: Name, names: [String], attributes: [NamedExpr])
 
 	abstract sentence.Sentence {
