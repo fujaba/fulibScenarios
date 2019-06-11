@@ -17,6 +17,16 @@ public enum PrimitiveType implements Type
    // reference types
    OBJECT("Object"),
    STRING("String"),
+   // wrapper types
+   VOID_WRAPPER("Void"),
+   BOOLEAN_WRAPPER("Boolean"),
+   BYTE_WRAPPER("Byte"),
+   SHORT_WRAPPER("Short"),
+   CHAR_WRAPPER("Character"),
+   INT_WRAPPER("Integer"),
+   LONG_WRAPPER("Long"),
+   FLOAT_WRAPPER("Float"),
+   DOUBLE_WRAPPER("Double"),
    ;
 
    // =============== Fields ===============
