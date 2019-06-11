@@ -207,8 +207,6 @@ public class ScenarioCompiler implements Tool
       {
          final ASTListener listener = new ASTListener();
          ParseTreeWalker.DEFAULT.walk(listener, context);
-
-         this.getErr().println("read scenario " + file);
          return listener.getFile();
       }
       catch (Exception e)
