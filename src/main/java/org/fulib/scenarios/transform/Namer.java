@@ -1,5 +1,6 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
@@ -91,7 +92,7 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
             return exprName;
          }
       }
-      return creationExpr.getClassName().accept(this, par);
+      return StrUtil.downFirstChar(creationExpr.getType().accept(this, par));
    }
 
    @Override

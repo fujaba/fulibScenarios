@@ -19,7 +19,6 @@ import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.transform.ExtractDecl;
 import org.fulib.scenarios.transform.Namer;
-import org.fulib.scenarios.transform.Typer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +52,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(CreationExpr creationExpr, CodeGenerator par)
    {
-      final String className = creationExpr.accept(Typer.INSTANCE, null);
+      final String className = creationExpr.getType().accept(TypeGenerator.INSTANCE, null);
 
       par.bodyBuilder.append("new ").append(className).append("()");
       for (NamedExpr attribute : creationExpr.getAttributes())

@@ -42,7 +42,8 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    {
       final Clazz clazz = par.modelManager.haveClass(attributeDecl.getOwner().getName());
 
-      par.modelManager.haveAttribute(clazz, attributeDecl.getName(), attributeDecl.getType());
+      par.modelManager
+         .haveAttribute(clazz, attributeDecl.getName(), attributeDecl.getType().accept(TypeGenerator.INSTANCE, par));
 
       return null;
    }
@@ -52,7 +53,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    {
       final Clazz clazz = par.modelManager.haveClass(associationDecl.getOwner().getName());
 
-      final Clazz otherClazz = par.modelManager.haveClass(associationDecl.getType());
+      final Clazz otherClazz = par.modelManager.haveClass(associationDecl.getTarget().getName());
 
       final AssociationDecl other = associationDecl.getOther();
       if (other != null)
@@ -76,14 +77,14 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
       final FMethod method = new FMethod();
       method.setClazz(clazz);
       method.writeName(methodDecl.getName());
-      method.writeReturnType(methodDecl.getType());
+      method.writeReturnType(methodDecl.getType().accept(TypeGenerator.INSTANCE, par));
 
       for (final ParameterDecl parameter : methodDecl.getParameters())
       {
          final String name = parameter.getName();
          if (!"this".equals(name))
          {
-            method.readParams().put(name, parameter.getType());
+            method.readParams().put(name, parameter.getType().accept(TypeGenerator.INSTANCE, par));
          }
       }
 
@@ -106,12 +107,8 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    {
       par.emitIndent();
 
-      if (varDecl.getType().startsWith("List<"))
-      {
-         par.addImport("java.util.List");
-      }
-
-      par.bodyBuilder.append(varDecl.getType()).append(' ').append(varDecl.getName()).append(" = ");
+      par.bodyBuilder.append(varDecl.getType().accept(TypeGenerator.INSTANCE, par)).append(' ')
+                     .append(varDecl.getName()).append(" = ");
       varDecl.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(";\n");
       return null;

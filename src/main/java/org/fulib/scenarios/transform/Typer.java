@@ -1,7 +1,8 @@
 package org.fulib.scenarios.transform;
 
-import org.fulib.StrUtil;
-import org.fulib.scenarios.ast.decl.*;
+import org.fulib.scenarios.ast.decl.Name;
+import org.fulib.scenarios.ast.decl.ResolvedName;
+import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -17,41 +18,44 @@ import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
+import org.fulib.scenarios.ast.type.Type;
 
 import java.util.List;
 
-public enum Typer implements Expr.Visitor<Object, String>, Name.Visitor<Object, String>
+public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Type>
 {
    INSTANCE;
 
    // --------------- Expr.Visitor ---------------
 
    @Override
-   public String visit(Expr expr, Object par)
+   public Type visit(Expr expr, Object par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public String visit(AttributeAccess attributeAccess, Object par)
+   public Type visit(AttributeAccess attributeAccess, Object par)
    {
       return attributeAccess.getName().accept(this, par);
    }
 
    @Override
-   public String visit(ExampleAccess exampleAccess, Object par)
+   public Type visit(ExampleAccess exampleAccess, Object par)
    {
       return exampleAccess.getExpr().accept(this, par);
    }
 
    @Override
-   public String visit(CreationExpr creationExpr, Object par)
+   public Type visit(CreationExpr creationExpr, Object par)
    {
-      return StrUtil.cap(creationExpr.getClassName().accept(Namer.INSTANCE, null));
+      return creationExpr.getType();
    }
 
    @Override
-   public String visit(CallExpr callExpr, Object par)
+   public Type visit(CallExpr callExpr, Object par)
    {
       final List<Sentence> body = callExpr.getBody().getItems();
 
@@ -63,59 +67,59 @@ public enum Typer implements Expr.Visitor<Object, String>, Name.Visitor<Object, 
       }
       else
       {
-         return "void";
+         return PrimitiveType.VOID;
       }
    }
 
    @Override
-   public String visit(PrimaryExpr primaryExpr, Object par)
+   public Type visit(PrimaryExpr primaryExpr, Object par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public String visit(NameAccess nameAccess, Object par)
+   public Type visit(NameAccess nameAccess, Object par)
    {
       return nameAccess.getName().accept(this, par);
    }
 
    @Override
-   public String visit(NumberLiteral numberLiteral, Object par)
+   public Type visit(NumberLiteral numberLiteral, Object par)
    {
-      return "double";
+      return PrimitiveType.DOUBLE;
    }
 
    @Override
-   public String visit(StringLiteral stringLiteral, Object par)
+   public Type visit(StringLiteral stringLiteral, Object par)
    {
-      return "String";
+      return PrimitiveType.STRING;
    }
 
    @Override
-   public String visit(ConditionalExpr conditionalExpr, Object par)
+   public Type visit(ConditionalExpr conditionalExpr, Object par)
    {
-      return "boolean";
+      return PrimitiveType.BOOLEAN;
    }
 
    @Override
-   public String visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   public Type visit(AttributeCheckExpr attributeCheckExpr, Object par)
    {
-      return "boolean";
+      return PrimitiveType.BOOLEAN;
    }
 
    @Override
-   public String visit(CollectionExpr collectionExpr, Object par)
+   public Type visit(CollectionExpr collectionExpr, Object par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public String visit(ListExpr listExpr, Object par)
+   public Type visit(ListExpr listExpr, Object par)
    {
-      String commonType = null;
+      Type commonType = null;
       for (Expr element : listExpr.getElements())
       {
-         final String elementType = element.accept(this, par);
+         final Type elementType = element.accept(this, par);
          if (commonType == null)
          {
             commonType = elementType;
@@ -123,59 +127,59 @@ public enum Typer implements Expr.Visitor<Object, String>, Name.Visitor<Object, 
          else if (!commonType.equals(elementType))
          {
             // no common type -> use Object
-            return "List<Object>";
+            return ListType.of(PrimitiveType.OBJECT);
          }
       }
 
       assert commonType != null : "empty list expression";
-      return "List<" + primitiveToWrapper(commonType) + ">";
+      final Type wrapperType = primitiveToWrapper(commonType);
+      return ListType.of(wrapperType);
    }
 
    // --------------- Name.Visitor ---------------
 
    @Override
-   public String visit(Name name, Object par)
+   public Type visit(Name name, Object par)
    {
       throw new UnsupportedOperationException();
    }
 
    @Override
-   public String visit(UnresolvedName unresolvedName, Object par)
+   public Type visit(UnresolvedName unresolvedName, Object par)
    {
       // TODO diagnostic
       throw new IllegalStateException("unresolved name " + unresolvedName.getValue());
    }
 
    @Override
-   public String visit(ResolvedName resolvedName, Object par)
+   public Type visit(ResolvedName resolvedName, Object par)
    {
       return resolvedName.getDecl().getType();
    }
 
    // =============== Static Methods ===============
 
-   public static String primitiveToWrapper(String primitive)
+   public static Type primitiveToWrapper(Type primitive)
    {
-      switch (primitive)
+      if (!(primitive instanceof PrimitiveType))
       {
-      case "byte":
-         return "Byte";
-      case "short":
-         return "Short";
-      case "char":
-         return "Character";
-      case "int":
-         return "Integer";
-      case "long":
-         return "Long";
-      case "float":
-         return "Float";
-      case "double":
-         return "Double";
-      case "void":
-         return "Void";
-      default:
          return primitive;
+      }
+
+      switch ((PrimitiveType) primitive)
+      {
+      // @formatter:off
+      case VOID: return PrimitiveType.VOID_WRAPPER;
+      case BOOLEAN: return PrimitiveType.BOOLEAN_WRAPPER;
+      case BYTE: return PrimitiveType.BYTE_WRAPPER;
+      case SHORT: return PrimitiveType.SHORT_WRAPPER;
+      case CHAR: return PrimitiveType.CHAR_WRAPPER;
+      case INT: return PrimitiveType.INT_WRAPPER;
+      case LONG: return PrimitiveType.LONG_WRAPPER;
+      case FLOAT: return PrimitiveType.FLOAT_WRAPPER;
+      case DOUBLE: return PrimitiveType.DOUBLE_WRAPPER;
+      default: return primitive;
+      // @formatter:on
       }
    }
 }

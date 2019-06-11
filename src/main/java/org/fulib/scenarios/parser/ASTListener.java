@@ -22,6 +22,8 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.ast.type.UnresolvedType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -99,7 +101,7 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
 
-      final Name type = typeName(ctx.simpleTypeClause());
+      final Type type = type(ctx.simpleTypeClause());
       final String name = varName(ctx.name());
       final List<NamedExpr> attributes = this.pop(NamedExpr.class,
                                                   withClauses != null ? withClauses.withClause().size() : 0);
@@ -114,7 +116,7 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
 
-      final Name type = typeName(ctx.multiTypeClause());
+      final Type type = type(ctx.multiTypeClause());
       final List<String> names = ctx.name().stream().map(ASTListener::varName).collect(Collectors.toList());
       final List<NamedExpr> attributes = this.pop(NamedExpr.class,
                                                   withClauses != null ? withClauses.withClause().size() : 0);
@@ -148,13 +150,13 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitIsSentence(ScenarioParser.IsSentenceContext ctx)
    {
-      final Name className = typeName(ctx.simpleTypeClause());
+      final Type type = type(ctx.simpleTypeClause());
 
       final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
       final List<NamedExpr> attributes = this.pop(NamedExpr.class,
                                                   withClauses != null ? withClauses.withClause().size() : 0);
 
-      final Expr ctor = CreationExpr.of(className, attributes);
+      final Expr ctor = CreationExpr.of(type, attributes);
 
       final String name = varName(ctx.name());
       final VarDecl varDecl = VarDecl.of(name, null, ctor);
@@ -300,6 +302,25 @@ public class ASTListener extends ScenarioParserBaseListener
       return context == null ? null : StrUtil.downFirstChar(context.WORD().getText());
    }
 
+   static String typeNameValue(ScenarioParser.SimpleTypeClauseContext typeClause)
+   {
+      final ScenarioParser.SimpleNameContext simpleName = typeClause.simpleName();
+      return simpleName != null ? simpleName.WORD().getText() : joinCaps(typeClause.name());
+   }
+
+   static String typeNameValue(ScenarioParser.MultiTypeClauseContext typeClause)
+   {
+      final ScenarioParser.NameContext name = typeClause.name();
+      final String typeName = joinCaps(name);
+
+      if (typeClause.CARDS() != null || !typeName.endsWith("s"))
+      {
+         return typeName;
+      }
+
+      return typeName.substring(0, typeName.length() - 1);
+   }
+
    static Name name(ScenarioParser.SimpleNameContext simpleName)
    {
       return simpleName == null ? null : name(varName(simpleName), simpleName);
@@ -316,23 +337,14 @@ public class ASTListener extends ScenarioParserBaseListener
       return UnresolvedName.of(value, text);
    }
 
-   static Name typeName(ScenarioParser.SimpleTypeClauseContext typeClause)
+   static Type type(ScenarioParser.SimpleTypeClauseContext typeClause)
    {
-      final ScenarioParser.SimpleNameContext simpleName = typeClause.simpleName();
-      return UnresolvedName.of(simpleName != null ? varName(simpleName) : varName(typeClause.name()), null);
+      return UnresolvedType.of(typeNameValue(typeClause));
    }
 
-   static Name typeName(ScenarioParser.MultiTypeClauseContext typeClause)
+   static Type type(ScenarioParser.MultiTypeClauseContext typeClause)
    {
-      final ScenarioParser.NameContext name = typeClause.name();
-      if (typeClause.CARDS() != null)
-      {
-         return name(name);
-      }
-
-      final String varName = varName(name);
-      final String singularVarName = varName.endsWith("s") ? varName.substring(0, varName.length() - 1) : varName;
-      return UnresolvedName.of(singularVarName, null);
+      return UnresolvedType.of(typeNameValue(typeClause));
    }
 
    static String inputText(ParserRuleContext ctx)

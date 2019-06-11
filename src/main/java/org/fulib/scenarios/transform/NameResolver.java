@@ -1,6 +1,5 @@
 package org.fulib.scenarios.transform;
 
-import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 
 public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
                                        Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Object>,
-                                       Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
+                                       Type.Visitor<Scope, Type>, Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
    INSTANCE;
 
@@ -69,9 +68,9 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       final ScenarioGroup group = scenarioFile.getGroup();
       final String className = scenarioFile.getName().replaceAll("\\W", "") + "Test";
-      final ClassDecl classDecl = ClassDecl
-                                     .of(group, className, className, new LinkedHashMap<>(), new LinkedHashMap<>(),
-                                         new ArrayList<>());
+      final ClassDecl classDecl = ClassDecl.of(group, className, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
+                                               new ArrayList<>());
+      classDecl.setType(ClassType.of(classDecl));
 
       // group.getClasses().put(className, classDecl);
       scenarioFile.setClassDecl(classDecl);
@@ -99,7 +98,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       final ClassDecl classDecl = scenario.getFile().getClassDecl();
       final String methodName = "scenario" + scenario.getName().replaceAll("\\W", "");
       final SentenceList body = scenario.getBody();
-      final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, "void", body);
+      final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, PrimitiveType.VOID, body);
 
       final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
       methodDecl.setParameters(Collections.singletonList(thisParam));
@@ -357,10 +356,8 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Expr visit(CreationExpr creationExpr, Scope par)
    {
-      final String className = StrUtil.cap(creationExpr.getClassName().accept(Namer.INSTANCE, par));
-      final ClassDecl classDecl = resolveClass(par, className);
-
-      creationExpr.setClassName(ResolvedName.of(classDecl));
+      creationExpr.setType(creationExpr.getType().accept(this, par));
+      final ClassDecl classDecl = resolveClass(par, creationExpr.getType());
 
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
@@ -434,7 +431,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
          if (isNew)
          {
-            final String type = expr.accept(Typer.INSTANCE, null);
+            final Type type = expr.accept(Typer.INSTANCE, null);
             param = ParameterDecl.of(method, name, type);
             parameters.add(param);
          }
@@ -468,7 +465,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       // set return type if necessary. has to happen after body resolution!
       if (isNew)
       {
-         final String returnType = callExpr.accept(Typer.INSTANCE, null);
+         final Type returnType = callExpr.accept(Typer.INSTANCE, null);
          method.setType(returnType);
       }
 
@@ -531,18 +528,31 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    static ClassDecl resolveClass(Scope scope, Expr expr)
    {
-      return resolveClass(scope, expr.accept(Typer.INSTANCE, null));
+      final Type type = expr.accept(Typer.INSTANCE, null);
+      return resolveClass(scope, type);
+   }
+
+   static ClassDecl resolveClass(Scope scope, Type type)
+   {
+      final String typeName = type.accept(Namer.INSTANCE, null);
+      return resolveClass(scope, typeName);
    }
 
    static ClassDecl resolveClass(Scope scope, String name)
    {
-      final ClassDecl resolve = (ClassDecl) scope.resolve(name);
-      if (resolve != null)
+      final Decl resolved = scope.resolve(name);
+      if (resolved instanceof ClassDecl)
       {
-         return resolve;
+         return (ClassDecl) resolved;
+      }
+      if (resolved != null)
+      {
+         throw new IllegalStateException("class name " + name + " resolved to " + resolved);
       }
 
-      final ClassDecl decl = ClassDecl.of(null, name, name, new LinkedHashMap<>(), new LinkedHashMap<>(), new ArrayList<>());
+      final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
+                                          new ArrayList<>());
+      decl.setType(ClassType.of(decl));
       scope.add(decl);
       return decl;
    }
@@ -588,29 +598,26 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          return existingAssociation;
       }
 
-      final String attributeType = rhs.accept(Typer.INSTANCE, null);
-      final ClassDecl otherClass;
+      final Type attributeType = rhs.accept(Typer.INSTANCE, null);
 
-      if (attributeType.startsWith("List<"))
+      if (attributeType instanceof ListType)
       {
          // new value is multi-valued
 
-         final String otherType = attributeType.substring(5, attributeType.length() - 1); // strip List< and >
-         otherClass = classDecl.getGroup().getClasses().get(otherType);
-
-         if (otherClass == null)
+         final Type otherType = ((ListType) attributeType).getElementType();
+         if (otherType instanceof ClassType)
+         {
+            return resolveAssociation(classDecl, attributeName, ((ClassType) otherType).getClassDecl(), 2);
+         }
+         else
          {
             // was element type that we have no control over, e.g. List<String>
             return resolveAttribute(classDecl, attributeName, attributeType);
          }
-         else
-         {
-            return resolveAssociation(classDecl, attributeName, otherClass, 2);
-         }
       }
-      else if ((otherClass = classDecl.getGroup().getClasses().get(attributeType)) != null)
+      else if (attributeType instanceof ClassType)
       {
-         return resolveAssociation(classDecl, attributeName, otherClass, 1);
+         return resolveAssociation(classDecl, attributeName, ((ClassType) attributeType).getClassDecl(), 1);
       }
       else
       {
@@ -618,13 +625,13 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       }
    }
 
-   static AttributeDecl resolveAttribute(ClassDecl classDecl, String name, String type)
+   static AttributeDecl resolveAttribute(ClassDecl classDecl, String name, Type type)
    {
       final AttributeDecl existing = classDecl.getAttributes().get(name);
       if (existing != null)
       {
-         final String existingType = existing.getType();
-         if (!type.equals(existingType))
+         final Type existingType = existing.getType();
+         if (!type.equals(existingType)) // TODO type equality
          {
             throw new IllegalStateException(
                "mismatched attribute type " + classDecl.getName() + "." + name + ": " + existingType + " vs "

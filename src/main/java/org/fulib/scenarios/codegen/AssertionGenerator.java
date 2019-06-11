@@ -6,6 +6,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.type.PrimitiveType;
+import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
@@ -37,12 +39,10 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       codeGen.emit(StrUtil.cap(attributeName.accept(Namer.INSTANCE, null)));
       codeGen.emit("()");
 
-      switch (AttributeAccess.of(attributeName, receiver).accept(Typer.INSTANCE, null))
+      final Type type = AttributeAccess.of(attributeName, receiver).accept(Typer.INSTANCE, null);
+      if (type == PrimitiveType.FLOAT || type == PrimitiveType.DOUBLE)
       {
-      case "float":
-      case "double":
          codeGen.emit(", 0");
-         break;
       }
 
       codeGen.emit(")");

@@ -5,18 +5,17 @@ abstract org.fulib.scenarios.ast.Node {
 	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl)
 	Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
-	// TODO remove type
-	abstract decl.Decl(name: String, type: String) {
-		ClassDecl(group: ScenarioGroup, name: String, type: String, // == name
+	abstract decl.Decl(name: String, type: Type) {
+		ClassDecl(group: ScenarioGroup, name: String, type: Type,
 		          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl])
 
-		AttributeDecl(owner: ClassDecl, name: String, type: String)
-		AssociationDecl(owner: ClassDecl, name: String, cardinality: int, target: ClassDecl, type: String, // == target
+		AttributeDecl(owner: ClassDecl, name: String, type: Type)
+		AssociationDecl(owner: ClassDecl, name: String, cardinality: int, target: ClassDecl, type: Type,
 		                other: AssociationDecl?)
-		MethodDecl(owner: ClassDecl, name: String, parameters: [ParameterDecl], type: String, body: SentenceList)
-		ParameterDecl(owner: MethodDecl, name: String, type: String)
+		MethodDecl(owner: ClassDecl, name: String, parameters: [ParameterDecl], type: Type, body: SentenceList)
+		ParameterDecl(owner: MethodDecl, name: String, type: Type)
 
-		VarDecl(name: String, type: String, expr: Expr)
+		VarDecl(name: String, type: Type, expr: Expr)
 	}
 
 	abstract decl.Name {
@@ -31,7 +30,7 @@ abstract org.fulib.scenarios.ast.Node {
 		import PrimitiveType
 	}
 
-	MultiDescriptor(type: Name, names: [String], attributes: [NamedExpr])
+	MultiDescriptor(type: Type, names: [String], attributes: [NamedExpr])
 
 	abstract sentence.Sentence {
 		SentenceList(items: [Sentence])
@@ -62,7 +61,7 @@ abstract org.fulib.scenarios.ast.Node {
 		access.AttributeAccess(name: Name, receiver: Expr)
 		access.ExampleAccess(value: Expr, expr: Expr)
 
-		call.CreationExpr(className: Name, attributes: [NamedExpr])
+		call.CreationExpr(type: Type, attributes: [NamedExpr])
 		call.CallExpr(name: Name, receiver: Expr, arguments: [NamedExpr], body: SentenceList)
 
 		abstract conditional.ConditionalExpr {
