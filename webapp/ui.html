@@ -20,7 +20,7 @@
 
 <div id="ui", style="margin: 1rem">
     <div class="row justify-content-center" style="margin: 1rem">
-        <button id='partyButton' style="margin: 1rem, font-weight: bold">Party</button>
+        <button id='partyButton' class='font-weight-bold' style="margin: 1rem">Party</button>
         <button id='peopleButton'style="margin: 1rem">People</button>
         <button id='shippingButton' style="margin: 1rem">Shopping</button>
     </div>
@@ -85,8 +85,8 @@
     });
 
     stepList.push(function() {
-        document.getElementById('partyButton').style = 'margin: 1rem';
-        document.getElementById('peopleButton').style = 'margin: 1rem, font-weight: bold';
+        document.getElementById('partyButton').className = 'font-weight-normal';
+        document.getElementById('peopleButton').className = 'font-weight-bold';
         document.getElementById('partyMain').innerHTML =
             "<div class='row justify-content-center' style='margin: 1rem'>" +
                 "Add / Edit Party Participant" +
