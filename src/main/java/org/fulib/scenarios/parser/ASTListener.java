@@ -96,32 +96,34 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(ThereSentence.of(descriptors));
    }
 
+   private List<NamedExpr> popAttributes(ScenarioParser.WithClausesContext withClauses)
+   {
+      final int numAttributes = withClauses != null ? withClauses.withClause().size() : 0;
+      return this.pop(NamedExpr.class, numAttributes);
+   }
+
+   private void pushDescriptor(List<String> names, ScenarioParser.WithClausesContext withClausesContext)
+   {
+      final List<NamedExpr> attributes = this.popAttributes(withClausesContext);
+      final Type type = this.pop();
+      final MultiDescriptor multiDescriptor = MultiDescriptor.of(type, names, attributes);
+
+      this.stack.push(multiDescriptor);
+   }
+
    @Override
    public void exitSimpleDescriptor(ScenarioParser.SimpleDescriptorContext ctx)
    {
-      final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
-
-      final Type type = type(ctx.simpleTypeClause());
       final String name = varName(ctx.name());
-      final List<NamedExpr> attributes = this.pop(NamedExpr.class,
-                                                  withClauses != null ? withClauses.withClause().size() : 0);
-
-      this.stack.push(MultiDescriptor
-                         .of(type, name == null ? Collections.emptyList() : Collections.singletonList(name),
-                             attributes));
+      final List<String> names = name == null ? Collections.emptyList() : Collections.singletonList(name);
+      this.pushDescriptor(names, ctx.withClauses());
    }
 
    @Override
    public void exitMultiDescriptor(ScenarioParser.MultiDescriptorContext ctx)
    {
-      final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
-
-      final Type type = type(ctx.multiTypeClause());
       final List<String> names = ctx.name().stream().map(ASTListener::varName).collect(Collectors.toList());
-      final List<NamedExpr> attributes = this.pop(NamedExpr.class,
-                                                  withClauses != null ? withClauses.withClause().size() : 0);
-
-      this.stack.push(MultiDescriptor.of(type, names, attributes));
+      this.pushDescriptor(names, ctx.withClauses());
    }
 
    @Override
@@ -150,11 +152,8 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitIsSentence(ScenarioParser.IsSentenceContext ctx)
    {
-      final Type type = type(ctx.simpleTypeClause());
-
-      final ScenarioParser.WithClausesContext withClauses = ctx.withClauses();
-      final List<NamedExpr> attributes = this.pop(NamedExpr.class,
-                                                  withClauses != null ? withClauses.withClause().size() : 0);
+      final List<NamedExpr> attributes = this.popAttributes(ctx.withClauses());
+      final Type type = this.pop();
 
       final Expr ctor = CreationExpr.of(type, attributes);
 
@@ -211,6 +210,20 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name name = name(ctx.name());
       final Expr expr = this.pop();
       this.stack.push(NamedExpr.of(name, expr));
+   }
+
+   // --------------- Types ---------------
+
+   @Override
+   public void exitSimpleTypeClause(ScenarioParser.SimpleTypeClauseContext ctx)
+   {
+      this.stack.push(UnresolvedType.of(typeNameValue(ctx)));
+   }
+
+   @Override
+   public void exitMultiTypeClause(ScenarioParser.MultiTypeClauseContext ctx)
+   {
+      this.stack.push(UnresolvedType.of(typeNameValue(ctx)));
    }
 
    // --------------- Expressions ---------------
@@ -335,16 +348,6 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final String text = inputText(rule);
       return UnresolvedName.of(value, text);
-   }
-
-   static Type type(ScenarioParser.SimpleTypeClauseContext typeClause)
-   {
-      return UnresolvedType.of(typeNameValue(typeClause));
-   }
-
-   static Type type(ScenarioParser.MultiTypeClauseContext typeClause)
-   {
-      return UnresolvedType.of(typeNameValue(typeClause));
    }
 
    static String inputText(ParserRuleContext ctx)
