@@ -20,6 +20,7 @@ import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.*;
 import org.fulib.scenarios.transform.scope.DelegatingScope;
 import org.fulib.scenarios.transform.scope.HidingScope;
 import org.fulib.scenarios.transform.scope.Scope;
@@ -247,6 +248,46 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    {
       exprSentence.setExpr(exprSentence.getExpr().accept(this, par));
       return null;
+   }
+
+   // --------------- Type.Visitor ---------------
+
+   @Override
+   public Type visit(Type type, Scope par)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Type visit(UnresolvedType unresolvedType, Scope par)
+   {
+      try
+      {
+         return PrimitiveType.valueOf(unresolvedType.getName());
+      }
+      catch (IllegalArgumentException unknownEnumConstant)
+      {
+         return resolveClass(par, unresolvedType.getName()).getType();
+      }
+   }
+
+   @Override
+   public Type visit(PrimitiveType primitiveType, Scope par)
+   {
+      return primitiveType;
+   }
+
+   @Override
+   public Type visit(ClassType classType, Scope par)
+   {
+      return classType;
+   }
+
+   @Override
+   public Type visit(ListType listType, Scope par)
+   {
+      listType.setElementType(listType.getElementType().accept(this, par));
+      return listType;
    }
 
    // --------------- Expr.Visitor ---------------
