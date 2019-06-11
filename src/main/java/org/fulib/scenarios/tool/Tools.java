@@ -112,22 +112,20 @@ public class Tools
       URL[] classPathUrls = new URL[0];
       try
       {
-         classPathUrls = new URL[]{mainClassesDir.toUri().toURL(), testClassesDir.toUri().toURL()};
+         classPathUrls = new URL[] { mainClassesDir.toUri().toURL(), testClassesDir.toUri().toURL() };
       }
       catch (MalformedURLException e)
       {
          Logger.getGlobal().log(Level.SEVERE, "could not build classpath", e);
       }
-      try (URLClassLoader classLoader = new URLClassLoader(
-            classPathUrls))
+      try (URLClassLoader classLoader = new URLClassLoader(classPathUrls))
       {
          List<Class<?>> testClasses = new ArrayList<>();
 
          Files.walk(testClassesDir).filter(Tools::isClass).sorted().forEach(path -> {
             final String relativePath = testClassesDir.relativize(path).toString();
             final String className = relativePath.substring(0, relativePath.length() - ".class".length())
-                  .replace('/', '.')
-                  .replace('\\', '.');
+                                                 .replace('/', '.').replace('\\', '.');
             try
             {
                final Class<?> testClass = Class.forName(className, true, classLoader);
@@ -167,10 +165,14 @@ public class Tools
 
          String classPath = System.getProperty("java.class.path");
 
-         final int modelJavac = javac(out, err, classPath, modelClassesDir, modelSrcDir);
-         if (modelJavac != 0)
+         if (Files.walk(modelSrcDir).anyMatch(Tools::isJava))
          {
-            return modelJavac << 2 | 1;
+            // only compile model folder if there are any java files.
+            final int modelJavac = javac(out, err, classPath, modelClassesDir, modelSrcDir);
+            if (modelJavac != 0)
+            {
+               return modelJavac << 2 | 1;
+            }
          }
 
          final String testClassPath = modelClassesDir + File.pathSeparator + classPath;
