@@ -40,6 +40,12 @@ const javaTestOutputCodeMirror = CodeMirror.fromTextArea(javaTestOutput, {
     mode: 'text/x-java',
 });
 
+const scenarioCompileProgress = document.getElementById('scenarioCompileProgress');
+const modelCompileProgress = document.getElementById('modelCompileProgress');
+const testCompileProgress = document.getElementById('testCompileProgress');
+const testRunProgress = document.getElementById('testRunProgress');
+const progressElements = [ scenarioCompileProgress, testCompileProgress, modelCompileProgress, testRunProgress ];
+
 // =============== Initialization ===============
 
 init();
@@ -72,6 +78,22 @@ function init() {
 
 // --------------- Event Handlers ---------------
 
+function setFailure(number) {
+    // number indicates the component that failed
+
+    // set components before to success
+    for (let i = 0; i < number; i++) {
+        progressElements[i].classList.remove('bg-danger');
+        progressElements[i].classList.add('bg-success');
+    }
+
+    // set components after to failure
+    for (let i = number; i < progressElements.length; i++) {
+        progressElements[i].classList.remove('bg-success');
+        progressElements[i].classList.add('bg-danger');
+    }
+}
+
 function submit() {
     const text = scenarioInputCodeMirror.getValue();
 
@@ -92,7 +114,12 @@ function submit() {
             javaCode += response.output.split('\n').map(function(line) {
                 return '// ' + line;
             }).join('\n') + '\n';
+            setFailure(response.exitCode & 3);
         }
+        else {
+            setFailure(progressElements.length);
+        }
+
         if (response.testMethods) {
             for (testMethod of response.testMethods) {
                 javaCode += '// ' + testMethod.name + '\n';

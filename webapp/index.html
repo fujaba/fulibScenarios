@@ -1,54 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Scenario</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-          crossorigin="anonymous">
-    <!-- CodeMirror -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.css"
-          integrity="sha256-I8NyGs4wjbMuBSUE40o55W6k6P7tu/7G28/JGUUYCIs="
-          crossorigin="anonymous"/>
-    <!-- Custom -->
-    <link rel="stylesheet" href="style.css">
+	<meta charset="UTF-8">
+	<title>Scenario</title>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet"
+	      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+	      crossorigin="anonymous">
+	<!-- CodeMirror -->
+	<link rel="stylesheet"
+	      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.47.0/codemirror.min.css"
+	      integrity="sha256-I8NyGs4wjbMuBSUE40o55W6k6P7tu/7G28/JGUUYCIs="
+	      crossorigin="anonymous"/>
+	<!-- Custom -->
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="row" style="margin: 1rem">
-    <div class="col-md-12 col-lg-6">
-        <h2>Scenario</h2>
-        <p>
-            Load Example: <select id="exampleSelect" onchange="selectExample(this.value)">
-            <option value="">-</option>
-        </select>
-        </p>
-            <textarea class="form-control" id="scenarioInput"></textarea>
-        <a href="#" onclick="submit()">Press <kbd>Ctrl-Enter</kbd> to compile and run</a>.
-    </div>
+	<div class="col-md-12 col-lg-6">
+		<h2>Scenario</h2>
+		<p>
+			Load Example: <select id="exampleSelect" onchange="selectExample(this.value)">
+			<option value="">-</option>
+		</select>
+		</p>
+		<p>
+			<textarea class="form-control" id="scenarioInput"></textarea>
+		</p>
+		<p>
+			<a href="#" onclick="submit()">Press <kbd>Ctrl-Enter</kbd> to compile and run</a>. </p>
+	</div>
 
-    <div class="col-md-12 col-lg-6">
-        <h2>Java Test Code</h2>    <br/>
-        <p></p>
+	<div class="col-md-12 col-lg-6">
+		<h2>Java Test Code</h2>
+		<p></p>
+		<div class="progress">
+			<div id="scenarioCompileProgress" class="progress-bar bg-success" role="progressbar" style="width: 24.25%">
+				Scenario Compiler
+			</div>
+			<div class="progress-bar bg-transparent" role="progressbar" style="width: 1%"></div>
+			<div id="modelCompileProgress" class="progress-bar bg-success" role="progressbar" style="width: 24.25%">
+				Java Model Compiler
+			</div>
+			<div class="progress-bar bg-transparent" role="progressbar" style="width: 1%"></div>
+			<div id="testCompileProgress" class="progress-bar bg-success" role="progressbar" style="width: 24.25%">
+				Java Test Compiler
+			</div>
+			<div class="progress-bar bg-transparent" role="progressbar" style="width: 1%"></div>
+			<div id="testRunProgress" class="progress-bar bg-success" role="progressbar" style="width: 24.25%">
+				Test Run
+			</div>
+		</div>
+		<p></p>
+		<p>
         <textarea class="form-control" id="javaTestOutput">
 // press Ctrl-Enter within the scenario editor to generate Java.
 // This is version 2019.06.05 18:02
 </textarea>
-    </div>
+		</p>
+	</div>
 </div>
 
 <div class="row" style="margin: 1rem">
-    <div class="col-md-12 col-lg-6">
-        <h2>Object Diagram</h2>        <br/>
-        <div class="svg" id="objectDiagram"></div>
-    </div>
+	<div class="col-md-12 col-lg-6">
+		<h2>Object Diagram</h2>
+		<div class="svg" id="objectDiagram"></div>
+	</div>
 
-    <div class="col-md-12 col-lg-6">
-        <h2>Class Diagram</h2>        <br/>
-        <div class="svg" id="classDiagram"></div>
-    </div>
+	<div class="col-md-12 col-lg-6">
+		<h2>Class Diagram</h2>
+		<div class="svg" id="classDiagram"></div>
+	</div>
 </div>
 
 
