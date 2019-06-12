@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
@@ -132,8 +133,11 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
    {
-      // TODO like AssertionGenerator#visit(ConditionalOperatorExpr, CodeGenerator)
-      throw new UnsupportedOperationException();
+      final boolean numeric = AssertionGenerator.isNumeric(conditionalOperatorExpr);
+      final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
+      final String format = numeric ? operator.getNumberOperator() : operator.getObjectOperator();
+      AssertionGenerator.generateCondOp(conditionalOperatorExpr, par, format);
+      return null;
    }
 
    @Override

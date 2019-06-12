@@ -58,19 +58,10 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
    @Override
    public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
    {
-      final Type lhsType = conditionalOperatorExpr.getLhs().accept(Typer.INSTANCE, null);
-      final Type rhsType = conditionalOperatorExpr.getRhs().accept(Typer.INSTANCE, null);
-      final boolean numeric = Typer.isNumeric(lhsType) || Typer.isNumeric(rhsType);
+      final boolean numeric = isNumeric(conditionalOperatorExpr);
       final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
       final String assertionFormat = numeric ? operator.getNumberAssertion() : operator.getObjectAssertion();
-      final int lhsIndex = assertionFormat.indexOf("<lhs>");
-      final int rhsIndex = assertionFormat.indexOf("<rhs>");
-
-      par.bodyBuilder.append(assertionFormat, 0, lhsIndex); // before <lhs>
-      conditionalOperatorExpr.getLhs().accept(ExprGenerator.INSTANCE, par);
-      par.bodyBuilder.append(assertionFormat, lhsIndex + 5, rhsIndex); // between
-      conditionalOperatorExpr.getRhs().accept(ExprGenerator.INSTANCE, par);
-      par.bodyBuilder.append(assertionFormat, rhsIndex + 5, assertionFormat.length()); // after <rhs>
+      generateCondOp(conditionalOperatorExpr, par, assertionFormat);
 
       // imports
       final Matcher matcher = METHOD_PATTERN.matcher(assertionFormat);
@@ -88,5 +79,24 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       }
 
       return null;
+   }
+
+   static void generateCondOp(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par, String format)
+   {
+      final int lhsIndex = format.indexOf("<lhs>");
+      final int rhsIndex = format.indexOf("<rhs>");
+
+      par.bodyBuilder.append(format, 0, lhsIndex); // before <lhs>
+      conditionalOperatorExpr.getLhs().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(format, lhsIndex + 5, rhsIndex); // between
+      conditionalOperatorExpr.getRhs().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(format, rhsIndex + 5, format.length()); // after <rhs>
+   }
+
+   static boolean isNumeric(ConditionalOperatorExpr conditionalOperatorExpr)
+   {
+      final Type lhsType = conditionalOperatorExpr.getLhs().accept(Typer.INSTANCE, null);
+      final Type rhsType = conditionalOperatorExpr.getRhs().accept(Typer.INSTANCE, null);
+      return Typer.isNumeric(lhsType) || Typer.isNumeric(rhsType);
    }
 }
