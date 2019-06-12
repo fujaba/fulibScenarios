@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -69,9 +70,8 @@ public class WebService
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
          // invoke scenario compiler
-         final int exitCode = Tools.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir, testClassesDir,
-               "--class-diagram-svg", "--object-diagram-svg"
-         );
+         final int exitCode = Tools.genCompileRun(out, out, srcDir, modelSrcDir, testSrcDir, modelClassesDir,
+                                                  testClassesDir, "--class-diagram-svg", "--object-diagram-svg");
 
          final JSONObject result = new JSONObject();
 
@@ -103,35 +103,14 @@ public class WebService
                result.put("classDiagram", svgText);
             }
 
-
-            // read object diagram
-            final StringBuilder objectDiagramSvgText = new StringBuilder();
+            // read object diagrams
+            final JSONArray objectDiagrams = new JSONArray();
             Path srcPackage = srcDir.resolve(PACKAGE_NAME);
-            Files.walk(srcPackage)
-                  .filter(file ->
-                        file.toString().endsWith(".svg") || file.toString().endsWith(".yaml"))
-                  .forEach(file ->
-                  {
-                     try
-                     {
-                        final byte[] objectDiagramBytes = Files.readAllBytes(file);
-                        String openTag = "<p>";
-                        String closeTag = "</p>";
-                        if (file.toString().endsWith(".yaml")) {
-                           openTag = "<pre>\n";
-                           closeTag = "</pre>";
-                        }
-
-                        String text = String.format("<h4>%s</h4>\n%s%s%s\n", file.getFileName(),
-                              openTag, new String(objectDiagramBytes), closeTag);
-                        objectDiagramSvgText.append(text);
-                     }
-                     catch (Exception e)
-                     {
-
-                     }
-                  });
-            result.put("objectDiagram", objectDiagramSvgText.toString());
+            Files.walk(srcPackage).filter(file -> {
+               final String fileName = file.toString();
+               return fileName.endsWith(".svg") || fileName.endsWith(".yaml") || fileName.endsWith(".png");
+            }).forEach(file -> addObjectDiagram(objectDiagrams, file, srcPackage.relativize(file).toString()));
+            result.put("objectDiagrams", objectDiagrams);
          }
 
          res.type("application/json");
@@ -141,6 +120,41 @@ public class WebService
       {
          Tools.deleteRecursively(codegendir);
       }
+   }
+
+   private static void addObjectDiagram(JSONArray objectDiagrams, Path file, String fileName)
+   {
+      try
+      {
+         tryAddObjectDiagram(objectDiagrams, file, fileName);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+
+   private static void tryAddObjectDiagram(JSONArray objectDiagrams, Path file, String fileName)
+      throws JSONException, IOException
+   {
+      final byte[] content = Files.readAllBytes(file);
+
+      final JSONObject object = new JSONObject();
+      object.put("name", fileName);
+
+      switch (fileName.substring(fileName.indexOf('.')))
+      {
+      case ".png":
+         final String base64Content = Base64.getEncoder().encodeToString(content);
+         object.put("content", base64Content);
+         break;
+      case ".yaml":
+      case ".svg":
+         object.put("content", new String(content, StandardCharsets.UTF_8));
+         break;
+      }
+
+      objectDiagrams.put(object);
    }
 
    private static void readTestMethod(JSONArray methodArray, Path file)
