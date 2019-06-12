@@ -9,6 +9,7 @@ const examples = [
 	],
 	'Testing', [
 		'Expectations',
+		'Relational Operators',
 		'Diagrams',
 	],
 	'Methods', [
