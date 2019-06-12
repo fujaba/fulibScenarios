@@ -12,9 +12,14 @@ import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator, Object>
 {
    INSTANCE;
+
+   private static final Pattern METHOD_PATTERN = Pattern.compile("(?!\\.)(\\w+)\\(");
 
    @Override
    public Object visit(ConditionalExpr conditionalExpr, CodeGenerator codeGen)
@@ -66,6 +71,21 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       par.bodyBuilder.append(assertionFormat, lhsIndex + 5, rhsIndex); // between
       conditionalOperatorExpr.getRhs().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(assertionFormat, rhsIndex + 5, assertionFormat.length()); // after <rhs>
+
+      // imports
+      final Matcher matcher = METHOD_PATTERN.matcher(assertionFormat);
+      while (matcher.find())
+      {
+         final String methodName = matcher.group(1);
+         if (methodName.startsWith("assert"))
+         {
+            par.addImport("static org.junit.Assert." + methodName);
+         }
+         else
+         {
+            par.addImport("static org.hamcrest.CoreMatchers." + methodName);
+         }
+      }
 
       return null;
    }
