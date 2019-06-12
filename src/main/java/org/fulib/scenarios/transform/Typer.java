@@ -189,4 +189,27 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       // @formatter:on
       }
    }
+
+   public static boolean isNumeric(Type type)
+   {
+      if (!(type instanceof PrimitiveType))
+      {
+         return false;
+      }
+
+      switch ((PrimitiveType) type)
+      {
+         // @formatter:off
+         case BYTE: case BYTE_WRAPPER:
+         case SHORT: case SHORT_WRAPPER:
+         case CHAR: case CHAR_WRAPPER:
+         case INT: case INT_WRAPPER:
+         case LONG: case LONG_WRAPPER:
+         case FLOAT: case FLOAT_WRAPPER:
+         case DOUBLE: case DOUBLE_WRAPPER:
+         // @formatter:on
+         return true;
+      }
+      return false;
+   }
 }

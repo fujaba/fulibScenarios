@@ -8,17 +8,18 @@ public enum ConditionalOperator
    // =============== Enum Constants ===============
 
    // equality
-   IS("is", "<lhs>.equals(<rhs>)", "assertEquals(<lhs>, <rhs>)"),
-   IS_NOT("is not", "!<lhs>.equals(<rhs>)", "assertNotEquals(<lhs>, <rhs>)"),
-   IS_SAME("is the same as", "<lhs> == <rhs>", "assertSame(<lhs>, <rhs>)"),
-   IS_NOT_SAME("is not the same as", "<lhs> != <rhs>", "assertNotSame(<lhs>, <rhs>)"),
+   IS("is", "<lhs> == <rhs>", "<lhs>.equals(<rhs>)", "assertEquals(<lhs>, <rhs>, 0)", "assertEquals(<lhs>, <rhs>)"),
+   IS_NOT("is not", "<lhs> != <rhs>", "!<lhs>.equals(<rhs>)", "assertNotEquals(<lhs>, <rhs>, 0)",
+          "assertNotEquals(<lhs>, <rhs>)"),
+   IS_SAME("is the same as", null, "<lhs> == <rhs>", null, "assertSame(<lhs>, <rhs>)"),
+   IS_NOT_SAME("is not the same as", null, "<lhs> != <rhs>", null, "assertNotSame(<lhs>, <rhs>)"),
    // comparison
-   LT("is less than", "<lhs> < <rhs>", null),
-   NOT_LT("is not less than", "<lhs> >= <rhs>", null),
-   LE("is less equal", "<lhs> <= <rhs>", null),
-   GT("is greater than", "<lhs> > <rhs>", null),
-   GE("is greater equal", "<lhs> >= <rhs>", null),
-   NOT_GT("is not greater than", "<lhs> <= <rhs>", null),
+   LT("is less than", "<lhs> < <rhs>", "<lhs>.compareTo(<rhs>) < 0"),
+   NOT_LT("is not less than", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
+   LE("is less equal", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
+   GT("is greater than", "<lhs> > <rhs>", "<lhs>.compareTo(<rhs>)  > 0"),
+   GE("is greater equal", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
+   NOT_GT("is not greater than", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
    ;
 
    // =============== Static Fields ===============
@@ -28,19 +29,35 @@ public enum ConditionalOperator
    // =============== Fields ===============
 
    private final String op;
-   private final String javaOperatorFormat;
-   private final String assertion;
+   private final String numberOperator;
+   private final String objectOperator;
+   private final String numberAssertion;
+   private final String objectAssertion;
 
    // =============== Constructors ===============
 
-   ConditionalOperator(String op, String javaOperatorFormat, String assertion)
+   ConditionalOperator(String op, String javaNumberOperator, String javaObjectOperator)
+   {
+      this(op, javaNumberOperator, javaObjectOperator, wrapAssert(javaNumberOperator),
+           wrapAssert(javaObjectOperator));
+   }
+
+   ConditionalOperator(String op, String numberOperator, String objectOperator, String numberAssertion,
+      String objectAssertion)
    {
       this.op = op;
-      this.javaOperatorFormat = javaOperatorFormat;
-      this.assertion = assertion;
+      this.numberOperator = numberOperator;
+      this.objectOperator = objectOperator;
+      this.numberAssertion = numberAssertion;
+      this.objectAssertion = objectAssertion;
    }
 
    // =============== Static Methods ===============
+
+   private static String wrapAssert(String javaObjectOperator)
+   {
+      return "assertTrue(" + javaObjectOperator + ")";
+   }
 
    public static ConditionalOperator getByOp(String op)
    {
@@ -65,13 +82,23 @@ public enum ConditionalOperator
       return this.op;
    }
 
-   public String getOperatorFormat()
+   public String getNumberOperator()
    {
-      return this.javaOperatorFormat;
+      return this.numberOperator;
    }
 
-   public String getAssertionFormat()
+   public String getObjectOperator()
    {
-      return this.assertion != null ? this.assertion : "assertTrue(" + this.javaOperatorFormat + ")";
+      return this.objectOperator;
+   }
+
+   public String getNumberAssertion()
+   {
+      return this.numberAssertion;
+   }
+
+   public String getObjectAssertion()
+   {
+      return this.objectAssertion;
    }
 }

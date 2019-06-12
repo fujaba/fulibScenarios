@@ -6,8 +6,8 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
-import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.Typer;
@@ -41,7 +41,7 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       codeGen.emit("()");
 
       final Type type = AttributeAccess.of(attributeName, receiver).accept(Typer.INSTANCE, null);
-      if (type == PrimitiveType.FLOAT || type == PrimitiveType.DOUBLE)
+      if (Typer.isNumeric(type))
       {
          codeGen.emit(", 0");
       }
@@ -53,7 +53,11 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
    @Override
    public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
    {
-      final String assertionFormat = conditionalOperatorExpr.getOperator().getAssertionFormat();
+      final Type lhsType = conditionalOperatorExpr.getLhs().accept(Typer.INSTANCE, null);
+      final Type rhsType = conditionalOperatorExpr.getRhs().accept(Typer.INSTANCE, null);
+      final boolean numeric = Typer.isNumeric(lhsType) || Typer.isNumeric(rhsType);
+      final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
+      final String assertionFormat = numeric ? operator.getNumberAssertion() : operator.getObjectAssertion();
       final int lhsIndex = assertionFormat.indexOf("<lhs>");
       final int rhsIndex = assertionFormat.indexOf("<rhs>");
 
