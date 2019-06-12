@@ -14,6 +14,7 @@ import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
@@ -488,6 +489,14 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       attributeCheckExpr.setAttribute(
          getAttributeOrAssociation(par, attributeCheckExpr.getReceiver(), attributeCheckExpr.getAttribute()));
       return attributeCheckExpr;
+   }
+
+   @Override
+   public Expr visit(ConditionalOperatorExpr conditionalOperatorExpr, Scope par)
+   {
+      conditionalOperatorExpr.setLhs(conditionalOperatorExpr.getLhs().accept(this, par));
+      conditionalOperatorExpr.setRhs(conditionalOperatorExpr.getRhs().accept(this, par));
+      return conditionalOperatorExpr;
    }
 
    @Override

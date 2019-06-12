@@ -14,6 +14,7 @@ import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
@@ -144,6 +145,12 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
 
    @Override
    public String visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   {
+      return null;
+   }
+
+   @Override
+   public String visit(ConditionalOperatorExpr conditionalOperatorExpr, Object par)
    {
       return null;
    }

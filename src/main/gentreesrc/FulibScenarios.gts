@@ -66,7 +66,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 		abstract conditional.ConditionalExpr {
 			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
-			// ConditionalOperatorExpr(lhs: Expr, operator: ConditionalOperator, rhs: Expr)
+			ConditionalOperatorExpr(lhs: Expr, operator: ConditionalOperator, rhs: Expr)
 		}
 
 		abstract collection.CollectionExpr {

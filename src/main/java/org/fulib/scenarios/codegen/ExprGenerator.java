@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
@@ -125,6 +126,13 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(AttributeCheckExpr attributeCheckExpr, CodeGenerator par)
    {
+      throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
+   {
+      // TODO like AssertionGenerator#visit(ConditionalOperatorExpr, CodeGenerator)
       throw new UnsupportedOperationException();
    }
 

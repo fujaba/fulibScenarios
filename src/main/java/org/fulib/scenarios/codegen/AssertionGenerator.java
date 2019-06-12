@@ -6,6 +6,7 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.transform.Namer;
@@ -46,6 +47,22 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       }
 
       codeGen.emit(")");
+      return null;
+   }
+
+   @Override
+   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
+   {
+      final String assertionFormat = conditionalOperatorExpr.getOperator().getAssertionFormat();
+      final int lhsIndex = assertionFormat.indexOf("<lhs>");
+      final int rhsIndex = assertionFormat.indexOf("<rhs>");
+
+      par.bodyBuilder.append(assertionFormat, 0, lhsIndex); // before <lhs>
+      conditionalOperatorExpr.getLhs().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(assertionFormat, lhsIndex + 5, rhsIndex); // between
+      conditionalOperatorExpr.getRhs().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(assertionFormat, rhsIndex + 5, assertionFormat.length()); // after <rhs>
+
       return null;
    }
 }

@@ -12,6 +12,7 @@ import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
@@ -103,6 +104,12 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
 
    @Override
    public Type visit(AttributeCheckExpr attributeCheckExpr, Object par)
+   {
+      return PrimitiveType.BOOLEAN;
+   }
+
+   @Override
+   public Type visit(ConditionalOperatorExpr conditionalOperatorExpr, Object par)
    {
       return PrimitiveType.BOOLEAN;
    }
