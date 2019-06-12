@@ -139,7 +139,12 @@ primaryRange: primary TO primary | primary THROUGH primary;
 
 // Conditional
 
-condExpr: attrCheck | condOpExpr;
+condExpr: andCondExpr;
+
+andCondExpr: orCondExpr (AND orCondExpr)*;
+orCondExpr: primaryCondExpr (OR primaryCondExpr)*;
+
+primaryCondExpr : attrCheck | condOpExpr;
 attrCheck: access HAS namedExpr;
 
 condOpExpr: access condOp access;

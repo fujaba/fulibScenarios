@@ -282,6 +282,30 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
+   public void exitAndCondExpr(ScenarioParser.AndCondExprContext ctx)
+   {
+      for (int i = ctx.AND().size(); i > 0; i--)
+      {
+         final Expr rhs = this.pop();
+         final Expr lhs = this.pop();
+         final ConditionalOperatorExpr condOp = ConditionalOperatorExpr.of(lhs, ConditionalOperator.AND, rhs);
+         this.stack.push(condOp);
+      }
+   }
+
+   @Override
+   public void exitOrCondExpr(ScenarioParser.OrCondExprContext ctx)
+   {
+      for (int i = ctx.OR().size(); i > 0; i--)
+      {
+         final Expr rhs = this.pop();
+         final Expr lhs = this.pop();
+         final ConditionalOperatorExpr condOp = ConditionalOperatorExpr.of(lhs, ConditionalOperator.OR, rhs);
+         this.stack.push(condOp);
+      }
+   }
+
+   @Override
    public void exitCondOpExpr(ScenarioParser.CondOpExprContext ctx)
    {
       final Expr rhs = this.pop();

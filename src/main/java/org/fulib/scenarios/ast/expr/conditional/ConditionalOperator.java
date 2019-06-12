@@ -7,6 +7,9 @@ public enum ConditionalOperator
 {
    // =============== Enum Constants ===============
 
+   // boolean
+   OR("or", null, "<lhs> || <rhs>"),
+   AND("and", null, "<lhs> && <rhs>"),
    // equality
    IS("is", "<lhs> == <rhs>", "<lhs>.equals(<rhs>)", "assertEquals(<lhs>, <rhs>, 0)", "assertEquals(<lhs>, <rhs>)"),
    IS_NOT("is not", "<lhs> != <rhs>", "!<lhs>.equals(<rhs>)", "assertNotEquals(<lhs>, <rhs>, 0)",

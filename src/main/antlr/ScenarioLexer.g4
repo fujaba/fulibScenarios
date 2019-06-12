@@ -33,6 +33,7 @@ LESS:     'less';
 MANY:     'many';
 NOT:      'not';
 OF:       'of';
+OR:       'or';
 ON:       'on';
 ONE:      'one';
 READ:     'read';
