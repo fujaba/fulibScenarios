@@ -18,7 +18,6 @@ const examples = [
 ];
 
 const exampleSelect = document.getElementById('exampleSelect');
-let selectedExample = '';
 
 const scenarioInput = document.getElementById('scenarioInput');
 const scenarioInputCodeMirror = CodeMirror.fromTextArea(scenarioInput, {
@@ -48,6 +47,10 @@ const progressElements = [scenarioCompileProgress, testCompileProgress, modelCom
 
 const objectDiagrams = document.getElementById('objectDiagrams');
 const classDiagram = document.getElementById('classDiagram');
+
+// =============== Variables ===============
+
+let selectedExample = '';
 
 // =============== Initialization ===============
 
@@ -97,41 +100,72 @@ function setFailure(number) {
 	}
 }
 
-function displayObjectDiagrams(response) {
-	// remove object diagram children
-	while (objectDiagrams.firstChild) {
-		objectDiagrams.firstChild.remove();
+function displayObjectDiagram(objectDiagram) {
+	const name = objectDiagram.name;
+	const content = objectDiagram.content;
+
+	objectDiagrams.appendChild(document.createElement('hr'));
+
+	const headline = document.createElement('h4');
+	headline.innerText = name;
+	objectDiagrams.appendChild(headline);
+
+	if (name.endsWith('.png')) {
+		const image = document.createElement('img');
+		image.src = 'data:image/png;base64,' + content;
+		image.alt = name;
+		objectDiagrams.appendChild(image);
+	} else if (name.endsWith('.svg')) {
+		const div = document.createElement('div');
+		div.innerHTML = content;
+		objectDiagrams.appendChild(div);
+	} else if (name.endsWith('.yaml')) {
+		const pre = document.createElement('pre');
+		pre.innerText = content;
+		objectDiagrams.appendChild(pre);
 	}
+}
+
+function displayObjectDiagrams(response) {
+	removeChildren(objectDiagrams);
 
 	if (!response.objectDiagrams) {
 		return;
 	}
 
 	for (let objectDiagram of response.objectDiagrams) {
-		const name = objectDiagram.name;
-		const content = objectDiagram.content;
+		displayObjectDiagram(objectDiagram);
+	}
+}
 
-		objectDiagrams.appendChild(document.createElement('hr'));
+function handleResponse(response) {
+	console.log(response.output);
+	console.log('exit code: ' + response.exitCode);
 
-		const headline = document.createElement('h4');
-		headline.innerText = name;
-		objectDiagrams.appendChild(headline);
+	let javaCode = '';
+	if (response.exitCode !== 0) {
+		javaCode += response.output.split('\n').map(function(line) {
+			return '// ' + line;
+		}).join('\n') + '\n';
+		setFailure(response.exitCode & 3);
+	} else {
+		setFailure(progressElements.length);
+	}
 
-		if (name.endsWith('.png')) {
-			const image = document.createElement('img');
-			image.src = 'data:image/png;base64,' + content;
-			image.alt = name;
-			objectDiagrams.appendChild(image);
-		} else if (name.endsWith('.svg')) {
-			const div = document.createElement('div');
-			div.innerHTML = content;
-			objectDiagrams.appendChild(div);
-		} else if (name.endsWith('.yaml')) {
-			const pre = document.createElement('pre');
-			pre.innerText = content;
-			objectDiagrams.appendChild(pre);
+	if (response.testMethods) {
+		for (testMethod of response.testMethods) {
+			javaCode += '// ' + testMethod.name + '\n';
+			javaCode += testMethod.body;
 		}
 	}
+	javaTestOutputCodeMirror.setValue(javaCode);
+
+	removeChildren(classDiagram);
+	classDiagram.innerHTML = response.classDiagram;
+
+	displayObjectDiagrams(response);
+
+	// TODO display errors
 }
 
 function submit() {
@@ -141,38 +175,18 @@ function submit() {
 		localStorage.setItem('fulibScenario', text);
 	}
 
+	removeChildren(objectDiagrams);
+	removeChildren(classDiagram);
+
 	javaTestOutputCodeMirror.setValue('// loading...');
+	objectDiagrams.innerText = 'loading...';
+	classDiagram.innerText = 'loading...';
 
-	api('POST', apiUrl + '/runcodegen', {
+	const requestBody = {
 		scenarioText: text,
-	}, function(response) {
-		console.log(response.output);
-		console.log('exit code: ' + response.exitCode);
+	};
 
-		let javaCode = '';
-		if (response.exitCode !== 0) {
-			javaCode += response.output.split('\n').map(function(line) {
-				return '// ' + line;
-			}).join('\n') + '\n';
-			setFailure(response.exitCode & 3);
-		} else {
-			setFailure(progressElements.length);
-		}
-
-		if (response.testMethods) {
-			for (testMethod of response.testMethods) {
-				javaCode += '// ' + testMethod.name + '\n';
-				javaCode += testMethod.body;
-			}
-		}
-		javaTestOutputCodeMirror.setValue(javaCode);
-
-		classDiagram.innerHTML = response.classDiagram;
-
-		displayObjectDiagrams(response);
-
-		// TODO display errors
-	});
+	api('POST', apiUrl + '/runcodegen', requestBody, handleResponse);
 }
 
 function selectExample(value) {
@@ -226,4 +240,10 @@ function api(method, url, body, handler) {
 	request.open('POST', url, true);
 	request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 	request.send(requestBody);
+}
+
+function removeChildren(element) {
+	while (element.firstChild) {
+		element.firstChild.remove();
+	}
 }
