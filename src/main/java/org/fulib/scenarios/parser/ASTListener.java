@@ -18,6 +18,8 @@ import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
@@ -277,6 +279,23 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name attribute = valueAndAttribute.getName();
       final Expr receiver = this.pop();
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
+   }
+
+   @Override
+   public void exitCondOpExpr(ScenarioParser.CondOpExprContext ctx)
+   {
+      final Expr rhs = this.pop();
+      final Expr lhs = this.pop();
+      final String opText = inputText(ctx.condOp()).replaceAll("\\s+", " ");
+      final ConditionalOperator op = ConditionalOperator.getByOp(opText);
+      if (op == null)
+      {
+         throw new UnsupportedOperationException("no ConditionalOperator constant for '" + opText + "'");
+      }
+
+      final ConditionalOperatorExpr operatorExpr = ConditionalOperatorExpr.of(lhs, op, rhs);
+
+      this.stack.push(operatorExpr);
    }
 
    @Override
