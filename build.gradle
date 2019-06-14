@@ -45,9 +45,6 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     jcenter()
-
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url = 'https://mvnrepository.com/artifact/org.apache.bcel/bcel' }
 }
 
 // https://github.com/gradle/gradle/issues/820
@@ -58,10 +55,29 @@ configurations {
 }
 
 dependencies {
+    // --------------- Build Tools ---------------
+
     gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.5.0'
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
+
+    // --------------- Fulib Libraries ---------------
+
+    compile fileTree('libs/')
+    // compile 'org.fulib:fulib:1.0.+'
+    // compile 'org.fulib:fulibTools:1.0.+'
+    // compile 'org.fulib:fulibYaml:1.0.+'
+
+    // dependencies of fulibTools
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.4'
+
+    // https://mvnrepository.com/artifact/guru.nidi/graphviz-java
+    compile group: 'guru.nidi', name: 'graphviz-java', version: '0.8.8'
+
+    // --------------- Other Libraries ---------------
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
     compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.7.2'
@@ -73,11 +89,6 @@ dependencies {
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
 
     compile 'org.slf4j:slf4j-nop:1.7.25'
-
-    compile files('libs/fulib-1.0.2-SNAPSHOT.jar', 'libs/fulibYaml-1.0.3-SNAPSHOT.jar', 'libs/fulibTools-1.0.2-SNAPSHOT.jar')
-    // compile 'org.fulib:fulib:1.0.+'
-    compile 'org.fulib:fulibTools:1.0.+'
-    // compile 'org.fulib:fulibYaml:1.0.+'
 
     compile "com.sparkjava:spark-core:2.8.0"
 
