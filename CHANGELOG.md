@@ -62,3 +62,7 @@
 # Fulib Scenarios v0.3.1
 
 * Fixed an issue that caused code gen to fail if model and test output were set to the same directory. #77
+
+# Fulib Scenarios v0.3.2
+
+* Fixed an exception that occurred when the model or test output directory does not exist.
