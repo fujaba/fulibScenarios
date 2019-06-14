@@ -2,6 +2,9 @@ plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'antlr'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.4'
+    id 'de.clashsoft.simple-publish' version '0.2.0'
     id 'de.clashsoft.gentreesrc-gradle' version '0.3.0'
 }
 
@@ -9,15 +12,39 @@ apply from: 'gradle/functional-test.gradle'
 
 group 'org.fulib'
 version '0.3.0'
+description 'A compiler for textual example scenarios.'
+
+publishInfo {
+    websiteUrl = 'https://www.fulib.org/'
+    issueTrackerUrl = 'https://github.com/fujaba/fulibScenarios'
+    vcsUrl = 'https://github.com/fujaba/fulibScenarios'
+    githubRepo = 'fujaba/fulibScenarios'
+    labels = [ 'source', 'generator', 'scenario', 'markdown' ]
+
+    license {
+        shortName = 'BSD 3-Clause'
+        longName = 'BSD 3-Clause "New" or "Revised" License'
+        url = 'https://opensource.org/licenses/BSD-3-Clause'
+    }
+
+    developer {
+        id = 'Clashsoft'
+        name = 'Adrian Kunz'
+        email = 'clashsoft@hotmail.com'
+    }
+
+    developer {
+        id = 'azuendorf'
+        name = 'Albert Zündorf'
+        email = 'zuendorf@uni-kassel.de'
+    }
+}
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
     jcenter()
-
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url = 'https://mvnrepository.com/artifact/org.apache.bcel/bcel' }
 }
 
 // https://github.com/gradle/gradle/issues/820
@@ -28,11 +55,30 @@ configurations {
 }
 
 dependencies {
+    // --------------- Build Tools ---------------
+
     // https://mvnrepository.com/artifact/de.clashsoft/gentreesrc
     gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.7.0'
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
+
+    // --------------- Fulib Libraries ---------------
+
+    compile fileTree('libs/')
+    // compile 'org.fulib:fulib:1.0.+'
+    // compile 'org.fulib:fulibTools:1.0.+'
+    // compile 'org.fulib:fulibYaml:1.0.+'
+
+    // dependencies of fulibTools
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.4'
+
+    // https://mvnrepository.com/artifact/guru.nidi/graphviz-java
+    compile group: 'guru.nidi', name: 'graphviz-java', version: '0.8.8'
+
+    // --------------- Other Libraries ---------------
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
     compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.7.2'
@@ -44,11 +90,6 @@ dependencies {
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
 
     compile 'org.slf4j:slf4j-nop:1.7.25'
-
-    compile files('libs/fulib-1.0.2-SNAPSHOT.jar', 'libs/fulibYaml-1.0.3-SNAPSHOT.jar', 'libs/fulibTools-1.0.2-SNAPSHOT.jar')
-    // compile 'org.fulib:fulib:1.0.+'
-    compile 'org.fulib:fulibTools:1.0.+'
-    // compile 'org.fulib:fulibYaml:1.0.+'
 
     compile "com.sparkjava:spark-core:2.8.0"
 
@@ -71,9 +112,13 @@ generateGrammarSource {
     outputDirectory = file("$generatedANTLRDir/${ packageName.replace('.', '/') }/")
 }
 
+// --------------- Jars ---------------
 
 jar {
     manifest {
         attributes 'Main-Class': 'org.fulib.scenarios.WebService'
     }
+
+    // include classes from jars in libs/
+    from fileTree('libs/').files.collect { zipTree(it) }
 }
