@@ -19,6 +19,9 @@ import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.transform.SymbolCollector;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +77,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       this.group = scenarioGroup;
 
       final String modelDir = this.config.getModelDir();
+      final String testDir = this.config.getTestDir();
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
@@ -84,8 +88,6 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       {
          classDecl.accept(DeclGenerator.INSTANCE, this);
       }
-
-      new Generator().generate(this.modelManager.getClassModel());
 
       if (this.config.isClassDiagram())
       {
@@ -98,9 +100,15 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
                    .dumpSVG(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
       }
 
-      // generate test
-      this.modelManager = new ClassModelManager().havePackageName(packageName)
-                                                 .haveMainJavaDir(this.config.getTestDir());
+      if (!sameFile(modelDir, testDir))
+      {
+         // generate model
+         new Generator().generate(this.modelManager.getClassModel());
+
+         // create a new model for test classes
+         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
+      }
+      // else: model and test share the same output directory, so no new model is needed.
 
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
@@ -110,6 +118,18 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       new Generator().generate(this.modelManager.getClassModel());
 
       return null;
+   }
+
+   private static boolean sameFile(String modelDir, String testDir)
+   {
+      try
+      {
+         return Files.isSameFile(Paths.get(modelDir), Paths.get(testDir));
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 
    // --------------- ScenarioFile.Visitor ---------------
