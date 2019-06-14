@@ -1,7 +1,7 @@
 // basis for plugin
 
 def taskName = 'compileScenarios'
-def sourceDirs = [ 'src/test/scenarios', 'webapp/examples/' ]
+def sourceDirs = [ 'src/test/scenarios' ]
 def modelOutputDir = "$buildDir/generated-src/scenarios/main/"
 def testOutputDir = "$buildDir/generated-src/scenarios/test/"
 
