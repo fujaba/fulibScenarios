@@ -8,6 +8,7 @@ plugins {
 }
 
 apply from: 'gradle/functional-test.gradle'
+apply from: 'gradle/webapp.gradle'
 
 group 'org.fulib'
 version '0.3.2'
@@ -61,6 +62,8 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
+
+    webapp group: 'org.fulib', name: 'fulib.org', version: '0.1.0'
 
     // --------------- Fulib Libraries ---------------
 
