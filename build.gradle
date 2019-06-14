@@ -111,9 +111,13 @@ generateGrammarSource {
     outputDirectory = file("$generatedANTLRDir/${ packageName.replace('.', '/') }/")
 }
 
+// --------------- Jars ---------------
 
 jar {
     manifest {
         attributes 'Main-Class': 'org.fulib.scenarios.WebService'
     }
+
+    // include classes from jars in libs/
+    from fileTree('libs/').files.collect { zipTree(it) }
 }
