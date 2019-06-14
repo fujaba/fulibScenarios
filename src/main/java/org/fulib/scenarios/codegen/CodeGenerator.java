@@ -21,6 +21,7 @@ import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.transform.Namer;
 import org.fulib.scenarios.transform.SymbolCollector;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -130,7 +131,16 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       }
       catch (IOException e)
       {
-         throw new RuntimeException(e);
+         final File modelFile = new File(modelDir);
+         final File testFile = new File(testDir);
+         try
+         {
+            return modelFile.getCanonicalPath().equals(testFile.getCanonicalPath());
+         }
+         catch (IOException e2)
+         {
+            return modelFile.getAbsolutePath().equals(testFile.getAbsolutePath());
+         }
       }
    }
 
