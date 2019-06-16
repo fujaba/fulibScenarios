@@ -246,6 +246,13 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    }
 
    @Override
+   public Object visit(WriteSentence writeSentence, Scope par)
+   {
+      // TODO
+      return null;
+   }
+
+   @Override
    public Object visit(ExprSentence exprSentence, Scope par)
    {
       exprSentence.setExpr(exprSentence.getExpr().accept(this, par));

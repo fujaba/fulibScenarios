@@ -46,6 +46,8 @@ abstract org.fulib.scenarios.ast.Node {
 		CallSentence(actor: Name, call: CallExpr)
 		AnswerSentence(actor: Name, result: Expr)
 
+		WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
+
 		ExprSentence(expr: Expr)
 	}
 

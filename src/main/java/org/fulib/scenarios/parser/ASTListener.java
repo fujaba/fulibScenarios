@@ -196,6 +196,16 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(answerSentence);
    }
 
+   @Override
+   public void exitWriteSentence(ScenarioParser.WriteSentenceContext ctx)
+   {
+      final Expr target = this.pop();
+      final Expr source = this.pop();
+      final Name actor = name(ctx.actor().name()); // null if actor is "we"
+      final WriteSentence writeSentence = WriteSentence.of(actor, source, target);
+      this.stack.push(writeSentence);
+   }
+
    // --------------- Clauses ---------------
 
    @Override

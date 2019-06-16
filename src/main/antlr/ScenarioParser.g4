@@ -22,6 +22,7 @@ sentence: thereSentence
         | createSentence
         | callSentence
         | answerSentence
+        | writeSentence
         // | phrase FULL_STOP
         ;
 
@@ -57,6 +58,8 @@ callSentence: actor (CALL | CALLS) name (ON expr)? withClauses? FULL_STOP;
 
 answerSentence: actor (ANSWER | ANSWERS) WITH expr FULL_STOP;
 
+writeSentence: actor (WRITE | WRITES) expr INTO expr;
+
 // Testing
 
 expectSentence: WE EXPECT thatClauses FULL_STOP;
@@ -64,33 +67,6 @@ thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
 diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
-
-// --------------- Phrases ---------------
-
-/*
-actor: name | IT;
-phrase: createPhrase | callPhrase | writePhrase | answerPhrase;
-
-// Creation
-
-createPhrase: createSV descriptor (sep descriptor)*;
-createSV: WE CREATE | actor CREATES;
-
-// Calls
-
-callPhrase: callSV name ON expr withClauses?;
-callSV: WE CALL | actor CALLS;
-
-// Write
-
-writePhrase: writeSV named | writeSV source=expr INTO target=expr;
-writeSV: name (READS | WRITES) | WE (READ | WRITE);
-
-// Answer
-
-answerPhrase: answerSV WITH expr;
-answerSV: WE ANSWER | actor ANSWERS;
-*/
 
 // --------------- Expressions ---------------
 

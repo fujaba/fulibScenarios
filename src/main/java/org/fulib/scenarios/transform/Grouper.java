@@ -137,6 +137,12 @@ public enum Grouper implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    }
 
    @Override
+   public Frame visit(WriteSentence writeSentence, Frame par)
+   {
+      return par.add(actorKey(writeSentence.getActor()), writeSentence);
+   }
+
+   @Override
    public Frame visit(ExprSentence exprSentence, Frame par)
    {
       return par.add(exprSentence);

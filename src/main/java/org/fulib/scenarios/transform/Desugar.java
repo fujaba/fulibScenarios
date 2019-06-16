@@ -268,6 +268,12 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioF
    }
 
    @Override
+   public Sentence visit(WriteSentence writeSentence, Object par)
+   {
+      return writeSentence;
+   }
+
+   @Override
    public Sentence visit(ExprSentence exprSentence, Object par)
    {
       return exprSentence;

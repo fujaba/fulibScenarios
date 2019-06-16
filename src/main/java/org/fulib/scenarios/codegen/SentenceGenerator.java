@@ -119,6 +119,13 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
+   public Object visit(WriteSentence writeSentence, CodeGenerator par)
+   {
+      // TODO
+      return null;
+   }
+
+   @Override
    public Object visit(ExprSentence exprSentence, CodeGenerator par)
    {
       par.emitIndent();
