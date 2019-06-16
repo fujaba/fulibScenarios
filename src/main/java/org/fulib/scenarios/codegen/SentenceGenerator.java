@@ -121,8 +121,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(WriteSentence writeSentence, CodeGenerator par)
    {
-      // TODO
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override

@@ -82,8 +82,7 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    @Override
    public Object visit(WriteSentence writeSentence, Map<String, Decl> par)
    {
-      // TODO
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override

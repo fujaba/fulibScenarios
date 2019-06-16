@@ -270,7 +270,17 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioF
    @Override
    public Sentence visit(WriteSentence writeSentence, Object par)
    {
-      return writeSentence;
+      final Expr source = writeSentence.getSource();
+      final Expr target = writeSentence.getTarget();
+
+      final Sentence result = target.accept(AssignmentDesugar.INSTANCE, source);
+      if (result == null)
+      {
+         final String targetShape = target.getClass().getEnclosingClass().getSimpleName();
+         throw new IllegalStateException("cannot assign to " + targetShape);
+      }
+
+      return result;
    }
 
    @Override

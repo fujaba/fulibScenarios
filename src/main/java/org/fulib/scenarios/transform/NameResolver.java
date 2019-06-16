@@ -248,8 +248,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(WriteSentence writeSentence, Scope par)
    {
-      // TODO
-      return null;
+      throw new UnsupportedOperationException();
    }
 
    @Override
