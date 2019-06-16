@@ -59,6 +59,7 @@ abstract org.fulib.scenarios.ast.Node {
 		}
 
 		access.AttributeAccess(name: Name, receiver: Expr)
+		access.ListAttributeAccess(name: Name, receiver: Expr)
 		access.ExampleAccess(value: Expr, expr: Expr)
 
 		call.CreationExpr(type: Type, attributes: [NamedExpr])

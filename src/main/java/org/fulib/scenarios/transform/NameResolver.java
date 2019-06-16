@@ -8,6 +8,7 @@ import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
@@ -302,10 +303,26 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Expr visit(AttributeAccess attributeAccess, Scope par)
    {
-      attributeAccess.setReceiver(attributeAccess.getReceiver().accept(this, par));
-      attributeAccess
-         .setName(getAttributeOrAssociation(par, attributeAccess.getReceiver(), attributeAccess.getName()));
+      final Expr receiver = attributeAccess.getReceiver().accept(this, par);
+      attributeAccess.setReceiver(receiver);
+
+      final Type receiverType = receiver.accept(Typer.INSTANCE, null);
+      if (receiverType instanceof ListType)
+      {
+         final String attributeName = attributeAccess.getName().accept(Namer.INSTANCE, null);
+         final Type elementType = ((ListType) receiverType).getElementType();
+         final Name resolvedName = getAttributeOrAssociation(resolveClass(par, elementType), attributeName);
+         return ListAttributeAccess.of(resolvedName, receiver);
+      }
+
+      attributeAccess.setName(getAttributeOrAssociation(par, receiver, attributeAccess.getName()));
       return attributeAccess;
+   }
+
+   @Override
+   public Expr visit(ListAttributeAccess listAttributeAccess, Scope par)
+   {
+      throw new UnsupportedOperationException();
    }
 
    @Override

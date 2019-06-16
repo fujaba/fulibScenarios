@@ -8,6 +8,7 @@ import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
@@ -73,6 +74,12 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    public String visit(AttributeAccess attributeAccess, Object par)
    {
       return attributeAccess.getName().accept(this, par);
+   }
+
+   @Override
+   public String visit(ListAttributeAccess listAttributeAccess, Object par)
+   {
+      return listAttributeAccess.getName().accept(this, par);
    }
 
    @Override

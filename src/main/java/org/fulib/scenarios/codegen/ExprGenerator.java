@@ -7,6 +7,7 @@ import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
@@ -19,8 +20,11 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.transform.ExtractDecl;
 import org.fulib.scenarios.transform.Namer;
+import org.fulib.scenarios.transform.Typer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +45,22 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       attributeAccess.getReceiver().accept(this, par);
       par.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null)))
                       .append("()");
+      return null;
+   }
+
+   @Override
+   public Object visit(ListAttributeAccess listAttributeAccess, CodeGenerator par)
+   {
+      final Type listType = listAttributeAccess.getReceiver().accept(Typer.INSTANCE, null);
+      final Type elementType = ((ListType) listType).getElementType();
+      final String elementTypeName = elementType.accept(Namer.INSTANCE, elementType);
+      final String attributeName = listAttributeAccess.getName().accept(Namer.INSTANCE, null);
+
+      par.addImport("java.util.stream.Collectors");
+
+      listAttributeAccess.getReceiver().accept(INSTANCE, par);
+      par.bodyBuilder.append(".stream().map(").append(elementTypeName).append("::get")
+                     .append(StrUtil.cap(attributeName)).append(").collect(Collectors.toList())");
       return null;
    }
 
