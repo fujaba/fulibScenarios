@@ -6,24 +6,27 @@ options { tokenVocab = ScenarioLexer; }
 
 file: scenario* EOF;
 
-scenario: header FULL_STOP (sentence FULL_STOP)*;
-header: H1 SCENARIO scenarioName;
+scenario: header sentence*;
+header: H1 SCENARIO scenarioName FULL_STOP;
 scenarioName: ~FULL_STOP+;
 
 // --------------- Sentences ---------------
 
 actor: WE | name;
 
-sentence: thereSentence
-        | isSentence
-        | hasSentence
-        | expectSentence
+sentence: simpleSentence FULL_STOP
         | diagramSentence
-        | createSentence
-        | callSentence
-        | answerSentence
-        | writeSentence
         ;
+
+simpleSentence: thereSentence
+              | isSentence
+              | hasSentence
+              | expectSentence
+              | createSentence
+              | callSentence
+              | answerSentence
+              | writeSentence
+              ;
 
 // Definition
 
