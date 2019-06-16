@@ -2,6 +2,7 @@ package org.fulib.scenarios.transform;
 
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Name;
+import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -22,7 +23,9 @@ import org.fulib.scenarios.ast.sentence.HasSentence;
 import org.fulib.scenarios.ast.sentence.IsSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public enum AssignmentDesugar implements Expr.Visitor<Expr, Sentence>
 {
@@ -76,7 +79,44 @@ public enum AssignmentDesugar implements Expr.Visitor<Expr, Sentence>
    @Override
    public Sentence visit(ListExpr listExpr, Expr par)
    {
-      return null;
+      final List<Expr> targets = listExpr.getElements();
+      final int numElements = targets.size();
+      final List<Sentence> result = new ArrayList<>(numElements);
+
+      final List<Expr> sources;
+      if (par instanceof ListExpr && (sources = ((ListExpr) par).getElements()).size() == numElements)
+      {
+         // we write 1,2,3 into x,y,z.
+         // =>
+         // x = 1; y = 2; z = 3;
+
+         for (int i = 0; i < numElements; i++)
+         {
+            final Expr target = targets.get(i);
+            final Expr source = sources.get(i);
+            final Sentence part = target.accept(this, source);
+            result.add(part);
+         }
+      }
+      else
+      {
+         // we write 1,2,3 into xs,ys.
+         // =>
+         // var temp = List(1,2,3)
+         // xs = temp
+         // ys = temp
+
+         final VarDecl temp = VarDecl.of("temp", null, par);
+         result.add(IsSentence.of(temp));
+         for (final Expr target : targets)
+         {
+            final NameAccess source = NameAccess.of(ResolvedName.of(temp));
+            final Sentence part = target.accept(this, source);
+            result.add(part);
+         }
+      }
+
+      return new FlattenSentenceList(result);
    }
 
    @Override
