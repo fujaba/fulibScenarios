@@ -227,7 +227,7 @@ public class ScenarioCompiler implements Tool
          stage = "group";
          scenarioGroup.accept(Grouper.INSTANCE, null);
          stage = "desugar";
-         scenarioGroup.accept(new Desugar(), null);
+         scenarioGroup.accept(Desugar.INSTANCE, null);
          stage = "resolve";
          scenarioGroup.accept(NameResolver.INSTANCE, null);
          stage = "codegen";

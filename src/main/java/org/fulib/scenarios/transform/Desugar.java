@@ -17,15 +17,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
+public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
                                    Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Sentence>
 {
-   private int tempID;
-
-   private String tempName()
-   {
-      return "_t" + this.tempID++;
-   }
+   INSTANCE;
 
    // --------------- ScenarioGroup.Visitor ---------------
 
@@ -160,7 +155,7 @@ public class Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioF
             // alice.setCredits(_t0);
             // bob.setCredits(_t0);
 
-            final VarDecl temp = VarDecl.of(this.tempName(), null, attributeExpr);
+            final VarDecl temp = VarDecl.of("temp", null, attributeExpr);
             result.add(IsSentence.of(temp));
 
             for (int i = 0; i < names.size(); i++)

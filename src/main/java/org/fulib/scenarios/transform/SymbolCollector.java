@@ -53,11 +53,22 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    public Object visit(IsSentence isSentence, Map<String, Decl> par)
    {
       final VarDecl varDecl = isSentence.getDescriptor();
-      if (varDecl.getName() == null)
+      String name = varDecl.getName();
+      if (name == null)
       {
-         varDecl.setName(varDecl.getExpr().accept(Namer.INSTANCE, null));
+         name = varDecl.getExpr().accept(Namer.INSTANCE, null);
       }
-      par.put(varDecl.getName(), varDecl);
+
+      final String origName = name;
+      int num = 1;
+
+      while (par.containsKey(name))
+      {
+         name = origName + num++;
+      }
+
+      varDecl.setName(name);
+      par.put(name, varDecl);
       return null;
    }
 
