@@ -1,4 +1,4 @@
-# Scenario Simple List.
+# Scenario Simple Lists.
 
 There is a Task with name Update Grammar.
 There is a Task with name Add Tree Definition.
