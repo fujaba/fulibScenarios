@@ -6,8 +6,8 @@ options { tokenVocab = ScenarioLexer; }
 
 file: scenario* EOF;
 
-scenario: header sentence*;
-header: H1 SCENARIO scenarioName FULL_STOP;
+scenario: header FULL_STOP (sentence FULL_STOP)*;
+header: H1 SCENARIO scenarioName;
 scenarioName: ~FULL_STOP+;
 
 // --------------- Sentences ---------------
@@ -23,12 +23,11 @@ sentence: thereSentence
         | callSentence
         | answerSentence
         | writeSentence
-        // | phrase FULL_STOP
         ;
 
 // Definition
 
-thereSentence: thereClause (sep thereClause)* FULL_STOP;
+thereSentence: thereClause (sep thereClause)*;
 thereClause: THERE IS simpleDescriptor
            | THERE ARE multiDescriptor;
 
@@ -36,7 +35,7 @@ descriptor: simpleDescriptor | multiDescriptor;
 simpleDescriptor: simpleTypeClause name? withClauses?;
 multiDescriptor: multiTypeClause (name (sep name)+)? withClauses?;
 
-isSentence: name IS simpleTypeClause withClauses? FULL_STOP;
+isSentence: name IS simpleTypeClause withClauses?;
 
 simpleTypeClause: (A | AN | THE) (simpleName | name CARD);
 multiTypeClause: name CARDS | name;
@@ -47,22 +46,22 @@ withClause: WITH namedExpr;
 namedExpr: simpleName primaryExpr # NamedSimple
          | number name            # NamedNumber;
 
-hasSentence: nameAccess hasClauses FULL_STOP;
+hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: HAS namedExpr;
 
-createSentence: actor (CREATE | CREATES) simpleDescriptor FULL_STOP
-              | actor (CREATE | CREATES) multiDescriptor FULL_STOP;
+createSentence: actor (CREATE | CREATES) simpleDescriptor
+              | actor (CREATE | CREATES) multiDescriptor;
 
-callSentence: actor (CALL | CALLS) name (ON expr)? withClauses? FULL_STOP;
+callSentence: actor (CALL | CALLS) name (ON expr)? withClauses?;
 
-answerSentence: actor (ANSWER | ANSWERS) WITH expr FULL_STOP;
+answerSentence: actor (ANSWER | ANSWERS) WITH expr;
 
 writeSentence: actor (WRITE | WRITES) expr INTO expr;
 
 // Testing
 
-expectSentence: WE EXPECT thatClauses FULL_STOP;
+expectSentence: WE EXPECT thatClauses;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
