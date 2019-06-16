@@ -17,7 +17,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(ClassDecl classDecl, CodeGenerator par)
    {
-      par.modelManager.haveClass(classDecl.getName());
+      par.clazz = par.modelManager.haveClass(classDecl.getName());
 
       for (final AttributeDecl attributeDecl : classDecl.getAttributes().values())
       {
