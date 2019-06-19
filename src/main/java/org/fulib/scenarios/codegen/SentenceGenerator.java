@@ -61,7 +61,15 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       par.addImport("org.fulib.FulibTools");
 
       par.emitIndent();
-      par.bodyBuilder.append("FulibTools.objectDiagrams().dump").append(format).append("(");
+
+      if (fileName.endsWith(".html")) {
+         par.addImport("org.fulib.scenarios.MockupTools");
+         par.bodyBuilder.append("MockupTools.htmlTool().dump").append("(");
+      }
+      else
+      {
+         par.bodyBuilder.append("FulibTools.objectDiagrams().dump").append(format).append("(");
+      }
 
       par.emitStringLiteral(target);
 

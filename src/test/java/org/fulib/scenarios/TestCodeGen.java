@@ -28,6 +28,20 @@ public class TestCodeGen
       }
    }
 
+   @Test
+   public void testHtmlDump() throws Exception
+   {
+      final Path srcFolder = Paths.get("src", "test", "scenarios", "html");
+      final Path testOutFolder = Paths.get("temp", "out", "test");
+      final Path modelOutFolder = Paths.get("temp", "out", "model");
+      final Path testsFolder = Paths.get("build", "html", "test");
+      final Path modelFolder = Paths.get("build", "html", "main");
+
+      int result = Tools.genCompileRun(System.out, System.err, srcFolder, modelFolder, testsFolder, modelOutFolder,
+            testOutFolder);
+
+      assertEquals(0, result);
+   }
 
    @Test
    public void testYamlDump()

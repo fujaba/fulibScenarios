@@ -3,8 +3,8 @@
 There are Participants
 	with name Albert, Nata, Xavier.
 
-There is the PartyModel.
-The PartyModel
+There is the Party.
+The Party
 	has name X-Mas Party
 and has location SE-Lab
 and has date Thursday evening
@@ -14,3 +14,5 @@ There is a ShoppingItem
 	with description Beer
 and with price 12.50
 and with participant Albert.
+
+![Party](placeWithPalette.png)
