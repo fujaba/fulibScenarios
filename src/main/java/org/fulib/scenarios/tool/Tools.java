@@ -107,7 +107,7 @@ public class Tools
       return ToolProvider.getSystemJavaCompiler().run(null, out, err, args.toArray(new String[0]));
    }
 
-   public static Result runTests(Path mainClassesDir, Path testClassesDir)
+   public static Result runTests(Path mainClassesDir, Path testClassesDir, Path testSrcDir)
    {
       URL[] classPathUrls = new URL[0];
       try
@@ -183,7 +183,7 @@ public class Tools
          }
 
          // call all test methods
-         final Result testResult = Tools.runTests(modelClassesDir, testClassesDir);
+         final Result testResult = Tools.runTests(modelClassesDir, testClassesDir, testSrcDir);
 
          for (final Failure failure : testResult.getFailures())
          {

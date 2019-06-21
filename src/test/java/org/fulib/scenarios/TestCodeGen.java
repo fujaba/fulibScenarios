@@ -5,6 +5,8 @@ import org.fulib.yaml.YamlIdMap;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -31,16 +33,32 @@ public class TestCodeGen
    @Test
    public void testHtmlDump() throws Exception
    {
+      Path temp = Paths.get("temp");
+      if (Files.exists(temp)) {
+         Files.walk(temp).forEach(path -> deleteFile(path));
+      }
       final Path srcFolder = Paths.get("src", "test", "scenarios", "html");
       final Path testOutFolder = Paths.get("temp", "out", "test");
       final Path modelOutFolder = Paths.get("temp", "out", "model");
-      final Path testsFolder = Paths.get("build", "html", "test");
-      final Path modelFolder = Paths.get("build", "html", "main");
+      final Path testsFolder = Paths.get("temp", "html", "test");
+      final Path modelFolder = Paths.get("temp", "html", "main");
 
       int result = Tools.genCompileRun(System.out, System.err, srcFolder, modelFolder, testsFolder, modelOutFolder,
-            testOutFolder);
+            testOutFolder, "--class-diagram-svg");
 
       assertEquals(0, result);
+   }
+
+   private void deleteFile(Path path)
+   {
+      try
+      {
+         Files.delete(path);
+      }
+      catch (IOException e)
+      {
+         // e.printStackTrace();
+      }
    }
 
    @Test
