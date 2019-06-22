@@ -1,8 +1,12 @@
 package org.fulib.scenarios.codegen;
 
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.transform.Typer;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 {
@@ -84,11 +88,25 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    public Object visit(HasSentence hasSentence, CodeGenerator par)
    {
       par.emitIndent();
-      hasSentence.getObject().accept(ExprGenerator.INSTANCE, par);
+
+      final Expr receiver = hasSentence.getObject();
+      final Type receiverType = receiver.accept(Typer.INSTANCE, null);
+
+      receiver.accept(ExprGenerator.INSTANCE, par);
+
+      if (receiverType instanceof ListType)
+      {
+         par.bodyBuilder.append(".forEach(it -> it");
+      }
 
       for (NamedExpr attribute : hasSentence.getClauses())
       {
          ExprGenerator.generateSetterCall(par, attribute);
+      }
+
+      if (receiverType instanceof ListType)
+      {
+         par.bodyBuilder.append(")");
       }
 
       par.bodyBuilder.append(";\n");
