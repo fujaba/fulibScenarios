@@ -1,0 +1,6 @@
+configurations.create('webapp')
+
+tasks.register('runWebApp', JavaExec) {
+    classpath = configurations.webapp
+    main = 'org.fulib.scenarios.WebService'
+}
