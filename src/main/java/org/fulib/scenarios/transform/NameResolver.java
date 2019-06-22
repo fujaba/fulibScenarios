@@ -193,10 +193,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    @Override
    public Object visit(HasSentence hasSentence, Scope par)
    {
-      hasSentence.setObject(hasSentence.getObject().accept(this, par));
+      final Expr receiver = hasSentence.getObject().accept(this, par);
+      hasSentence.setObject(receiver);
 
-      final ClassDecl objectClass = resolveClass(par, hasSentence.getObject());
-      final String name = hasSentence.getObject().accept(Namer.INSTANCE, null);
+      final ClassDecl objectClass = resolveClass(par, receiver);
+      final String name = receiver.accept(Namer.INSTANCE, null);
       final Scope scope = name != null ? new HidingScope(name, par) : par;
 
       for (final NamedExpr namedExpr : hasSentence.getClauses())
@@ -573,6 +574,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    static ClassDecl resolveClass(Scope scope, Type type)
    {
+      if (type instanceof ListType)
+      {
+         return resolveClass(scope, ((ListType) type).getElementType());
+      }
+
       final String typeName = type.accept(Namer.INSTANCE, null);
       return resolveClass(scope, typeName);
    }
