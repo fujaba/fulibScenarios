@@ -160,6 +160,8 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       final Iterator<Expr> exprIterator = exprs.iterator();
       final String template = templateSentence.getTemplate();
 
+      par.emitIndent();
+
       // substitute <%> and <*> in template for the expressions
 
       // https://stackoverflow.com/questions/2206378/how-to-split-a-string-but-also-keep-the-delimiters
@@ -180,6 +182,8 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
             break;
          }
       }
+
+      par.bodyBuilder.append('\n');
 
       return null;
    }
