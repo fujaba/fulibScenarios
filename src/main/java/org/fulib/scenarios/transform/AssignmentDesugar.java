@@ -10,6 +10,7 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
+import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
 import org.fulib.scenarios.ast.sentence.HasSentence;
 import org.fulib.scenarios.ast.sentence.IsSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;

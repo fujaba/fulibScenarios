@@ -66,14 +66,7 @@ public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
       for (Sentence sentence : oldItems)
       {
          final Sentence result = sentence.accept(this, par);
-         if (result instanceof FlattenSentenceList)
-         {
-            newItems.addAll(((FlattenSentenceList) result).getItems());
-         }
-         else
-         {
-            newItems.add(result);
-         }
+         FlattenSentenceList.add(newItems, result);
       }
 
       sentenceList.setItems(newItems);
@@ -270,13 +263,5 @@ public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    public Sentence visit(ExprSentence exprSentence, Object par)
    {
       return exprSentence;
-   }
-}
-
-class FlattenSentenceList extends SentenceList.Impl
-{
-   public FlattenSentenceList(List<Sentence> items)
-   {
-      super(items);
    }
 }
