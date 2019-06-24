@@ -1,8 +1,11 @@
 package org.fulib.scenarios.codegen;
 
+import org.fulib.MultiAttributes;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.decl.*;
+import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.Type;
 
 public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
 {
@@ -42,8 +45,17 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    {
       final Clazz clazz = par.modelManager.haveClass(attributeDecl.getOwner().getName());
 
-      par.modelManager
-         .haveAttribute(clazz, attributeDecl.getName(), attributeDecl.getType().accept(TypeGenerator.INSTANCE, par));
+      final Type type = attributeDecl.getType();
+      if (type instanceof ListType)
+      {
+         final Type elementType = ((ListType) type).getElementType();
+         MultiAttributes
+            .buildMultiAttribute(clazz, attributeDecl.getName(), elementType.accept(TypeGenerator.INSTANCE, par));
+      }
+      else
+      {
+         par.modelManager.haveAttribute(clazz, attributeDecl.getName(), type.accept(TypeGenerator.INSTANCE, par));
+      }
 
       return null;
    }

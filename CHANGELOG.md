@@ -66,3 +66,12 @@
 # Fulib Scenarios v0.3.2
 
 * Fixed an exception that occurred when the model or test output directory does not exist.
+
+# Fulib Scenarios v0.4.0
+
++ Added Write Sentences. #78
++ Added conditional equality and comparison operators. #76
++ Attribute Access with List Receivers now vectorizes. #44
++ Conditional expressions can now be combined using `and` and `or`. #4
+* Duplicate variable names are now automatically made unique with a trailing number. #79
+- Removed the `WebService` and related classes. #75

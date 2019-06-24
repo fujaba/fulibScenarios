@@ -12,7 +12,7 @@ hs_err_pid*
 src/test/scenarios/**/*.png
 src/test/scenarios/**/*.svg
 src/test/scenarios/**/*.yaml
+src/test/scenarios/**/*.html
 webapp/examples/**/*.png
 webapp/examples/**/*.svg
 webapp/examples/**/*.yaml
-src/test/scenarios/**/*.html

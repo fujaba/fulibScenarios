@@ -2,7 +2,6 @@ package org.fulib.scenarios.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.decl.AssociationDecl;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -88,7 +87,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    {
       final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
       final Decl decl = attribute.getName().accept(ExtractDecl.INSTANCE, null);
-      final boolean wither = decl instanceof AssociationDecl && ((AssociationDecl) decl).getCardinality() != 1;
+      final boolean wither = decl.getType() instanceof ListType;
 
       par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(attributeName)).append("(");
       attribute.getExpr().accept(wither ? NO_LIST : INSTANCE, par);

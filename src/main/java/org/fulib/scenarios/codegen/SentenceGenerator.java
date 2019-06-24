@@ -1,8 +1,12 @@
 package org.fulib.scenarios.codegen;
 
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.transform.Typer;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 {
@@ -45,34 +49,49 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    @Override
    public Object visit(DiagramSentence diagramSentence, CodeGenerator par)
    {
-      // TODO determine from enclosing Scenario
       final String sourceDir = par.group.getSourceDir();
       final String packageDir = par.group.getPackageDir();
       final String fileName = diagramSentence.getFileName();
-      String format = fileName.endsWith(".svg") ? "SVG" : "Png";
+      String target = (sourceDir + "/" + packageDir + "/" + fileName).replace('\\', '/');
 
-      if (fileName.endsWith("yaml")) {
-         format = "Yaml";
+      final int dotIndex = fileName.lastIndexOf('.');
+      if (dotIndex < 0)
+      {
+         throw new IllegalStateException("invalid file name '" + fileName + "' - missing extension");
       }
 
-      String target = sourceDir + "/" + packageDir + "/" + fileName;
-      target = target.replaceAll("\\\\", "/");
+      final String extension = fileName.substring(dotIndex).toLowerCase();
+      final String toolClass;
+      final String toolMethod;
+      switch (extension)
+      {
+      case ".svg":
+         toolClass = "org.fulib.FulibTools";
+         toolMethod = "FulibTools.objectDiagrams().dumpSVG";
+         break;
+      case ".png":
+         toolClass = "org.fulib.FulibTools";
+         toolMethod = "FulibTools.objectDiagrams().dumpPng";
+         break;
+      case ".yaml":
+         toolClass = "org.fulib.FulibTools";
+         toolMethod = "FulibTools.objectDiagrams().dumpYaml";
+         break;
+      case ".html":
+         toolClass = "org.fulib.scenarios.MockupTools";
+         toolMethod = "MockupTools.htmlTool().dump";
+         break;
+      default:
+         throw new IllegalStateException("invalid file name '" + fileName + "' - unsupported extension");
+      }
 
-      par.addImport("org.fulib.FulibTools");
+      par.addImport(toolClass);
 
       par.emitIndent();
 
-      if (fileName.endsWith(".html")) {
-         par.addImport("org.fulib.scenarios.MockupTools");
-         par.bodyBuilder.append("MockupTools.htmlTool().dump").append("(");
-      }
-      else
-      {
-         par.bodyBuilder.append("FulibTools.objectDiagrams().dump").append(format).append("(");
-      }
-
+      // method call
+      par.bodyBuilder.append(toolMethod).append('(');
       par.emitStringLiteral(target);
-
       par.bodyBuilder.append(", ");
       diagramSentence.getObject().accept(ExprGenerator.NO_LIST, par);
       par.bodyBuilder.append(");\n");
@@ -84,11 +103,25 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    public Object visit(HasSentence hasSentence, CodeGenerator par)
    {
       par.emitIndent();
-      hasSentence.getObject().accept(ExprGenerator.INSTANCE, par);
+
+      final Expr receiver = hasSentence.getObject();
+      final Type receiverType = receiver.accept(Typer.INSTANCE, null);
+
+      receiver.accept(ExprGenerator.INSTANCE, par);
+
+      if (receiverType instanceof ListType)
+      {
+         par.bodyBuilder.append(".forEach(it -> it");
+      }
 
       for (NamedExpr attribute : hasSentence.getClauses())
       {
          ExprGenerator.generateSetterCall(par, attribute);
+      }
+
+      if (receiverType instanceof ListType)
+      {
+         par.bodyBuilder.append(")");
       }
 
       par.bodyBuilder.append(";\n");
