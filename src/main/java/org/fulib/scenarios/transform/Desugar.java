@@ -262,14 +262,8 @@ public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
       final Expr source = writeSentence.getSource();
       final Expr target = writeSentence.getTarget();
 
-      final Sentence result = target.accept(AssignmentDesugar.INSTANCE, source);
-      if (result == null)
-      {
-         final String targetShape = target.getClass().getEnclosingClass().getSimpleName();
-         throw new IllegalStateException("cannot assign to " + targetShape);
-      }
-
-      return result;
+      // TODO UnsupportedOperationException to diagnostic
+      return target.accept(AssignmentDesugar.INSTANCE, source);
    }
 
    @Override
