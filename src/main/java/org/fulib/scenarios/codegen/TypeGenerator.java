@@ -7,12 +7,6 @@ public enum TypeGenerator implements Type.Visitor<CodeGenerator, String>
    INSTANCE;
 
    @Override
-   public String visit(Type type, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public String visit(UnresolvedType unresolvedType, CodeGenerator par)
    {
       throw new UnsupportedOperationException("unresolved type " + unresolvedType.getName());

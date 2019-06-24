@@ -71,12 +71,6 @@ public enum Grouper implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    // --------------- Sentence.Visitor ---------------
 
    @Override
-   public Frame visit(Sentence sentence, Frame par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Frame visit(SentenceList sentenceList, Frame par)
    {
       for (final Sentence item : sentenceList.getItems())

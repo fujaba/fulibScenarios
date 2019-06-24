@@ -29,12 +29,6 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ThereSentence thereSentence, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(ExpectSentence expectSentence, CodeGenerator par)
    {
       for (ConditionalExpr expr : expectSentence.getPredicates())
@@ -137,18 +131,6 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(CreateSentence createSentence, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(CallSentence callSentence, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(AnswerSentence answerSentence, CodeGenerator par)
    {
       par.emitIndent();
@@ -157,12 +139,6 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       par.bodyBuilder.append(";\n");
 
       return null;
-   }
-
-   @Override
-   public Object visit(WriteSentence writeSentence, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
    }
 
    @Override

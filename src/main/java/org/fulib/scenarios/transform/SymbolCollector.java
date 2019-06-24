@@ -26,12 +26,6 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    }
 
    @Override
-   public Object visit(ThereSentence thereSentence, Map<String, Decl> par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(ExpectSentence expectSentence, Map<String, Decl> par)
    {
       return null;
@@ -73,27 +67,9 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    }
 
    @Override
-   public Object visit(CreateSentence createSentence, Map<String, Decl> par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(CallSentence callSentence, Map<String, Decl> par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(AnswerSentence answerSentence, Map<String, Decl> par)
    {
       return null;
-   }
-
-   @Override
-   public Object visit(WriteSentence writeSentence, Map<String, Decl> par)
-   {
-      throw new UnsupportedOperationException();
    }
 
    @Override

@@ -9,10 +9,7 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -138,18 +135,6 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ConditionalExpr conditionalExpr, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(AttributeCheckExpr attributeCheckExpr, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
    {
       final boolean numeric = AssertionGenerator.isNumeric(conditionalOperatorExpr);
@@ -157,12 +142,6 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       final String format = numeric ? operator.getNumberOperator() : operator.getObjectOperator();
       AssertionGenerator.generateCondOp(conditionalOperatorExpr, par, format);
       return null;
-   }
-
-   @Override
-   public Object visit(CollectionExpr collectionExpr, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
    }
 
    @Override

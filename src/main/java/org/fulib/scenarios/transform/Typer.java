@@ -9,14 +9,12 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
-import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
@@ -31,12 +29,6 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    INSTANCE;
 
    // --------------- Expr.Visitor ---------------
-
-   @Override
-   public Type visit(Expr expr, Object par)
-   {
-      throw new UnsupportedOperationException();
-   }
 
    @Override
    public Type visit(AttributeAccess attributeAccess, Object par)
@@ -71,12 +63,6 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       {
          return PrimitiveType.VOID;
       }
-   }
-
-   @Override
-   public Type visit(PrimaryExpr primaryExpr, Object par)
-   {
-      throw new UnsupportedOperationException();
    }
 
    @Override
@@ -123,12 +109,6 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    }
 
    @Override
-   public Type visit(CollectionExpr collectionExpr, Object par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Type visit(ListExpr listExpr, Object par)
    {
       Type commonType = null;
@@ -152,12 +132,6 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    }
 
    // --------------- Name.Visitor ---------------
-
-   @Override
-   public Type visit(Name name, Object par)
-   {
-      throw new UnsupportedOperationException();
-   }
 
    @Override
    public Type visit(UnresolvedName unresolvedName, Object par)

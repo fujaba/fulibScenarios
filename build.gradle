@@ -115,3 +115,7 @@ jar {
     // include classes from jars in libs/
     from fileTree('libs/').files.collect { zipTree(it) }
 }
+
+// --------------- GenTreeSrc ---------------
+
+gentreesrcJava.args '--visit-default'

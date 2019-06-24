@@ -58,12 +58,6 @@ public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    // --------------- Sentence.Visitor ---------------
 
    @Override
-   public Sentence visit(Sentence sentence, Object par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Sentence visit(SentenceList sentenceList, Object par)
    {
       final List<Sentence> oldItems = sentenceList.getItems();

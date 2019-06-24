@@ -11,7 +11,6 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
@@ -171,12 +170,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Object visit(ThereSentence thereSentence, Scope par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(ExpectSentence expectSentence, Scope par)
    {
       expectSentence.getPredicates().replaceAll(it -> (ConditionalExpr) it.accept(this, par));
@@ -223,18 +216,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Object visit(CreateSentence createSentence, Scope par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(CallSentence callSentence, Scope par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(AnswerSentence answerSentence, Scope par)
    {
       if (answerSentence.getActor() != null)
@@ -247,12 +228,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Object visit(WriteSentence writeSentence, Scope par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(ExprSentence exprSentence, Scope par)
    {
       exprSentence.setExpr(exprSentence.getExpr().accept(this, par));
@@ -260,12 +235,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    }
 
    // --------------- Type.Visitor ---------------
-
-   @Override
-   public Type visit(Type type, Scope par)
-   {
-      throw new UnsupportedOperationException();
-   }
 
    @Override
    public Type visit(UnresolvedType unresolvedType, Scope par)
@@ -324,12 +293,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       attributeAccess.setName(getAttributeOrAssociation(par, receiver, attributeAccess.getName()));
       return attributeAccess;
-   }
-
-   @Override
-   public Expr visit(ListAttributeAccess listAttributeAccess, Scope par)
-   {
-      throw new UnsupportedOperationException();
    }
 
    @Override
@@ -528,12 +491,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       conditionalOperatorExpr.setLhs(conditionalOperatorExpr.getLhs().accept(this, par));
       conditionalOperatorExpr.setRhs(conditionalOperatorExpr.getRhs().accept(this, par));
       return conditionalOperatorExpr;
-   }
-
-   @Override
-   public Expr visit(CollectionExpr collectionExpr, Scope par)
-   {
-      throw new UnsupportedOperationException();
    }
 
    @Override

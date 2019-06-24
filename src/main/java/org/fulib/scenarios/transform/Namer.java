@@ -33,12 +33,6 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    // --------------- Type.Visitor ---------------
 
    @Override
-   public String visit(Type type, Object par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public String visit(UnresolvedType unresolvedType, Object par)
    {
       return unresolvedType.getName();

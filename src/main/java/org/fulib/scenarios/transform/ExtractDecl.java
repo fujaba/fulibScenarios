@@ -10,12 +10,6 @@ public enum ExtractDecl implements Name.Visitor<Object, Decl>
    INSTANCE;
 
    @Override
-   public Decl visit(Name name, Object par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Decl visit(ResolvedName resolvedName, Object par)
    {
       return resolvedName.getDecl();

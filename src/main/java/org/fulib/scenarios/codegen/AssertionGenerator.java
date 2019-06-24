@@ -1,6 +1,5 @@
 package org.fulib.scenarios.codegen;
 
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
@@ -15,18 +14,6 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
    INSTANCE;
 
    private static final Pattern METHOD_PATTERN = Pattern.compile("(?!\\.)(\\w+)\\(");
-
-   @Override
-   public Object visit(ConditionalExpr conditionalExpr, CodeGenerator codeGen)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Object visit(AttributeCheckExpr attributeCheckExpr, CodeGenerator codeGen)
-   {
-      throw new UnsupportedOperationException();
-   }
 
    @Override
    public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)

@@ -12,12 +12,6 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    INSTANCE;
 
    @Override
-   public Object visit(Decl decl, CodeGenerator par)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Object visit(ClassDecl classDecl, CodeGenerator par)
    {
       par.clazz = par.modelManager.haveClass(classDecl.getName());
