@@ -260,6 +260,18 @@ public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    }
 
    @Override
+   public Sentence visit(AddSentence addSentence, Object par)
+   {
+      return addSentence;
+   }
+
+   @Override
+   public Sentence visit(RemoveSentence removeSentence, Object par)
+   {
+      return removeSentence;
+   }
+
+   @Override
    public Sentence visit(ExprSentence exprSentence, Object par)
    {
       return exprSentence;

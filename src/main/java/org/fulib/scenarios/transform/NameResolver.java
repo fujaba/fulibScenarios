@@ -227,6 +227,26 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    }
 
    @Override
+   public Sentence visit(AddSentence addSentence, Scope par)
+   {
+      final Expr source = addSentence.getSource().accept(this, par);
+      final Expr target = addSentence.getTarget().accept(this, par);
+
+      // TODO UnsupportedOperationException to diagnostic
+      return target.accept(AddResolve.INSTANCE, source);
+   }
+
+   @Override
+   public Sentence visit(RemoveSentence removeSentence, Scope par)
+   {
+      final Expr source = removeSentence.getSource().accept(this, par);
+      final Expr target = removeSentence.getTarget().accept(this, par);
+
+      // TODO UnsupportedOperationException to diagnostic
+      return target.accept(RemoveResolve.INSTANCE, source);
+   }
+
+   @Override
    public Sentence visit(ExprSentence exprSentence, Scope par)
    {
       exprSentence.setExpr(exprSentence.getExpr().accept(this, par));
