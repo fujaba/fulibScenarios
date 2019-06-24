@@ -7,7 +7,7 @@ There is a WebApp with id PartyApp and with description "Party App".
 
 // first page
 There are Content with id nameField, locationField, whenField and
-                  with description "input prompt Name?", "input prompt Where?", "input prompt When?".
+                  with description "input Name?", "input prompt Where?", "input prompt When?".
 
 There is a Content with id nextButton and with description "button next".
 
@@ -18,7 +18,7 @@ There is a Page with id firstPage
 
 // add Person page
 There are Content with id personNameField, page3Button and
-                  with description "input prompt Name?", "button add".
+                  with description "input Name?", "button add".
 
 There is a Page with id addPerson
             and with description "Add Person"
@@ -38,9 +38,9 @@ There is a Page with id peoplePage
 
 // add Item page
 There are Content with id itemNameField, itemPriceField, itemOwnerField, itemPageAddButton and
-                  with description "input prompt Name?",
-                                   "input prompt 0.00 Euro?",
-                                   "input prompt Who?",
+                  with description "input Name?",
+                                   "input 0.00 Euro?",
+                                   "input Who?",
                                    "button add".
 
 There is a Page with id addItem

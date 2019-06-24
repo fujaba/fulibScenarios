@@ -104,8 +104,8 @@ dependencies {
 def generatedANTLRDir = "$buildDir/generated-src/antlr/main/"
 
 sourceSets.main.java.srcDir(generatedANTLRDir)
-sourceSets.main.java.srcDir("$buildDir/generated-src/html/main")
-sourceSets.test.java.srcDir("$buildDir/generated-src/html/test")
+sourceSets.main.java.srcDir("temp/shop/main")
+sourceSets.test.java.srcDir("temp/shop/test")
 
 // https://stackoverflow.com/questions/40995727/gradle-cant-find-antlr-token-file
 generateGrammarSource {

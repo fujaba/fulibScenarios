@@ -95,7 +95,11 @@ public class MockupTools
             "   document.getElementById('thePanel').innerHTML = stepList[stepCount];\n" +
             "\n" +
             "   const nextStep = function (event) {\n" +
-            "        stepCount++;\n" +
+            "        if (event.ctrlKey) {\n" +
+            "           stepCount--\n" +
+            "        } else {\n" +
+            "           stepCount++;\n" +
+            "        }\n" +
             "        if (stepList.length > stepCount) {\n" +
             "            document.getElementById('thePanel').innerHTML = stepList[stepCount];\n" +
             "        }\n" +
@@ -147,6 +151,11 @@ public class MockupTools
 
    private String generateElement(Object root, String indent)
    {
+      String containerClass = "";
+      if ("".equals(indent)) {
+         containerClass = "class='container'";
+      }
+
       Reflector reflector = reflectorMap.getReflector(root);
       Collection content = null;
       Object bareContent = reflector.getValue(root, CONTENT);
@@ -187,25 +196,21 @@ public class MockupTools
 
 
       String body = String.format("" +
-            indent + "<div id='%s' >\n" +
+            indent + "<div id='%s' %s>\n" +
             indent + "   <div class='row justify-content-center'>\n" +
             indent + "      %s\n" +
             indent + "   </div>\n" +
             "%s" +
-            indent + "</div>\n", rootId, cellList, contentBuf.toString());
+            indent + "</div>\n", rootId, containerClass, cellList, contentBuf.toString());
 
       return body;
    }
 
    private String generateOneCell(Object root, String indent, Reflector reflector, String rootDescription, int numberOfElemsPerLine)
    {
-      int lg = 2; // numberOfElemsPerLine;
-      int md = 2; // numberOfElemsPerLine;
-      int sm = 2; // numberOfElemsPerLine;
+      String cols = "class='col col-lg-2 text-center'";
 
-      String cols = String.format("class='col-lg-%d col-md-%d col-sm-%d'", lg, md, sm);
-
-      String elem = String.format("<div %s style='margin: 1rem'>" + rootDescription + "</div>", cols);
+      String elem = String.format("<div %s style='margin: 1rem'>" + rootDescription + "</div>\n", cols);
 
       if (rootDescription.startsWith("input"))
       {
@@ -217,6 +222,9 @@ public class MockupTools
          int pos = rootDescription.indexOf("prompt");
          if (pos >= 0) {
             prompt = rootDescription.substring(pos + "prompt ".length());
+         }
+         else {
+            prompt = rootDescription.substring("input ".length());
          }
 
          String value = (String) reflector.getValue(root, "value");
