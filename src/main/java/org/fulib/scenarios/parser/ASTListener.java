@@ -206,6 +206,26 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(writeSentence);
    }
 
+   @Override
+   public void exitAddSentence(ScenarioParser.AddSentenceContext ctx)
+   {
+      final Expr target = this.pop();
+      final Expr source = this.pop();
+      final Name actor = name(ctx.actor().name()); // null if actor is "we"
+      final AddSentence addSentence = AddSentence.of(actor, source, target);
+      this.stack.push(addSentence);
+   }
+
+   @Override
+   public void exitRemoveSentence(ScenarioParser.RemoveSentenceContext ctx)
+   {
+      final Expr target = this.pop();
+      final Expr source = this.pop();
+      final Name actor = name(ctx.actor().name()); // null if actor is "we"
+      final RemoveSentence removeSentence = RemoveSentence.of(actor, source, target);
+      this.stack.push(removeSentence);
+   }
+
    // --------------- Clauses ---------------
 
    @Override

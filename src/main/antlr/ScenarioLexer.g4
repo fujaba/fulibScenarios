@@ -3,6 +3,8 @@ lexer grammar ScenarioLexer;
 // --------------- Keywords ---------------
 
 A:        'a';
+ADD:      'add';
+ADDS:     'adds';
 AN:       'an';
 AND:      'and';
 ANSWER:   'answer';
@@ -39,6 +41,8 @@ ONE:      'one';
 READ:     'read';
 READS:    'reads';
 REGISTER: 'register';
+REMOVE:   'remove';
+REMOVES:  'removes';
 SAME:     'same';
 SCENARIO: 'Scenario';
 THAN:     'than';

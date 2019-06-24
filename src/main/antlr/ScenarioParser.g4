@@ -26,6 +26,8 @@ simpleSentence: thereSentence
               | callSentence
               | answerSentence
               | writeSentence
+              | addSentence
+              | removeSentence
               ;
 
 // Definition
@@ -61,6 +63,8 @@ callSentence: actor (CALL | CALLS) name (ON expr)? withClauses?;
 answerSentence: actor (ANSWER | ANSWERS) WITH expr;
 
 writeSentence: actor (WRITE | WRITES) expr INTO expr;
+addSentence: actor (ADD | ADDS) expr TO expr;
+removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
 
 // Testing
 
