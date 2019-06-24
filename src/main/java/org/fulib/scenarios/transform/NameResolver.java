@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
-                                       Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Object>,
+                                       Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Sentence>,
                                        Type.Visitor<Scope, Type>, Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
    INSTANCE;
@@ -131,13 +131,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    // --------------- Sentence.Visitor ---------------
 
    @Override
-   public Object visit(Sentence sentence, Scope par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(SentenceList sentenceList, Scope par)
+   public Sentence visit(SentenceList sentenceList, Scope par)
    {
       final Map<String, Decl> decls = new HashMap<>();
       final Scope scope = new DelegatingScope(par)
@@ -161,30 +155,35 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          }
       };
 
-      for (final Sentence item : sentenceList.getItems())
+      final List<Sentence> oldItems = sentenceList.getItems();
+      final List<Sentence> newItems = new ArrayList<>(oldItems.size());
+      for (final Sentence item : oldItems)
       {
          item.accept(SymbolCollector.INSTANCE, decls);
-         item.accept(this, scope);
+         final Sentence resolved = item.accept(this, scope);
+         FlattenSentenceList.add(newItems, resolved);
       }
-      return null;
+      sentenceList.setItems(newItems);
+
+      return sentenceList;
    }
 
    @Override
-   public Object visit(ExpectSentence expectSentence, Scope par)
+   public Sentence visit(ExpectSentence expectSentence, Scope par)
    {
       expectSentence.getPredicates().replaceAll(it -> (ConditionalExpr) it.accept(this, par));
-      return null;
+      return expectSentence;
    }
 
    @Override
-   public Object visit(DiagramSentence diagramSentence, Scope par)
+   public Sentence visit(DiagramSentence diagramSentence, Scope par)
    {
       diagramSentence.setObject(diagramSentence.getObject().accept(this, par));
-      return null;
+      return diagramSentence;
    }
 
    @Override
-   public Object visit(HasSentence hasSentence, Scope par)
+   public Sentence visit(HasSentence hasSentence, Scope par)
    {
       final Expr receiver = hasSentence.getObject().accept(this, par);
       hasSentence.setObject(receiver);
@@ -199,11 +198,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          namedExpr.setName(resolveAttributeOrAssociation(objectClass, namedExpr.getName(), namedExpr.getExpr()));
       }
 
-      return null;
+      return hasSentence;
    }
 
    @Override
-   public Object visit(IsSentence isSentence, Scope par)
+   public Sentence visit(IsSentence isSentence, Scope par)
    {
       final VarDecl varDecl = isSentence.getDescriptor();
       varDecl.setExpr(varDecl.getExpr().accept(this, par));
@@ -212,11 +211,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       {
          varDecl.setType(varDecl.getExpr().accept(Typer.INSTANCE, null));
       }
-      return null;
+      return isSentence;
    }
 
    @Override
-   public Object visit(AnswerSentence answerSentence, Scope par)
+   public Sentence visit(AnswerSentence answerSentence, Scope par)
    {
       if (answerSentence.getActor() != null)
       {
@@ -224,21 +223,21 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       }
 
       answerSentence.setResult(answerSentence.getResult().accept(this, par));
-      return null;
+      return answerSentence;
    }
 
    @Override
-   public Object visit(ExprSentence exprSentence, Scope par)
+   public Sentence visit(ExprSentence exprSentence, Scope par)
    {
       exprSentence.setExpr(exprSentence.getExpr().accept(this, par));
-      return null;
+      return exprSentence;
    }
 
    @Override
-   public Object visit(TemplateSentence templateSentence, Scope par)
+   public Sentence visit(TemplateSentence templateSentence, Scope par)
    {
       templateSentence.getExprs().replaceAll(it -> it.accept(this, par));
-      return null;
+      return templateSentence;
    }
 
    // --------------- Type.Visitor ---------------
