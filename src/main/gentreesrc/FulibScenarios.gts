@@ -47,6 +47,8 @@ abstract org.fulib.scenarios.ast.Node {
 		AnswerSentence(actor: Name, result: Expr)
 
 		WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
+		AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
+		RemoveSentence(actor: Name, source: Expr, target: Expr) // i.e. removing elements from a list
 
 		ExprSentence(expr: Expr)
 
