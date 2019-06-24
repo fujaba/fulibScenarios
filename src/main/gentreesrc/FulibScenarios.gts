@@ -49,6 +49,10 @@ abstract org.fulib.scenarios.ast.Node {
 		WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
 
 		ExprSentence(expr: Expr)
+
+		// e.g. TemplateSentence("<%>.addAll(<*>);", [ foo, ListExpr.of([ bar, baz ]) ])
+		// =>   foo.addAll(bar, baz);
+		TemplateSentence(template: String, exprs: [Expr])
 	}
 
 	NamedExpr(name: Name, expr: Expr)

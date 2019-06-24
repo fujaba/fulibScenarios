@@ -77,4 +77,10 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    {
       return null;
    }
+
+   @Override
+   public Object visit(TemplateSentence templateSentence, Map<String, Decl> par)
+   {
+      return null;
+   }
 }

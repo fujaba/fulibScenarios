@@ -8,6 +8,9 @@ import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.transform.Typer;
 
+import java.util.Iterator;
+import java.util.List;
+
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
 {
    INSTANCE;
@@ -147,6 +150,37 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
       par.emitIndent();
       exprSentence.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(";\n");
+      return null;
+   }
+
+   @Override
+   public Object visit(TemplateSentence templateSentence, CodeGenerator par)
+   {
+      final List<Expr> exprs = templateSentence.getExprs();
+      final Iterator<Expr> exprIterator = exprs.iterator();
+      final String template = templateSentence.getTemplate();
+
+      // substitute <%> and <*> in template for the expressions
+
+      // https://stackoverflow.com/questions/2206378/how-to-split-a-string-but-also-keep-the-delimiters
+      final String[] split = template.split("(?<=<[%*]>)|(?=<[%*]>)");
+
+      for (String part : split)
+      {
+         switch (part)
+         {
+         case "<%>":
+            exprIterator.next().accept(ExprGenerator.INSTANCE, par);
+            break;
+         case "<*>":
+            exprIterator.next().accept(ExprGenerator.NO_LIST, par);
+            break;
+         default:
+            par.bodyBuilder.append(part);
+            break;
+         }
+      }
+
       return null;
    }
 }
