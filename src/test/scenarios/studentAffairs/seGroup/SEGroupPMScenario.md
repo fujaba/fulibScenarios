@@ -16,7 +16,3 @@ There is a Solution with id easyDone and with text '42'.
 There is an Assignment with topic PartyApp Scenarios and 
 with seClass Modeling and with 10 points and with 
 solutions easyDone.
-
-There is an Achievement with id alicePMDone and with solutions easyDone.
-
-Alice has achievements alicePMDone.
