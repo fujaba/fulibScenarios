@@ -1,5 +1,6 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
@@ -230,20 +231,20 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Sentence visit(AddSentence addSentence, Scope par)
    {
       final Expr source = addSentence.getSource().accept(this, par);
-      final Expr target = addSentence.getTarget().accept(this, par);
+      final Expr target = addSentence.getTarget();
 
       // TODO UnsupportedOperationException to diagnostic
-      return target.accept(AddResolve.INSTANCE, source);
+      return target.accept(AddResolve.INSTANCE, source).accept(this, par);
    }
 
    @Override
    public Sentence visit(RemoveSentence removeSentence, Scope par)
    {
       final Expr source = removeSentence.getSource().accept(this, par);
-      final Expr target = removeSentence.getTarget().accept(this, par);
+      final Expr target = removeSentence.getTarget();
 
       // TODO UnsupportedOperationException to diagnostic
-      return target.accept(RemoveResolve.INSTANCE, source);
+      return target.accept(RemoveResolve.INSTANCE, source).accept(this, par);
    }
 
    @Override

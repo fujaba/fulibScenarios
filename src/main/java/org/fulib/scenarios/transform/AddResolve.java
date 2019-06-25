@@ -4,6 +4,7 @@ import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.HasSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
@@ -31,9 +32,12 @@ public enum AddResolve implements Expr.Visitor<Expr, Sentence>
    @Override
    public Sentence visit(AttributeAccess attributeAccess, Expr par)
    {
+      final Type type = par.accept(Typer.INSTANCE, null);
       final Expr receiver = attributeAccess.getReceiver();
       final Name name = attributeAccess.getName();
+      //noinspection ArraysAsListWithZeroOrOneArgument - singletonList is not modifiable
+      final Expr source = type instanceof ListType ? par : ListExpr.of(Arrays.asList(par));
 
-      return HasSentence.of(receiver, Collections.singletonList(NamedExpr.of(name, par)));
+      return HasSentence.of(receiver, Collections.singletonList(NamedExpr.of(name, source)));
    }
 }
