@@ -694,8 +694,9 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       final Type associationType = cardinality != 1 ? ListType.of(otherClass.getType()) : otherClass.getType();
       final AssociationDecl association = AssociationDecl
                                              .of(classDecl, name, cardinality, otherClass, associationType, null);
+      final String otherName = StrUtil.downFirstChar(classDecl.getName());
       final AssociationDecl other = AssociationDecl
-                                       .of(otherClass, classDecl.getName(), 1, classDecl, classDecl.getType(), null);
+                                       .of(otherClass, otherName, 1, classDecl, classDecl.getType(), null);
 
       association.setOther(other);
       other.setOther(association);
