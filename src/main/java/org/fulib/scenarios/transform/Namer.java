@@ -101,17 +101,26 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    public String visit(CallExpr callExpr, Object par)
    {
       final List<Sentence> body = callExpr.getBody().getItems();
-
-      final Sentence lastSentence;
-      if (!body.isEmpty() && (lastSentence = body.get(body.size() - 1)) instanceof AnswerSentence)
-      {
-         final Expr result = ((AnswerSentence) lastSentence).getResult();
-         return result.accept(this, null);
-      }
-      else
+      if (body.isEmpty())
       {
          return null;
       }
+
+      final Sentence lastSentence = body.get(body.size() - 1);
+      if (!(lastSentence instanceof AnswerSentence))
+      {
+         return null;
+      }
+
+      final AnswerSentence answerSentence = (AnswerSentence) lastSentence;
+      final String varName = answerSentence.getVarName();
+      if (varName != null)
+      {
+         return varName;
+      }
+
+      final Expr result = answerSentence.getResult();
+      return result.accept(this, null);
    }
 
    @Override

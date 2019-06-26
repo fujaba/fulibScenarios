@@ -44,7 +44,7 @@ abstract org.fulib.scenarios.ast.Node {
 		CreateSentence(actor: Name, descriptor: MultiDescriptor)
 
 		CallSentence(actor: Name, call: CallExpr)
-		AnswerSentence(actor: Name, result: Expr)
+		AnswerSentence(actor: Name, result: Expr, varName: String)
 
 		WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
 		AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
