@@ -2,6 +2,7 @@ package org.fulib.scenarios;
 
 import org.fulib.yaml.Reflector;
 import org.fulib.yaml.ReflectorMap;
+import org.fulib.yaml.YamlIdMap;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,10 +11,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MockupTools
 {
 
+   public static final String ELEMENTS = "elements";
    private static LinkedHashMap<Object, ArrayList<String>> mapForStepLists = new LinkedHashMap<>();
 
 
@@ -27,8 +30,9 @@ public class MockupTools
    }
 
 
-   public int dump(String fileName, Object root) {
+   public int dump(String fileName, Object... rootList) {
 
+      Object root = rootList[0];
       String packageName = root.getClass().getPackage().getName();
 
       reflectorMap = new ReflectorMap(packageName);
@@ -39,7 +43,10 @@ public class MockupTools
             "          integrity=\"sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T\"\n" +
             "          crossorigin=\"anonymous\">\n\n";
 
-      if (fileName.endsWith(".mockup.html")) {
+      if (fileName.endsWith(".tables.html")) {
+         generateTables(fileName, rootList, bootstrap);
+      }
+      else if (fileName.endsWith(".mockup.html")) {
          generateMockup(fileName, root, bootstrap);
       }
       else
@@ -48,6 +55,83 @@ public class MockupTools
       }
 
       return 0;
+   }
+
+   private void generateTables(String fileName, Object[] rootList, String bootstrap)
+   {
+      StringBuilder body = new StringBuilder();
+
+      Object firstRoot = rootList[0];
+      String packageName = firstRoot.getClass().getPackage().getName();
+      YamlIdMap idMap = new YamlIdMap(packageName);
+      String encode = idMap.encode(rootList);
+
+      LinkedHashMap<String,ArrayList<String>> tableMap = new LinkedHashMap<>();
+
+      LinkedHashMap<String, Object> idObjMap = idMap.getObjIdMap();
+      for (Map.Entry<String, Object> entry : idObjMap.entrySet())
+      {
+         String oneLine = "";
+         Object oneObject = entry.getValue();
+         String className = oneObject.getClass().getSimpleName();
+         Reflector reflector = idMap.getReflector(oneObject);
+
+         ArrayList<String> oneTable = tableMap.get(className);
+         if (oneTable == null) {
+            oneTable = new ArrayList<>();
+            tableMap.put(className, oneTable);
+            oneTable.add(String.format("<div class='row justify-content-center '><div class='col text-center font-weight-bold'>%s</div></div>\n", className));
+
+            String colNames = "<div class='col text-center font-weight-bold border'>_id</div>";
+            for (String property : reflector.getProperties())
+            {
+               colNames += String.format("<div class='col text-center font-weight-bold border'>%s</div>", property);
+            }
+
+            String colLine = String.format("<div class='row justify-content-center '>%s</div>\n", colNames);
+            oneTable.add(colLine);
+         }
+
+
+         for (String property : reflector.getProperties())
+         {
+            Object value = reflector.getValue(oneObject, property);
+            String valueKey = idMap.getIdObjMap().get(value);
+
+            if (valueKey != null) {
+               value = String.format("<a href='#%s'>%s</a>", valueKey, valueKey);
+            }
+
+            oneLine += String.format("<div class='col text-center  border'>%s</div>", value);
+         }
+
+
+         String lineWithId = String.format("<div class='row justify-content-center'>" +
+               "<div class='col text-center border'><a name='%s'>%s</a></div>%s</div>",
+               entry.getKey(), entry.getKey(), oneLine);
+         oneTable.add(lineWithId);
+      }
+
+      for (ArrayList<String> table : tableMap.values())
+      {
+         for (String line : table)
+         {
+            body.append(line).append("\n");
+         }
+         body.append("<br>\n");
+      }
+
+
+
+      String content = bootstrap + String.format("<div class='container'>\n%s</div>\n", body.toString());
+      try
+      {
+         Files.write(Paths.get(fileName), content.getBytes(StandardCharsets.UTF_8));
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
    }
 
    private void generateMockup(String fileName, Object root, String bootstrap)
@@ -182,7 +266,8 @@ public class MockupTools
       String rootId = reflector.getValue(root, ID).toString();
 
 
-      String rootDescription = reflector.getValue(root, DESCRIPTION).toString();
+      Object value = reflector.getValue(root, DESCRIPTION);
+      String rootDescription = value == null ? "" : value.toString();
 
       String cellList = "";
 
@@ -194,6 +279,19 @@ public class MockupTools
          cellList += cell;
       }
 
+      Object elementsValue = reflector.getValue(root, ELEMENTS);
+
+      Collection<Object> elements = elementsValue == null ? new ArrayList<>() : (Collection<Object>) elementsValue;
+
+      for (Object elemObject : elements)
+      {
+         Reflector elemReflector = reflectorMap.getReflector(elemObject);
+         String elem = (String) elemReflector.getValue(elemObject, "text");
+         if (elem != null) {
+            String cell = generateOneCell(root, indent, reflector, elem.trim(), split.length);
+            cellList += cell;
+         }
+      }
 
       String body = String.format("" +
             indent + "<div id='%s' %s>\n" +

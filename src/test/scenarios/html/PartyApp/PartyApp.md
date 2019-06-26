@@ -7,7 +7,7 @@ There is a WebApp with id PartyApp and with description "Party App".
 
 // first page
 There are Content with id nameField, locationField, whenField and
-                  with description "input Name?", "input prompt Where?", "input prompt When?".
+                  with description "input Name?", "input Where?", "input When?".
 
 There is a Content with id nextButton and with description "button next".
 
