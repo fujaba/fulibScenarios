@@ -16,6 +16,7 @@ actor: WE | name;
 
 sentence: simpleSentence FULL_STOP
         | diagramSentence
+        | sectionSentence
         ;
 
 simpleSentence: thereSentence
@@ -29,6 +30,8 @@ simpleSentence: thereSentence
               | addSentence
               | removeSentence
               ;
+
+sectionSentence: H2 HEADLINE_TEXT HEADLINE_END;
 
 // Definition
 

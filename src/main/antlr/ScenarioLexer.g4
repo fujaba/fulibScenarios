@@ -60,7 +60,7 @@ WRITES:   'writes';
 // --------------- Key Symbols ---------------
 
 H1:        '#';
-H2:        '##';
+H2:        '##' -> mode(HEADLINE);
 COMMA:     ',';
 FULL_STOP: '.';
 PLUS:      '+';
@@ -89,3 +89,7 @@ IMG_SEP: '](' -> mode(FILE_NAME_MODE);
 mode FILE_NAME_MODE;
 IMG_END: ')' -> mode(DEFAULT_MODE);
 FILE_NAME: ~')'+;
+
+mode HEADLINE;
+HEADLINE_TEXT: ~'\n'+;
+HEADLINE_END: '\n' -> mode(DEFAULT_MODE);

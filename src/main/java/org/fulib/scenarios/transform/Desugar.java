@@ -74,6 +74,13 @@ public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    }
 
    @Override
+   public Sentence visit(SectionSentence sectionSentence, Object par)
+   {
+      final String processedComment = sectionSentence.getText().trim();
+      return TemplateSentence.of("// --- " + processedComment + " ---", Collections.emptyList());
+   }
+
+   @Override
    public Sentence visit(ThereSentence thereSentence, Object par)
    {
       final List<Sentence> result = new ArrayList<>();

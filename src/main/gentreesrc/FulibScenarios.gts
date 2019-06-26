@@ -35,6 +35,8 @@ abstract org.fulib.scenarios.ast.Node {
 	abstract sentence.Sentence {
 		SentenceList(items: [Sentence])
 
+		SectionSentence(text: String)
+
 		ThereSentence(descriptors: [MultiDescriptor]) // like CreateSentence, but without an actor
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 		DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump

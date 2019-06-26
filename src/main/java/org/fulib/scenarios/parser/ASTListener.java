@@ -93,6 +93,14 @@ public class ASTListener extends ScenarioParserBaseListener
    // --------------- Sentences ---------------
 
    @Override
+   public void exitSectionSentence(ScenarioParser.SectionSentenceContext ctx)
+   {
+      final String text = ctx.HEADLINE_TEXT().getText().trim();
+      final SectionSentence sectionSentence = SectionSentence.of(text);
+      this.stack.push(sectionSentence);
+   }
+
+   @Override
    public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
    {
       final List<MultiDescriptor> descriptors = this.pop(MultiDescriptor.class, ctx.thereClause().size());
