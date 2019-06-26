@@ -4,11 +4,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
-import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -29,7 +26,8 @@ import org.fulib.scenarios.ast.type.UnresolvedType;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static org.fulib.scenarios.parser.Identifiers.*;
 
 public class ASTListener extends ScenarioParserBaseListener
 {
@@ -133,7 +131,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitMultiDescriptor(ScenarioParser.MultiDescriptorContext ctx)
    {
-      final List<String> names = ctx.name().stream().map(ASTListener::varName).collect(Collectors.toList());
+      final List<String> names = ctx.name().stream().map(Identifiers::varName).collect(Collectors.toList());
       this.pushDescriptor(names, ctx.withClauses());
    }
 
@@ -377,71 +375,6 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    // =============== Static Methods ===============
-
-   static String cap(Token token)
-   {
-      return StrUtil.cap(token.getText());
-   }
-
-   private static Stream<String> splitCaps(TerminalNode text)
-   {
-      return Arrays.stream(text.getText().split("[\\W_]+"));
-   }
-
-   static String joinCaps(ScenarioParser.SimpleNameContext context)
-   {
-      return splitCaps(context.WORD()).map(StrUtil::cap).collect(Collectors.joining());
-   }
-
-   static String joinCaps(ScenarioParser.NameContext context)
-   {
-      return context.WORD().stream().flatMap(ASTListener::splitCaps).map(StrUtil::cap).collect(Collectors.joining());
-   }
-
-   static String varName(ScenarioParser.NameContext context)
-   {
-      return context == null ? null : StrUtil.downFirstChar(joinCaps(context));
-   }
-
-   static String varName(ScenarioParser.SimpleNameContext context)
-   {
-      return context == null ? null : StrUtil.downFirstChar(joinCaps(context));
-   }
-
-   static String typeNameValue(ScenarioParser.SimpleTypeClauseContext typeClause)
-   {
-      final ScenarioParser.SimpleNameContext simpleName = typeClause.simpleName();
-      return simpleName != null ? joinCaps(simpleName) : joinCaps(typeClause.name());
-   }
-
-   static String typeNameValue(ScenarioParser.MultiTypeClauseContext typeClause)
-   {
-      final ScenarioParser.NameContext name = typeClause.name();
-      final String typeName = joinCaps(name);
-
-      if (typeClause.CARDS() != null || !typeName.endsWith("s"))
-      {
-         return typeName;
-      }
-
-      return typeName.substring(0, typeName.length() - 1);
-   }
-
-   static Name name(ScenarioParser.SimpleNameContext simpleName)
-   {
-      return simpleName == null ? null : name(varName(simpleName), simpleName);
-   }
-
-   static Name name(ScenarioParser.NameContext multiName)
-   {
-      return multiName == null ? null : name(varName(multiName), multiName);
-   }
-
-   private static Name name(String value, ParserRuleContext rule)
-   {
-      final String text = inputText(rule);
-      return UnresolvedName.of(value, text);
-   }
 
    static String inputText(ParserRuleContext ctx)
    {
