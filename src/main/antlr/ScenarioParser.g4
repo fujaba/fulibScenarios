@@ -50,8 +50,8 @@ multiTypeClause: name CARDS | name;
 withClauses: withClause (sep withClause)*;
 withClause: WITH namedExpr;
 
-namedExpr: simpleName primaryExpr # NamedSimple
-         | number name            # NamedNumber;
+namedExpr: simpleName expr # NamedSimple
+         | number name     # NamedNumber;
 
 hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
