@@ -1,11 +1,11 @@
+# Scenario PartyApp GUI
 
-# Scenario PartyApp GUI.
+## GUI
 
-// gui
 There is a WebApp with id PartyApp and with description "Party App".
 
+## First Page
 
-// first page
 There are Content with id nameField, locationField, whenField and
                   with description "input Name?", "input Where?", "input When?".
 
@@ -15,8 +15,8 @@ There is a Page with id firstPage
             and with description "Basics | button People | button Items"
             and with content nameField, locationField, whenField, nextButton.
 
+## Add Person Page
 
-// add Person page
 There are Content with id personNameField, page3Button and
                   with description "input Name?", "button add".
 
@@ -24,8 +24,8 @@ There is a Page with id addPerson
             and with description "Add Person"
             and with content personNameField, page3Button.
 
+## People Page
 
-// people page
 There is a Content with id addToPeoples, albertLine
                and with description "button add",
                                     "Albert | + 0.00 Euro".
@@ -35,8 +35,8 @@ There is a Page with id peoplePage
             and with description "button Basics |  People | button Items"
             and with content addToPeoples, albertLine.
 
+## Add Item Page
 
-// add Item page
 There are Content with id itemNameField, itemPriceField, itemOwnerField, itemPageAddButton and
                   with description "input Name?",
                                    "input 0.00 Euro?",
@@ -47,9 +47,8 @@ There is a Page with id addItem
             and with description "Add Item"
             and with content itemNameField, itemPriceField, itemOwnerField, itemPageAddButton.
 
+## Items Page
 
-
-// items page
 There is a Content with id addToItems, beerLine
                and with description "button add",
                                     "Beer | 12.00 Euro | Albert".
@@ -57,17 +56,14 @@ There is a Page with id itemsPage
             and with description "button Basics |  button People | Items"
             and with content addToItems, beerLine.
 
-
-
-
-// model
+## Model
 
 There is a PartyService with id partyMan.
 
 There is a Party theParty.
 
+## Scenario
 
-// scenario
 PartyApp has content firstPage.
 ![PartyApp](app01.html)
 
@@ -90,7 +86,6 @@ WritePartyData writes "SE-Lab" into location of theParty.
 WritePartyData writes date into date of theParty.
 WritePartyData answers with "OK".
 
-
 PartyApp has content addPerson.
 ![PartyApp](app05.html)
 
@@ -108,7 +103,6 @@ and with pname "Albert".
 BuildPerson creates a Participant newPerson  with name pname.
 TheParty has participants newPerson.
 BuildPerson answers with newPerson.
-
 
 PartyApp has content peoplePage.
 ![PartyApp](app07.html)
@@ -164,6 +158,6 @@ We write "Carli | - 1.00 Euro" into description of carliLine.
 PartyApp has content peoplePage.
 ![PartyApp](app19.html)
 
-
+## Mockup
 
 ![PartyApp](app00.mockup.html)
