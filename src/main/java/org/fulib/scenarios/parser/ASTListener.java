@@ -29,6 +29,7 @@ import org.fulib.scenarios.ast.type.UnresolvedType;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ASTListener extends ScenarioParserBaseListener
 {
@@ -373,9 +374,19 @@ public class ASTListener extends ScenarioParserBaseListener
       return StrUtil.cap(token.getText());
    }
 
+   private static Stream<String> splitCaps(TerminalNode text)
+   {
+      return Arrays.stream(text.getText().split("[\\W_]+"));
+   }
+
+   static String joinCaps(ScenarioParser.SimpleNameContext context)
+   {
+      return splitCaps(context.WORD()).map(StrUtil::cap).collect(Collectors.joining());
+   }
+
    static String joinCaps(ScenarioParser.NameContext context)
    {
-      return context.WORD().stream().map(TerminalNode::getText).map(StrUtil::cap).collect(Collectors.joining(""));
+      return context.WORD().stream().flatMap(ASTListener::splitCaps).map(StrUtil::cap).collect(Collectors.joining());
    }
 
    static String varName(ScenarioParser.NameContext context)
@@ -385,13 +396,13 @@ public class ASTListener extends ScenarioParserBaseListener
 
    static String varName(ScenarioParser.SimpleNameContext context)
    {
-      return context == null ? null : StrUtil.downFirstChar(context.WORD().getText());
+      return context == null ? null : StrUtil.downFirstChar(joinCaps(context));
    }
 
    static String typeNameValue(ScenarioParser.SimpleTypeClauseContext typeClause)
    {
       final ScenarioParser.SimpleNameContext simpleName = typeClause.simpleName();
-      return simpleName != null ? simpleName.WORD().getText() : joinCaps(typeClause.name());
+      return simpleName != null ? joinCaps(simpleName) : joinCaps(typeClause.name());
    }
 
    static String typeNameValue(ScenarioParser.MultiTypeClauseContext typeClause)
