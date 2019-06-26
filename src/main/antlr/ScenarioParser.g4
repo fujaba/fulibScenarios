@@ -7,8 +7,7 @@ options { tokenVocab = ScenarioLexer; }
 file: scenario* EOF;
 
 scenario: header sentence*;
-header: H1 SCENARIO scenarioName FULL_STOP;
-scenarioName: ~FULL_STOP+;
+header: H1 HEADLINE_TEXT HEADLINE_END;
 
 // --------------- Sentences ---------------
 

@@ -81,7 +81,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitScenario(ScenarioParser.ScenarioContext ctx)
    {
-      final String name = inputText(ctx.header().scenarioName());
+      final String name = ctx.header().HEADLINE_TEXT().getText().trim();
       final List<Sentence> sentences = this.pop(Sentence.class, ctx.sentence().size());
       final SentenceList body = SentenceList.of(sentences);
       final Scenario scenario = Scenario.of(null, name, body, null);

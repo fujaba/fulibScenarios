@@ -23,6 +23,7 @@ import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.*;
+import org.fulib.scenarios.parser.Identifiers;
 import org.fulib.scenarios.transform.scope.DelegatingScope;
 import org.fulib.scenarios.transform.scope.HidingScope;
 import org.fulib.scenarios.transform.scope.Scope;
@@ -70,7 +71,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Object visit(ScenarioFile scenarioFile, Scope par)
    {
       final ScenarioGroup group = scenarioFile.getGroup();
-      final String className = scenarioFile.getName().replaceAll("\\W", "") + "Test";
+      final String className = Identifiers.toUpperCamelCase(scenarioFile.getName()) + "Test";
       final ClassDecl classDecl = ClassDecl.of(group, className, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
                                                new ArrayList<>());
       classDecl.setType(ClassType.of(classDecl));
@@ -99,7 +100,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Object visit(Scenario scenario, Scope par)
    {
       final ClassDecl classDecl = scenario.getFile().getClassDecl();
-      final String methodName = "scenario" + scenario.getName().replaceAll("\\W", "");
+      final String methodName = Identifiers.toLowerCamelCase(scenario.getName());
       final SentenceList body = scenario.getBody();
       final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, PrimitiveType.VOID, body);
 

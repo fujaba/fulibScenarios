@@ -44,7 +44,6 @@ REGISTER: 'register';
 REMOVE:   'remove';
 REMOVES:  'removes';
 SAME:     'same';
-SCENARIO: 'Scenario';
 THAN:     'than';
 THAT:     'that';
 THE:      'The' | 'the';
@@ -59,7 +58,7 @@ WRITES:   'writes';
 
 // --------------- Key Symbols ---------------
 
-H1:        '#';
+H1:        '#' -> mode(HEADLINE);
 H2:        '##' -> mode(HEADLINE);
 COMMA:     ',';
 FULL_STOP: '.';
