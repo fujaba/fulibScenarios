@@ -16,3 +16,4 @@ src/test/scenarios/**/*.html
 webapp/examples/**/*.png
 webapp/examples/**/*.svg
 webapp/examples/**/*.yaml
+libs/fulibDotOrg-0.2.0.jar

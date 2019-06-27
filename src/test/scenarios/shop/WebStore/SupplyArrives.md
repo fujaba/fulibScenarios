@@ -24,17 +24,10 @@ There is a Content with id productName and with description "input product?".
 There is a Content with id lotSize and with description "input lot size?".
 There is a Content with id addLotToStoreButton and with description "button add".
 AddSupplyPage has content lotId, productName, lotSize, addLotToStoreButton.
-
-There is a Page with id tasksPage and with description "button New Supply | Tasks".
-There are Element with id lotIdElem, productNameElem and with text "lot42" and "Sandalettes".
-There is a Content with id lotLineByElems and with elements lotIdElem, productNameElem.
-// TasksPage has content lotLineByElems.
-// ForkLiftGuide has content TasksPage.
-
-// Alice writes "lot1" into value of lotId.
-We write "lot1" into value of lotId.
 ![ForkLiftGuide](step03.html)
 
+
+We write lot1 into value of lotId.
 We write "Cloud Sneakers" into value of productName.
 We write "20" into value of lotSize.
 ![ForkLiftGuide](step04.html)
@@ -46,13 +39,15 @@ We call addToStock on WHService
     with id          "lot1",
     with size        20,
     with productId   "CloudSneakers",
-and with productName "Cloud Sneakers".
+and with productName "Cloud Sneakers"
+and with newPlace p23x42.
 
 ## AddToStock
 
 AddToStock creates a Lot lot
     with id      "lot1" from id,
-and with lotSize 20     from size.
+and with lotSize 20     from size
+and with place p23x42   from newPlace.
 
 AddToStock calls buildProduct
     with id   "CloudSneakers"  from productId,
@@ -72,34 +67,33 @@ BuildProduct answers with the product.
 
 AddToStock writes the product into WarehouseProduct of lot.
 AddToStock answers with the lot.
-
-## Storing the new lot
-
-We write p23x42 into place of lot.
 ![WHService, Alice](step05.svg)
 
-// we add a store at place task for the new lot
+
+## Task page
+
+There is a Page with id tasksPage and with description "button New Supply | Tasks".
 There is a Content with id lot1Line and with description "lot1 | Cloud Sneakers | 20 | p23x42 | button Done".
 We write lot1Line into content of tasksPage.
-// We write tasksPage into content of ForkLiftGuide.
+We write tasksPage into content of ForkLiftGuide.
 ![ForkLiftGuide](step06.html)
 
 ## Second Lot
 
-We write "" into value of lotId.
-We write addSupplyPage into content of ForkLiftGuide.
-![ForkLiftGuide](step07.html)
-
 We write "lot2" into value of lotId.
 We write "Ground Boots" into value of productName.
-![ForkLiftGuide](step08.html)
+We write addSupplyPage into content of ForkLiftGuide.
+![ForkLiftGuide](step07.html)
 
 We call addToStock on WHService
     with id          "lot2",
     with size        20,
     with productId   "GroundBoots",
-and with productName "Ground Boots".
+and with productName "Ground Boots"
+and with newPlace p23x42.
 ![WHService, Alice](step09.svg)
+
+
 
 There is a Content with id lot2Line and with description "lot2 | Ground Boots | 20 | p24x42 | button Done".
 We write lot2Line into content of tasksPage.
