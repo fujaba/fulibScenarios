@@ -304,8 +304,8 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitExampleAccess(ScenarioParser.ExampleAccessContext ctx)
    {
-      final Expr value = this.pop();
       final Expr expr = this.pop();
+      final Expr value = this.pop();
       this.stack.push(ExampleAccess.of(value, expr));
    }
 
