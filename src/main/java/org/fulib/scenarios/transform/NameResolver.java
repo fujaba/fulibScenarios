@@ -388,17 +388,18 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    public Expr visit(CallExpr callExpr, Scope par)
    {
       final List<NamedExpr> arguments = callExpr.getArguments();
-      final Expr receiver = callExpr.getReceiver();
+      Expr receiver = callExpr.getReceiver();
       if (receiver != null)
       {
-         callExpr.setReceiver(receiver.accept(this, par));
+         receiver = receiver.accept(this, par);
       }
       else
       {
          final Decl thisDecl = par.resolve("this");
-         final NameAccess getThis = NameAccess.of(ResolvedName.of(thisDecl));
-         callExpr.setReceiver(getThis);
+         receiver = NameAccess.of(ResolvedName.of(thisDecl));
       }
+      callExpr.setReceiver(receiver);
+
       for (final NamedExpr argument : arguments)
       {
          argument.setExpr(argument.getExpr().accept(this, par));
@@ -436,6 +437,13 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
             throw new IllegalStateException(
                "mismatching parameters and arguments:\nparameters: " + params + "\narguments : " + args);
          }
+      }
+
+      // references to the receiver name are replaced with 'this'
+      final String receiverName = receiver.accept(Namer.INSTANCE, null);
+      if (receiverName != null)
+      {
+         decls.put(receiverName, parameters.get(0));
       }
 
       // match arguments and parameters
