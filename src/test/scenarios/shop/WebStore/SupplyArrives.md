@@ -24,7 +24,9 @@ There is a Content with id productName and with description "input product?".
 There is a Content with id lotSize and with description "input lot size?".
 There is a Content with id addLotToStoreButton and with description "button add".
 AddSupplyPage has content lotId, productName, lotSize, addLotToStoreButton.
+WHService has rootPage ForkLiftGuide.
 ![ForkLiftGuide](step03.html)
+
 
 
 We write lot1 into value of lotId.

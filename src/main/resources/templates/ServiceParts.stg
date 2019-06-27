@@ -1,0 +1,95 @@
+
+
+serviceMain(serviceName) ::= <<
+
+
+   private HttpServer server;
+   private ExecutorService executor;
+
+   public static void main(String[] args)
+   {
+      new WarehouseService();
+   }
+
+   public WarehouseService()
+   {
+
+      try
+      {
+         server = HttpServer.create(new InetSocketAddress(6789), 0);
+         executor = Executors.newSingleThreadExecutor();
+         server.setExecutor(executor);
+
+         HttpContext doContext = server.createContext("/");
+
+         doContext.setHandler(x -> handleRoot(x));
+
+         server.start();
+
+         System.out.println("Warehouse Service is running ... ");
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
+   }
+
+   private void handleRoot(HttpExchange x)
+   {
+      String body = getBody(x);
+      ArrayList\<LinkedHashMap\<String, String\>\> list = new Yamler().decodeList(body);
+
+      String yaml = "Hello from Warehouse Service : " + body;
+
+      writeAnswer(x, yaml);
+   }
+
+   public String getBody(HttpExchange exchange)
+   {
+      try
+      {
+         URI requestURI = exchange.getRequestURI();
+         InputStream requestBody = exchange.getRequestBody();
+         BufferedReader buf = new BufferedReader(new InputStreamReader(requestBody, StandardCharsets.UTF_8));
+         StringBuilder text = new StringBuilder();
+
+         while (true) {
+            String line = buf.readLine();
+            if (line == null) {
+               break;
+            }
+
+            text.append(line).append("\n");
+         }
+
+         String yaml = text.toString();
+         return yaml;
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
+
+      return null;
+   }
+
+
+
+   public void writeAnswer(HttpExchange exchange, String response)
+   {
+      try
+      {
+         byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+         exchange.sendResponseHeaders(200, bytes.length);
+         OutputStream os = exchange.getResponseBody();
+         os.write(bytes);
+         os.close();
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
+   }
+
+
+>>

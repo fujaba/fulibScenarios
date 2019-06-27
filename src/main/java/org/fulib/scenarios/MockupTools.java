@@ -96,13 +96,27 @@ public class MockupTools
          for (String property : reflector.getProperties())
          {
             Object value = reflector.getValue(oneObject, property);
-            String valueKey = idMap.getIdObjMap().get(value);
 
-            if (valueKey != null) {
-               value = String.format("<a href='#%s'>%s</a>", valueKey, valueKey);
+            Collection<Object> valueList = new ArrayList<>();
+            if (value instanceof Collection) {
+               valueList = (Collection<Object>) value;
             }
+            else {
+               ((ArrayList<Object>) valueList).add(value);
+            }
+            String valueString = "";
+            for (Object valueElem : valueList)
+            {
+               String valueKey = idMap.getIdObjMap().get(valueElem);
 
-            oneLine += String.format("<div class='col text-center  border'>%s</div>", value);
+               if (valueKey != null) {
+                  valueElem = String.format("<a href='#%s'>%s</a> ", valueKey, valueKey);
+               }
+
+               valueString += valueElem;
+
+            }
+            oneLine += String.format("<div class='col text-center  border'>%s</div>", valueString);
          }
 
 
@@ -233,14 +247,29 @@ public class MockupTools
       stepList.add(body);
    }
 
-   private String generateElement(Object root, String indent)
+   public String generateElement(Object root)
+   {
+      String bootstrap = "<!-- Bootstrap CSS -->\n" +
+            "    <link rel=\"stylesheet\"\n" +
+            "          href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css\"\n" +
+            "          integrity=\"sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T\"\n" +
+            "          crossorigin=\"anonymous\">\n\n";
+
+      String body = generateElement(root, "");
+
+      return bootstrap + body;
+   }
+
+
+
+   public String generateElement(Object root, String indent)
    {
       String containerClass = "";
       if ("".equals(indent)) {
          containerClass = "class='container'";
       }
 
-      Reflector reflector = reflectorMap.getReflector(root);
+      Reflector reflector = getReflector(root);
       Collection content = null;
       Object bareContent = reflector.getValue(root, CONTENT);
       if (bareContent != null) {
@@ -285,7 +314,7 @@ public class MockupTools
 
       for (Object elemObject : elements)
       {
-         Reflector elemReflector = reflectorMap.getReflector(elemObject);
+         Reflector elemReflector = getReflector(elemObject);
          String elem = (String) elemReflector.getValue(elemObject, "text");
          if (elem != null) {
             String cell = generateOneCell(root, indent, reflector, elem.trim(), split.length);
@@ -302,6 +331,15 @@ public class MockupTools
             indent + "</div>\n", rootId, containerClass, cellList, contentBuf.toString());
 
       return body;
+   }
+
+   private Reflector getReflector(Object root)
+   {
+      if (reflectorMap == null) {
+         String packageName = root.getClass().getPackage().getName();
+         reflectorMap = new ReflectorMap(packageName);
+      }
+      return reflectorMap.getReflector(root);
    }
 
    private String generateOneCell(Object root, String indent, Reflector reflector, String rootDescription, int numberOfElemsPerLine)
