@@ -39,31 +39,42 @@ We write "Cloud Sneakers" into value of productName.
 We write "20" into value of lotSize.
 ![ForkLiftGuide](step04.html)
 
+## Adding a Lot
+
 // Alice calls action on addLotToStoreButton.
-// We call addToStore on WarehouseService. ==> class String 
-// We call addToStore on WHService with newLotId "lot1" from value of lotId.
-We call addToStore on WHService with newLotId "lot1"
-and with newProductName "Cloud Sneakers" and with newLotSize 20
-and with theWarehouse theWarehouse of WHService.
+We call addToStock on WHService
+    with id          "lot1",
+    with size        20,
+    with productId   "CloudSneakers",
+and with productName "Cloud Sneakers".
 
-// AddToStore creates Lot newLot with id "lot1" from newLotId.
-AddToStore creates Lot.
-//  with id newLotId // writing "lot1" does not refer to newLotId automatically.
-// and with lotSize 20.
-AddToStore writes "lot1" from newLotId into id of lot.
-AddToStore writes newLotSize into lotSize of lot.
+## AddToStock
 
-AddToStore calls buildProduct with newProductName "Cloud Sneakers"
-and with theWarehouse theWarehouse of WHService.
+AddToStock creates a Lot lot
+    with id      "lot1" from id,
+and with lotSize 20     from size.
+
+AddToStock calls buildProduct
+    with id   "CloudSneakers"  from productId,
+and with name "Cloud Sneakers" from productName.
+
+## BuildProduct
 
 // As WHService has no "Cloud Sneakers" in name of products of theWarehouse,
-BuildProduct creates a WarehouseProduct with id CloudSneakers and with name "Cloud Sneakers"
-and with warehouse51 theWarehouse.
-// BuildProduct writes CloudSneakers into products of theWarehouse. // error setProducts instead of withProducts
-BuildProduct answers with CloudSneakers. // into newProduct.
+BuildProduct creates a WarehouseProduct product
+    with id   "CloudSneakers" from id,
+and with name "Cloud Sneakers" from name.
 
-AddToStore writes cloudSneakers into WarehouseProduct of lot.
-AddToStore answers with lot. 
+BuildProduct adds the product to the products of theWarehouse of the WHService.
+BuildProduct answers with the product.
+
+## AddToStock
+
+AddToStock writes the product into WarehouseProduct of lot.
+AddToStock answers with the lot.
+
+## Storing the new lot
+
 We write p23x42 into place of lot.
 ![WHService, Alice](step05.svg)
 
@@ -83,9 +94,11 @@ We write "lot2" into value of lotId.
 We write "Ground Boots" into value of productName.
 ![ForkLiftGuide](step08.html)
 
-We call addToStore on WHService with newLotId "lot2"
-and with newProductName "Ground Boots" and with newLotSize 20
-and with theWarehouse theWarehouse of WHService.
+We call addToStock on WHService
+    with id          "lot2",
+    with size        20,
+    with productId   "GroundBoots",
+and with productName "Ground Boots".
 ![WHService, Alice](step09.svg)
 
 There is a Content with id lot2Line and with description "lot2 | Ground Boots | 20 | p24x42 | button Done".
