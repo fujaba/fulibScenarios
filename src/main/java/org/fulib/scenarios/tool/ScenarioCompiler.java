@@ -62,6 +62,16 @@ public class ScenarioCompiler implements Tool
       this.err = err;
    }
 
+   public Config getConfig()
+   {
+      return this.config;
+   }
+
+   public CompilationContext getContext()
+   {
+      return this.context;
+   }
+
    @Override
    public Set<SourceVersion> getSourceVersions()
    {
@@ -115,6 +125,7 @@ public class ScenarioCompiler implements Tool
 
    public int run()
    {
+      LibraryHelper.loadLibraries(this);
       this.discover();
       this.groups.forEach(this::processGroup);
       return this.errors;
@@ -172,7 +183,7 @@ public class ScenarioCompiler implements Tool
       }
    }
 
-   private ScenarioFile parseScenario(File file)
+   protected ScenarioFile parseScenario(File file)
    {
       final CharStream input;
       try
@@ -186,6 +197,11 @@ public class ScenarioCompiler implements Tool
          return null;
       }
 
+      return this.parseScenario(input);
+   }
+
+   protected ScenarioFile parseScenario(CharStream input)
+   {
       final ANTLRErrorListener errorListener = new ErrorListener(this.getOut());
 
       final ScenarioLexer lexer = new ScenarioLexer(input);
@@ -202,7 +218,6 @@ public class ScenarioCompiler implements Tool
       if (syntaxErrors > 0)
       {
          this.errors += syntaxErrors;
-         this.getErr().println(syntaxErrors + " syntax errors in scenario " + file);
          return null;
       }
 
@@ -214,13 +229,12 @@ public class ScenarioCompiler implements Tool
       }
       catch (Exception e)
       {
-         this.getErr().println("failed to transform scenario " + file);
          e.printStackTrace(this.getErr());
          return null;
       }
    }
 
-   private void processGroup(ScenarioGroup scenarioGroup)
+   protected void processGroup(ScenarioGroup scenarioGroup)
    {
       String stage = null;
       try
