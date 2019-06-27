@@ -12,7 +12,7 @@ apply from: 'gradle/functional-test.gradle'
 apply from: 'gradle/webapp.gradle'
 
 group 'org.fulib'
-version '0.4.0'
+version "git describe --tags".execute().text.find(~/\d\.\d\.\d-\d/)
 description 'A compiler for textual example scenarios.'
 
 publishInfo {
