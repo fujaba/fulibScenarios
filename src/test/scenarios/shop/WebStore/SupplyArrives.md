@@ -44,7 +44,7 @@ We write "20" into value of lotSize.
 // We call addToStore on WHService with newLotId "lot1" from value of lotId.
 We call addToStore on WHService with newLotId "lot1"
 and with newProductName "Cloud Sneakers" and with newLotSize 20
-and with theWarehouse Warehouse51. // we need access to attributes.
+and with theWarehouse theWarehouse of WHService.
 
 // AddToStore creates Lot newLot with id "lot1" from newLotId.
 AddToStore creates Lot.
@@ -54,7 +54,7 @@ AddToStore writes "lot1" from newLotId into id of lot.
 AddToStore writes newLotSize into lotSize of lot.
 
 AddToStore calls buildProduct with newProductName "Cloud Sneakers"
-and with theWarehouse theWarehouse. // we need access to attributes.
+and with theWarehouse theWarehouse of WHService.
 
 // As WHService has no "Cloud Sneakers" in name of products of theWarehouse,
 BuildProduct creates a WarehouseProduct with id CloudSneakers and with name "Cloud Sneakers"
@@ -85,7 +85,7 @@ We write "Ground Boots" into value of productName.
 
 We call addToStore on WHService with newLotId "lot2"
 and with newProductName "Ground Boots" and with newLotSize 20
-and with theWarehouse Warehouse51. // we need access to attributes.
+and with theWarehouse theWarehouse of WHService.
 ![WHService, Alice](step09.svg)
 
 There is a Content with id lot2Line and with description "lot2 | Ground Boots | 20 | p24x42 | button Done".
