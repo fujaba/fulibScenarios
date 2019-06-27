@@ -4,7 +4,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Config
@@ -14,6 +16,7 @@ public class Config
    private String       modelDir;
    private String       testDir;
    private List<String> inputDirs = new ArrayList<>();
+   private List<String> classpath;
 
    private boolean classDiagram;
    private boolean classDiagramSVG;
@@ -46,6 +49,11 @@ public class Config
    public List<String> getInputDirs()
    {
       return this.inputDirs;
+   }
+
+   public List<String> getClasspath()
+   {
+      return this.classpath;
    }
 
    public boolean isClassDiagram()
@@ -94,13 +102,16 @@ public class Config
    {
       final Options options = new Options();
 
-      final Option modelDir = new Option("m", "modelDir", true, "model output directory, default: src/main/java");
-      modelDir.setRequired(false);
-      options.addOption(modelDir);
+      options.addOption(new Option("m", "modelDir", true, "model output directory, default: src/main/java"));
 
-      final Option testDir = new Option("t", "testDir", true, "test output directory, default: src/test/java");
-      testDir.setRequired(false);
-      options.addOption(testDir);
+      options.addOption(new Option("t", "testDir", true, "test output directory, default: src/test/java"));
+
+      final Option opt = new Option("cp", "classpath", true,
+                                    "a list of directories or jar files from which to load other scenarios, separated by '"
+                                    + File.pathSeparatorChar + "'.");
+      opt.setArgs(Option.UNLIMITED_VALUES);
+      opt.setValueSeparator(File.pathSeparatorChar);
+      options.addOption(opt);
 
       options.addOption(new Option(null, "class-diagram", false, "generate class diagram as .png into model folder"));
       options.addOption(
@@ -123,5 +134,11 @@ public class Config
       this.setClassDiagramSVG(cmd.hasOption("class-diagram-svg"));
       this.setObjectDiagram(cmd.hasOption("object-diagram"));
       this.setObjectDiagramSVG(cmd.hasOption("object-diagram-svg"));
+
+      final String[] classpath = cmd.getOptionValues("classpath");
+      if (classpath != null)
+      {
+         Collections.addAll(this.classpath, classpath);
+      }
    }
 }
