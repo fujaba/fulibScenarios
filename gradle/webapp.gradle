@@ -2,13 +2,14 @@ configurations.create('webapp')
 
 repositories {
     // the web app is intentionally not linked to jcenter
+    mavenLocal()
     maven {
         url 'https://dl.bintray.com/clashsoft/maven'
     }
 }
 
 dependencies {
-    runtime(group: 'org.fulib', name: 'fulibDotOrg', version: '0.2.2') {
+    webapp(group: 'org.fulib', name: 'fulibDotOrg', version: '+') {
         exclude group: 'org.fulib', module: 'fulibScenarios'
     }
 }

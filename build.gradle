@@ -3,7 +3,6 @@ plugins {
     id 'antlr'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'de.clashsoft.simple-publish' version '0.2.0'
     id 'de.clashsoft.gentreesrc-gradle' version '0.3.0'
 }
@@ -11,9 +10,11 @@ plugins {
 apply from: 'gradle/functional-test.gradle'
 apply from: 'gradle/webapp.gradle'
 
-group 'org.fulib'
-version '0.4.0'
-description 'A compiler for textual example scenarios.'
+// --------------- Info ---------------
+
+group = 'org.fulib'
+version = "git describe --tags".execute().text.find(~/\d\.\d\.\d-\d/)
+description = 'A compiler for textual example scenarios.'
 
 publishInfo {
     websiteUrl = 'https://www.fulib.org/'
@@ -42,6 +43,8 @@ publishInfo {
 }
 
 sourceCompatibility = 1.8
+
+// --------------- Dependencies ---------------
 
 repositories {
     mavenCentral()
@@ -96,8 +99,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+// --------------- Test Logging ---------------
 
-// Test Logging
 tasks.withType(Test) {
     testLogging {
         events "started", "passed", "skipped", "failed"
@@ -111,8 +114,6 @@ tasks.withType(Test) {
 def generatedANTLRDir = "$buildDir/generated-src/antlr/main/"
 
 sourceSets.main.java.srcDir(generatedANTLRDir)
-sourceSets.main.java.srcDir("temp/shop/main")
-sourceSets.test.java.srcDir("temp/shop/test")
 
 // https://stackoverflow.com/questions/40995727/gradle-cant-find-antlr-token-file
 generateGrammarSource {
