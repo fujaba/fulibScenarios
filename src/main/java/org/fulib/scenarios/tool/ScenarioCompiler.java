@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.*;
+import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.codegen.CodeGenerator;
@@ -32,7 +33,8 @@ public class ScenarioCompiler implements Tool
    private PrintWriter out;
    private PrintWriter err;
 
-   private Config config = new Config();
+   private Config             config  = new Config();
+   private CompilationContext context = CompilationContext.of(this.config, new HashMap<>(), new HashMap<>());
 
    private List<ScenarioGroup> groups = new ArrayList<>();
 
@@ -160,8 +162,8 @@ public class ScenarioCompiler implements Tool
 
       if (!scenarioFiles.isEmpty())
       {
-         final ScenarioGroup group = ScenarioGroup
-                                        .of(sourceDir.toString(), packageDir, scenarioFiles, new HashMap<>());
+         final ScenarioGroup group = ScenarioGroup.of(this.context, sourceDir.toString(), packageDir, scenarioFiles,
+                                                      new HashMap<>());
          for (final ScenarioFile file : scenarioFiles.values())
          {
             file.setGroup(group);
