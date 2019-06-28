@@ -9,14 +9,14 @@ import org.fulib.scenarios.transform.Typer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator, Object>
+public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenDTO, Object>
 {
    INSTANCE;
 
    private static final Pattern METHOD_PATTERN = Pattern.compile("(?!\\.)(\\w+)\\(");
 
    @Override
-   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
+   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par)
    {
       final boolean numeric = isNumeric(conditionalOperatorExpr);
       final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
@@ -41,7 +41,7 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenerator,
       return null;
    }
 
-   static void generateCondOp(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par, String format)
+   static void generateCondOp(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par, String format)
    {
       final int lhsIndex = format.indexOf("<lhs>");
       final int rhsIndex = format.indexOf("<rhs>");

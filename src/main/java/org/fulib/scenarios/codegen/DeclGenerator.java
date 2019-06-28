@@ -7,12 +7,12 @@ import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 
-public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
+public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
 {
    INSTANCE;
 
    @Override
-   public Object visit(ClassDecl classDecl, CodeGenerator par)
+   public Object visit(ClassDecl classDecl, CodeGenDTO par)
    {
       if (classDecl.getExternal())
       {
@@ -40,7 +40,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(AttributeDecl attributeDecl, CodeGenerator par)
+   public Object visit(AttributeDecl attributeDecl, CodeGenDTO par)
    {
       final Clazz clazz = par.modelManager.haveClass(attributeDecl.getOwner().getName());
 
@@ -60,7 +60,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(AssociationDecl associationDecl, CodeGenerator par)
+   public Object visit(AssociationDecl associationDecl, CodeGenDTO par)
    {
       final Clazz clazz = par.modelManager.haveClass(associationDecl.getOwner().getName());
 
@@ -81,7 +81,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(MethodDecl methodDecl, CodeGenerator par)
+   public Object visit(MethodDecl methodDecl, CodeGenDTO par)
    {
       final Clazz clazz = par.modelManager.haveClass(methodDecl.getOwner().getName());
 
@@ -108,13 +108,13 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ParameterDecl parameterDecl, CodeGenerator par)
+   public Object visit(ParameterDecl parameterDecl, CodeGenDTO par)
    {
       throw new UnsupportedOperationException("handled by visit(MethodDecl, ...)");
    }
 
    @Override
-   public Object visit(VarDecl varDecl, CodeGenerator par)
+   public Object visit(VarDecl varDecl, CodeGenDTO par)
    {
       par.emitIndent();
 

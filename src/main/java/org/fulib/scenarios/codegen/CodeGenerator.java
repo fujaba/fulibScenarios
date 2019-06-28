@@ -31,63 +31,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class CodeGenerator implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
-                                         ScenarioFile.Visitor<Object, Object>
+public enum CodeGenerator
+   implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<CodeGenDTO, Object>,
+                 ScenarioFile.Visitor<CodeGenDTO, Object>
 {
-   // set or null depending on the level we are generating
-   Config            config;
-   ScenarioGroup     group;
-   ClassModelManager modelManager;
-   Clazz             clazz;
-   StringBuilder     bodyBuilder;
-
-   // =============== Methods ===============
-
-   void emit(String code)
-   {
-      this.bodyBuilder.append(code);
-   }
-
-   void emitStringLiteral(String text)
-   {
-      // TODO escape string literal
-      this.bodyBuilder.append('"').append(text).append('"');
-   }
-
-   void emitIndent()
-   {
-      // TODO support multiple levels (required for if, for, ...)
-      this.bodyBuilder.append("      ");
-   }
-
-   void addImport(String s)
-   {
-      this.clazz.getImportList().add("import " + s + ";");
-   }
+   INSTANCE;
 
    // --------------- CompilationContext.Visitor ---------------
 
    @Override
    public Object visit(CompilationContext compilationContext, Object par)
    {
-      this.config = compilationContext.getConfig();
-      // TODO cannot parallelize because of fields
-      // TODO also not sure about fulib code gen
-      compilationContext.getGroups().values()
-                        // .parallelStream()
-                        .forEach(it -> it.accept(this, null));
+      // TODO don't know if we can parallelize, not sure about fulib code gen
+      compilationContext.getGroups().values()/* .parallelStream() */.forEach(it -> {
+         final CodeGenDTO dto = new CodeGenDTO();
+         dto.config = compilationContext.getConfig();
+         it.accept(this, dto);
+      });
       return null;
    }
 
    // --------------- ScenarioGroup.Visitor ---------------
 
    @Override
-   public Object visit(ScenarioGroup scenarioGroup, Object par)
+   public Object visit(ScenarioGroup scenarioGroup, CodeGenDTO par)
    {
-      this.group = scenarioGroup;
+      par.group = scenarioGroup;
 
-      final String modelDir = this.config.getModelDir();
-      final String testDir = this.config.getTestDir();
+      final String modelDir = par.config.getModelDir();
+      final String testDir = par.config.getTestDir();
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
@@ -106,18 +78,18 @@ public class CodeGenerator implements CompilationContext.Visitor<Object, Object>
       {
          // model and test share the same output directory, so they have to share a class model.
 
-         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
          if (modelClassesToGenerate)
          {
-            this.generateModel(scenarioGroup, modelDir, packageDir);
+            this.generateModel(scenarioGroup, par, modelDir, packageDir);
          }
          if (testClassesToGenerate)
          {
             this.generateTests(scenarioGroup, par);
          }
 
-         new Generator().generate(this.modelManager.getClassModel());
+         new Generator().generate(par.modelManager.getClassModel());
 
          return null;
       }
@@ -126,26 +98,26 @@ public class CodeGenerator implements CompilationContext.Visitor<Object, Object>
 
       if (modelClassesToGenerate)
       {
-         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
-         this.generateModel(scenarioGroup, modelDir, packageDir);
+         this.generateModel(scenarioGroup, par, modelDir, packageDir);
 
-         new Generator().generate(this.modelManager.getClassModel());
+         new Generator().generate(par.modelManager.getClassModel());
       }
 
       if (testClassesToGenerate)
       {
-         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
+         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
 
          this.generateTests(scenarioGroup, par);
 
-         new Generator().generate(this.modelManager.getClassModel());
+         new Generator().generate(par.modelManager.getClassModel());
       }
 
       return null;
    }
 
-   private void generateTests(ScenarioGroup scenarioGroup, Object par)
+   private void generateTests(ScenarioGroup scenarioGroup, CodeGenDTO par)
    {
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
@@ -153,22 +125,22 @@ public class CodeGenerator implements CompilationContext.Visitor<Object, Object>
       }
    }
 
-   private void generateModel(ScenarioGroup scenarioGroup, String modelDir, String packageDir)
+   private void generateModel(ScenarioGroup scenarioGroup, CodeGenDTO par, String modelDir, String packageDir)
    {
       for (ClassDecl classDecl : scenarioGroup.getClasses().values())
       {
-         classDecl.accept(DeclGenerator.INSTANCE, this);
+         classDecl.accept(DeclGenerator.INSTANCE, par);
       }
 
-      if (this.config.isClassDiagram())
+      if (par.config.isClassDiagram())
       {
          FulibTools.classDiagrams()
-                   .dumpPng(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.png");
+                   .dumpPng(par.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.png");
       }
-      if (this.config.isClassDiagramSVG())
+      if (par.config.isClassDiagramSVG())
       {
          FulibTools.classDiagrams()
-                   .dumpSVG(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
+                   .dumpSVG(par.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
       }
    }
 
@@ -196,38 +168,38 @@ public class CodeGenerator implements CompilationContext.Visitor<Object, Object>
    // --------------- ScenarioFile.Visitor ---------------
 
    @Override
-   public Object visit(ScenarioFile scenarioFile, Object par)
+   public Object visit(ScenarioFile scenarioFile, CodeGenDTO par)
    {
       if (scenarioFile.getExternal())
       {
          return null;
       }
 
-      this.clazz = this.modelManager.haveClass(scenarioFile.getClassDecl().getName());
+      par.clazz = par.modelManager.haveClass(scenarioFile.getClassDecl().getName());
 
       // before class gen: add diagram sentences if necessary
       for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
-         this.addDiagramSentences(scenario);
+         this.addDiagramSentences(scenario, par);
       }
 
-      scenarioFile.getClassDecl().accept(DeclGenerator.INSTANCE, this);
+      scenarioFile.getClassDecl().accept(DeclGenerator.INSTANCE, par);
 
       // after class gen: add @Test and import to scenario methods
-      this.addImport("org.junit.Test");
+      par.addImport("org.junit.Test");
 
       for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
          final String methodName = scenario.getMethodDecl().getName();
-         getFMethod(this.clazz, methodName).setAnnotations("@Test");
+         getFMethod(par.clazz, methodName).setAnnotations("@Test");
       }
 
       return null;
    }
 
-   private void addDiagramSentences(Scenario scenario)
+   private void addDiagramSentences(Scenario scenario, CodeGenDTO par)
    {
-      if (!this.config.isObjectDiagram() && !this.config.isObjectDiagramSVG())
+      if (!par.config.isObjectDiagram() && !par.config.isObjectDiagramSVG())
       {
          return;
       }
@@ -272,12 +244,12 @@ public class CodeGenerator implements CompilationContext.Visitor<Object, Object>
 
       final ListExpr listExpr = ListExpr.of(exprs);
 
-      if (this.config.isObjectDiagram())
+      if (par.config.isObjectDiagram())
       {
          final DiagramSentence diagramSentence = DiagramSentence.of(listExpr, methodName + ".png");
          sentences.add(diagramSentence);
       }
-      if (this.config.isObjectDiagramSVG())
+      if (par.config.isObjectDiagramSVG())
       {
          final DiagramSentence diagramSentence = DiagramSentence.of(listExpr, methodName + ".svg");
          sentences.add(diagramSentence);
@@ -294,5 +266,39 @@ public class CodeGenerator implements CompilationContext.Visitor<Object, Object>
          }
       }
       throw new RuntimeException("method " + clazz.getName() + "." + name + " not found");
+   }
+}
+
+class CodeGenDTO
+{
+   // set or null depending on the level we are generating
+   Config            config;
+   ScenarioGroup     group;
+   ClassModelManager modelManager;
+   Clazz             clazz;
+   StringBuilder     bodyBuilder;
+
+   // =============== Methods ===============
+
+   void emit(String code)
+   {
+      this.bodyBuilder.append(code);
+   }
+
+   void emitStringLiteral(String text)
+   {
+      // TODO escape string literal
+      this.bodyBuilder.append('"').append(text).append('"');
+   }
+
+   void emitIndent()
+   {
+      // TODO support multiple levels (required for if, for, ...)
+      this.bodyBuilder.append("      ");
+   }
+
+   void addImport(String s)
+   {
+      this.clazz.getImportList().add("import " + s + ";");
    }
 }

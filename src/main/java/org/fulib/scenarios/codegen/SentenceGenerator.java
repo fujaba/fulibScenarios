@@ -11,18 +11,18 @@ import org.fulib.scenarios.transform.Typer;
 import java.util.Iterator;
 import java.util.List;
 
-public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
+public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 {
    INSTANCE;
 
    @Override
-   public Object visit(Sentence sentence, CodeGenerator par)
+   public Object visit(Sentence sentence, CodeGenDTO par)
    {
       return null;
    }
 
    @Override
-   public Object visit(SentenceList sentenceList, CodeGenerator par)
+   public Object visit(SentenceList sentenceList, CodeGenDTO par)
    {
       for (final Sentence item : sentenceList.getItems())
       {
@@ -32,7 +32,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ExpectSentence expectSentence, CodeGenerator par)
+   public Object visit(ExpectSentence expectSentence, CodeGenDTO par)
    {
       for (ConditionalExpr expr : expectSentence.getPredicates())
       {
@@ -44,7 +44,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(DiagramSentence diagramSentence, CodeGenerator par)
+   public Object visit(DiagramSentence diagramSentence, CodeGenDTO par)
    {
       final String sourceDir = par.group.getSourceDir();
       final String packageDir = par.group.getPackageDir();
@@ -97,7 +97,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(HasSentence hasSentence, CodeGenerator par)
+   public Object visit(HasSentence hasSentence, CodeGenDTO par)
    {
       par.emitIndent();
 
@@ -127,14 +127,14 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(IsSentence isSentence, CodeGenerator par)
+   public Object visit(IsSentence isSentence, CodeGenDTO par)
    {
       isSentence.getDescriptor().accept(DeclGenerator.INSTANCE, par);
       return null;
    }
 
    @Override
-   public Object visit(AnswerSentence answerSentence, CodeGenerator par)
+   public Object visit(AnswerSentence answerSentence, CodeGenDTO par)
    {
       par.emitIndent();
       par.bodyBuilder.append("return ");
@@ -145,7 +145,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ExprSentence exprSentence, CodeGenerator par)
+   public Object visit(ExprSentence exprSentence, CodeGenDTO par)
    {
       par.emitIndent();
       exprSentence.getExpr().accept(ExprGenerator.INSTANCE, par);
@@ -154,7 +154,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(TemplateSentence templateSentence, CodeGenerator par)
+   public Object visit(TemplateSentence templateSentence, CodeGenDTO par)
    {
       final List<Expr> exprs = templateSentence.getExprs();
       final Iterator<Expr> exprIterator = exprs.iterator();
