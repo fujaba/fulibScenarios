@@ -17,10 +17,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum Desugar implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
-                                   Scenario.Visitor<Object, Object>, Sentence.Visitor<Object, Sentence>
+public enum Desugar implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
+                                  ScenarioFile.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
+                                  Sentence.Visitor<Object, Sentence>
 {
    INSTANCE;
+
+   // --------------- CompilationContext.Visitor ---------------
+
+   @Override
+   public Object visit(CompilationContext compilationContext, Object par)
+   {
+      // no inter-group references, we can parallelize
+      compilationContext.getGroups().values().parallelStream().forEach(it -> it.accept(this, null));
+      return null;
+   }
 
    // --------------- ScenarioGroup.Visitor ---------------
 

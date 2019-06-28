@@ -5,6 +5,7 @@ import org.fulib.Generator;
 import org.fulib.builder.ClassModelManager;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
+import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
@@ -30,20 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>
+public class CodeGenerator implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
+                                         ScenarioFile.Visitor<Object, Object>
 {
-   final Config config;
-
    // set or null depending on the level we are generating
+   Config            config;
    ScenarioGroup     group;
    ClassModelManager modelManager;
    Clazz             clazz;
    StringBuilder     bodyBuilder;
-
-   public CodeGenerator(Config config)
-   {
-      this.config = config;
-   }
 
    // =============== Methods ===============
 
@@ -69,6 +65,20 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       this.clazz.getImportList().add("import " + s + ";");
    }
 
+   // --------------- CompilationContext.Visitor ---------------
+
+   @Override
+   public Object visit(CompilationContext compilationContext, Object par)
+   {
+      this.config = compilationContext.getConfig();
+      // TODO cannot parallelize because of fields
+      // TODO also not sure about fulib code gen
+      compilationContext.getGroups().values()
+                        // .parallelStream()
+                        .forEach(it -> it.accept(this, null));
+      return null;
+   }
+
    // --------------- ScenarioGroup.Visitor ---------------
 
    @Override
@@ -81,8 +91,10 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
-      final boolean modelClassesToGenerate = !scenarioGroup.getClasses().values().stream().allMatch(ClassDecl::getExternal);
-      final boolean testClassesToGenerate = !scenarioGroup.getFiles().values().stream().allMatch(ScenarioFile::getExternal);
+      final boolean modelClassesToGenerate = !scenarioGroup.getClasses().values().stream()
+                                                           .allMatch(ClassDecl::getExternal);
+      final boolean testClassesToGenerate = !scenarioGroup.getFiles().values().stream()
+                                                          .allMatch(ScenarioFile::getExternal);
 
       if (!modelClassesToGenerate && !testClassesToGenerate)
       {

@@ -1,10 +1,7 @@
 package org.fulib.scenarios.transform;
 
 import org.fulib.StrUtil;
-import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.Scenario;
-import org.fulib.scenarios.ast.ScenarioFile;
-import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -31,9 +28,10 @@ import org.fulib.scenarios.transform.scope.Scope;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
-                                       Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Sentence>,
-                                       Type.Visitor<Scope, Type>, Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
+public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
+                                       ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
+                                       Sentence.Visitor<Scope, Sentence>, Type.Visitor<Scope, Type>,
+                                       Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
    INSTANCE;
 
@@ -42,6 +40,16 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
    protected static final String ENCLOSING_CLASS = "<enclosing:class>";
 
    // =============== Methods ===============
+
+   // --------------- CompilationContext.Visitor ---------------
+
+   @Override
+   public Object visit(CompilationContext compilationContext, Object par)
+   {
+      // no inter-group references, we can parallelize
+      compilationContext.getGroups().values().parallelStream().forEach(it -> it.accept(this, null));
+      return null;
+   }
 
    // --------------- ScenarioGroup.Visitor ---------------
 

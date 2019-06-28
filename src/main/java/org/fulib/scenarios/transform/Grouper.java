@@ -1,5 +1,6 @@
 package org.fulib.scenarios.transform;
 
+import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
@@ -10,8 +11,9 @@ import org.fulib.scenarios.ast.sentence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum Grouper implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Object, Object>,
-                                  Scenario.Visitor<Object, Object>, Sentence.Visitor<Frame, Frame>
+public enum Grouper implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
+                                  ScenarioFile.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
+                                  Sentence.Visitor<Frame, Frame>
 {
    INSTANCE;
 
@@ -27,6 +29,16 @@ public enum Grouper implements ScenarioGroup.Visitor<Object, Object>, ScenarioFi
    }
 
    // =============== Methods ===============
+
+   // --------------- CompilationContext.Visitor ---------------
+
+   @Override
+   public Object visit(CompilationContext compilationContext, Object par)
+   {
+      // no inter-group references, we can parallelize
+      compilationContext.getGroups().values().parallelStream().forEach(it -> it.accept(this, null));
+      return null;
+   }
 
    // --------------- ScenarioGroup.Visitor ---------------
 
