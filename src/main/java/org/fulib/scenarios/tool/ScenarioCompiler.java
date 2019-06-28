@@ -28,6 +28,11 @@ public class ScenarioCompiler implements Tool
 
    private static final String TOOL_NAME = "scenarioc";
 
+   private static final CompilationContext.Visitor[] PHASES = { //
+      Grouper.INSTANCE, Desugar.INSTANCE, NameResolver.INSTANCE, CodeGenerator.INSTANCE,
+      //
+   };
+
    // =============== Fields ===============
 
    private PrintWriter out;
@@ -125,9 +130,21 @@ public class ScenarioCompiler implements Tool
    {
       LibraryHelper.loadLibraries(this);
       this.discover();
-      for (ScenarioGroup scenarioGroup : this.context.getGroups().values())
+
+      for (CompilationContext.Visitor phase : PHASES)
       {
-         this.processGroup(scenarioGroup);
+         try
+         {
+            //noinspection unchecked
+            this.context.accept(phase, null);
+         }
+         catch (Exception ex)
+         {
+            final String phaseName = phase.getClass().getSimpleName();
+            this.err.println("failed to execute phase '" + phaseName + "' due to exception:");
+            ex.printStackTrace(this.err);
+            this.errors++;
+         }
       }
       return this.errors;
    }
@@ -193,7 +210,8 @@ public class ScenarioCompiler implements Tool
          return existing;
       }
 
-      final ScenarioGroup newGroup = ScenarioGroup.of(this.context, null, packageDir, new HashMap<>(), new HashMap<>());
+      final ScenarioGroup newGroup = ScenarioGroup
+                                        .of(this.context, null, packageDir, new HashMap<>(), new HashMap<>());
       this.context.getGroups().put(packageDir, newGroup);
       return newGroup;
    }
@@ -246,30 +264,6 @@ public class ScenarioCompiler implements Tool
       {
          e.printStackTrace(this.getErr());
          return null;
-      }
-   }
-
-   protected void processGroup(ScenarioGroup scenarioGroup)
-   {
-      String stage = null;
-      try
-      {
-         // TODO pattern: list of Phase objects
-         stage = "group";
-         scenarioGroup.accept(Grouper.INSTANCE, null);
-         stage = "desugar";
-         scenarioGroup.accept(Desugar.INSTANCE, null);
-         stage = "resolve";
-         scenarioGroup.accept(NameResolver.INSTANCE, null);
-         stage = "codegen";
-         scenarioGroup.accept(new CodeGenerator(this.config), null);
-      }
-      catch (Exception ex)
-      {
-         this.err.println("failed to execute stage '" + stage + "' on group '" + scenarioGroup.getSourceDir() + "/"
-                          + scenarioGroup.getPackageDir() + "' due to exception:");
-         ex.printStackTrace(this.err);
-         this.errors++;
       }
    }
 }
