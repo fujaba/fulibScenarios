@@ -81,9 +81,68 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
-      // generate model
-      this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+      final boolean modelClassesToGenerate = !scenarioGroup.getClasses().values().stream().allMatch(ClassDecl::getExternal);
+      final boolean testClassesToGenerate = scenarioGroup.getFiles().values().stream().allMatch(ScenarioFile::getExternal);
 
+      if (!modelClassesToGenerate && !testClassesToGenerate)
+      {
+         // nothing to do.
+         return null;
+      }
+
+      if (sameFile(modelDir, testDir))
+      {
+         // model and test share the same output directory, so they have to share a class model.
+
+         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+
+         if (modelClassesToGenerate)
+         {
+            this.generateModel(scenarioGroup, modelDir, packageDir);
+         }
+         if (testClassesToGenerate)
+         {
+            this.generateTests(scenarioGroup, par);
+         }
+
+         new Generator().generate(this.modelManager.getClassModel());
+
+         return null;
+      }
+
+      // model and test use different output directories, and thus different class models.
+
+      if (modelClassesToGenerate)
+      {
+         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+
+         this.generateModel(scenarioGroup, modelDir, packageDir);
+
+         new Generator().generate(this.modelManager.getClassModel());
+      }
+
+      if (testClassesToGenerate)
+      {
+         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
+
+         this.generateTests(scenarioGroup, par);
+
+         new Generator().generate(this.modelManager.getClassModel());
+      }
+
+      return null;
+   }
+
+   private void generateTests(ScenarioGroup scenarioGroup, Object par)
+   {
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      {
+         file.accept(this, par);
+      }
+   }
+
+   private void generateModel(ScenarioGroup scenarioGroup, String modelDir, String packageDir)
+   {
       for (ClassDecl classDecl : scenarioGroup.getClasses().values())
       {
          classDecl.accept(DeclGenerator.INSTANCE, this);
@@ -99,25 +158,6 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
          FulibTools.classDiagrams()
                    .dumpSVG(this.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
       }
-
-      if (!sameFile(modelDir, testDir))
-      {
-         // generate model
-         new Generator().generate(this.modelManager.getClassModel());
-
-         // create a new model for test classes
-         this.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
-      }
-      // else: model and test share the same output directory, so no new model is needed.
-
-      for (final ScenarioFile file : scenarioGroup.getFiles().values())
-      {
-         file.accept(this, par);
-      }
-
-      new Generator().generate(this.modelManager.getClassModel());
-
-      return null;
    }
 
    private static boolean sameFile(String modelDir, String testDir)
@@ -146,6 +186,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
    @Override
    public Object visit(ScenarioFile scenarioFile, Object par)
    {
+      if (scenarioFile.getExternal())
+      {
+         return null;
+      }
+
       this.clazz = this.modelManager.haveClass(scenarioFile.getClassDecl().getName());
 
       // before class gen: add diagram sentences if necessary
