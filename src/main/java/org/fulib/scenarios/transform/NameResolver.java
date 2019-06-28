@@ -37,6 +37,12 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 {
    INSTANCE;
 
+   // =============== Constants ===============
+
+   protected static final String ENCLOSING_CLASS = "<enclosing:class>";
+
+   // =============== Methods ===============
+
    // --------------- ScenarioGroup.Visitor ---------------
 
    @Override
@@ -74,6 +80,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       final String className = Identifiers.toUpperCamelCase(scenarioFile.getName()) + "Test";
       final ClassDecl classDecl = ClassDecl.of(group, className, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
                                                new ArrayList<>());
+      classDecl.setExternal(scenarioFile.getExternal());
       classDecl.setType(ClassType.of(classDecl));
 
       // group.getClasses().put(className, classDecl);
@@ -84,7 +91,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          @Override
          public Decl resolve(String name)
          {
-            return className.equals(name) ? classDecl : super.resolve(name);
+            return className.equals(name) || ENCLOSING_CLASS.equals(name) ? classDecl : super.resolve(name);
          }
       };
       for (final Scenario scenario : scenarioFile.getScenarios().values())
@@ -559,6 +566,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    // =============== Static Methods ===============
 
+   static ClassDecl getEnclosingClass(Scope scope)
+   {
+      return (ClassDecl) scope.resolve(ENCLOSING_CLASS);
+   }
+
    static ClassDecl resolveClass(Scope scope, Expr expr)
    {
       final Type type = expr.accept(Typer.INSTANCE, null);
@@ -590,6 +602,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
                                           new ArrayList<>());
+      decl.setExternal(getEnclosingClass(scope).getExternal());
       decl.setType(ClassType.of(decl));
       scope.add(decl);
       return decl;

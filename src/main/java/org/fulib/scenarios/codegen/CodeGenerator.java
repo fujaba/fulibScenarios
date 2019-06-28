@@ -82,7 +82,7 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
       final String packageName = packageDir.replace('/', '.');
 
       final boolean modelClassesToGenerate = !scenarioGroup.getClasses().values().stream().allMatch(ClassDecl::getExternal);
-      final boolean testClassesToGenerate = scenarioGroup.getFiles().values().stream().allMatch(ScenarioFile::getExternal);
+      final boolean testClassesToGenerate = !scenarioGroup.getFiles().values().stream().allMatch(ScenarioFile::getExternal);
 
       if (!modelClassesToGenerate && !testClassesToGenerate)
       {
