@@ -16,7 +16,7 @@ public class Config
    private String       modelDir;
    private String       testDir;
    private List<String> inputDirs = new ArrayList<>();
-   private List<String> classpath;
+   private List<String> classpath = new ArrayList<>();
 
    private boolean classDiagram;
    private boolean classDiagramSVG;

@@ -2,7 +2,6 @@ package org.fulib.scenarios.tool;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
-import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 
@@ -13,7 +12,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.CodingErrorAction;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -70,7 +68,7 @@ public class LibraryHelper
          return;
       }
 
-      final ScenarioGroup scenarioGroup = resolveGroup(compiler.getContext(), packageDir);
+      final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
 
       for (File file : files)
       {
@@ -91,7 +89,7 @@ public class LibraryHelper
 
    private static void loadJarLibrary(String src, String packageDir, ScenarioCompiler compiler)
    {
-      final ScenarioGroup scenarioGroup = resolveGroup(compiler.getContext(), packageDir);
+      final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
 
       try (JarFile jarFile = new JarFile(src))
       {
@@ -128,18 +126,5 @@ public class LibraryHelper
       {
          e.printStackTrace(compiler.getErr());
       }
-   }
-
-   private static ScenarioGroup resolveGroup(CompilationContext context, String packageDir)
-   {
-      final ScenarioGroup existing = context.getClasspathGroups().get(packageDir);
-      if (existing != null)
-      {
-         return existing;
-      }
-
-      final ScenarioGroup newGroup = ScenarioGroup.of(context, null, packageDir, new HashMap<>(), new HashMap<>());
-      context.getClasspathGroups().put(packageDir, newGroup);
-      return newGroup;
    }
 }

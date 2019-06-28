@@ -3,7 +3,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 import org.fulib.scenarios.tool.Config
 
 abstract org.fulib.scenarios.ast.Node {
-	CompilationContext(config: Config, classpathGroups: [String:ScenarioGroup], classpathClasses: [String:ClassDecl])
+	CompilationContext(config: Config, groups: [String:ScenarioGroup])
 	ScenarioGroup(context: CompilationContext, sourceDir: String, packageDir: String,
 	              files: [String:ScenarioFile], classes: [String:ClassDecl])
 	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl)

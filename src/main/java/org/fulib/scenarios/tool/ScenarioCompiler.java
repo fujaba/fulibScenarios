@@ -34,9 +34,7 @@ public class ScenarioCompiler implements Tool
    private PrintWriter err;
 
    private Config             config  = new Config();
-   private CompilationContext context = CompilationContext.of(this.config, new HashMap<>(), new HashMap<>());
-
-   private List<ScenarioGroup> groups = new ArrayList<>();
+   private CompilationContext context = CompilationContext.of(this.config, new HashMap<>());
 
    private int errors;
 
@@ -127,7 +125,10 @@ public class ScenarioCompiler implements Tool
    {
       LibraryHelper.loadLibraries(this);
       this.discover();
-      this.groups.forEach(this::processGroup);
+      for (ScenarioGroup scenarioGroup : this.context.getGroups().values())
+      {
+         this.processGroup(scenarioGroup);
+      }
       return this.errors;
    }
 
@@ -145,7 +146,7 @@ public class ScenarioCompiler implements Tool
 
    private void discover(File sourceDir, File dir, String packageDir)
    {
-      Map<String, ScenarioFile> scenarioFiles = new HashMap<>();
+      final List<ScenarioFile> scenarioFiles = new ArrayList<>();
 
       for (File file : Objects.requireNonNull(dir.listFiles()))
       {
@@ -166,21 +167,35 @@ public class ScenarioCompiler implements Tool
             {
                final String name = fileName.substring(0, fileName.length() - 3);
                scenarioFile.setName(name);
-               scenarioFiles.put(name, scenarioFile);
+               scenarioFiles.add(scenarioFile);
             }
          }
       }
 
       if (!scenarioFiles.isEmpty())
       {
-         final ScenarioGroup group = ScenarioGroup.of(this.context, sourceDir.toString(), packageDir, scenarioFiles,
-                                                      new HashMap<>());
-         for (final ScenarioFile file : scenarioFiles.values())
+         final ScenarioGroup scenarioGroup = this.resolveGroup(packageDir);
+         scenarioGroup.setSourceDir(sourceDir.toString());
+
+         for (final ScenarioFile scenarioFile : scenarioFiles)
          {
-            file.setGroup(group);
+            scenarioFile.setGroup(scenarioGroup);
+            scenarioGroup.getFiles().put(scenarioFile.getName(), scenarioFile);
          }
-         this.groups.add(group);
       }
+   }
+
+   protected ScenarioGroup resolveGroup(String packageDir)
+   {
+      final ScenarioGroup existing = this.context.getGroups().get(packageDir);
+      if (existing != null)
+      {
+         return existing;
+      }
+
+      final ScenarioGroup newGroup = ScenarioGroup.of(this.context, null, packageDir, new HashMap<>(), new HashMap<>());
+      this.context.getGroups().put(packageDir, newGroup);
+      return newGroup;
    }
 
    protected ScenarioFile parseScenario(File file)
