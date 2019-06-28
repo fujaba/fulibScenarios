@@ -27,106 +27,100 @@ public class LibraryHelper
 
    private static void loadLibrary(String classpathEntry, ScenarioCompiler compiler)
    {
-      final int bangIndex = classpathEntry.indexOf('!');
-      if (bangIndex < 0)
+      if (classpathEntry.endsWith(".jar"))
       {
-         return;
-      }
-
-      final int length = classpathEntry.length();
-      final String src = classpathEntry.substring(0, bangIndex);
-
-      int packageStart = bangIndex + 1;
-      while (packageStart < length && classpathEntry.charAt(packageStart) == '/')
-      {
-         packageStart++;
-      }
-
-      int packageEnd = length;
-      while (classpathEntry.charAt(packageEnd - 1) == '/')
-      {
-         packageEnd--;
-      }
-
-      final String packageDir = classpathEntry.substring(packageStart, packageEnd);
-
-      if (src.endsWith(".jar"))
-      {
-         loadJarLibrary(src, packageDir, compiler);
+         loadJarLibrary(classpathEntry, compiler);
       }
       else
       {
-         loadDirLibrary(src, packageDir, compiler);
+         loadDirLibrary(classpathEntry, compiler);
       }
    }
 
-   private static void loadDirLibrary(String src, String packageDir, ScenarioCompiler compiler)
+   private static void loadDirLibrary(String src, ScenarioCompiler compiler)
    {
-      final File[] files = new File(src, packageDir).listFiles();
-      if (files == null)
+      for (String packageDir : compiler.getConfig().getImports())
       {
-         return;
-      }
-
-      final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
-
-      for (File file : files)
-      {
-         final String fileName = file.getName();
-         if (file.isFile() && fileName.endsWith(".md"))
+         final File[] files = new File(src, packageDir).listFiles();
+         if (files == null)
          {
-            final ScenarioFile scenarioFile = compiler.parseScenario(file);
-            if (scenarioFile != null)
+            return;
+         }
+
+         final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
+
+         for (File file : files)
+         {
+            final String fileName = file.getName();
+            if (!file.isFile() || !fileName.endsWith(".md"))
             {
-               final String name = fileName.substring(0, fileName.length() - 3);
-               scenarioFile.setExternal(true);
-               scenarioFile.setName(name);
-               scenarioFile.setGroup(scenarioGroup);
-               scenarioGroup.getFiles().put(name, scenarioFile);
+               continue;
             }
+
+            final ScenarioFile scenarioFile = compiler.parseScenario(file);
+            if (scenarioFile == null)
+            {
+               continue;
+            }
+
+            final String name = fileName.substring(0, fileName.length() - 3);
+            scenarioFile.setExternal(true);
+            scenarioFile.setName(name);
+            scenarioFile.setGroup(scenarioGroup);
+            scenarioGroup.getFiles().put(name, scenarioFile);
          }
       }
    }
 
-   private static void loadJarLibrary(String src, String packageDir, ScenarioCompiler compiler)
+   private static void loadJarLibrary(String src, ScenarioCompiler compiler)
    {
-      final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
-
       try (JarFile jarFile = new JarFile(src))
       {
          final Enumeration<JarEntry> entries = jarFile.entries();
          while (entries.hasMoreElements())
          {
             final JarEntry entry = entries.nextElement();
-            final String entryName = entry.getName();
-            if (!entryName.startsWith(packageDir) || !entryName.endsWith(".md"))
-            {
-               continue;
-            }
-
-            final int slashIndex = entryName.lastIndexOf('/');
-
-            try (InputStream stream = jarFile.getInputStream(entry))
-            {
-               final ReadableByteChannel channel = Channels.newChannel(stream);
-               final CharStream input = CharStreams.fromChannel(channel, 4096, CodingErrorAction.REPLACE,
-                                                                src + '!' + entryName);
-
-               final ScenarioFile file = compiler.parseScenario(input);
-               if (file != null)
-               {
-                  final String scenarioName = entryName.substring(slashIndex + 1, entryName.length() - 3);
-                  file.setExternal(true);
-                  file.setName(scenarioName);
-                  file.setGroup(scenarioGroup);
-                  scenarioGroup.getFiles().put(scenarioName, file);
-               }
-            }
+            loadJarEntry(src, compiler, jarFile, entry);
          }
       }
       catch (IOException e)
       {
          e.printStackTrace(compiler.getErr());
+      }
+   }
+
+   private static void loadJarEntry(String src, ScenarioCompiler compiler, JarFile jarFile, JarEntry entry)
+      throws IOException
+   {
+      final String entryName = entry.getName();
+
+      for (final String packageDir : compiler.getConfig().getImports())
+      {
+         if (!entryName.startsWith(packageDir) || !entryName.endsWith(".md"))
+         {
+            continue;
+         }
+
+         final int slashIndex = entryName.lastIndexOf('/');
+
+         try (InputStream stream = jarFile.getInputStream(entry))
+         {
+            final ReadableByteChannel channel = Channels.newChannel(stream);
+            final CharStream input = CharStreams.fromChannel(channel, 4096, CodingErrorAction.REPLACE,
+                                                             src + '!' + entryName);
+
+            final ScenarioFile file = compiler.parseScenario(input);
+            if (file != null)
+            {
+               final String scenarioName = entryName.substring(slashIndex + 1, entryName.length() - 3);
+               file.setExternal(true);
+               file.setName(scenarioName);
+
+               final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
+               file.setGroup(scenarioGroup);
+               scenarioGroup.getFiles().put(scenarioName, file);
+            }
+         }
       }
    }
 }
