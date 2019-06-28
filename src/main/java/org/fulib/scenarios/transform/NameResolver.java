@@ -618,6 +618,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          }
       }
 
+      if (classDecl.getExternal())
+      {
+         throw new IllegalStateException("unresolved external method " + classDecl.getName() + "." + name);
+      }
+
       final SentenceList body = SentenceList.of(new ArrayList<>());
       final MethodDecl decl = MethodDecl.of(classDecl, name, new ArrayList<>(), null, body);
       classDecl.getMethods().add(decl);
@@ -692,6 +697,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          return existing;
       }
 
+      if (classDecl.getExternal())
+      {
+         throw new IllegalStateException("unresolved external attribute " + classDecl.getName() + "." + name);
+      }
+
       final AttributeDecl attribute = AttributeDecl.of(classDecl, name, type);
       classDecl.getAttributes().put(name, attribute);
       return attribute;
@@ -711,6 +721,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          }
 
          return existing;
+      }
+
+      if (classDecl.getExternal())
+      {
+         throw new IllegalStateException("unresolved external association " + classDecl.getName() + "." + name);
       }
 
       final Type associationType = cardinality != 1 ? ListType.of(otherClass.getType()) : otherClass.getType();
@@ -758,6 +773,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          return ResolvedName.of(association);
       }
 
-      throw new IllegalStateException("unresolved attribute " + receiverClass.getName() + "." + name);
+      throw new IllegalStateException("unresolved attribute or association " + receiverClass.getName() + "." + name);
    }
 }
