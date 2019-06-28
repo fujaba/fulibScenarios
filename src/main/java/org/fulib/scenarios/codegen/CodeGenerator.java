@@ -34,14 +34,11 @@ public class CodeGenerator implements ScenarioGroup.Visitor<Object, Object>, Sce
 {
    final Config config;
 
-   ScenarioGroup group;
-
+   // set or null depending on the level we are generating
+   ScenarioGroup     group;
    ClassModelManager modelManager;
-
-   Clazz   clazz;
-   FMethod method;
-
-   StringBuilder bodyBuilder;
+   Clazz             clazz;
+   StringBuilder     bodyBuilder;
 
    public CodeGenerator(Config config)
    {
