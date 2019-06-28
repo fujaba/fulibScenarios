@@ -70,7 +70,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(CreationExpr creationExpr, CodeGenDTO par)
    {
-      final String className = creationExpr.getType().accept(TypeGenerator.INSTANCE, null);
+      final String className = creationExpr.getType().accept(TypeGenerator.INSTANCE, par);
 
       par.bodyBuilder.append("new ").append(className).append("()");
       for (NamedExpr attribute : creationExpr.getAttributes())
