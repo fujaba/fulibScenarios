@@ -17,6 +17,7 @@ public class Config
    private String       testDir;
    private List<String> inputDirs = new ArrayList<>();
    private List<String> classpath = new ArrayList<>();
+   private List<String> imports   = new ArrayList<>();
 
    private boolean classDiagram;
    private boolean classDiagramSVG;
@@ -54,6 +55,11 @@ public class Config
    public List<String> getClasspath()
    {
       return this.classpath;
+   }
+
+   public List<String> getImports()
+   {
+      return this.imports;
    }
 
    public boolean isClassDiagram()
@@ -106,12 +112,18 @@ public class Config
 
       options.addOption(new Option("t", "testDir", true, "test output directory, default: src/test/java"));
 
-      final Option opt = new Option("cp", "classpath", true,
-                                    "a list of directories or jar files from which to load other scenarios, separated by '"
-                                    + File.pathSeparatorChar + "'.");
-      opt.setArgs(Option.UNLIMITED_VALUES);
-      opt.setValueSeparator(File.pathSeparatorChar);
-      options.addOption(opt);
+      final Option classpath = new Option("cp", "classpath", true,
+                                          "a list of directories or jar files from which to load other scenarios, separated by '"
+                                          + File.pathSeparatorChar + "'.");
+      classpath.setArgs(Option.UNLIMITED_VALUES);
+      classpath.setValueSeparator(File.pathSeparatorChar);
+      options.addOption(classpath);
+
+      final Option imports = new Option("i", "imports", true,
+                                        "a list of packages to be automatically imported by each source file, separated by ','.");
+      imports.setArgs(Option.UNLIMITED_VALUES);
+      imports.setValueSeparator(',');
+      options.addOption(imports);
 
       options.addOption(new Option(null, "class-diagram", false, "generate class diagram as .png into model folder"));
       options.addOption(
@@ -139,6 +151,12 @@ public class Config
       if (classpath != null)
       {
          Collections.addAll(this.classpath, classpath);
+      }
+
+      final String[] imports = cmd.getOptionValues("imports");
+      if (imports != null)
+      {
+         Collections.addAll(this.imports, imports);
       }
    }
 }
