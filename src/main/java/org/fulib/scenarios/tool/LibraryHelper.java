@@ -79,6 +79,7 @@ public class LibraryHelper
             if (scenarioFile != null)
             {
                final String name = fileName.substring(0, fileName.length() - 3);
+               scenarioFile.setExternal(true);
                scenarioFile.setName(name);
                scenarioFile.setGroup(scenarioGroup);
                scenarioGroup.getFiles().put(name, scenarioFile);
@@ -115,6 +116,7 @@ public class LibraryHelper
                if (file != null)
                {
                   final String scenarioName = entryName.substring(slashIndex + 1, entryName.length() - 3);
+                  file.setExternal(true);
                   file.setName(scenarioName);
                   file.setGroup(scenarioGroup);
                   scenarioGroup.getFiles().put(scenarioName, file);

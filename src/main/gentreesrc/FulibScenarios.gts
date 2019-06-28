@@ -6,12 +6,14 @@ abstract org.fulib.scenarios.ast.Node {
 	CompilationContext(config: Config, groups: [String:ScenarioGroup])
 	ScenarioGroup(context: CompilationContext, sourceDir: String, packageDir: String,
 	              files: [String:ScenarioFile], classes: [String:ClassDecl])
-	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl)
+	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl,
+	             noconstruct external: boolean)
 	Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
 	abstract decl.Decl(name: String, type: Type) {
 		ClassDecl(group: ScenarioGroup, name: String, type: Type,
-		          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl])
+		          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl],
+		          noconstruct external: boolean)
 
 		AttributeDecl(owner: ClassDecl, name: String, type: Type)
 		AssociationDecl(owner: ClassDecl, name: String, cardinality: int, target: ClassDecl, type: Type,
