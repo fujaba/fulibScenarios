@@ -1,5 +1,7 @@
 package org.fulib.scenarios.codegen;
 
+import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.*;
 
 public enum TypeGenerator implements Type.Visitor<CodeGenerator, String>
@@ -15,7 +17,13 @@ public enum TypeGenerator implements Type.Visitor<CodeGenerator, String>
    @Override
    public String visit(ClassType classType, CodeGenerator par)
    {
-      return classType.getClassDecl().getName();
+      final ClassDecl classDecl = classType.getClassDecl();
+      final ScenarioGroup group = classDecl.getGroup();
+      if (group != par.group)
+      {
+         par.addImport(group.getPackageDir().replace('/', '.') + '.' + classDecl.getName());
+      }
+      return classDecl.getName();
    }
 
    @Override
