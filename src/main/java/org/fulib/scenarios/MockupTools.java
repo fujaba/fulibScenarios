@@ -17,6 +17,7 @@ public class MockupTools
 {
 
    public static final String ELEMENTS = "elements";
+   public static final String ACTION = "action";
    private static LinkedHashMap<Object, ArrayList<String>> mapForStepLists = new LinkedHashMap<>();
 
 
@@ -381,7 +382,13 @@ public class MockupTools
          //            <button style="margin: 1rem">next</button>
          //        </div>
          String text = rootDescription.substring("button ".length());
-         elem = String.format(indent + "   <div %s><button style='margin: 1rem'>%s</button></div>\n", cols, text);
+
+         String action = (String) reflector.getValue(root, ACTION);
+         if (action == null) {
+            action = "";
+         }
+
+         elem = String.format(indent + "   <div %s><button onclick='submit(%s)' style='margin: 1rem'>%s</button></div>\n", cols, action, text);
       }
 
       return elem;
