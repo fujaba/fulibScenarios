@@ -39,8 +39,9 @@ public class LibraryHelper
 
    private static void loadDirLibrary(String src, ScenarioCompiler compiler)
    {
-      for (String packageDir : compiler.getConfig().getImports())
+      for (String packageName : compiler.getConfig().getImports())
       {
+         final String packageDir = packageName.replace('.', '/');
          final File[] files = new File(src, packageDir).listFiles();
          if (files == null)
          {
