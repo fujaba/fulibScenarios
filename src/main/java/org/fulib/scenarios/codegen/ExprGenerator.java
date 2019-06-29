@@ -25,18 +25,18 @@ import org.fulib.scenarios.transform.Typer;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
+public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
 {
    INSTANCE, NO_LIST;
 
    @Override
-   public Object visit(Expr expr, CodeGenerator par)
+   public Object visit(Expr expr, CodeGenDTO par)
    {
       return null;
    }
 
    @Override
-   public Object visit(AttributeAccess attributeAccess, CodeGenerator par)
+   public Object visit(AttributeAccess attributeAccess, CodeGenDTO par)
    {
       attributeAccess.getReceiver().accept(this, par);
       par.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null)))
@@ -45,7 +45,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ListAttributeAccess listAttributeAccess, CodeGenerator par)
+   public Object visit(ListAttributeAccess listAttributeAccess, CodeGenDTO par)
    {
       final Type listType = listAttributeAccess.getReceiver().accept(Typer.INSTANCE, null);
       final Type elementType = ((ListType) listType).getElementType();
@@ -61,16 +61,16 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ExampleAccess exampleAccess, CodeGenerator par)
+   public Object visit(ExampleAccess exampleAccess, CodeGenDTO par)
    {
       exampleAccess.getExpr().accept(this, par);
       return null;
    }
 
    @Override
-   public Object visit(CreationExpr creationExpr, CodeGenerator par)
+   public Object visit(CreationExpr creationExpr, CodeGenDTO par)
    {
-      final String className = creationExpr.getType().accept(TypeGenerator.INSTANCE, null);
+      final String className = creationExpr.getType().accept(TypeGenerator.INSTANCE, par);
 
       par.bodyBuilder.append("new ").append(className).append("()");
       for (NamedExpr attribute : creationExpr.getAttributes())
@@ -80,7 +80,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       return null;
    }
 
-   static void generateSetterCall(CodeGenerator par, NamedExpr attribute)
+   static void generateSetterCall(CodeGenDTO par, NamedExpr attribute)
    {
       final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
       final Decl decl = attribute.getName().accept(ExtractDecl.INSTANCE, null);
@@ -92,7 +92,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(CallExpr callExpr, CodeGenerator par)
+   public Object visit(CallExpr callExpr, CodeGenDTO par)
    {
       callExpr.getReceiver().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append('.');
@@ -109,33 +109,33 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(PrimaryExpr primaryExpr, CodeGenerator par)
+   public Object visit(PrimaryExpr primaryExpr, CodeGenDTO par)
    {
       return null;
    }
 
    @Override
-   public Object visit(NameAccess nameAccess, CodeGenerator par)
+   public Object visit(NameAccess nameAccess, CodeGenDTO par)
    {
       par.bodyBuilder.append(nameAccess.getName().accept(Namer.INSTANCE, null));
       return null;
    }
 
    @Override
-   public Object visit(NumberLiteral numberLiteral, CodeGenerator par)
+   public Object visit(NumberLiteral numberLiteral, CodeGenDTO par)
    {
       return par.bodyBuilder.append(numberLiteral.getValue());
    }
 
    @Override
-   public Object visit(StringLiteral stringLiteral, CodeGenerator par)
+   public Object visit(StringLiteral stringLiteral, CodeGenDTO par)
    {
       par.emitStringLiteral(stringLiteral.getValue());
       return null;
    }
 
    @Override
-   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenerator par)
+   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par)
    {
       final boolean numeric = AssertionGenerator.isNumeric(conditionalOperatorExpr);
       final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
@@ -145,7 +145,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
    }
 
    @Override
-   public Object visit(ListExpr listExpr, CodeGenerator par)
+   public Object visit(ListExpr listExpr, CodeGenDTO par)
    {
       if (this != NO_LIST)
       {
@@ -166,7 +166,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenerator, Object>
       return null;
    }
 
-   private void emitList(CodeGenerator par, List<Expr> elements)
+   private void emitList(CodeGenDTO par, List<Expr> elements)
    {
       elements.get(0).accept(this, par);
       for (int i = 1; i < elements.size(); i++)

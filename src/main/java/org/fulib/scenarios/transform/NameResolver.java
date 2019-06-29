@@ -1,10 +1,7 @@
 package org.fulib.scenarios.transform;
 
 import org.fulib.StrUtil;
-import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.Scenario;
-import org.fulib.scenarios.ast.ScenarioFile;
-import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -25,29 +22,81 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.*;
 import org.fulib.scenarios.parser.Identifiers;
 import org.fulib.scenarios.transform.scope.DelegatingScope;
+import org.fulib.scenarios.transform.scope.EmptyScope;
 import org.fulib.scenarios.transform.scope.HidingScope;
 import org.fulib.scenarios.transform.scope.Scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, ScenarioFile.Visitor<Scope, Object>,
-                                       Scenario.Visitor<Scope, Object>, Sentence.Visitor<Scope, Sentence>,
-                                       Type.Visitor<Scope, Type>, Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
+public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
+                                       ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
+                                       Sentence.Visitor<Scope, Sentence>, Type.Visitor<Scope, Type>,
+                                       Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
 {
    INSTANCE;
 
-   // --------------- ScenarioGroup.Visitor ---------------
+   // =============== Constants ===============
+
+   protected static final String ENCLOSING_CLASS = "<enclosing:class>";
+
+   // =============== Methods ===============
+
+   // --------------- CompilationContext.Visitor ---------------
 
    @Override
-   public Object visit(ScenarioGroup scenarioGroup, Object par)
+   public Object visit(CompilationContext compilationContext, Object par)
    {
-      final Scope scope = new Scope()
+      final Map<String, ScenarioGroup> groups = compilationContext.getGroups();
+      final Set<ScenarioGroup> importedGroups = new HashSet<>();
+      final Map<String, ClassDecl> importedClasses = new HashMap<>();
+
+      // first, process all groups that are imported.
+      for (final String packageName : compilationContext.getConfig().getImports())
+      {
+         final String packageDir = packageName.replace('.', '/');
+         final ScenarioGroup group = groups.get(packageDir);
+         if (group != null)
+         {
+            group.accept(this, EmptyScope.INSTANCE);
+            importedGroups.add(group);
+            importedClasses.putAll(group.getClasses());
+         }
+      }
+
+      final Scope importedScope = new Scope()
       {
          @Override
          public Decl resolve(String name)
          {
-            return scenarioGroup.getClasses().get(name);
+            return importedClasses.get(name);
+         }
+
+         @Override
+         public void add(Decl decl)
+         {
+         }
+      };
+
+      // then, process remaining groups.
+      // since there are no more inter-group references, we can parallelize.
+      groups.values().parallelStream().filter(o -> !importedGroups.contains(o))
+            .forEach(it -> it.accept(this, importedScope));
+      return null;
+   }
+
+   // --------------- ScenarioGroup.Visitor ---------------
+
+   @Override
+   public Object visit(ScenarioGroup scenarioGroup, Scope par)
+   {
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            final ClassDecl classDecl = scenarioGroup.getClasses().get(name);
+            return classDecl != null ? classDecl : super.resolve(name);
          }
 
          @Override
@@ -58,9 +107,30 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
             scenarioGroup.getClasses().put(decl.getName(), classDecl);
          }
       };
+
+      // first, process external files.
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
-         file.accept(this, scope);
+         if (file.getExternal())
+         {
+            file.accept(this, scope);
+            file.getClassDecl().setFrozen(true);
+         }
+      }
+
+      // freeze all classes created by external files.
+      for (final ClassDecl classDecl : scenarioGroup.getClasses().values())
+      {
+         classDecl.setFrozen(true);
+      }
+
+      // now process non-external files.
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      {
+         if (!file.getExternal())
+         {
+            file.accept(this, scope);
+         }
       }
       return null;
    }
@@ -74,6 +144,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
       final String className = Identifiers.toUpperCamelCase(scenarioFile.getName()) + "Test";
       final ClassDecl classDecl = ClassDecl.of(group, className, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
                                                new ArrayList<>());
+      classDecl.setExternal(scenarioFile.getExternal());
       classDecl.setType(ClassType.of(classDecl));
 
       // group.getClasses().put(className, classDecl);
@@ -84,7 +155,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          @Override
          public Decl resolve(String name)
          {
-            return className.equals(name) ? classDecl : super.resolve(name);
+            return className.equals(name) || ENCLOSING_CLASS.equals(name) ? classDecl : super.resolve(name);
          }
       };
       for (final Scenario scenario : scenarioFile.getScenarios().values())
@@ -559,6 +630,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
    // =============== Static Methods ===============
 
+   static ClassDecl getEnclosingClass(Scope scope)
+   {
+      return (ClassDecl) scope.resolve(ENCLOSING_CLASS);
+   }
+
    static ClassDecl resolveClass(Scope scope, Expr expr)
    {
       final Type type = expr.accept(Typer.INSTANCE, null);
@@ -590,6 +666,7 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
 
       final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
                                           new ArrayList<>());
+      decl.setExternal(getEnclosingClass(scope).getExternal());
       decl.setType(ClassType.of(decl));
       scope.add(decl);
       return decl;
@@ -603,6 +680,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          {
             return decl;
          }
+      }
+
+      if (classDecl.getFrozen())
+      {
+         throw new IllegalStateException("unresolved external method " + classDecl.getName() + "." + name);
       }
 
       final SentenceList body = SentenceList.of(new ArrayList<>());
@@ -679,6 +761,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          return existing;
       }
 
+      if (classDecl.getFrozen())
+      {
+         throw new IllegalStateException("unresolved external attribute " + classDecl.getName() + "." + name);
+      }
+
       final AttributeDecl attribute = AttributeDecl.of(classDecl, name, type);
       classDecl.getAttributes().put(name, attribute);
       return attribute;
@@ -698,6 +785,11 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          }
 
          return existing;
+      }
+
+      if (classDecl.getFrozen() || otherClass.getFrozen())
+      {
+         throw new IllegalStateException("unresolved external association " + classDecl.getName() + "." + name);
       }
 
       final Type associationType = cardinality != 1 ? ListType.of(otherClass.getType()) : otherClass.getType();
@@ -745,6 +837,6 @@ public enum NameResolver implements ScenarioGroup.Visitor<Object, Object>, Scena
          return ResolvedName.of(association);
       }
 
-      throw new IllegalStateException("unresolved attribute " + receiverClass.getName() + "." + name);
+      throw new IllegalStateException("unresolved attribute or association " + receiverClass.getName() + "." + name);
    }
 }

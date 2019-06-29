@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.*;
+import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.codegen.CodeGenerator;
@@ -27,14 +28,18 @@ public class ScenarioCompiler implements Tool
 
    private static final String TOOL_NAME = "scenarioc";
 
+   private static final CompilationContext.Visitor[] PHASES = { //
+      Grouper.INSTANCE, Desugar.INSTANCE, NameResolver.INSTANCE, CodeGenerator.INSTANCE,
+      //
+   };
+
    // =============== Fields ===============
 
    private PrintWriter out;
    private PrintWriter err;
 
-   private Config config = new Config();
-
-   private List<ScenarioGroup> groups = new ArrayList<>();
+   private Config             config  = new Config();
+   private CompilationContext context = CompilationContext.of(this.config, new HashMap<>());
 
    private int errors;
 
@@ -58,6 +63,16 @@ public class ScenarioCompiler implements Tool
    public void setErr(PrintWriter err)
    {
       this.err = err;
+   }
+
+   public Config getConfig()
+   {
+      return this.config;
+   }
+
+   public CompilationContext getContext()
+   {
+      return this.context;
    }
 
    @Override
@@ -113,8 +128,24 @@ public class ScenarioCompiler implements Tool
 
    public int run()
    {
+      LibraryHelper.loadLibraries(this);
       this.discover();
-      this.groups.forEach(this::processGroup);
+
+      for (CompilationContext.Visitor phase : PHASES)
+      {
+         try
+         {
+            //noinspection unchecked
+            this.context.accept(phase, null);
+         }
+         catch (Exception ex)
+         {
+            final String phaseName = phase.getClass().getSimpleName();
+            this.err.println("failed to execute phase '" + phaseName + "' due to exception:");
+            ex.printStackTrace(this.err);
+            this.errors++;
+         }
+      }
       return this.errors;
    }
 
@@ -132,7 +163,7 @@ public class ScenarioCompiler implements Tool
 
    private void discover(File sourceDir, File dir, String packageDir)
    {
-      Map<String, ScenarioFile> scenarioFiles = new HashMap<>();
+      final List<ScenarioFile> scenarioFiles = new ArrayList<>();
 
       for (File file : Objects.requireNonNull(dir.listFiles()))
       {
@@ -153,24 +184,39 @@ public class ScenarioCompiler implements Tool
             {
                final String name = fileName.substring(0, fileName.length() - 3);
                scenarioFile.setName(name);
-               scenarioFiles.put(name, scenarioFile);
+               scenarioFiles.add(scenarioFile);
             }
          }
       }
 
       if (!scenarioFiles.isEmpty())
       {
-         final ScenarioGroup group = ScenarioGroup
-                                        .of(sourceDir.toString(), packageDir, scenarioFiles, new HashMap<>());
-         for (final ScenarioFile file : scenarioFiles.values())
+         final ScenarioGroup scenarioGroup = this.resolveGroup(packageDir);
+         scenarioGroup.setSourceDir(sourceDir.toString());
+
+         for (final ScenarioFile scenarioFile : scenarioFiles)
          {
-            file.setGroup(group);
+            scenarioFile.setGroup(scenarioGroup);
+            scenarioGroup.getFiles().put(scenarioFile.getName(), scenarioFile);
          }
-         this.groups.add(group);
       }
    }
 
-   private ScenarioFile parseScenario(File file)
+   protected ScenarioGroup resolveGroup(String packageDir)
+   {
+      final ScenarioGroup existing = this.context.getGroups().get(packageDir);
+      if (existing != null)
+      {
+         return existing;
+      }
+
+      final ScenarioGroup newGroup = ScenarioGroup
+                                        .of(this.context, null, packageDir, new HashMap<>(), new HashMap<>());
+      this.context.getGroups().put(packageDir, newGroup);
+      return newGroup;
+   }
+
+   protected ScenarioFile parseScenario(File file)
    {
       final CharStream input;
       try
@@ -184,6 +230,11 @@ public class ScenarioCompiler implements Tool
          return null;
       }
 
+      return this.parseScenario(input);
+   }
+
+   protected ScenarioFile parseScenario(CharStream input)
+   {
       final ANTLRErrorListener errorListener = new ErrorListener(this.getOut());
 
       final ScenarioLexer lexer = new ScenarioLexer(input);
@@ -200,7 +251,6 @@ public class ScenarioCompiler implements Tool
       if (syntaxErrors > 0)
       {
          this.errors += syntaxErrors;
-         this.getErr().println(syntaxErrors + " syntax errors in scenario " + file);
          return null;
       }
 
@@ -212,33 +262,8 @@ public class ScenarioCompiler implements Tool
       }
       catch (Exception e)
       {
-         this.getErr().println("failed to transform scenario " + file);
          e.printStackTrace(this.getErr());
          return null;
-      }
-   }
-
-   private void processGroup(ScenarioGroup scenarioGroup)
-   {
-      String stage = null;
-      try
-      {
-         // TODO pattern: list of Phase objects
-         stage = "group";
-         scenarioGroup.accept(Grouper.INSTANCE, null);
-         stage = "desugar";
-         scenarioGroup.accept(Desugar.INSTANCE, null);
-         stage = "resolve";
-         scenarioGroup.accept(NameResolver.INSTANCE, null);
-         stage = "codegen";
-         scenarioGroup.accept(new CodeGenerator(this.config), null);
-      }
-      catch (Exception ex)
-      {
-         this.err.println("failed to execute stage '" + stage + "' on group '" + scenarioGroup.getSourceDir() + "/"
-                          + scenarioGroup.getPackageDir() + "' due to exception:");
-         ex.printStackTrace(this.err);
-         this.errors++;
       }
    }
 }

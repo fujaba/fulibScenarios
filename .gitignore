@@ -9,11 +9,9 @@
 hs_err_pid*
 
 *.iml
-src/test/scenarios/**/*.png
-src/test/scenarios/**/*.svg
-src/test/scenarios/**/*.yaml
-src/test/scenarios/**/*.html
-webapp/examples/**/*.png
-webapp/examples/**/*.svg
-webapp/examples/**/*.yaml
-libs/fulibDotOrg-0.2.0.jar
+
+src/*/scenarios/**/*.png
+src/*/scenarios/**/*.svg
+src/*/scenarios/**/*.yaml
+src/*/scenarios/**/*.html
+libs/fulib*[Oo]rg*.jar
