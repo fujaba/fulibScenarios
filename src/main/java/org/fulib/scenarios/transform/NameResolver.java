@@ -787,7 +787,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return existing;
       }
 
-      if (classDecl.getFrozen())
+      if (classDecl.getFrozen() || otherClass.getFrozen())
       {
          throw new IllegalStateException("unresolved external association " + classDecl.getName() + "." + name);
       }
