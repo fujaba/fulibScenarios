@@ -46,8 +46,24 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    @Override
    public Object visit(CompilationContext compilationContext, Object par)
    {
-      // no inter-group references, we can parallelize
-      compilationContext.getGroups().values().parallelStream().forEach(it -> it.accept(this, null));
+      final Map<String, ScenarioGroup> groups = compilationContext.getGroups();
+      final Set<ScenarioGroup> importedGroups = new HashSet<>();
+
+      // first, process all groups that are imported.
+      for (final String packageName : compilationContext.getConfig().getImports())
+      {
+         final String packageDir = packageName.replace('.', '/');
+         final ScenarioGroup group = groups.get(packageDir);
+         if (group != null)
+         {
+            group.accept(this, par);
+            importedGroups.add(group);
+         }
+      }
+
+      // then, process remaining groups.
+      // since there are no more inter-group references, we can parallelize.
+      groups.values().parallelStream().filter(o -> !importedGroups.contains(o)).forEach(it -> it.accept(this, null));
       return null;
    }
 
@@ -72,9 +88,30 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
             scenarioGroup.getClasses().put(decl.getName(), classDecl);
          }
       };
+
+      // first, process external files.
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
-         file.accept(this, scope);
+         if (file.getExternal())
+         {
+            file.accept(this, scope);
+            file.getClassDecl().setFrozen(true);
+         }
+      }
+
+      // freeze all classes created by external files.
+      for (final ClassDecl classDecl : scenarioGroup.getClasses().values())
+      {
+         classDecl.setFrozen(true);
+      }
+
+      // now process non-external files.
+      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      {
+         if (!file.getExternal())
+         {
+            file.accept(this, scope);
+         }
       }
       return null;
    }
