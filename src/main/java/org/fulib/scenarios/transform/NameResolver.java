@@ -626,7 +626,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          }
       }
 
-      if (classDecl.getExternal())
+      if (classDecl.getFrozen())
       {
          throw new IllegalStateException("unresolved external method " + classDecl.getName() + "." + name);
       }
@@ -705,7 +705,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return existing;
       }
 
-      if (classDecl.getExternal())
+      if (classDecl.getFrozen())
       {
          throw new IllegalStateException("unresolved external attribute " + classDecl.getName() + "." + name);
       }
@@ -731,7 +731,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return existing;
       }
 
-      if (classDecl.getExternal())
+      if (classDecl.getFrozen())
       {
          throw new IllegalStateException("unresolved external association " + classDecl.getName() + "." + name);
       }
