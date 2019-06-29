@@ -22,13 +22,14 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.*;
 import org.fulib.scenarios.parser.Identifiers;
 import org.fulib.scenarios.transform.scope.DelegatingScope;
+import org.fulib.scenarios.transform.scope.EmptyScope;
 import org.fulib.scenarios.transform.scope.HidingScope;
 import org.fulib.scenarios.transform.scope.Scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
+public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
                                        ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
                                        Sentence.Visitor<Scope, Sentence>, Type.Visitor<Scope, Type>,
                                        Expr.Visitor<Scope, Expr>, Name.Visitor<Scope, Name>
@@ -48,6 +49,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    {
       final Map<String, ScenarioGroup> groups = compilationContext.getGroups();
       final Set<ScenarioGroup> importedGroups = new HashSet<>();
+      final Map<String, ClassDecl> importedClasses = new HashMap<>();
 
       // first, process all groups that are imported.
       for (final String packageName : compilationContext.getConfig().getImports())
@@ -56,28 +58,45 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          final ScenarioGroup group = groups.get(packageDir);
          if (group != null)
          {
-            group.accept(this, par);
+            group.accept(this, EmptyScope.INSTANCE);
             importedGroups.add(group);
+            importedClasses.putAll(group.getClasses());
          }
       }
 
+      final Scope importedScope = new Scope()
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return importedClasses.get(name);
+         }
+
+         @Override
+         public void add(Decl decl)
+         {
+         }
+      };
+
       // then, process remaining groups.
       // since there are no more inter-group references, we can parallelize.
-      groups.values().parallelStream().filter(o -> !importedGroups.contains(o)).forEach(it -> it.accept(this, null));
+      groups.values().parallelStream().filter(o -> !importedGroups.contains(o))
+            .forEach(it -> it.accept(this, importedScope));
       return null;
    }
 
    // --------------- ScenarioGroup.Visitor ---------------
 
    @Override
-   public Object visit(ScenarioGroup scenarioGroup, Object par)
+   public Object visit(ScenarioGroup scenarioGroup, Scope par)
    {
-      final Scope scope = new Scope()
+      final Scope scope = new DelegatingScope(par)
       {
          @Override
          public Decl resolve(String name)
          {
-            return scenarioGroup.getClasses().get(name);
+            final ClassDecl classDecl = scenarioGroup.getClasses().get(name);
+            return classDecl != null ? classDecl : super.resolve(name);
          }
 
          @Override
