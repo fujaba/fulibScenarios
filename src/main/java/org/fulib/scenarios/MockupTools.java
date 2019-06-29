@@ -83,7 +83,7 @@ public class MockupTools
             tableMap.put(className, oneTable);
             oneTable.add(String.format("<div class='row justify-content-center '><div class='col text-center font-weight-bold'>%s</div></div>\n", className));
 
-            String colNames = "<div class='col text-center font-weight-bold border'>_id</div>";
+            String colNames = ""; // "<div class='col text-center font-weight-bold border'>_id</div>";
             for (String property : reflector.getProperties())
             {
                colNames += String.format("<div class='col text-center font-weight-bold border'>%s</div>", property);
@@ -111,7 +111,8 @@ public class MockupTools
                String valueKey = idMap.getIdObjMap().get(valueElem);
 
                if (valueKey != null) {
-                  valueElem = String.format("<a href='#%s'>%s</a> ", valueKey, valueKey);
+                  String valueName = getValueName(idMap, valueElem);
+                  valueElem = String.format("<a href='#%s'>%s</a> ", valueKey, valueName);
                }
 
                valueString += valueElem;
@@ -121,9 +122,10 @@ public class MockupTools
          }
 
 
-         String lineWithId = String.format("<div class='row justify-content-center'>" +
-               "<div class='col text-center border'><a name='%s'>%s</a></div>%s</div>",
-               entry.getKey(), entry.getKey(), oneLine);
+         String lineWithId = String.format("<div class='row justify-content-center' name='%s'>" +
+               // "<div class='col text-center border'><a name='%s'>%s</a></div>" +
+               "%s</div>",
+               entry.getKey(), oneLine);
          oneTable.add(lineWithId);
       }
 
@@ -147,6 +149,21 @@ public class MockupTools
       {
          e.printStackTrace();
       }
+   }
+
+   private String getValueName(YamlIdMap idMap, Object valueElem)
+   {
+      Object valueName = idMap.getReflector(valueElem).getValue(valueElem, "id");
+      if (valueName != null) {
+         return "" + valueName;
+      }
+
+      valueName = idMap.getReflector(valueElem).getValue(valueElem, "name");
+      if (valueName != null) {
+         return "" + valueName;
+      }
+
+      return valueElem.getClass().getSimpleName();
    }
 
    private void generateMockup(String fileName, Object root, String bootstrap)
