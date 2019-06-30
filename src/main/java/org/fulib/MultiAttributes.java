@@ -1,25 +1,14 @@
 package org.fulib;
 
-import org.fulib.builder.ClassBuilder;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.classmodel.AssocRole;
 import org.fulib.classmodel.Clazz;
 
 public class MultiAttributes
 {
-   public static void buildMultiAttribute(ClassBuilder builder, String name, String elementType)
-   {
-      buildMultiAttribute(builder.getClazz(), name, elementType);
-   }
-
    public static void buildMultiAttribute(Clazz clazz, String name, String elementType)
    {
       buildMultiAttribute(clazz, name, "java.util.ArrayList", elementType);
-   }
-
-   public static void buildMultiAttribute(ClassBuilder builder, String name, String collectionType, String elementType)
-   {
-      buildMultiAttribute(builder.getClazz(), name, collectionType, elementType);
    }
 
    public static void buildMultiAttribute(Clazz clazz, String name, String collectionType, String elementType)
