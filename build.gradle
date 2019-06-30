@@ -85,11 +85,13 @@ dependencies {
 
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
-    
+
     // --------------- Test Dependencies ---------------
 
     // https://mvnrepository.com/artifact/junit/junit
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    testCompile group: 'org.fulib', name: 'fulibMockups', version: '0.0.1'
 }
 
 // --------------- Test Logging ---------------
