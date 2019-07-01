@@ -5,9 +5,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Config
 {
@@ -17,7 +15,7 @@ public class Config
    private String       testDir;
    private List<String> inputDirs = new ArrayList<>();
    private List<String> classpath = new ArrayList<>();
-   private List<String> imports   = new ArrayList<>();
+   private Set<String>  imports   = new HashSet<>();
 
    private boolean classDiagram;
    private boolean classDiagramSVG;
@@ -57,7 +55,7 @@ public class Config
       return this.classpath;
    }
 
-   public List<String> getImports()
+   public Set<String> getImports()
    {
       return this.imports;
    }
