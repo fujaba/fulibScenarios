@@ -55,7 +55,7 @@ namedExpr: simpleName expr # NamedSimple
 
 hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
-hasClause: HAS namedExpr;
+hasClause: (HAS | HAVE) namedExpr;
 
 createSentence: actor (CREATE | CREATES) simpleDescriptor
               | actor (CREATE | CREATES) multiDescriptor;

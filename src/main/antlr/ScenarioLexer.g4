@@ -27,6 +27,7 @@ EXPECT:   'expect';
 FROM:     'from';
 GREATER:  'greater';
 HAS:      'has';
+HAVE:     'have';
 IN:       'in';
 INTO:     'into';
 IS:       'is';
