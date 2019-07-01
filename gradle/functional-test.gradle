@@ -1,25 +1,29 @@
-// basis for plugin
-
 def taskName = 'compileScenarios'
 def sourceDirs = [ 'src/test/scenarios' ]
+def imports = [ 'org.fulib.mockups' ]
 def modelOutputDir = "$buildDir/generated-src/scenarios/main/"
 def testOutputDir = "$buildDir/generated-src/scenarios/test/"
 
-tasks.register(taskName, JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath // change this in plugin
-    main = 'org.fulib.scenarios.Main'
+tasks.register(taskName, JavaExec) { JavaExec j ->
+    j.classpath = sourceSets.main.runtimeClasspath
+    j.main = 'org.fulib.scenarios.Main'
 
-    args = [ '-m', modelOutputDir, '-t', testOutputDir ] + sourceDirs
+    j.args '-m', modelOutputDir
+    j.args '-t', testOutputDir
+    j.args '-i', imports.join(',')
+    j.args '-cp', configurations.testCompile.join(File.pathSeparator)
+    j.args '--'
+    j.args sourceDirs
 
-    onlyIf { sourceDirs.any { file(it).exists()} }
+    j.onlyIf { sourceDirs.any { file(it).exists() } }
 
-    sourceDirs.each { inputs.dir(it) }
-    outputs.dir(modelOutputDir)
-    outputs.dir(testOutputDir)
+    sourceDirs.each { j.inputs.dir(it) }
+    j.inputs.files(configurations.testCompile)
+    j.outputs.dir(modelOutputDir)
+    j.outputs.dir(testOutputDir)
 }
 
-// in plugin: compileJava.dependsOn taskName
 compileTestJava.dependsOn taskName
 
-sourceSets.test.java.srcDir(files(modelOutputDir).builtBy(taskName)) // in plugin: test -> main
+sourceSets.test.java.srcDir(files(modelOutputDir).builtBy(taskName))
 sourceSets.test.java.srcDir(files(testOutputDir).builtBy(taskName))

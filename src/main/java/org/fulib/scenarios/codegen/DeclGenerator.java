@@ -64,17 +64,23 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
    {
       final Clazz clazz = par.modelManager.haveClass(associationDecl.getOwner().getName());
 
-      final Clazz otherClazz = par.modelManager.haveClass(associationDecl.getTarget().getName());
-
       final AssociationDecl other = associationDecl.getOther();
-      if (other != null)
+      final String targetType = associationDecl.getTarget().accept(TypeGenerator.INSTANCE, par);
+
+      if (other != null) // bidirectional
       {
+         final Clazz otherClazz = par.modelManager.haveClass(targetType);
+
          par.modelManager.haveRole(clazz, associationDecl.getName(), otherClazz, associationDecl.getCardinality(),
                                    other.getName(), other.getCardinality());
       }
-      else
+      else if (associationDecl.getCardinality() == 1) // unidirectional one
       {
-         par.modelManager.haveRole(clazz, associationDecl.getName(), otherClazz, associationDecl.getCardinality());
+         par.modelManager.haveAttribute(clazz, associationDecl.getName(), targetType);
+      }
+      else // unidirectional many
+      {
+         MultiAttributes.buildMultiAttribute(clazz, associationDecl.getName(), targetType);
       }
 
       return null;

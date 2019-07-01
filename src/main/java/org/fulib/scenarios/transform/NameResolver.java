@@ -787,7 +787,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return existing;
       }
 
-      if (classDecl.getFrozen() || otherClass.getFrozen())
+      if (classDecl.getFrozen())
       {
          throw new IllegalStateException("unresolved external association " + classDecl.getName() + "." + name);
       }
@@ -795,15 +795,18 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final Type associationType = cardinality != 1 ? ListType.of(otherClass.getType()) : otherClass.getType();
       final AssociationDecl association = AssociationDecl
                                              .of(classDecl, name, cardinality, otherClass, associationType, null);
-      final String otherName = StrUtil.downFirstChar(classDecl.getName());
-      final AssociationDecl other = AssociationDecl
-                                       .of(otherClass, otherName, 1, classDecl, classDecl.getType(), null);
-
-      association.setOther(other);
-      other.setOther(association);
-
       classDecl.getAssociations().put(association.getName(), association);
-      otherClass.getAssociations().put(other.getName(), other);
+
+      if (!otherClass.getFrozen())
+      {
+         final String otherName = StrUtil.downFirstChar(classDecl.getName());
+         final AssociationDecl other = AssociationDecl
+                                          .of(otherClass, otherName, 1, classDecl, classDecl.getType(), null);
+         otherClass.getAssociations().put(other.getName(), other);
+
+         association.setOther(other);
+         other.setOther(association);
+      }
 
       return association;
    }

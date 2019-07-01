@@ -4,9 +4,11 @@ import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.*;
 
-public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>
+public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>, ClassDecl.Visitor<CodeGenDTO, String>
 {
    INSTANCE;
+
+   // --------------- Type.Visitor ---------------
 
    @Override
    public String visit(UnresolvedType unresolvedType, CodeGenDTO par)
@@ -17,13 +19,7 @@ public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>
    @Override
    public String visit(ClassType classType, CodeGenDTO par)
    {
-      final ClassDecl classDecl = classType.getClassDecl();
-      final ScenarioGroup group = classDecl.getGroup();
-      if (group != par.group)
-      {
-         par.addImport(group.getPackageDir().replace('/', '.') + '.' + classDecl.getName());
-      }
-      return classDecl.getName();
+      return classType.getClassDecl().accept(this, par);
    }
 
    @Override
@@ -37,5 +33,18 @@ public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>
    public String visit(PrimitiveType primitiveType, CodeGenDTO par)
    {
       return primitiveType.getJavaName();
+   }
+
+   // --------------- ClassDecl.Visitor ---------------
+
+   @Override
+   public String visit(ClassDecl classDecl, CodeGenDTO par)
+   {
+      final ScenarioGroup group = classDecl.getGroup();
+      if (group != par.group)
+      {
+         par.addImport(group.getPackageDir().replace('/', '.') + '.' + classDecl.getName());
+      }
+      return classDecl.getName();
    }
 }

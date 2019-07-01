@@ -16,7 +16,7 @@ There is a ForkliftDriver with name Alice.
 
 ![WHService, Alice](step01.svg)
 
-There is a ForkLifterApp with id ForkLiftGuide and with description "Fork Lift Guide".
+There is a WebApp with id ForkLiftGuide and with description "Fork Lift Guide".
 There is a Page with id addSupplyPage and with description "New Supply | button Tasks".
 ForkLiftGuide has content addSupplyPage.
 There is a Content with id lotId and with description "input lot id?".
@@ -24,7 +24,6 @@ There is a Content with id productName and with description "input product?".
 There is a Content with id lotSize and with description "input lot size?".
 There is a Content with id addLotToStoreButton and with description "button add".
 AddSupplyPage has content lotId, productName, lotSize, addLotToStoreButton.
-WHService has rootPage ForkLiftGuide.
 ![ForkLiftGuide](step03.html)
 
 
