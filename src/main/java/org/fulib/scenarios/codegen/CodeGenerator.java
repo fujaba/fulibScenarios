@@ -272,12 +272,20 @@ public enum CodeGenerator
 
 class CodeGenDTO
 {
+   // =============== Constants ===============
+
+   private static final String INDENT = "   ";
+
+   // =============== Fields ===============
+
    // set or null depending on the level we are generating
    Config            config;
    ScenarioGroup     group;
    ClassModelManager modelManager;
    Clazz             clazz;
    StringBuilder     bodyBuilder;
+
+   int indentLevel = 2;
 
    // =============== Methods ===============
 
@@ -293,8 +301,10 @@ class CodeGenDTO
 
    void emitIndent()
    {
-      // TODO support multiple levels (required for if, for, ...)
-      this.bodyBuilder.append("      ");
+      for (int i = 0; i < this.indentLevel; i++)
+      {
+         this.bodyBuilder.append(INDENT);
+      }
    }
 
    void addImport(String s)
