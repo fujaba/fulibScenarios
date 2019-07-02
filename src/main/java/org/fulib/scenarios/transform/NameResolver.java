@@ -320,6 +320,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    }
 
    @Override
+   public Sentence visit(ConditionalSentence conditionalSentence, Scope par)
+   {
+      conditionalSentence.setCondition((ConditionalExpr) conditionalSentence.getCondition().accept(this, par));
+      conditionalSentence.setActions((SentenceList) conditionalSentence.getActions().accept(this, par));
+      return conditionalSentence;
+   }
+
+   @Override
    public Sentence visit(ExprSentence exprSentence, Scope par)
    {
       exprSentence.setExpr(exprSentence.getExpr().accept(this, par));

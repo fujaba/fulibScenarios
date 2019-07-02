@@ -290,6 +290,13 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
+   public Sentence visit(ConditionalSentence conditionalSentence, Object par)
+   {
+      conditionalSentence.setActions((SentenceList) conditionalSentence.getActions().accept(this, par));
+      return conditionalSentence;
+   }
+
+   @Override
    public Sentence visit(ExprSentence exprSentence, Object par)
    {
       return exprSentence;

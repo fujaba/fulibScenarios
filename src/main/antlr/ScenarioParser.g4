@@ -28,6 +28,7 @@ simpleSentence: thereSentence
               | writeSentence
               | addSentence
               | removeSentence
+              | conditionalSentence
               ;
 
 sectionSentence: H2 HEADLINE_TEXT HEADLINE_END;
@@ -67,6 +68,10 @@ answerSentence: actor (ANSWER | ANSWERS) WITH expr (INTO name)?;
 writeSentence: actor (WRITE | WRITES) expr INTO expr;
 addSentence: actor (ADD | ADDS) expr TO expr;
 removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
+
+// Control Flow
+
+conditionalSentence: AS condExpr COMMA simpleSentence (sep simpleSentence)*;
 
 // Testing
 

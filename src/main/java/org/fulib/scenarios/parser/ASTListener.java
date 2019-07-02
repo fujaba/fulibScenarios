@@ -235,6 +235,16 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(removeSentence);
    }
 
+   @Override
+   public void exitConditionalSentence(ScenarioParser.ConditionalSentenceContext ctx)
+   {
+      final List<Sentence> sentences = this.pop(Sentence.class, ctx.simpleSentence().size());
+      final SentenceList actions = SentenceList.of(sentences);
+      final ConditionalExpr condition = this.pop();
+      final ConditionalSentence sentence = ConditionalSentence.of(condition, actions);
+      this.stack.push(sentence);
+   }
+
    // --------------- Clauses ---------------
 
    @Override

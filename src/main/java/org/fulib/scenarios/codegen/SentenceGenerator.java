@@ -145,6 +145,24 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    }
 
    @Override
+   public Object visit(ConditionalSentence conditionalSentence, CodeGenDTO par)
+   {
+      par.emitIndent();
+      par.bodyBuilder.append("if (");
+      conditionalSentence.getCondition().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(") {\n");
+
+      par.indentLevel++;
+      conditionalSentence.getActions().accept(this, par);
+      par.indentLevel--;
+
+      par.emitIndent();
+      par.bodyBuilder.append("}\n");
+
+      return null;
+   }
+
+   @Override
    public Object visit(ExprSentence exprSentence, CodeGenDTO par)
    {
       par.emitIndent();

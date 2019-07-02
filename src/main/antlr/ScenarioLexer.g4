@@ -10,7 +10,7 @@ AND:      'and';
 ANSWER:   'answer';
 ANSWERS:  'answers';
 ARE:      'are';
-AS:       'as';
+AS:       'As' | 'as';
 CALL:     'call';
 CALLS:    'calls';
 CARD:     'card';

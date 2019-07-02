@@ -58,6 +58,8 @@ abstract org.fulib.scenarios.ast.Node {
 		AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
 		RemoveSentence(actor: Name, source: Expr, target: Expr) // i.e. removing elements from a list
 
+		ConditionalSentence(condition: ConditionalExpr, actions: SentenceList)
+
 		ExprSentence(expr: Expr)
 
 		// e.g. TemplateSentence("<%>.addAll(<*>);", [ foo, ListExpr.of([ bar, baz ]) ])

@@ -85,6 +85,12 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    }
 
    @Override
+   public Object visit(ConditionalSentence conditionalSentence, Map<String, Decl> par)
+   {
+      return null;
+   }
+
+   @Override
    public Object visit(ExprSentence exprSentence, Map<String, Decl> par)
    {
       return null;
