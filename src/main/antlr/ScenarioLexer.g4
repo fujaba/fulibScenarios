@@ -61,15 +61,17 @@ WRITES:   'writes';
 
 H1:        '#' -> mode(HEADLINE);
 H2:        '##' -> mode(HEADLINE);
-COMMA:     ',';
-FULL_STOP: '.';
-PLUS:      '+';
+COMMA:     [,];
+FULL_STOP: [.];
+PLUS:      [+];
 
 // --------------- Literals ---------------
 
-NUMBER:         '-'? [0-9]+ ('.' [0-9]+)?;
-STRING_LITERAL: ['] ~[']* [']
-              | '"' ~'"'* '"';
+NUMBER:         [-]? [0-9]+ ([.] [0-9]+)?;
+STRING_LITERAL: ['] (~['\\\r\n] | EscapeSequence)* [']
+              | ["] (~["\\\r\n] | EscapeSequence)* ["];
+
+fragment EscapeSequence: [\\] [btnfr"'\\];
 
 // --------------- Words ---------------
 

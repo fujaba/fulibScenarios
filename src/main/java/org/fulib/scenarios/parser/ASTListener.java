@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
+import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.VarDecl;
@@ -279,9 +280,9 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitStringLiteral(ScenarioParser.StringLiteralContext ctx)
    {
       final String text = ctx.STRING_LITERAL().getText();
-      // TODO escape character processing
       // strip opening and closing quotes
-      final String value = text.substring(1, text.length() - 1);
+      final String stripped = text.substring(1, text.length() - 1);
+      final String value = StringEscapeUtils.unescapeJava(stripped);
       this.stack.push(StringLiteral.of(value));
    }
 

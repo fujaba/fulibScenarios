@@ -1,5 +1,6 @@
 package org.fulib.scenarios.codegen;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.FulibTools;
 import org.fulib.Generator;
 import org.fulib.builder.ClassModelManager;
@@ -287,8 +288,7 @@ class CodeGenDTO
 
    void emitStringLiteral(String text)
    {
-      // TODO escape string literal
-      this.bodyBuilder.append('"').append(text).append('"');
+      this.bodyBuilder.append('"').append(StringEscapeUtils.escapeJava(text)).append('"');
    }
 
    void emitIndent()
