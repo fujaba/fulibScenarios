@@ -43,13 +43,13 @@
 
 # Fulib Scenarios v0.3.0
 
-## General
+### General
 
 + A scenario file can now contain multiple scenarios. #66
 * Test classes are now named after the scenario file. #66
 * Test methods are now named after the scenario. #66
 
-## Sentences
+### Sentences
 
 + Added Answer Sentences. #58
 + Added Call Sentences. #57
@@ -69,9 +69,19 @@
 
 # Fulib Scenarios v0.4.0
 
+### General
+
+### Sentences
+
 + Added Write Sentences. #78
+* Duplicate variable names are now automatically made unique with a trailing number. #79
+
+### Expressions
+
 + Added conditional equality and comparison operators. #76
 + Attribute Access with List Receivers now vectorizes. #44
 + Conditional expressions can now be combined using `and` and `or`. #4
-* Duplicate variable names are now automatically made unique with a trailing number. #79
+
+### Tooling
+
 - Removed the `WebService` and related classes. #75
