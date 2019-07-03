@@ -85,3 +85,34 @@
 ### Tooling
 
 - Removed the `WebService` and related classes. #75
+
+# Fulib Scenarios v0.5.0
+
+### General
+
++ Added support for h2 `##` header / sections. #84
++ Identifiers can now contain underscores. #82
+* Non-alphanumeric characters in identifiers are now stripped to form a camel case Java identifier. #82
+* Multivalued attributes now generate `with` and `without` methods instead of setters. #80
+* The scenario header can now consist of any string. #85
+
+### Sentences
+
++ Added Add and Remove Sentences. #81
++ Added Conditional Sentences. #15
++ Added the `have` keyword as an alternative to `has`.
++ Answer sentences can now declare the target variable name. #83
+* With clauses can now use arbitrary expressions. #86
+
+### Expressions
+
++ Added support for Java string escape sequences in string literals. #92
++ Added the conditional collection operators `contain(s)` and `does not contain`. #93
+* Code gen for string literals now uses escapes where needed. #92
+* Fixed example expressions generating code for the example value instead of the origin expression. #89
+* References to the receiver of a call are now replaced with `this` in the method body. #88
+
+### Tooling
+
++ Added the `-cp`/`--classpath` options. #90
++ Added the `-i`/`--imports` options. #90
