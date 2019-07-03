@@ -43,8 +43,7 @@ public enum CodeGenerator
    @Override
    public Object visit(CompilationContext compilationContext, Object par)
    {
-      // TODO don't know if we can parallelize, not sure about fulib code gen
-      compilationContext.getGroups().values()/* .parallelStream() */.forEach(it -> {
+      compilationContext.getGroups().values().parallelStream().forEach(it -> {
          final CodeGenDTO dto = new CodeGenDTO();
          dto.config = compilationContext.getConfig();
          it.accept(this, dto);
