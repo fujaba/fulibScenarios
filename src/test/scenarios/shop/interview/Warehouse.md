@@ -43,7 +43,7 @@ We call intakePalette on Warehouse with palette eu200
 and with place f2.
 
 ## GUI
-There is a ForkLifterApp with id ForkLiftGuide 
+There is a WebApp with id ForkLiftGuide 
 and with description "Fork Lift Guide".
 There is a Page with id addSupplyPage 
 and with description "New Supply | button Tasks".
