@@ -4,14 +4,20 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.ast.decl.ClassDecl;
+import org.fulib.scenarios.ast.type.ClassType;
+import org.objectweb.asm.ClassReader;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.CodingErrorAction;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -52,23 +58,42 @@ public class LibraryHelper
 
          for (File file : files)
          {
-            final String fileName = file.getName();
-            if (!file.isFile() || !fileName.endsWith(".md"))
+            if (!file.isFile())
             {
                continue;
             }
 
-            final ScenarioFile scenarioFile = compiler.parseScenario(file);
-            if (scenarioFile == null)
-            {
-               continue;
-            }
+            loadFile(compiler, scenarioGroup, file);
+         }
+      }
+   }
 
-            final String name = fileName.substring(0, fileName.length() - 3);
-            scenarioFile.setExternal(true);
-            scenarioFile.setName(name);
-            scenarioFile.setGroup(scenarioGroup);
-            scenarioGroup.getFiles().put(name, scenarioFile);
+   private static void loadFile(ScenarioCompiler compiler, ScenarioGroup scenarioGroup, File file)
+   {
+      final String fileName = file.getName();
+      if (fileName.endsWith(".md"))
+      {
+         final ScenarioFile scenarioFile = compiler.parseScenario(file);
+         if (scenarioFile == null)
+         {
+            return;
+         }
+
+         final String name = fileName.substring(0, fileName.length() - 3);
+         scenarioFile.setExternal(true);
+         scenarioFile.setName(name);
+         scenarioFile.setGroup(scenarioGroup);
+         scenarioGroup.getFiles().put(name, scenarioFile);
+      }
+      else if (fileName.endsWith(".class") && fileName.indexOf('$') < 0) // skip inner classes
+      {
+         try (final InputStream data = new FileInputStream(file))
+         {
+            loadClass(scenarioGroup, data);
+         }
+         catch (Exception e)
+         {
+            e.printStackTrace(compiler.getErr());
          }
       }
    }
@@ -94,7 +119,8 @@ public class LibraryHelper
       throws IOException
    {
       final String entryName = entry.getName();
-      if (!entryName.endsWith(".md"))
+      if (!entryName.endsWith(".md") && (!entryName.endsWith(".class")
+                                         || entryName.indexOf('$') >= 0)) // skip inner classes
       {
          return;
       }
@@ -115,23 +141,42 @@ public class LibraryHelper
          return;
       }
 
+      final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
+
       try (InputStream stream = jarFile.getInputStream(entry))
       {
-         final ReadableByteChannel channel = Channels.newChannel(stream);
-         final CharStream input = CharStreams
-                                     .fromChannel(channel, 4096, CodingErrorAction.REPLACE, src + '!' + entryName);
-
-         final ScenarioFile file = compiler.parseScenario(input);
-         if (file != null)
+         if (entryName.endsWith(".md"))
          {
-            final String scenarioName = entryName.substring(slashIndex + 1, entryName.length() - 3);
-            file.setExternal(true);
-            file.setName(scenarioName);
+            final ReadableByteChannel channel = Channels.newChannel(stream);
+            final CharStream input = CharStreams.fromChannel(channel, 4096, CodingErrorAction.REPLACE,
+                                                             src + '!' + entryName);
 
-            final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
-            file.setGroup(scenarioGroup);
-            scenarioGroup.getFiles().put(scenarioName, file);
+            final ScenarioFile file = compiler.parseScenario(input);
+            if (file != null)
+            {
+               final String scenarioName = entryName.substring(slashIndex + 1, entryName.length() - 3);
+               file.setExternal(true);
+               file.setName(scenarioName);
+               file.setGroup(scenarioGroup);
+               scenarioGroup.getFiles().put(scenarioName, file);
+            }
+         }
+         else // if (entryName.endsWith(".class"))
+         {
+            loadClass(scenarioGroup, stream);
          }
       }
+   }
+
+   public static void loadClass(ScenarioGroup group, InputStream data) throws IOException
+   {
+      final ClassDecl classDecl = ClassDecl
+                                     .of(group, null, null, new HashMap<>(), new HashMap<>(), new ArrayList<>());
+      classDecl.setType(ClassType.of(classDecl));
+
+      final ClassReader reader = new ClassReader(data);
+      reader.accept(new ClassModelVisitor(classDecl), ClassReader.SKIP_CODE);
+
+      group.getClasses().put(classDecl.getName(), classDecl);
    }
 }
