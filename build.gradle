@@ -4,7 +4,7 @@ plugins {
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
     id 'de.clashsoft.simple-publish' version '0.2.0'
-    id 'de.clashsoft.gentreesrc-gradle' version '0.3.0'
+    id 'de.clashsoft.gentreesrc-gradle' version '0.4.0'
 }
 
 apply from: 'gradle/functional-test.gradle'
@@ -55,7 +55,7 @@ dependencies {
     // --------------- Build Tools ---------------
 
     // https://mvnrepository.com/artifact/de.clashsoft/gentreesrc
-    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.9.0'
+    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.10.0'
 
     // https://mvnrepository.com/artifact/org.antlr/antlr4
     antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
