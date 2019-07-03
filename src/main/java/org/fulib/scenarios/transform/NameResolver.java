@@ -304,8 +304,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    {
       final Expr source = addSentence.getSource().accept(this, par);
       final Expr target = addSentence.getTarget();
-
-      // TODO UnsupportedOperationException to diagnostic
       return target.accept(AddResolve.INSTANCE, source).accept(this, par);
    }
 
@@ -314,8 +312,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    {
       final Expr source = removeSentence.getSource().accept(this, par);
       final Expr target = removeSentence.getTarget();
-
-      // TODO UnsupportedOperationException to diagnostic
       return target.accept(RemoveResolve.INSTANCE, source).accept(this, par);
    }
 

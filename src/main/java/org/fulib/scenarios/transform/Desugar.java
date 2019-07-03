@@ -272,8 +272,6 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    {
       final Expr source = writeSentence.getSource();
       final Expr target = writeSentence.getTarget();
-
-      // TODO UnsupportedOperationException to diagnostic
       return target.accept(AssignmentDesugar.INSTANCE, source);
    }
 

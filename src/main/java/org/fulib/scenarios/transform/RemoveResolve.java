@@ -16,6 +16,13 @@ public enum RemoveResolve implements Expr.Visitor<Expr, Sentence>
    INSTANCE;
 
    @Override
+   public Sentence visit(Expr expr, Expr par)
+   {
+      // TODO diagnostic
+      throw new IllegalStateException("cannot remove from " + expr.getClass().getEnclosingClass().getSimpleName());
+   }
+
+   @Override
    public Sentence visit(NameAccess nameAccess, Expr par)
    {
       final Type type = par.accept(Typer.INSTANCE, null);

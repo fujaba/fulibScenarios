@@ -24,6 +24,12 @@ public enum AssignmentDesugar implements Expr.Visitor<Expr, Sentence>
    INSTANCE;
 
    @Override
+   public Sentence visit(Expr expr, Expr par)
+   {
+      throw new IllegalStateException("cannot assign to " + expr.getClass().getEnclosingClass().getSimpleName());
+   }
+
+   @Override
    public Sentence visit(AttributeAccess attributeAccess, Expr par)
    {
       final Expr receiver = attributeAccess.getReceiver();
