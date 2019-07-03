@@ -467,7 +467,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
       final MethodDecl method = resolveMethod(receiverClass, methodName);
       final List<ParameterDecl> parameters = method.getParameters();
-      final boolean isNew = method.getType() == null;
+      final boolean isNew = method.getParameters().isEmpty();
       final Map<String, Decl> decls = new HashMap<>();
 
       if (isNew)
@@ -543,7 +543,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       callExpr.getBody().accept(this, scope);
 
       // set return type if necessary. has to happen after body resolution!
-      if (isNew)
+      if (method.getType() == null)
       {
          final Type returnType = callExpr.accept(Typer.INSTANCE, null);
          method.setType(returnType);

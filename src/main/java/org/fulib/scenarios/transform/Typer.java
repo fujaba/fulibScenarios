@@ -16,13 +16,9 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.sentence.AnswerSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
-
-import java.util.List;
 
 public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Type>
 {
@@ -51,18 +47,8 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    @Override
    public Type visit(CallExpr callExpr, Object par)
    {
-      final List<Sentence> body = callExpr.getBody().getItems();
-
-      final Sentence lastSentence;
-      if (!body.isEmpty() && (lastSentence = body.get(body.size() - 1)) instanceof AnswerSentence)
-      {
-         final Expr result = ((AnswerSentence) lastSentence).getResult();
-         return result.accept(this, null);
-      }
-      else
-      {
-         return PrimitiveType.VOID;
-      }
+      final Expr expr = callExpr.getBody().accept(ReturnExpr.INSTANCE, par);
+      return expr != null ? expr.accept(Typer.INSTANCE, par) : PrimitiveType.VOID;
    }
 
    @Override
