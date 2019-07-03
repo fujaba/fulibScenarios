@@ -23,6 +23,12 @@ public enum ConditionalOperator
    GT("is greater than", "<lhs> > <rhs>", "<lhs>.compareTo(<rhs>)  > 0"),
    GE("is greater equal", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
    NOT_GT("is not greater than", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
+   // collection
+   CONTAIN("contain", "<lhs>.contains(<rhs>)"),
+   CONTAINS("contains", "<lhs>.contains(<rhs>)"),
+   NOT_CONTAINS("does not contain", "!<lhs>.contains(<rhs>)"),
+   // IS_IN("is in", "<rhs>.contains(<lhs>)"),
+   // IS_NOT_IN("is not in", "!<rhs>.contains(<lhs>)"),
    ;
 
    // =============== Static Fields ===============
@@ -38,6 +44,11 @@ public enum ConditionalOperator
    private final String objectAssertion;
 
    // =============== Constructors ===============
+
+   ConditionalOperator(String op, String javaOperator)
+   {
+      this(op, javaOperator, javaOperator);
+   }
 
    ConditionalOperator(String op, String javaNumberOperator, String javaObjectOperator)
    {

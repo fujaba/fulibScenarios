@@ -137,10 +137,10 @@ primaryCondExpr : attrCheck | condOpExpr;
 attrCheck: access HAS namedExpr;
 
 condOpExpr: access condOp access;
-condOp: eqOp | cmpOp /* | collOp */;
+condOp: eqOp | cmpOp | collOp;
 
 eqOp: IS | IS NOT
     | IS THE SAME AS | IS NOT THE SAME AS;
 cmpOp: IS LESS THAN | IS NOT LESS THAN | IS LESS EQUAL
      | IS GREATER THAN | IS GREATER EQUAL | IS NOT GREATER THAN;
-// collOp: CONTAINS | DOES NOT CONTAIN | IS IN | IS NOT IN;
+collOp: CONTAIN | CONTAINS | DOES NOT CONTAIN /* | IS IN | IS NOT IN */;
