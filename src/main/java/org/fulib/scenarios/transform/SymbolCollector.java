@@ -26,24 +26,6 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    }
 
    @Override
-   public Object visit(ExpectSentence expectSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(DiagramSentence diagramSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(HasSentence hasSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
    public Object visit(IsSentence isSentence, Map<String, Decl> par)
    {
       final VarDecl varDecl = isSentence.getDescriptor();
@@ -63,42 +45,6 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
 
       varDecl.setName(name);
       par.put(name, varDecl);
-      return null;
-   }
-
-   @Override
-   public Object visit(AnswerSentence answerSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(AddSentence addSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(RemoveSentence removeSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(ConditionalSentence conditionalSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(ExprSentence exprSentence, Map<String, Decl> par)
-   {
-      return null;
-   }
-
-   @Override
-   public Object visit(TemplateSentence templateSentence, Map<String, Decl> par)
-   {
       return null;
    }
 }

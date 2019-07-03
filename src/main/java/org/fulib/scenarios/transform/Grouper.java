@@ -83,6 +83,12 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    // --------------- Sentence.Visitor ---------------
 
    @Override
+   public Frame visit(Sentence sentence, Frame par)
+   {
+      return par.add(sentence);
+   }
+
+   @Override
    public Frame visit(SentenceList sentenceList, Frame par)
    {
       for (final Sentence item : sentenceList.getItems())
@@ -114,18 +120,6 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    public Frame visit(DiagramSentence diagramSentence, Frame par)
    {
       return par.add(ACTOR_TEST, diagramSentence);
-   }
-
-   @Override
-   public Frame visit(HasSentence hasSentence, Frame par)
-   {
-      return par.add(hasSentence);
-   }
-
-   @Override
-   public Frame visit(IsSentence isSentence, Frame par)
-   {
-      return par.add(isSentence);
    }
 
    @Override
@@ -164,18 +158,6 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    public Frame visit(RemoveSentence removeSentence, Frame par)
    {
       return par.add(actorKey(removeSentence.getActor()), removeSentence);
-   }
-
-   @Override
-   public Frame visit(ConditionalSentence conditionalSentence, Frame par)
-   {
-      return par.add(conditionalSentence);
-   }
-
-   @Override
-   public Frame visit(ExprSentence exprSentence, Frame par)
-   {
-      return par.add(exprSentence);
    }
 }
 

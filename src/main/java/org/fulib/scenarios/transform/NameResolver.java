@@ -15,8 +15,6 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
-import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.*;
@@ -406,12 +404,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    }
 
    @Override
-   public Expr visit(PrimaryExpr primaryExpr, Scope par)
-   {
-      return primaryExpr;
-   }
-
-   @Override
    public Expr visit(NameAccess nameAccess, Scope par)
    {
       if (nameAccess.getName() instanceof UnresolvedName)
@@ -431,18 +423,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
 
       return nameAccess;
-   }
-
-   @Override
-   public Expr visit(NumberLiteral numberLiteral, Scope par)
-   {
-      return numberLiteral;
-   }
-
-   @Override
-   public Expr visit(StringLiteral stringLiteral, Scope par)
-   {
-      return stringLiteral;
    }
 
    @Override
@@ -572,12 +552,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       method.getBody().getItems().addAll(callExpr.getBody().getItems());
 
       return callExpr;
-   }
-
-   @Override
-   public Expr visit(ConditionalExpr conditionalExpr, Scope par)
-   {
-      return conditionalExpr;
    }
 
    @Override

@@ -11,15 +11,8 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
-import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
-import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.type.*;
@@ -124,51 +117,9 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    }
 
    @Override
-   public String visit(PrimaryExpr primaryExpr, Object par)
-   {
-      return null;
-   }
-
-   @Override
    public String visit(NameAccess nameAccess, Object par)
    {
       return nameAccess.getName().accept(this, par);
-   }
-
-   @Override
-   public String visit(NumberLiteral numberLiteral, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public String visit(StringLiteral stringLiteral, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public String visit(ConditionalExpr conditionalExpr, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public String visit(AttributeCheckExpr attributeCheckExpr, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public String visit(ConditionalOperatorExpr conditionalOperatorExpr, Object par)
-   {
-      return null;
-   }
-
-   @Override
-   public String visit(CollectionExpr collectionExpr, Object par)
-   {
-      return null;
    }
 
    @Override
@@ -179,12 +130,6 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    }
 
    // --------------- Name.Visitor ---------------
-
-   @Override
-   public String visit(Name name, Object par)
-   {
-      return null;
-   }
 
    @Override
    public String visit(ResolvedName resolvedName, Object par)
