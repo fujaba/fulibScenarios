@@ -130,4 +130,4 @@ jar {
 
 // --------------- GenTreeSrc ---------------
 
-gentreesrcJava.args '--visit-default'
+gentreesrcJava.args '--visit-default', '--visit-parent'
