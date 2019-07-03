@@ -86,6 +86,9 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
 
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm
+    compile group: 'org.ow2.asm', name: 'asm', version: '7.1'
+
     // --------------- Test Dependencies ---------------
 
     // https://mvnrepository.com/artifact/junit/junit
