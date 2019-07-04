@@ -1,12 +1,15 @@
 # Scenario Italy delivers Shoes.
 
-There is a Warehouse.
-There are Areas with name fast area, middle area, slow.
-The Warehouse has areas fast area, middle area, slow.
-
-There are Places with name f1, f2, f3, m1, m2, m3.
-Fast area has places f1, f2, f3.
-Middle area has places m1, m2, m3.
+  There is a Warehouse.
+  There are Areas with name fast area 
+  and slow area.
+  The Warehouse has areas fast area 
+  and slow area.
+  There are Places with name f1, f2, f3, s1.
+  Fast area has places f1, f2, f3.
+  Slow area has places s1.
+  
+![Warehouse](wareHouseAndPlaces.svg)
 
 There is a Producer with name Italy. 
 There are Products with name High Heels, Nike Airs.  
