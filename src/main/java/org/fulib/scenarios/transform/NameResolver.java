@@ -6,6 +6,7 @@ import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.FilterExpr;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
@@ -402,6 +403,28 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    {
       exampleAccess.setExpr(exampleAccess.getExpr().accept(this, par));
       return exampleAccess;
+   }
+
+   @Override
+   public Expr visit(FilterExpr filterExpr, Scope par)
+   {
+      final Expr source = filterExpr.getSource().accept(this, par);
+      filterExpr.setSource(source);
+
+      final Type sourceType = source.accept(Typer.INSTANCE, null);
+      final Type elementType = ((ListType) sourceType).getElementType();
+      final VarDecl it = VarDecl.of("it", elementType, null);
+
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
+         }
+      };
+      filterExpr.setPredicate((ConditionalExpr) filterExpr.getPredicate().accept(this, scope));
+      return filterExpr;
    }
 
    @Override

@@ -102,12 +102,14 @@ nameAccess: name;
 
 // Access
 
-access: primary | attributeAccess | exampleAccess;
+access: primary | attributeAccess | exampleAccess | filterExpr;
 namedAccess: nameAccess | attributeAccess;
 named: namedAccess | exampleAccess;
 
 attributeAccess: name OF access;
 exampleAccess: primaryExpr FROM namedAccess;
+
+filterExpr: ALL expr WHICH condExpr;
 
 // Collections
 

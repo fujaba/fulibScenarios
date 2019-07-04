@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.FilterExpr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -318,6 +319,15 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr expr = this.pop();
       final Expr value = this.pop();
       this.stack.push(ExampleAccess.of(value, expr));
+   }
+
+   @Override
+   public void exitFilterExpr(ScenarioParser.FilterExprContext ctx)
+   {
+      final ConditionalExpr predicate = this.pop();
+      final Expr source = this.pop();
+      final FilterExpr filterExpr = FilterExpr.of(source, predicate);
+      this.stack.push(filterExpr);
    }
 
    @Override

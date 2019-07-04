@@ -5,6 +5,7 @@ lexer grammar ScenarioLexer;
 A:        'a';
 ADD:      'add';
 ADDS:     'adds';
+ALL:      'all';
 AN:       'an';
 AND:      'and';
 ANSWER:   'answer';
@@ -54,6 +55,7 @@ THROUGH:  'through';
 TO:       'to';
 WE:       'We' | 'we';
 WITH:     'with';
+WHICH:    'which';
 WRITE:    'write';
 WRITES:   'writes';
 

@@ -6,6 +6,7 @@ import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.FilterExpr;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
@@ -36,6 +37,12 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    public Type visit(ExampleAccess exampleAccess, Object par)
    {
       return exampleAccess.getExpr().accept(this, par);
+   }
+
+   @Override
+   public Type visit(FilterExpr filterExpr, Object par)
+   {
+      return filterExpr.getSource().accept(this, par);
    }
 
    @Override
