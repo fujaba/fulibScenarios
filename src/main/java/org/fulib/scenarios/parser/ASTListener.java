@@ -326,7 +326,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final NamedExpr valueAndAttribute = this.pop();
       final Expr value = valueAndAttribute.getExpr();
       final Name attribute = valueAndAttribute.getName();
-      final Expr receiver = this.pop();
+      final Expr receiver = ctx.access() != null ? this.pop() : null;
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
    }
 
@@ -358,7 +358,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitCondOpExpr(ScenarioParser.CondOpExprContext ctx)
    {
       final Expr rhs = this.pop();
-      final Expr lhs = this.pop();
+      final Expr lhs = ctx.lhs != null ? this.pop() : null;
       final String opText = inputText(ctx.condOp()).replaceAll("\\s+", " ");
       final ConditionalOperator op = ConditionalOperator.getByOp(opText);
       if (op == null)

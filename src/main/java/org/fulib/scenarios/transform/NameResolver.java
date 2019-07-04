@@ -36,7 +36,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    // =============== Constants ===============
 
-   protected static final String ENCLOSING_CLASS = "<enclosing:class>";
+   protected static final String ENCLOSING_CLASS    = "<enclosing:class>";
+   protected static final String PREDICATE_RECEIVER = "<predicate-receiver>";
 
    // =============== Methods ===============
 
@@ -573,7 +574,21 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    @Override
    public Expr visit(ConditionalOperatorExpr conditionalOperatorExpr, Scope par)
    {
-      conditionalOperatorExpr.setLhs(conditionalOperatorExpr.getLhs().accept(this, par));
+      final Expr lhs = conditionalOperatorExpr.getLhs();
+      if (lhs != null)
+      {
+         conditionalOperatorExpr.setLhs(lhs.accept(this, par));
+      }
+      else
+      {
+         final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
+         if (predicateReceiver == null)
+         {
+            throw new IllegalStateException("invalid conditional operator - missing left-hand expression");
+         }
+         conditionalOperatorExpr.setLhs(NameAccess.of(ResolvedName.of(predicateReceiver)));
+      }
+
       conditionalOperatorExpr.setRhs(conditionalOperatorExpr.getRhs().accept(this, par));
       return conditionalOperatorExpr;
    }

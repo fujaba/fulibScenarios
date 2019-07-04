@@ -134,9 +134,9 @@ andCondExpr: orCondExpr (AND orCondExpr)*;
 orCondExpr: primaryCondExpr (OR primaryCondExpr)*;
 
 primaryCondExpr : attrCheck | condOpExpr;
-attrCheck: access HAS namedExpr;
+attrCheck: access? (HAS | HAVE) namedExpr;
 
-condOpExpr: access condOp access;
+condOpExpr: lhs=access? condOp rhs=access;
 condOp: eqOp | cmpOp | collOp;
 
 eqOp: IS | IS NOT
