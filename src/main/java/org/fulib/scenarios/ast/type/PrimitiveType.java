@@ -2,6 +2,10 @@ package org.fulib.scenarios.ast.type;
 
 import org.fulib.scenarios.ast.Node;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public enum PrimitiveType implements Type
 {
    VOID("void"),
@@ -28,6 +32,23 @@ public enum PrimitiveType implements Type
    FLOAT_WRAPPER("Float"),
    DOUBLE_WRAPPER("Double"),
    ;
+
+   // =============== Constants ===============
+
+   public static final Map<String, PrimitiveType> javaNameMap;
+
+   static
+   {
+      final PrimitiveType[] values = values();
+      final Map<String, PrimitiveType> map = new HashMap<>(values.length);
+
+      for (final PrimitiveType value : values)
+      {
+         map.put(value.javaName, value);
+      }
+
+      javaNameMap = Collections.unmodifiableMap(map);
+   }
 
    // =============== Fields ===============
 
