@@ -1,10 +1,10 @@
-package org.fulib.scenarios.codegen;
+package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.transform.Typer;
+import org.fulib.scenarios.visitor.Typer;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

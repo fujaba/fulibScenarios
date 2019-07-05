@@ -1,4 +1,4 @@
-package org.fulib.scenarios.codegen;
+package org.fulib.scenarios.visitor.codegen;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.FulibTools;
@@ -20,8 +20,8 @@ import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.tool.Config;
-import org.fulib.scenarios.transform.Namer;
-import org.fulib.scenarios.transform.SymbolCollector;
+import org.fulib.scenarios.visitor.Namer;
+import org.fulib.scenarios.visitor.resolve.SymbolCollector;
 
 import java.io.File;
 import java.io.IOException;

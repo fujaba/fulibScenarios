@@ -1,4 +1,4 @@
-package org.fulib.scenarios.codegen;
+package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.MultiAttributes;
 import org.fulib.classmodel.Clazz;

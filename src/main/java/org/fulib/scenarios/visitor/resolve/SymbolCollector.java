@@ -1,8 +1,9 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.visitor.Namer;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.visitor.preprocess;
 
 import org.junit.Test;
 

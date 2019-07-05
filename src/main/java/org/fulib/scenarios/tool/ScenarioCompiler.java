@@ -9,13 +9,13 @@ import org.apache.commons.cli.*;
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
-import org.fulib.scenarios.codegen.CodeGenerator;
+import org.fulib.scenarios.visitor.codegen.CodeGenerator;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
-import org.fulib.scenarios.transform.Desugar;
-import org.fulib.scenarios.transform.Grouper;
-import org.fulib.scenarios.transform.NameResolver;
+import org.fulib.scenarios.visitor.preprocess.Desugar;
+import org.fulib.scenarios.visitor.preprocess.Grouper;
+import org.fulib.scenarios.visitor.resolve.NameResolver;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.Tool;

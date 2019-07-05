@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.visitor.preprocess;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.*;
@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
 import java.util.Collections;
