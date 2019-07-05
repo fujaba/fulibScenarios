@@ -38,13 +38,20 @@ and with positions p1, p2.
 
 The Warehouse has intake in42.
 
-We call intakePalette on Warehouse with palette eu100 
-and with place f1.
-IntakePalette writes eu100 into content of f1.
 
-We call intakePalette on Warehouse with palette eu200 
-and with place f2.
+## operations
+  We call newPalette with pId eu100
+  and with pName Sneakers and with items 50
+  and with place f2.
 
+NewPalette creates a Palette with id eu100
+and with product pName
+and with items items
+and with place place.
+NewPalette writes eu100 into result.
+NewPalette answers with result.  
+  
+ 
 ## GUI
 There is a WebApp with id ForkLiftGuide 
 and with description "Fork Lift Guide".
@@ -57,14 +64,22 @@ There is a Content with id placeId
 and with description "input place?".
 There is a Content with id addLotToStoreButton and with description "button submit".
 AddSupplyPage has content lotId, placeId, addLotToStoreButton.
-![ForkLiftGuide](step04.html)
-
+![ForkLiftGuide](step03.html)
 We writes "eu100" into value of lotId.
 ![ForkLiftGuide](step04.html)
-
 We writes "f1" into value of placeId.
-![ForkLiftGuide](step04.html)
-![ForkLiftGuide](step04.mockup.html)
+![ForkLiftGuide](step05.html)
+
+There is a Page with id storeId 
+and with description "Palette | Product | Number of Items | Place".
+There is a Content with id paletteLine1
+and with description "eu100 | Sneakers | 50 | f1".
+We write paletteLine1 into content of storeId.
+We write storeId into content of ForkLiftGuide.
+![ForkLiftGuide](step06.html)
+
+
+![ForkLiftGuide](step06.mockup.html)
 
 ![Warehouse](Tables.tables.html)
 ![Warehouse](Overview.yaml)
