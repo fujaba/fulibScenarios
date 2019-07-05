@@ -102,12 +102,14 @@ nameAccess: name;
 
 // Access
 
-access: primary | attributeAccess | exampleAccess;
+access: primary | attributeAccess | exampleAccess | filterExpr;
 namedAccess: nameAccess | attributeAccess;
 named: namedAccess | exampleAccess;
 
 attributeAccess: name OF access;
 exampleAccess: primaryExpr FROM namedAccess;
+
+filterExpr: ALL expr WHICH condExpr;
 
 // Collections
 
@@ -134,9 +136,9 @@ andCondExpr: orCondExpr (AND orCondExpr)*;
 orCondExpr: primaryCondExpr (OR primaryCondExpr)*;
 
 primaryCondExpr : attrCheck | condOpExpr;
-attrCheck: access HAS namedExpr;
+attrCheck: access? (HAS | HAVE) namedExpr;
 
-condOpExpr: access condOp access;
+condOpExpr: lhs=access? condOp rhs=access;
 condOp: eqOp | cmpOp | collOp;
 
 eqOp: IS | IS NOT

@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.FilterExpr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -321,12 +322,21 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
+   public void exitFilterExpr(ScenarioParser.FilterExprContext ctx)
+   {
+      final ConditionalExpr predicate = this.pop();
+      final Expr source = this.pop();
+      final FilterExpr filterExpr = FilterExpr.of(source, predicate);
+      this.stack.push(filterExpr);
+   }
+
+   @Override
    public void exitAttrCheck(ScenarioParser.AttrCheckContext ctx)
    {
       final NamedExpr valueAndAttribute = this.pop();
       final Expr value = valueAndAttribute.getExpr();
       final Name attribute = valueAndAttribute.getName();
-      final Expr receiver = this.pop();
+      final Expr receiver = ctx.access() != null ? this.pop() : null;
       this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
    }
 
@@ -358,7 +368,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitCondOpExpr(ScenarioParser.CondOpExprContext ctx)
    {
       final Expr rhs = this.pop();
-      final Expr lhs = this.pop();
+      final Expr lhs = ctx.lhs != null ? this.pop() : null;
       final String opText = inputText(ctx.condOp()).replaceAll("\\s+", " ");
       final ConditionalOperator op = ConditionalOperator.getByOp(opText);
       if (op == null)

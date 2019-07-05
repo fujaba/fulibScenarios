@@ -79,6 +79,7 @@ abstract org.fulib.scenarios.ast.Node {
 		access.AttributeAccess(name: Name, receiver: Expr)
 		access.ListAttributeAccess(name: Name, receiver: Expr)
 		access.ExampleAccess(value: Expr, expr: Expr)
+		access.FilterExpr(source: Expr, predicate: ConditionalExpr)
 
 		call.CreationExpr(type: Type, attributes: [NamedExpr])
 		call.CallExpr(name: Name, receiver: Expr, arguments: [NamedExpr], body: SentenceList)

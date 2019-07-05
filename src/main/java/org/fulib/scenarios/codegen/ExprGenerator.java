@@ -6,6 +6,7 @@ import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.FilterExpr;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
@@ -64,6 +65,18 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(ExampleAccess exampleAccess, CodeGenDTO par)
    {
       exampleAccess.getExpr().accept(this, par);
+      return null;
+   }
+
+   @Override
+   public Object visit(FilterExpr filterExpr, CodeGenDTO par)
+   {
+      par.addImport("java.util.stream.Collectors");
+
+      filterExpr.getSource().accept(this, par);
+      par.bodyBuilder.append(".stream().filter(it -> ");
+      filterExpr.getPredicate().accept(this, par);
+      par.bodyBuilder.append(").collect(Collectors.toList())");
       return null;
    }
 

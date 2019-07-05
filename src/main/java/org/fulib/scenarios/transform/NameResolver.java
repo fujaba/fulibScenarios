@@ -6,6 +6,7 @@ import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
+import org.fulib.scenarios.ast.expr.access.FilterExpr;
 import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
@@ -36,7 +37,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    // =============== Constants ===============
 
-   protected static final String ENCLOSING_CLASS = "<enclosing:class>";
+   protected static final String ENCLOSING_CLASS    = "<enclosing:class>";
+   protected static final String PREDICATE_RECEIVER = "<predicate-receiver>";
 
    // =============== Methods ===============
 
@@ -404,6 +406,28 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    }
 
    @Override
+   public Expr visit(FilterExpr filterExpr, Scope par)
+   {
+      final Expr source = filterExpr.getSource().accept(this, par);
+      filterExpr.setSource(source);
+
+      final Type sourceType = source.accept(Typer.INSTANCE, null);
+      final Type elementType = ((ListType) sourceType).getElementType();
+      final VarDecl it = VarDecl.of("it", elementType, null);
+
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
+         }
+      };
+      filterExpr.setPredicate((ConditionalExpr) filterExpr.getPredicate().accept(this, scope));
+      return filterExpr;
+   }
+
+   @Override
    public Expr visit(NameAccess nameAccess, Scope par)
    {
       if (nameAccess.getName() instanceof UnresolvedName)
@@ -573,7 +597,21 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    @Override
    public Expr visit(ConditionalOperatorExpr conditionalOperatorExpr, Scope par)
    {
-      conditionalOperatorExpr.setLhs(conditionalOperatorExpr.getLhs().accept(this, par));
+      final Expr lhs = conditionalOperatorExpr.getLhs();
+      if (lhs != null)
+      {
+         conditionalOperatorExpr.setLhs(lhs.accept(this, par));
+      }
+      else
+      {
+         final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
+         if (predicateReceiver == null)
+         {
+            throw new IllegalStateException("invalid conditional operator - missing left-hand expression");
+         }
+         conditionalOperatorExpr.setLhs(NameAccess.of(ResolvedName.of(predicateReceiver)));
+      }
+
       conditionalOperatorExpr.setRhs(conditionalOperatorExpr.getRhs().accept(this, par));
       return conditionalOperatorExpr;
    }
