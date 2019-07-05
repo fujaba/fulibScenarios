@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.visitor;
 
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;

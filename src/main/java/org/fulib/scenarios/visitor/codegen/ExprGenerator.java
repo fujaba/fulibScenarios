@@ -1,4 +1,4 @@
-package org.fulib.scenarios.codegen;
+package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
@@ -19,9 +19,9 @@ import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.transform.ExtractDecl;
-import org.fulib.scenarios.transform.Namer;
-import org.fulib.scenarios.transform.Typer;
+import org.fulib.scenarios.visitor.ExtractDecl;
+import org.fulib.scenarios.visitor.Namer;
+import org.fulib.scenarios.visitor.Typer;
 
 import java.util.List;
 import java.util.stream.Collectors;

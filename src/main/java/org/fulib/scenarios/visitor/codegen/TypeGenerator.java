@@ -1,4 +1,4 @@
-package org.fulib.scenarios.codegen;
+package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;

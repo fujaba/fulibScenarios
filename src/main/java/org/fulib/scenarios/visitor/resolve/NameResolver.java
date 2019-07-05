@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.*;
@@ -20,10 +20,13 @@ import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.*;
 import org.fulib.scenarios.parser.Identifiers;
-import org.fulib.scenarios.transform.scope.DelegatingScope;
-import org.fulib.scenarios.transform.scope.EmptyScope;
-import org.fulib.scenarios.transform.scope.HidingScope;
-import org.fulib.scenarios.transform.scope.Scope;
+import org.fulib.scenarios.visitor.ExtractDecl;
+import org.fulib.scenarios.visitor.Namer;
+import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.ast.scope.DelegatingScope;
+import org.fulib.scenarios.ast.scope.EmptyScope;
+import org.fulib.scenarios.ast.scope.HidingScope;
+import org.fulib.scenarios.ast.scope.Scope;
 
 import java.util.*;
 import java.util.stream.Collectors;

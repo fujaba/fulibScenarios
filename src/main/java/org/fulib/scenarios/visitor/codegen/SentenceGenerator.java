@@ -1,4 +1,4 @@
-package org.fulib.scenarios.codegen;
+package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
@@ -6,7 +6,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.transform.Typer;
+import org.fulib.scenarios.visitor.Typer;
 
 import java.util.Iterator;
 import java.util.List;

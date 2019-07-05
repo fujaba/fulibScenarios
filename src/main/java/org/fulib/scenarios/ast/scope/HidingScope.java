@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform.scope;
+package org.fulib.scenarios.ast.scope;
 
 import org.fulib.scenarios.ast.decl.Decl;
 

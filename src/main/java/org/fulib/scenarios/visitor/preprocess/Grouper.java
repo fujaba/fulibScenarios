@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.visitor.preprocess;
 
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.Scenario;
@@ -7,6 +7,7 @@ import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
 import java.util.List;

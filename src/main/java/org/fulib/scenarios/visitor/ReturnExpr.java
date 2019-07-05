@@ -1,4 +1,4 @@
-package org.fulib.scenarios.transform;
+package org.fulib.scenarios.visitor;
 
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
