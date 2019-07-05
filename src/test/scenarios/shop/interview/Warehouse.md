@@ -41,12 +41,12 @@ The Warehouse has intake in42.
 
 ## operations
   We call newPalette with pId eu100
-  and with pName Sneakers and with items 50
+  and with pName "Sneakers" and with items 50
   and with place f2.
 
 NewPalette creates a Palette with id eu100
-and with product pName
-and with items items
+<!--and with product pName-->
+<!--and with items items-->
 and with place place.
 NewPalette writes eu100 into result.
 NewPalette answers with result.  
