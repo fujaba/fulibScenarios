@@ -111,7 +111,7 @@ public class ClassModelVisitor extends ClassVisitor
       {
          final int returnTypeIndex = descriptor.indexOf(')') + 1;
 
-         if (descriptor.endsWith(")Ljava/util/List;"))
+         if (descriptor.endsWith(")Ljava/util/List;") || descriptor.endsWith(")Ljava/util/ArrayList;"))
          {
             // multi-values attribute (or association - but that doesn't matter for decompiled classes)
 
