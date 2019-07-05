@@ -30,7 +30,7 @@ abstract org.fulib.scenarios.ast.Node {
 	}
 
 	abstract type.Type {
-		UnresolvedType(name: String)
+		UnresolvedType(noconstruct packageDir: String, name: String)
 		ClassType(classDecl: ClassDecl)
 		ListType(elementType: Type)
 		import PrimitiveType
