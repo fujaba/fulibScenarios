@@ -173,6 +173,7 @@ public class LibraryHelper
       final ClassDecl classDecl = ClassDecl
                                      .of(group, null, null, new HashMap<>(), new HashMap<>(), new ArrayList<>());
       classDecl.setType(ClassType.of(classDecl));
+      classDecl.setExternal(true);
 
       final ClassReader reader = new ClassReader(data);
       reader.accept(new ClassModelVisitor(classDecl), ClassReader.SKIP_CODE);

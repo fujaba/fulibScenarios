@@ -101,19 +101,19 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          }
       };
 
-      // first, process external files.
-      for (final ScenarioFile file : scenarioGroup.getFiles().values())
-      {
-         if (file.getExternal())
-         {
-            file.accept(this, scope);
-            file.getClassDecl().setFrozen(true);
-         }
-      }
-
-      // freeze all classes created by external files.
+      // first, process and freeze external classes.
       for (final ClassDecl classDecl : scenarioGroup.getClasses().values())
       {
+         for (final AttributeDecl attributeDecl : classDecl.getAttributes().values())
+         {
+            attributeDecl.setType(attributeDecl.getType().accept(TypeResolver.INSTANCE, scope));
+         }
+
+         for (final MethodDecl methodDecl : classDecl.getMethods())
+         {
+            methodDecl.setType(methodDecl.getType().accept(TypeResolver.INSTANCE, scope));
+         }
+
          classDecl.setFrozen(true);
       }
 

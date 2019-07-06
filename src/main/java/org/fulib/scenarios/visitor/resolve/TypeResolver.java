@@ -14,14 +14,11 @@ public enum TypeResolver implements Type.Visitor<Scope, Type>
    @Override
    public Type visit(UnresolvedType unresolvedType, Scope par)
    {
-      try
-      {
-         return PrimitiveType.valueOf(unresolvedType.getName());
-      }
-      catch (IllegalArgumentException unknownEnumConstant)
-      {
-         return resolveClass(par, unresolvedType.getName()).getType();
-      }
+      final String name = unresolvedType.getName();
+      final PrimitiveType primitive = PrimitiveType.javaNameMap.get(name);
+
+      // TODO handle non-null packageDir
+      return primitive != null ? primitive : resolveClass(par, name).getType();
    }
 
    @Override
