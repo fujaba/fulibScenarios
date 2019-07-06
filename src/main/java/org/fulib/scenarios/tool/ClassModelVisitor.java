@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class ClassModelVisitor extends ClassVisitor
 {
@@ -156,16 +155,6 @@ public class ClassModelVisitor extends ClassVisitor
       catch (UnsupportedOperationException ignored)
       {
       }
-   }
-
-   @Override
-   public void visitEnd()
-   {
-      System.out.print(this.classDecl.getName());
-      System.out.print(' ');
-      System.out.print(this.properties);
-      System.out.print(' ');
-      System.out.println(this.classDecl.getMethods().stream().map(MethodDecl::getName).collect(Collectors.joining(", ")));
    }
 
    // =============== Static Methods ===============
