@@ -1,8 +1,5 @@
 package org.fulib.scenarios.tool;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.ClassType;
@@ -12,9 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -71,21 +65,7 @@ public class LibraryHelper
    private static void loadFile(ScenarioCompiler compiler, ScenarioGroup scenarioGroup, File file)
    {
       final String fileName = file.getName();
-      if (fileName.endsWith(".md"))
-      {
-         final ScenarioFile scenarioFile = compiler.parseScenario(file);
-         if (scenarioFile == null)
-         {
-            return;
-         }
-
-         final String name = fileName.substring(0, fileName.length() - 3);
-         scenarioFile.setExternal(true);
-         scenarioFile.setName(name);
-         scenarioFile.setGroup(scenarioGroup);
-         scenarioGroup.getFiles().put(name, scenarioFile);
-      }
-      else if (fileName.endsWith(".class") && fileName.indexOf('$') < 0) // skip inner classes
+      if (fileName.endsWith(".class") && fileName.indexOf('$') < 0) // skip inner classes
       {
          try (final InputStream data = new FileInputStream(file))
          {
@@ -106,7 +86,7 @@ public class LibraryHelper
          while (entries.hasMoreElements())
          {
             final JarEntry entry = entries.nextElement();
-            loadJarEntry(src, compiler, jarFile, entry);
+            loadJarEntry(compiler, jarFile, entry);
          }
       }
       catch (IOException e)
@@ -115,12 +95,11 @@ public class LibraryHelper
       }
    }
 
-   private static void loadJarEntry(String src, ScenarioCompiler compiler, JarFile jarFile, JarEntry entry)
+   private static void loadJarEntry(ScenarioCompiler compiler, JarFile jarFile, JarEntry entry)
       throws IOException
    {
       final String entryName = entry.getName();
-      if (!entryName.endsWith(".md") && (!entryName.endsWith(".class")
-                                         || entryName.indexOf('$') >= 0)) // skip inner classes
+      if (!entryName.endsWith(".class") || entryName.indexOf('$') >= 0) // skip inner classes
       {
          return;
       }
@@ -145,26 +124,7 @@ public class LibraryHelper
 
       try (InputStream stream = jarFile.getInputStream(entry))
       {
-         if (entryName.endsWith(".md"))
-         {
-            final ReadableByteChannel channel = Channels.newChannel(stream);
-            final CharStream input = CharStreams.fromChannel(channel, 4096, CodingErrorAction.REPLACE,
-                                                             src + '!' + entryName);
-
-            final ScenarioFile file = compiler.parseScenario(input);
-            if (file != null)
-            {
-               final String scenarioName = entryName.substring(slashIndex + 1, entryName.length() - 3);
-               file.setExternal(true);
-               file.setName(scenarioName);
-               file.setGroup(scenarioGroup);
-               scenarioGroup.getFiles().put(scenarioName, file);
-            }
-         }
-         else // if (entryName.endsWith(".class"))
-         {
-            loadClass(scenarioGroup, stream);
-         }
+         loadClass(scenarioGroup, stream);
       }
    }
 
