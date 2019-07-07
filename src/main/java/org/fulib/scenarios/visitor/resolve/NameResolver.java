@@ -406,7 +406,19 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
       final AssociationDecl association = createAssociation(classDecl, name, cardinality, otherClass);
 
-      if (otherName != null)
+      if (otherClass == classDecl && name.equals(otherName))
+      {
+         if (cardinality != otherCardinality)
+         {
+            throw new UnsupportedOperationException(
+               "mismatching cardinality of self-association\norigin:  " + cardinalityString(cardinality)
+               + "\nreverse: " + cardinalityString(otherCardinality));
+         }
+
+         // self-association
+         association.setOther(association);
+      }
+      else if (otherName != null)
       {
          if (otherClass.getFrozen())
          {
