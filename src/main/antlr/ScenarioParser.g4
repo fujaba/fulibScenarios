@@ -53,10 +53,11 @@ withClause: WITH namedExpr;
 
 namedExpr: simpleName expr # NamedSimple
          | number name     # NamedNumber;
+bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? otherName=simpleName OF expr;
 
 hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
-hasClause: (HAS | HAVE) namedExpr;
+hasClause: (HAS | HAVE) (namedExpr | bidiNamedExpr);
 
 createSentence: actor (CREATE | CREATES) simpleDescriptor
               | actor (CREATE | CREATES) multiDescriptor;

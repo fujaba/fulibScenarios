@@ -67,7 +67,7 @@ abstract org.fulib.scenarios.ast.Node {
 		TemplateSentence(template: String, exprs: [Expr])
 	}
 
-	NamedExpr(name: Name, expr: Expr)
+	NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
 
 	abstract expr.Expr {
 		abstract primary.PrimaryExpr {

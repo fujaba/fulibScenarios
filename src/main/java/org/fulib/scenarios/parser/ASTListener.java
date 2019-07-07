@@ -264,6 +264,17 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(NamedExpr.of(name, expr));
    }
 
+   @Override
+   public void exitBidiNamedExpr(ScenarioParser.BidiNamedExprContext ctx)
+   {
+      final Expr expr = this.pop();
+      final Name name = name(ctx.firstName);
+      final NamedExpr namedExpr = NamedExpr.of(name, expr);
+      namedExpr.setOtherName(name(ctx.otherName));
+      namedExpr.setOtherMany(ctx.ONE() != null);
+      this.stack.push(namedExpr);
+   }
+
    // --------------- Types ---------------
 
    @Override
