@@ -1,15 +1,17 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.decl.ClassDecl;
-import org.fulib.scenarios.ast.decl.Decl;
-import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.ClassType;
+import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 
@@ -18,8 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveAttributeOrAssociation;
-import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveClass;
+import static org.fulib.scenarios.visitor.resolve.NameResolver.*;
 
 public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 {
@@ -91,11 +92,59 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       for (final NamedExpr namedExpr : hasSentence.getClauses())
       {
-         namedExpr.setExpr(namedExpr.getExpr().accept(ExprResolver.INSTANCE, scope));
-         namedExpr.setName(resolveAttributeOrAssociation(objectClass, namedExpr.getName(), namedExpr.getExpr()));
+         this.resolveHasNamedExpr(namedExpr, objectClass, scope);
       }
 
       return hasSentence;
+   }
+
+   private void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
+   {
+      final Expr expr = namedExpr.getExpr().accept(ExprResolver.INSTANCE, scope);
+      namedExpr.setExpr(expr);
+
+      if (namedExpr.getOtherName() == null)
+      {
+         namedExpr.setName(resolveAttributeOrAssociation(objectClass, namedExpr.getName(), expr));
+         return;
+      }
+
+      final String assocName = namedExpr.getName().accept(Namer.INSTANCE, null);
+      final int cardinality;
+      final ClassDecl otherClass;
+      final String otherName = namedExpr.getOtherName().accept(Namer.INSTANCE, null);
+      final int otherCardinality = namedExpr.getOtherMany() ? ClassModelBuilder.MANY : ClassModelBuilder.ONE;
+
+      final Type exprType = expr.accept(Typer.INSTANCE, scope);
+      if (exprType instanceof ListType)
+      {
+         cardinality = ClassModelBuilder.MANY;
+
+         final Type elementType = ((ListType) exprType).getElementType();
+         if (elementType instanceof ClassType)
+         {
+            otherClass = ((ClassType) elementType).getClassDecl();
+         }
+         else
+         {
+            throw new IllegalStateException("illegal reverse association name for attribute");
+         }
+      }
+      else if (exprType instanceof ClassType)
+      {
+         cardinality = ClassModelBuilder.ONE;
+         otherClass = ((ClassType) exprType).getClassDecl();
+      }
+      else
+      {
+         throw new IllegalStateException("illegal reverse association name for attribute");
+      }
+
+      final AssociationDecl assoc = resolveAssociation(objectClass, assocName, cardinality, otherClass, otherName,
+                                                       otherCardinality);
+      final AssociationDecl other = assoc.getOther();
+      namedExpr.setName(ResolvedName.of(assoc));
+      namedExpr.setOtherName(ResolvedName.of(other));
    }
 
    @Override
