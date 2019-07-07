@@ -316,7 +316,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          final Type otherType = ((ListType) attributeType).getElementType();
          if (otherType instanceof ClassType)
          {
-            return resolveAssociation(classDecl, attributeName, ((ClassType) otherType).getClassDecl(), 2);
+            return resolveAssociation(classDecl, attributeName, 2, ((ClassType) otherType).getClassDecl());
          }
          else
          {
@@ -326,7 +326,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
       else if (attributeType instanceof ClassType)
       {
-         return resolveAssociation(classDecl, attributeName, ((ClassType) attributeType).getClassDecl(), 1);
+         return resolveAssociation(classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl());
       }
       else
       {
@@ -360,7 +360,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return attribute;
    }
 
-   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, ClassDecl otherClass, int cardinality)
+   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass)
    {
       final AssociationDecl existing = classDecl.getAssociations().get(name);
       if (existing != null)
