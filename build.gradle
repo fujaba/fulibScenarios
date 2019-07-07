@@ -75,7 +75,10 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.4'
 
     // https://mvnrepository.com/artifact/guru.nidi/graphviz-java
-    compile group: 'guru.nidi', name: 'graphviz-java', version: '0.8.8'
+    compile group: 'guru.nidi', name: 'graphviz-java', version: '0.8.8', {
+        // graphviz works without this too, just uses a different JavaScript VM than V8
+        exclude group: 'com.eclipsesource.j2v8'
+    }
 
     // --------------- Other Libraries ---------------
 
