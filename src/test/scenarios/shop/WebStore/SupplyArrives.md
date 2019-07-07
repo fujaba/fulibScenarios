@@ -103,4 +103,4 @@ We write tasksPage into content of ForkLiftGuide.
 
 ![WHService, Alice](step09.tables.html)
 
-![ForkLiftGuide](step00.mockup.html)
+![ForkLiftGuide](step00-10.mockup.html)

@@ -79,7 +79,7 @@ We write storeId into content of ForkLiftGuide.
 ![ForkLiftGuide](step06.html)
 
 
-![ForkLiftGuide](step06.mockup.html)
+![ForkLiftGuide](step00-06.mockup.html)
 
 ![Warehouse](Tables.tables.html)
 ![Warehouse](Overview.yaml)
