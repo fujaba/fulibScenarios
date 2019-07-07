@@ -362,15 +362,37 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass)
    {
+      if (otherClass.getFrozen())
+      {
+         return resolveAssociation(classDecl, name, cardinality, otherClass, null, 0);
+      }
+      else
+      {
+         final String otherName = StrUtil.downFirstChar(classDecl.getName());
+         return resolveAssociation(classDecl, name, cardinality, otherClass, otherName, 1);
+      }
+   }
+
+   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass,
+      String otherName, int otherCardinality)
+   {
       final AssociationDecl existing = classDecl.getAssociations().get(name);
       if (existing != null)
       {
          if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
          {
-            throw new IllegalStateException(
-               "mismatched association type " + classDecl.getName() + "." + name + ": " + cardinalityString(
-                  existing.getCardinality()) + " " + existing.getTarget().getName() + " vs " + cardinalityString(
-                  cardinality) + " " + otherClass.getName());
+            final String olda = associationString(classDecl, name, existing.getCardinality(), existing.getTarget());
+            final String newa = associationString(classDecl, name, cardinality, otherClass);
+            throw new IllegalStateException("conflicting new association\nold: " + olda + "\nnew: " + newa);
+         }
+
+         final AssociationDecl other = existing.getOther();
+         if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
+         {
+            final String olda = associationString(other.getOwner(), other.getName(), other.getCardinality(),
+                                                  classDecl);
+            final String newa = associationString(other.getOwner(), otherName, otherCardinality, classDecl);
+            throw new IllegalStateException("conflicting new reverse association\nold: " + olda + "\nnew: " + newa);
          }
 
          return existing;
@@ -378,26 +400,42 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
       if (classDecl.getFrozen())
       {
-         throw new IllegalStateException("unresolved external association " + classDecl.getName() + "." + name);
+         throw new IllegalStateException(
+            "unresolved association " + associationString(classDecl, name, cardinality, otherClass));
       }
 
-      final Type associationType = cardinality != 1 ? ListType.of(otherClass.getType()) : otherClass.getType();
-      final AssociationDecl association = AssociationDecl
-                                             .of(classDecl, name, cardinality, otherClass, associationType, null);
-      classDecl.getAssociations().put(association.getName(), association);
+      final AssociationDecl association = createAssociation(classDecl, name, cardinality, otherClass);
 
-      if (!otherClass.getFrozen())
+      if (otherName != null)
       {
-         final String otherName = StrUtil.downFirstChar(classDecl.getName());
-         final AssociationDecl other = AssociationDecl
-                                          .of(otherClass, otherName, 1, classDecl, classDecl.getType(), null);
-         otherClass.getAssociations().put(other.getName(), other);
+         if (otherClass.getFrozen())
+         {
+            throw new IllegalStateException(
+               "unresolved reverse association " + associationString(otherClass, otherName, otherCardinality,
+                                                                     classDecl));
+         }
+
+         final AssociationDecl other = createAssociation(otherClass, otherName, otherCardinality, classDecl);
 
          association.setOther(other);
          other.setOther(association);
       }
 
       return association;
+   }
+
+   private static AssociationDecl createAssociation(ClassDecl owner, String name, int cardinality, ClassDecl target)
+   {
+      final Type type = cardinality != 1 ? ListType.of(target.getType()) : target.getType();
+      final AssociationDecl association = AssociationDecl.of(owner, name, cardinality, target, type, null);
+
+      owner.getAssociations().put(association.getName(), association);
+      return association;
+   }
+
+   private static String associationString(ClassDecl owner, String name, int cardinality, ClassDecl other)
+   {
+      return owner.getName() + "." + name + ": " + cardinalityString(cardinality) + " " + other.getName();
    }
 
    private static String cardinalityString(int cardinality)
