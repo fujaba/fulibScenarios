@@ -16,8 +16,6 @@ RegisterStudent adds A2 to the achievements of Modeling.
 
 RegisterStudent answers with A2.
 
-We expect that A2 has SEStudent Alice
-and that A2 has state registered
-and that A2 has SEClass modeling.
+We expect that A2 has state registered.
 
 ![SEGroup](registerStudentResult.png)
