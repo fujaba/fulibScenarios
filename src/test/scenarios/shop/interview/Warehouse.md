@@ -26,16 +26,19 @@ eu100, eu200, eu333 and with producer Italy.
 
 ![MondayArrival](Arrival.svg)
 
+We call hello with param world.
+
+
 We call addStock on Warehouse with arrival mondayArrival.
-AddStock takes High Heels and all other products of palettes of mondayArrival 
-and addStock adds High Heels to products of Warehouse. 
-AddStock takes eu100 and all other palettes of mondayArrival and 
-addStock calls findPlace with palette eu100. 
+// AddStock takes High Heels and all other products of palettes of mondayArrival 
+// and addStock adds High Heels to products of Warehouse. 
+// AddStock takes eu100 and all other palettes of mondayArrival and 
+// addStock calls findPlace with palette eu100. 
 // AddStock calls findPlace with palettes of mondayArrival.
 
-FindPlace checks that place of eu100 is empty and 
-findPlace takes f1 or some other from places of areas of warehouse  
-and findPlace writes f1 into place of eu100. 
+// FindPlace checks that place of eu100 is empty and 
+// findPlace takes f1 or some other from places of areas of warehouse  
+// and findPlace writes f1 into place of eu100. 
 
 
 <!--## operations-->
