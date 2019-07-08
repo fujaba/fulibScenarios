@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.jar.JarEntry;
@@ -95,8 +96,7 @@ public class LibraryHelper
       }
    }
 
-   private static void loadJarEntry(ScenarioCompiler compiler, JarFile jarFile, JarEntry entry)
-      throws IOException
+   private static void loadJarEntry(ScenarioCompiler compiler, JarFile jarFile, JarEntry entry) throws IOException
    {
       final String entryName = entry.getName();
       if (!entryName.endsWith(".class") || entryName.indexOf('$') >= 0) // skip inner classes
@@ -130,8 +130,8 @@ public class LibraryHelper
 
    public static void loadClass(ScenarioGroup group, InputStream data) throws IOException
    {
-      final ClassDecl classDecl = ClassDecl
-                                     .of(group, null, null, new HashMap<>(), new HashMap<>(), new ArrayList<>());
+      final ClassDecl classDecl = ClassDecl.of(group, null, null, new HashMap<>(), Collections.emptyMap(),
+                                               new ArrayList<>());
       classDecl.setType(ClassType.of(classDecl));
       classDecl.setExternal(true);
 
