@@ -1,6 +1,5 @@
 package org.fulib.scenarios.visitor.resolve;
 
-import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
@@ -362,15 +361,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass)
    {
-      if (otherClass.getFrozen())
-      {
-         return resolveAssociation(classDecl, name, cardinality, otherClass, null, 0);
-      }
-      else
-      {
-         final String otherName = StrUtil.downFirstChar(classDecl.getName());
-         return resolveAssociation(classDecl, name, cardinality, otherClass, otherName, 1);
-      }
+      return resolveAssociation(classDecl, name, cardinality, otherClass, null, 0);
    }
 
    static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass,
@@ -383,16 +374,27 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          {
             final String olda = associationString(classDecl, name, existing.getCardinality(), existing.getTarget());
             final String newa = associationString(classDecl, name, cardinality, otherClass);
-            throw new IllegalStateException("conflicting new association\nold: " + olda + "\nnew: " + newa);
+            throw new IllegalStateException(
+               "conflicting redeclaration of association\nold: " + olda + "\nnew: " + newa);
          }
 
          final AssociationDecl other = existing.getOther();
-         if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
+         if (other == null)
+         {
+            if (otherName != null)
+            {
+               final String newa = associationString(otherClass, otherName, otherCardinality, classDecl);
+               throw new IllegalStateException(
+                  "conflicting redeclaration of reverse association\nold: none/uni-directional\nnew: " + newa);
+            }
+         }
+         else if (otherName != null && (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality()))
          {
             final String olda = associationString(other.getOwner(), other.getName(), other.getCardinality(),
                                                   classDecl);
-            final String newa = associationString(other.getOwner(), otherName, otherCardinality, classDecl);
-            throw new IllegalStateException("conflicting new reverse association\nold: " + olda + "\nnew: " + newa);
+            final String newa = associationString(otherClass, otherName, otherCardinality, classDecl);
+            throw new IllegalStateException(
+               "conflicting redeclaration of reverse association\nold: " + olda + "\nnew: " + newa);
          }
 
          return existing;
