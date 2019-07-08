@@ -54,34 +54,29 @@ We call addStock on Warehouse with arrival mondayArrival.
 <!--NewPalette answers with result.  -->
   <!---->
  <!---->
-<!--## GUI-->
-<!--There is a WebApp with id ForkLiftGuide -->
-<!--and with description "Fork Lift Guide".-->
-<!--There is a Page with id addSupplyPage -->
-<!--and with description "New Supply | button Tasks".-->
-<!--ForkLiftGuide has content addSupplyPage.-->
-<!--There is a Content with id lotId -->
-<!--and with description "input palette id?".-->
-<!--There is a Content with id placeId -->
-<!--and with description "input place?".-->
-<!--There is a Content with id addLotToStoreButton and with description "button submit".-->
-<!--AddSupplyPage has content lotId, placeId, addLotToStoreButton.-->
-<!--![ForkLiftGuide](step03.html)-->
-<!--We writes "eu100" into value of lotId.-->
-<!--![ForkLiftGuide](step04.html)-->
-<!--We writes "f1" into value of placeId.-->
-<!--![ForkLiftGuide](step05.html)-->
+## GUI
+There is a WebApp with id ForkLiftGuide 
+  and with description Fork Lift Guide.
+  There is a Page with id addSupplyPage 
+  and with description "New Supply | button Overview".
+  ForkLiftGuide has content addSupplyPage.
+  There are Content with id pIdIn, productIn, itemsIn, placeIn 
+  and with description "input palette id?", "input product?"
+  , "input number of items?", "input place?".
+  There is a Content with id addPaletteButton and with description "button submit".
+  AddSupplyPage has content pIdIn, productIn, itemsIn, placeIn, addPaletteButton.
+  ![ForkLiftGuide](step03.html)
+  We write eu100 into value of pIdIn.
+  ![ForkLiftGuide](step04.html)
+  We write Sneakers into value of productIn. 
+  ![ForkLiftGuide](step05.html)
+  We write "50" into value of itemsIn. 
+  ![ForkLiftGuide](step06.html)
+  We write "f2" into value of placeIn. 
+  ![ForkLiftGuide](step07.html)
+  
+  
+![ForkLiftGuide](step03-07.mockup.html)
 
-<!--There is a Page with id storeId -->
-<!--and with description "Palette | Product | Number of Items | Place".-->
-<!--There is a Content with id paletteLine1-->
-<!--and with description "eu100 | Sneakers | 50 | f1".-->
-<!--We write paletteLine1 into content of storeId.-->
-<!--We write storeId into content of ForkLiftGuide.-->
-<!--![ForkLiftGuide](step06.html)-->
-
-
-<!--![ForkLiftGuide](step06.mockup.html)-->
-
-<!--![Warehouse](Tables.tables.html)-->
-<!--![Warehouse](Overview.yaml)-->
+![Warehouse](Tables.tables.html)
+![Warehouse](Overview.yaml)
