@@ -26,8 +26,7 @@ eu100, eu200, eu333 and with producer Italy.
 
 ![MondayArrival](Arrival.svg)
 
-We call hello with param world.
-
+## operations
 
 We call addStock on Warehouse with arrival mondayArrival.
 // AddStock takes High Heels and all other products of palettes of mondayArrival 
@@ -41,19 +40,7 @@ We call addStock on Warehouse with arrival mondayArrival.
 // and findPlace writes f1 into place of eu100. 
 
 
-<!--## operations-->
-  <!--We call newPalette with pId eu100-->
-  <!--and with pName "Sneakers" and with items 50-->
-  <!--and with place f2.-->
 
-<!--NewPalette creates a Palette with id eu100-->
-<!--and with product pName-->
-<!--and with items items-->
-<!--and with place place.-->
-<!--NewPalette writes eu100 into result.-->
-<!--NewPalette answers with result.  -->
-  <!---->
- <!---->
 ## GUI
   There is a WebApp with id ForkLiftGuide 
   and with description Fork Lift Guide.
