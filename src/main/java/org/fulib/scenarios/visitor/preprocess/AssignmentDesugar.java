@@ -7,8 +7,8 @@ import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
-import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
 import org.fulib.scenarios.ast.sentence.HasSentence;
@@ -46,7 +46,7 @@ public enum AssignmentDesugar implements Expr.Visitor<Expr, Sentence>
    }
 
    @Override
-   public Sentence visit(ListAttributeAccess listAttributeAccess, Expr par)
+   public Sentence visit(MapAccessExpr mapAccessExpr, Expr par)
    {
       throw new AssertionError("appears after NameResolver");
    }

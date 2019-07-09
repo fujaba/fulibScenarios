@@ -6,11 +6,11 @@ import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
-import org.fulib.scenarios.ast.expr.access.FilterExpr;
-import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
@@ -97,9 +97,9 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    }
 
    @Override
-   public Type visit(ListAttributeAccess listAttributeAccess, Object par)
+   public Type visit(MapAccessExpr mapAccessExpr, Object par)
    {
-      final Type attributeType = listAttributeAccess.getName().accept(ExtractDecl.INSTANCE, null).getType();
+      final Type attributeType = mapAccessExpr.getName().accept(ExtractDecl.INSTANCE, null).getType();
       return ListType.of(attributeType);
    }
 

@@ -6,11 +6,11 @@ import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
-import org.fulib.scenarios.ast.expr.access.FilterExpr;
-import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
@@ -45,16 +45,16 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    }
 
    @Override
-   public Object visit(ListAttributeAccess listAttributeAccess, CodeGenDTO par)
+   public Object visit(MapAccessExpr mapAccessExpr, CodeGenDTO par)
    {
-      final Type listType = listAttributeAccess.getReceiver().accept(Typer.INSTANCE, null);
+      final Type listType = mapAccessExpr.getReceiver().accept(Typer.INSTANCE, null);
       final Type elementType = ((ListType) listType).getElementType();
       final String elementTypeName = elementType.accept(Namer.INSTANCE, elementType);
-      final String attributeName = listAttributeAccess.getName().accept(Namer.INSTANCE, null);
+      final String attributeName = mapAccessExpr.getName().accept(Namer.INSTANCE, null);
 
       par.addImport("java.util.stream.Collectors");
 
-      listAttributeAccess.getReceiver().accept(INSTANCE, par);
+      mapAccessExpr.getReceiver().accept(INSTANCE, par);
       par.bodyBuilder.append(".stream().map(").append(elementTypeName).append("::get")
                      .append(StrUtil.cap(attributeName)).append(").collect(Collectors.toList())");
       return null;

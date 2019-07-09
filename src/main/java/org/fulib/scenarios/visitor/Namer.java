@@ -8,10 +8,10 @@ import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
-import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.type.*;
 
@@ -60,9 +60,9 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    }
 
    @Override
-   public String visit(ListAttributeAccess listAttributeAccess, Object par)
+   public String visit(MapAccessExpr mapAccessExpr, Object par)
    {
-      return listAttributeAccess.getName().accept(this, par);
+      return mapAccessExpr.getName().accept(this, par);
    }
 
    @Override

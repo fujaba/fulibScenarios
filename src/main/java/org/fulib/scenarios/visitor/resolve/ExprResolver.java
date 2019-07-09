@@ -5,11 +5,11 @@ import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
-import org.fulib.scenarios.ast.expr.access.FilterExpr;
-import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
+import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
@@ -55,7 +55,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          final String attributeName = attributeAccess.getName().accept(Namer.INSTANCE, null);
          final Type elementType = ((ListType) receiverType).getElementType();
          final Name resolvedName = getAttributeOrAssociation(resolveClass(par, elementType), attributeName);
-         return ListAttributeAccess.of(resolvedName, receiver);
+         return MapAccessExpr.of(resolvedName, receiver);
       }
 
       attributeAccess.setName(getAttributeOrAssociation(par, receiver, attributeAccess.getName()));
