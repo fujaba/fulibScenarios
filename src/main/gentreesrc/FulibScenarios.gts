@@ -91,7 +91,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 		abstract collection.CollectionExpr {
 			ListExpr(elements: [Expr])
-			// RangeExpr(start: Expr, end: Expr)
+			RangeExpr(start: Expr, end: Expr)
 		}
 	}
 }

@@ -88,7 +88,7 @@ expr: access | collection;
 
 // Primary
 primary: number | stringLiteral | it | nameAccess;
-primaryExpr: primary | primaryCollection;
+primaryExpr: primary;
 
 number: NUMBER;
 stringLiteral: STRING_LITERAL;
@@ -116,18 +116,12 @@ filterExpr: ALL expr WHICH condExpr;
 
 sep: COMMA | AND | COMMA AND;
 
-collection: list /* | range */;
-primaryCollection: primaryList /* | primaryRange */;
+collection: list | range;
 
 list: listElem (sep listElem)+;
-listElem: access /* | range */;
-primaryList: primaryListElem (sep primaryListElem)+;
-primaryListElem: primary /* | primaryRange */;
+listElem: access | range;
 
-/*
-range: access TO access | access THROUGH access;
-primaryRange: primary TO primary | primary THROUGH primary;
-*/
+range: access TO access;
 
 // Conditional
 

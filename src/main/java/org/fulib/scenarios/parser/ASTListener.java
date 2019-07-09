@@ -15,6 +15,7 @@ import org.fulib.scenarios.ast.expr.access.FilterExpr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
@@ -400,10 +401,11 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitPrimaryList(ScenarioParser.PrimaryListContext ctx)
+   public void exitRange(ScenarioParser.RangeContext ctx)
    {
-      final List<Expr> elements = this.pop(Expr.class, ctx.primaryListElem().size());
-      this.stack.push(ListExpr.of(elements));
+      final Expr end = this.pop();
+      final Expr start = this.pop();
+      this.stack.push(RangeExpr.of(start, end));
    }
 
    // =============== Static Methods ===============
