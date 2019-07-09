@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
@@ -128,6 +129,15 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
 
       assert commonType != null : "empty list expression";
       final Type wrapperType = primitiveToWrapper(commonType);
+      return ListType.of(wrapperType);
+   }
+
+   @Override
+   public Type visit(RangeExpr rangeExpr, Object par)
+   {
+      // TODO common type
+      final Type elementType = rangeExpr.getStart().accept(this, par);
+      final Type wrapperType = primitiveToWrapper(elementType);
       return ListType.of(wrapperType);
    }
 

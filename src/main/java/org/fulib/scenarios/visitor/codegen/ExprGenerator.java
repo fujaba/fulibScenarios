@@ -11,10 +11,12 @@ import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
@@ -182,6 +184,54 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
          par.bodyBuilder.append("))");
       }
       return null;
+   }
+
+   @Override
+   public Object visit(RangeExpr rangeExpr, CodeGenDTO par)
+   {
+      final PrimitiveType type = (PrimitiveType) rangeExpr.getStart().accept(Typer.INSTANCE, null);
+      switch (type)
+      {
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
+         this.emitRangeStream(rangeExpr, par, "IntStream");
+         par.bodyBuilder.append(".mapToObj(i -> (");
+         par.bodyBuilder.append(type.getJavaName());
+         par.bodyBuilder.append(") i)");
+         par.bodyBuilder.append(".collect(Collectors.toList())");
+         return null;
+      case INT:
+      case INT_WRAPPER:
+         this.emitRangeStream(rangeExpr, par, "IntStream");
+         par.bodyBuilder.append(".boxed()");
+         par.bodyBuilder.append(".collect(Collectors.toList())");
+         return null;
+      case LONG:
+      case LONG_WRAPPER:
+         this.emitRangeStream(rangeExpr, par, "LongStream");
+         par.bodyBuilder.append(".boxed()");
+         par.bodyBuilder.append(".collect(Collectors.toList())");
+         return null;
+      }
+
+      throw new IllegalStateException("invalid range element type " + type.getJavaName());
+   }
+
+   private void emitRangeStream(RangeExpr rangeExpr, CodeGenDTO par, String streamClass)
+   {
+      par.addImport("java.util.stream." + streamClass);
+      par.addImport("java.util.stream.Collectors");
+
+      par.bodyBuilder.append(streamClass);
+      par.bodyBuilder.append(".rangeClosed(");
+      rangeExpr.getStart().accept(this, par);
+      par.bodyBuilder.append(", ");
+      rangeExpr.getEnd().accept(this, par);
+      par.bodyBuilder.append(")");
    }
 
    private void emitList(CodeGenDTO par, List<Expr> elements)

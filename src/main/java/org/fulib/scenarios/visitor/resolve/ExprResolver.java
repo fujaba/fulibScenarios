@@ -10,6 +10,7 @@ import org.fulib.scenarios.ast.expr.access.ListAttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
@@ -284,5 +285,13 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    {
       listExpr.getElements().replaceAll(it -> it.accept(this, par));
       return listExpr;
+   }
+
+   @Override
+   public Expr visit(RangeExpr rangeExpr, Scope par)
+   {
+      rangeExpr.setStart(rangeExpr.getStart().accept(this, par));
+      rangeExpr.setEnd(rangeExpr.getEnd().accept(this, par));
+      return rangeExpr;
    }
 }
