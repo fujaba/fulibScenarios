@@ -8,19 +8,13 @@ import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.collection.FilterExpr;
-import org.fulib.scenarios.ast.expr.collection.ListExpr;
-import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
-import org.fulib.scenarios.ast.expr.collection.RangeExpr;
+import org.fulib.scenarios.ast.expr.collection.*;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
-import org.fulib.scenarios.ast.type.PrimitiveType;
-import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
-import org.fulib.scenarios.visitor.Typer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,23 +34,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    {
       attributeAccess.getReceiver().accept(this, par);
       par.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null)))
-                      .append("()");
-      return null;
-   }
-
-   @Override
-   public Object visit(MapAccessExpr mapAccessExpr, CodeGenDTO par)
-   {
-      final Type listType = mapAccessExpr.getReceiver().accept(Typer.INSTANCE, null);
-      final Type elementType = ((ListType) listType).getElementType();
-      final String elementTypeName = elementType.accept(Namer.INSTANCE, elementType);
-      final String attributeName = mapAccessExpr.getName().accept(Namer.INSTANCE, null);
-
-      par.addImport("java.util.stream.Collectors");
-
-      mapAccessExpr.getReceiver().accept(INSTANCE, par);
-      par.bodyBuilder.append(".stream().map(").append(elementTypeName).append("::get")
-                     .append(StrUtil.cap(attributeName)).append(").collect(Collectors.toList())");
+                     .append("()");
       return null;
    }
 
@@ -64,18 +42,6 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(ExampleAccess exampleAccess, CodeGenDTO par)
    {
       exampleAccess.getExpr().accept(this, par);
-      return null;
-   }
-
-   @Override
-   public Object visit(FilterExpr filterExpr, CodeGenDTO par)
-   {
-      par.addImport("java.util.stream.Collectors");
-
-      filterExpr.getSource().accept(this, par);
-      par.bodyBuilder.append(".stream().filter(it -> ");
-      filterExpr.getPredicate().accept(this, par);
-      par.bodyBuilder.append(").collect(Collectors.toList())");
       return null;
    }
 
@@ -164,77 +130,41 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       return null;
    }
 
+   // --------------- CollectionExpr.Visitor ---------------
+
+   // Range, Map and Filter handled by visit(CollectionExpr)
+
+   @Override
+   public Object visit(CollectionExpr collectionExpr, CodeGenDTO par)
+   {
+      par.addImport("java.util.stream.Collectors");
+
+      collectionExpr.accept(StreamGenerator.INSTANCE, par);
+      par.bodyBuilder.append(".collect(Collectors.toList())");
+      return null;
+   }
+
    @Override
    public Object visit(ListExpr listExpr, CodeGenDTO par)
    {
-      if (this != NO_LIST)
+      if (this == NO_LIST)
+      {
+         this.emitList(par, listExpr.getElements());
+      }
+      else
       {
          par.addImport("java.util.ArrayList");
          par.addImport("java.util.Arrays");
 
          par.bodyBuilder.append("new ArrayList<>(Arrays.asList(");
-      }
-
-      final List<Expr> elements = listExpr.getElements();
-
-      this.emitList(par, elements);
-
-      if (this != NO_LIST)
-      {
+         this.emitList(par, listExpr.getElements());
          par.bodyBuilder.append("))");
       }
+
       return null;
    }
 
-   @Override
-   public Object visit(RangeExpr rangeExpr, CodeGenDTO par)
-   {
-      final PrimitiveType type = (PrimitiveType) rangeExpr.getStart().accept(Typer.INSTANCE, null);
-      switch (type)
-      {
-      case BYTE:
-      case BYTE_WRAPPER:
-      case SHORT:
-      case SHORT_WRAPPER:
-      case CHAR:
-      case CHAR_WRAPPER:
-         this.emitRangeStream(rangeExpr, par, "IntStream");
-         par.bodyBuilder.append(".mapToObj(i -> (");
-         par.bodyBuilder.append(type.getJavaName());
-         par.bodyBuilder.append(") i)");
-         par.bodyBuilder.append(".collect(Collectors.toList())");
-         return null;
-      case INT:
-      case INT_WRAPPER:
-         this.emitRangeStream(rangeExpr, par, "IntStream");
-         par.bodyBuilder.append(".boxed()");
-         par.bodyBuilder.append(".collect(Collectors.toList())");
-         return null;
-      case LONG:
-      case LONG_WRAPPER:
-         this.emitRangeStream(rangeExpr, par, "LongStream");
-         par.bodyBuilder.append(".boxed()");
-         par.bodyBuilder.append(".collect(Collectors.toList())");
-         return null;
-      }
-
-      throw new IllegalStateException("invalid range element type " + type.getJavaName());
-   }
-
-   private void emitRangeStream(RangeExpr rangeExpr, CodeGenDTO par, String streamClass)
-   {
-      par.addImport("java.util.stream." + streamClass);
-      par.addImport("java.util.stream.Collectors");
-
-      par.bodyBuilder.append(streamClass);
-      par.bodyBuilder.append(".rangeClosed(");
-      rangeExpr.getStart().accept(this, par);
-      par.bodyBuilder.append(", ");
-      rangeExpr.getEnd().accept(this, par);
-      par.bodyBuilder.append(")");
-   }
-
-   private void emitList(CodeGenDTO par, List<Expr> elements)
+   void emitList(CodeGenDTO par, List<Expr> elements)
    {
       elements.get(0).accept(this, par);
       for (int i = 1; i < elements.size(); i++)
