@@ -13,10 +13,7 @@ import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
-import org.fulib.scenarios.ast.expr.primary.PrimaryExpr;
-import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
@@ -135,9 +132,17 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    }
 
    @Override
-   public Object visit(NumberLiteral numberLiteral, CodeGenDTO par)
+   public Object visit(IntLiteral intLiteral, CodeGenDTO par)
    {
-      return par.bodyBuilder.append(numberLiteral.getValue());
+      par.bodyBuilder.append(intLiteral.getValue());
+      return null;
+   }
+
+   @Override
+   public Object visit(DoubleLiteral doubleLiteral, CodeGenDTO par)
+   {
+      par.bodyBuilder.append(doubleLiteral.getValue());
+      return null;
    }
 
    @Override

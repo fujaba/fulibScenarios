@@ -90,7 +90,7 @@ expr: access | collection;
 primary: number | stringLiteral | it | nameAccess;
 primaryExpr: primary;
 
-number: NUMBER;
+number: DECIMAL | INTEGER;
 stringLiteral: STRING_LITERAL;
 it: IT;
 

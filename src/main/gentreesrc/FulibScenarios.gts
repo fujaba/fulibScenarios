@@ -71,7 +71,8 @@ abstract org.fulib.scenarios.ast.Node {
 
 	abstract expr.Expr {
 		abstract primary.PrimaryExpr {
-			NumberLiteral(value: double)
+			IntLiteral(value: int)
+			DoubleLiteral(value: double)
 			StringLiteral(value: String)
 			NameAccess(name: Name)
 		}

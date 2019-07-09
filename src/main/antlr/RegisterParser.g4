@@ -13,7 +13,7 @@ classDef: WORD exampleClause (attrDef | roleDef)*;
 // --------------- Examples ---------------
 
 exampleClause: EG exampleValue (COMMA exampleValue)*;
-exampleValue: WORD+ | NUMBER ;
+exampleValue: WORD+ | DECIMAL ;
 
 // --------------- Attributes ---------------
 

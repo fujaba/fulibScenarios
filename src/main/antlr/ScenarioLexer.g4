@@ -69,7 +69,8 @@ PLUS:      [+];
 
 // --------------- Literals ---------------
 
-NUMBER:         [-]? [0-9]+ ([.] [0-9]+)?;
+INTEGER:        [-]? [0-9]+;
+DECIMAL:        [-]? [0-9]+ [.] [0-9]+;
 STRING_LITERAL: ['] (~['\\\r\n] | EscapeSequence)* [']
               | ["] (~["\\\r\n] | EscapeSequence)* ["];
 

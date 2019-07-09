@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
@@ -20,8 +21,9 @@ import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
+import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
+import org.fulib.scenarios.ast.expr.primary.IntLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.NumberLiteral;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.Type;
@@ -295,8 +297,17 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitNumber(ScenarioParser.NumberContext ctx)
    {
-      final String text = ctx.NUMBER().getText();
-      this.stack.push(NumberLiteral.of(Double.parseDouble(text)));
+      final TerminalNode decimal = ctx.DECIMAL();
+      if (decimal != null)
+      {
+         final double value = Double.parseDouble(decimal.getText());
+         this.stack.push(DoubleLiteral.of(value));
+      }
+      else
+      {
+         final int value = Integer.parseInt(ctx.INTEGER().getText());
+         this.stack.push(IntLiteral.of(value));
+      }
    }
 
    @Override
