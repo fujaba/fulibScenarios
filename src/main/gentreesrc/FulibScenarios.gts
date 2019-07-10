@@ -49,14 +49,16 @@ abstract org.fulib.scenarios.ast.Node {
 		HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
 		IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 
-		CreateSentence(actor: Name, descriptor: MultiDescriptor)
+		abstract ActorSentence(actor: Name) {
+			CreateSentence(actor: Name, descriptor: MultiDescriptor)
 
-		CallSentence(actor: Name, call: CallExpr)
-		AnswerSentence(actor: Name, result: Expr, varName: String)
+			CallSentence(actor: Name, call: CallExpr)
+			AnswerSentence(actor: Name, result: Expr, varName: String)
 
-		WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
-		AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
-		RemoveSentence(actor: Name, source: Expr, target: Expr) // i.e. removing elements from a list
+			WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
+			AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
+			RemoveSentence(actor: Name, source: Expr, target: Expr) // i.e. removing elements from a list
+		}
 
 		ConditionalSentence(condition: ConditionalExpr, actions: SentenceList)
 

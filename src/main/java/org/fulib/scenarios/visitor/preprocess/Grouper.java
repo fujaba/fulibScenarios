@@ -123,10 +123,12 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
       return par.add(ACTOR_TEST, diagramSentence);
    }
 
+   // --------------- ActorSentence.Visitor ---------------
+
    @Override
-   public Frame visit(CreateSentence createSentence, Frame par)
+   public Frame visit(ActorSentence actorSentence, Frame par)
    {
-      return par.add(actorKey(createSentence.getActor()), createSentence);
+      return par.add(actorKey(actorSentence.getActor()), actorSentence);
    }
 
    @Override
@@ -141,24 +143,6 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    public Frame visit(AnswerSentence answerSentence, Frame par)
    {
       return par.addLast(actorKey(answerSentence.getActor()), answerSentence);
-   }
-
-   @Override
-   public Frame visit(WriteSentence writeSentence, Frame par)
-   {
-      return par.add(actorKey(writeSentence.getActor()), writeSentence);
-   }
-
-   @Override
-   public Frame visit(AddSentence addSentence, Frame par)
-   {
-      return par.add(actorKey(addSentence.getActor()), addSentence);
-   }
-
-   @Override
-   public Frame visit(RemoveSentence removeSentence, Frame par)
-   {
-      return par.add(actorKey(removeSentence.getActor()), removeSentence);
    }
 }
 
