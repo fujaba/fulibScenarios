@@ -249,6 +249,18 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(sentence);
    }
 
+   @Override
+   public void exitTakeSentence(ScenarioParser.TakeSentenceContext ctx)
+   {
+      final List<Sentence> sentences = this.pop(Sentence.class, ctx.simpleSentence().size());
+      final SentenceList actions = SentenceList.of(sentences);
+      final Expr collection = this.pop();
+      final Expr example = this.pop();
+      final Name varName = name(ctx.simpleName());
+      final Name actor = name(ctx.actor().name()); // null if actor is "we"
+      this.stack.push(TakeSentence.of(actor, varName, example, collection, actions));
+   }
+
    // --------------- Clauses ---------------
 
    @Override

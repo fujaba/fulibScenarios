@@ -29,6 +29,7 @@ simpleSentence: thereSentence
               | addSentence
               | removeSentence
               | conditionalSentence
+              | takeSentence
               ;
 
 sectionSentence: H2 HEADLINE_TEXT HEADLINE_END;
@@ -73,6 +74,8 @@ removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
 // Control Flow
 
 conditionalSentence: AS condExpr COMMA simpleSentence (sep simpleSentence)*;
+
+takeSentence: actor (TAKE | TAKES) simpleName? primaryExpr FROM expr AND simpleSentence (sep simpleSentence)*;
 
 // Testing
 

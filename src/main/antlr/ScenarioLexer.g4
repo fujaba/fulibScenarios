@@ -46,6 +46,8 @@ REGISTER: 'register';
 REMOVE:   'remove';
 REMOVES:  'removes';
 SAME:     'same';
+TAKE:     'take';
+TAKES:    'takes';
 THAN:     'than';
 THAT:     'that';
 THE:      'The' | 'the';

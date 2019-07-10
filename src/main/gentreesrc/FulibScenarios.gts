@@ -58,6 +58,8 @@ abstract org.fulib.scenarios.ast.Node {
 			WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
 			AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
 			RemoveSentence(actor: Name, source: Expr, target: Expr) // i.e. removing elements from a list
+
+			TakeSentence(actor: Name, varName: Name?, example: Expr, collection: Expr, actions: SentenceList)
 		}
 
 		ConditionalSentence(condition: ConditionalExpr, actions: SentenceList)
