@@ -70,6 +70,12 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    // --------------- Sentence.Visitor ---------------
 
    @Override
+   public Sentence visit(Sentence sentence, Object par)
+   {
+      return sentence;
+   }
+
+   @Override
    public Sentence visit(SentenceList sentenceList, Object par)
    {
       final List<Sentence> oldItems = sentenceList.getItems();
@@ -215,30 +221,6 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Sentence visit(DiagramSentence diagramSentence, Object par)
-   {
-      return diagramSentence;
-   }
-
-   @Override
-   public Sentence visit(ExpectSentence expectSentence, Object par)
-   {
-      return expectSentence;
-   }
-
-   @Override
-   public Sentence visit(HasSentence hasSentence, Object par)
-   {
-      return hasSentence;
-   }
-
-   @Override
-   public Sentence visit(IsSentence isSentence, Object par)
-   {
-      return isSentence;
-   }
-
-   @Override
    public Sentence visit(CreateSentence createSentence, Object par)
    {
       final List<Sentence> result = new ArrayList<>();
@@ -263,12 +245,6 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Sentence visit(AnswerSentence answerSentence, Object par)
-   {
-      return answerSentence;
-   }
-
-   @Override
    public Sentence visit(WriteSentence writeSentence, Object par)
    {
       final Expr source = writeSentence.getSource();
@@ -277,27 +253,9 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Sentence visit(AddSentence addSentence, Object par)
-   {
-      return addSentence;
-   }
-
-   @Override
-   public Sentence visit(RemoveSentence removeSentence, Object par)
-   {
-      return removeSentence;
-   }
-
-   @Override
    public Sentence visit(ConditionalSentence conditionalSentence, Object par)
    {
       conditionalSentence.setActions((SentenceList) conditionalSentence.getActions().accept(this, par));
       return conditionalSentence;
-   }
-
-   @Override
-   public Sentence visit(ExprSentence exprSentence, Object par)
-   {
-      return exprSentence;
    }
 }
