@@ -1,23 +1,23 @@
+# managing links
 
-# Scenario for the init method.
+StudyRight is a University. 
 
-There is the StudyRight.
+There are Students with name Alice, Bob, Carli, Dave, Eyshe
+and with credits 10, 10, 0, 42, 50.
+There are Rooms  with name lecture hall, gym, music hall.
 
-We call init on StudyRight.
+StudyRight has students and is uni of Alice and Bob
+and has rooms and is uni of lecture hall, gym, music hall.
+Lecture hall has students and is room of Alice and Carli.
+Music hall has students Bob. 
 
-Init creates a Student with name Carli
-and with credits 0 and with motivation 65.
+We write Alice, Bob and Carli into first-students. 
+We write uni of room of Alice into tmp. 
+We write students of rooms of StudyRight into tmpList.
+![tmpList](out.svg)
 
-Init creates a Room with topic math and with 23 credits
-and with students Carli.
+// We expect that first-students is students of rooms of StudyRight. 
 
-Init creates Assignment cards
-with task integrals, series, matrices and
-with points 5, 20, 10 and
-with room math.
+// We write Carli and Dave and Eyshe into students of StudyRight. 
 
-Init answers with Carli.
-
-We expect that Carli has motivation 65.
-
-![Carli](StudyRightInit.png)
+// hm
