@@ -89,11 +89,12 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
       final String attributeName = listAttributeAccess.getName().accept(Namer.INSTANCE, null);
 
       listAttributeAccess.getReceiver().accept(ExprGenerator.INSTANCE, par);
-      par.bodyBuilder.append(".map(");
+      par.bodyBuilder.append(".stream().map(");
       par.bodyBuilder.append(elementTypeName);
       par.bodyBuilder.append("::get");
       par.bodyBuilder.append(StrUtil.cap(attributeName));
       par.bodyBuilder.append(')');
+      // par.bodyBuilder.append(".flatMap(Collection::stream)");
       return null;
    }
 
