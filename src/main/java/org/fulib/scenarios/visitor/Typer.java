@@ -107,6 +107,11 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    public Type visit(MapAccessExpr mapAccessExpr, Object par)
    {
       final Type attributeType = mapAccessExpr.getName().accept(ExtractDecl.INSTANCE, null).getType();
+      if (attributeType instanceof ListType)
+      {
+         return attributeType;
+      }
+
       return ListType.of(attributeType);
    }
 
