@@ -1,6 +1,5 @@
 package org.fulib.scenarios.visitor;
 
-import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.ConditionalSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
@@ -8,31 +7,31 @@ import org.fulib.scenarios.ast.sentence.SentenceList;
 
 import java.util.List;
 
-public enum ReturnExpr implements Sentence.Visitor<Object, Expr>
+public enum GetAnswerSentence implements Sentence.Visitor<Object, AnswerSentence>
 {
    INSTANCE;
 
    @Override
-   public Expr visit(Sentence sentence, Object par)
+   public AnswerSentence visit(Sentence sentence, Object par)
    {
       return null;
    }
 
    @Override
-   public Expr visit(SentenceList sentenceList, Object par)
+   public AnswerSentence visit(SentenceList sentenceList, Object par)
    {
       final List<Sentence> items = sentenceList.getItems();
       return items.isEmpty() ? null : items.get(items.size() - 1).accept(this, par);
    }
 
    @Override
-   public Expr visit(AnswerSentence answerSentence, Object par)
+   public AnswerSentence visit(AnswerSentence answerSentence, Object par)
    {
-      return answerSentence.getResult();
+      return answerSentence;
    }
 
    @Override
-   public Expr visit(ConditionalSentence conditionalSentence, Object par)
+   public AnswerSentence visit(ConditionalSentence conditionalSentence, Object par)
    {
       return conditionalSentence.getActions().accept(this, par);
    }

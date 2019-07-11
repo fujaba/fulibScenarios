@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
+import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.*;
 
 public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, String>, Name.Visitor<Object, String>
@@ -89,7 +90,19 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    @Override
    public String visit(CallExpr callExpr, Object par)
    {
-      final Expr expr = callExpr.getBody().accept(ReturnExpr.INSTANCE, par);
+      final AnswerSentence answerSentence = callExpr.getBody().accept(GetAnswerSentence.INSTANCE, par);
+      if (answerSentence == null)
+      {
+         return null;
+      }
+
+      final String varName = answerSentence.getVarName();
+      if (varName != null)
+      {
+         return varName;
+      }
+
+      final Expr expr = answerSentence.getResult();
       return expr != null ? expr.accept(Namer.INSTANCE, par) : null;
    }
 

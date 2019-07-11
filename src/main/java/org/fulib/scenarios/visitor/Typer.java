@@ -19,6 +19,7 @@ import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
 import org.fulib.scenarios.ast.expr.primary.IntLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
@@ -56,7 +57,13 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    @Override
    public Type visit(CallExpr callExpr, Object par)
    {
-      final Expr expr = callExpr.getBody().accept(ReturnExpr.INSTANCE, par);
+      final AnswerSentence answerSentence = callExpr.getBody().accept(GetAnswerSentence.INSTANCE, par);
+      if (answerSentence == null)
+      {
+         return PrimitiveType.VOID;
+      }
+
+      final Expr expr = answerSentence.getResult();
       return expr != null ? expr.accept(Typer.INSTANCE, par) : PrimitiveType.VOID;
    }
 
