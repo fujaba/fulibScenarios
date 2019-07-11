@@ -88,8 +88,8 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
       final String elementTypeName = elementType.accept(Namer.INSTANCE, elementType);
       final String attributeName = listAttributeAccess.getName().accept(Namer.INSTANCE, null);
 
-      listAttributeAccess.getReceiver().accept(ExprGenerator.INSTANCE, par);
-      par.bodyBuilder.append(".stream().map(");
+      listAttributeAccess.getReceiver().accept(this, par);
+      par.bodyBuilder.append(".map(");
       par.bodyBuilder.append(elementTypeName);
       par.bodyBuilder.append("::get");
       par.bodyBuilder.append(StrUtil.cap(attributeName));
