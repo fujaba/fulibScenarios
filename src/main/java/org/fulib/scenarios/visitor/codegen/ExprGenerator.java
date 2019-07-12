@@ -8,13 +8,15 @@ import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.collection.*;
+import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
+import org.fulib.scenarios.visitor.Typer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,7 +80,8 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       par.bodyBuilder.append('(');
 
       final List<NamedExpr> arguments = callExpr.getArguments();
-      if (arguments.size() > 0) {
+      if (!arguments.isEmpty())
+      {
          this.emitList(par, arguments.stream().map(NamedExpr::getExpr).collect(Collectors.toList()));
       }
       par.bodyBuilder.append(')');
@@ -150,6 +153,15 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       if (this == NO_LIST)
       {
          this.emitList(par, listExpr.getElements());
+      }
+      else if (listExpr.getElements().stream().anyMatch(it -> it.accept(Typer.INSTANCE, null) instanceof ListType))
+      {
+         // let stream generator handle any necessary flattening
+
+         par.addImport("java.util.stream.Collectors");
+
+         listExpr.accept(StreamGenerator.INSTANCE, par);
+         par.bodyBuilder.append(".collect(Collectors.toList())");
       }
       else
       {

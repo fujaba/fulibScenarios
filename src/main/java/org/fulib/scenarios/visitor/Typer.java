@@ -127,7 +127,12 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       Type commonType = null;
       for (Expr element : listExpr.getElements())
       {
-         final Type elementType = element.accept(this, par);
+         Type elementType = element.accept(this, par);
+         if (elementType instanceof ListType)
+         {
+            elementType = ((ListType) elementType).getElementType();
+         }
+
          if (commonType == null)
          {
             commonType = elementType;
