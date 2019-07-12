@@ -6,6 +6,7 @@ import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.Typer;
 
 public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
 {
@@ -48,8 +49,9 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       if (type instanceof ListType)
       {
          final Type elementType = ((ListType) type).getElementType();
+         final Type wrappedType = Typer.primitiveToWrapper(elementType);
          MultiAttributes
-            .buildMultiAttribute(clazz, attributeDecl.getName(), elementType.accept(TypeGenerator.INSTANCE, par));
+            .buildMultiAttribute(clazz, attributeDecl.getName(), wrappedType.accept(TypeGenerator.INSTANCE, par));
       }
       else
       {

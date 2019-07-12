@@ -145,8 +145,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       }
 
       assert commonType != null : "empty list expression";
-      final Type wrapperType = primitiveToWrapper(commonType);
-      return ListType.of(wrapperType);
+      return ListType.of(commonType);
    }
 
    @Override
@@ -154,8 +153,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    {
       // TODO common type
       final Type elementType = rangeExpr.getStart().accept(this, par);
-      final Type wrapperType = primitiveToWrapper(elementType);
-      return ListType.of(wrapperType);
+      return ListType.of(elementType);
    }
 
    // --------------- Name.Visitor ---------------
