@@ -78,6 +78,11 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          toolClass = "org.fulib.scenarios.MockupTools";
          toolMethod = "MockupTools.htmlTool().dump";
          break;
+      case ".txt":
+         toolClass = "org.fulib.scenarios.MockupTools";
+         toolMethod = "MockupTools.htmlTool().dumpToString";
+
+         break;
       default:
          throw new IllegalStateException("invalid file name '" + fileName + "' - unsupported extension");
       }
