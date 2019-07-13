@@ -9,7 +9,7 @@ repositories {
 }
 
 dependencies {
-    webapp(group: 'org.fulib', name: 'fulibDotOrg', version: '+') {
+    webapp(group: 'org.fulib', name: 'fulibDotOrg', version: '[0.3.3,)') {
         exclude group: 'org.fulib', module: 'fulibScenarios'
     }
 }

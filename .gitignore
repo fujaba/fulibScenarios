@@ -17,3 +17,4 @@ src/*/scenarios/**/*.html
 libs/fulib*[Oo]rg*.jar
 *.pdf
 *.tokens
+*.txt
