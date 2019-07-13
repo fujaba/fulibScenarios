@@ -1,0 +1,25 @@
+# Take Sentences
+
+We write 1 to 10 into numbers.
+We take i 1 from numbers and we expect that i is i.
+We take j 1 from numbers and as j is greater than 5, we expect that j is j.
+
+# Get First Item
+
+We call first with list 1 to 10.
+First takes i 1 from list and first answers with i.
+We expect that i is 1.
+
+We call first with list 1 to 0.
+// As list is empty,
+first answers with -1 into j.
+We expect that j is -1.
+
+<!--
+# Get Last Item
+
+We call last with list 1 to 10.
+Last writes -1 into l.
+Last takes i 1 from list and last writes i into l.
+Last answers with l.
+-->
