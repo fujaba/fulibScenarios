@@ -12,9 +12,7 @@ import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
 import org.fulib.scenarios.ast.expr.primary.IntLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -30,6 +28,34 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
 
    // --------------- Expr.Visitor ---------------
 
+   // --------------- PrimitiveExpr.Visitor ---------------
+
+   @Override
+   public Type visit(IntLiteral intLiteral, Object par)
+   {
+      return PrimitiveType.INT;
+   }
+
+   @Override
+   public Type visit(DoubleLiteral doubleLiteral, Object par)
+   {
+      return PrimitiveType.DOUBLE;
+   }
+
+   @Override
+   public Type visit(StringLiteral stringLiteral, Object par)
+   {
+      return PrimitiveType.STRING;
+   }
+
+   @Override
+   public Type visit(NameAccess nameAccess, Object par)
+   {
+      return nameAccess.getName().accept(this, par);
+   }
+
+   // --------------- Misc. Expr.Visitor ---------------
+
    @Override
    public Type visit(AttributeAccess attributeAccess, Object par)
    {
@@ -40,12 +66,6 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    public Type visit(ExampleAccess exampleAccess, Object par)
    {
       return exampleAccess.getExpr().accept(this, par);
-   }
-
-   @Override
-   public Type visit(FilterExpr filterExpr, Object par)
-   {
-      return filterExpr.getSource().accept(this, par);
    }
 
    @Override
@@ -67,29 +87,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       return expr != null ? expr.accept(Typer.INSTANCE, par) : PrimitiveType.VOID;
    }
 
-   @Override
-   public Type visit(NameAccess nameAccess, Object par)
-   {
-      return nameAccess.getName().accept(this, par);
-   }
-
-   @Override
-   public Type visit(IntLiteral intLiteral, Object par)
-   {
-      return PrimitiveType.INT;
-   }
-
-   @Override
-   public Type visit(DoubleLiteral doubleLiteral, Object par)
-   {
-      return PrimitiveType.DOUBLE;
-   }
-
-   @Override
-   public Type visit(StringLiteral stringLiteral, Object par)
-   {
-      return PrimitiveType.STRING;
-   }
+   // --------------- ConditionalExpr.Visitor ---------------
 
    @Override
    public Type visit(ConditionalExpr conditionalExpr, Object par)
@@ -97,29 +95,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       return PrimitiveType.BOOLEAN;
    }
 
-   @Override
-   public Type visit(AttributeCheckExpr attributeCheckExpr, Object par)
-   {
-      return PrimitiveType.BOOLEAN;
-   }
-
-   @Override
-   public Type visit(MapAccessExpr mapAccessExpr, Object par)
-   {
-      final Type attributeType = mapAccessExpr.getName().accept(ExtractDecl.INSTANCE, null).getType();
-      if (attributeType instanceof ListType)
-      {
-         return attributeType;
-      }
-
-      return ListType.of(attributeType);
-   }
-
-   @Override
-   public Type visit(ConditionalOperatorExpr conditionalOperatorExpr, Object par)
-   {
-      return PrimitiveType.BOOLEAN;
-   }
+   // --------------- CollectionExpr.Visitor ---------------
 
    @Override
    public Type visit(ListExpr listExpr, Object par)
@@ -154,6 +130,24 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       // TODO common type
       final Type elementType = rangeExpr.getStart().accept(this, par);
       return ListType.of(elementType);
+   }
+
+   @Override
+   public Type visit(MapAccessExpr mapAccessExpr, Object par)
+   {
+      final Type attributeType = mapAccessExpr.getName().accept(ExtractDecl.INSTANCE, null).getType();
+      if (attributeType instanceof ListType)
+      {
+         return attributeType;
+      }
+
+      return ListType.of(attributeType);
+   }
+
+   @Override
+   public Type visit(FilterExpr filterExpr, Object par)
+   {
+      return filterExpr.getSource().accept(this, par);
    }
 
    // --------------- Name.Visitor ---------------
