@@ -12,6 +12,7 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 
@@ -186,6 +187,55 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = removeSentence.getTarget();
       return target.accept(RemoveResolve.INSTANCE, source).accept(this, par);
+   }
+
+   @Override
+   public Sentence visit(TakeSentence takeSentence, Scope par)
+   {
+      takeSentence.setExample(takeSentence.getExample().accept(ExprResolver.INSTANCE, par));
+      takeSentence.setCollection(takeSentence.getCollection().accept(ExprResolver.INSTANCE, par));
+
+      final VarDecl varDecl = resolveVar(takeSentence);
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return name.equals(varDecl.getName()) ? varDecl : super.resolve(name);
+         }
+      };
+
+      takeSentence.setActions((SentenceList) takeSentence.getActions().accept(this, scope));
+      return takeSentence;
+   }
+
+   private static VarDecl resolveVar(TakeSentence takeSentence)
+   {
+      final Type type = takeSentence.getExample().accept(Typer.INSTANCE, null);
+      final Name name = takeSentence.getVarName();
+      if (name != null)
+      {
+         final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
+         if (decl != null)
+         {
+            return (VarDecl) decl;
+         }
+
+         final String nameValue = name.accept(Namer.INSTANCE, null);
+         final VarDecl varDecl = VarDecl.of(nameValue, type, null);
+         takeSentence.setVarName(ResolvedName.of(varDecl));
+         return varDecl;
+      }
+
+      final String exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null);
+      if (exampleName != null)
+      {
+         final VarDecl varDecl = VarDecl.of(exampleName, type, null);
+         takeSentence.setVarName(ResolvedName.of(varDecl));
+         return varDecl;
+      }
+
+      throw new UnsupportedOperationException("cannot infer loop variable name");
    }
 
    @Override

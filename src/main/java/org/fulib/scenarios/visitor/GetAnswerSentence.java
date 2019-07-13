@@ -1,9 +1,6 @@
 package org.fulib.scenarios.visitor;
 
-import org.fulib.scenarios.ast.sentence.AnswerSentence;
-import org.fulib.scenarios.ast.sentence.ConditionalSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.sentence.SentenceList;
+import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.List;
 
@@ -34,5 +31,11 @@ public enum GetAnswerSentence implements Sentence.Visitor<Object, AnswerSentence
    public AnswerSentence visit(ConditionalSentence conditionalSentence, Object par)
    {
       return conditionalSentence.getActions().accept(this, par);
+   }
+
+   @Override
+   public AnswerSentence visit(TakeSentence takeSentence, Object par)
+   {
+      return takeSentence.getActions().accept(this, par);
    }
 }

@@ -6,6 +6,8 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.ExtractDecl;
+import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 
 import java.util.Iterator;
@@ -140,6 +142,34 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.bodyBuilder.append("return ");
       answerSentence.getResult().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(";\n");
+
+      return null;
+   }
+
+   @Override
+   public Object visit(TakeSentence takeSentence, CodeGenDTO par)
+   {
+      par.emitIndent();
+      par.bodyBuilder.append("for (final ");
+
+      final Type elementType = takeSentence.getVarName().accept(ExtractDecl.INSTANCE, null).getType();
+      final String varName = takeSentence.getVarName().accept(Namer.INSTANCE, null);
+
+      par.bodyBuilder.append(elementType.accept(TypeGenerator.INSTANCE, par));
+      par.bodyBuilder.append(' ');
+      par.bodyBuilder.append(varName);
+      par.bodyBuilder.append(" : ");
+
+      takeSentence.getCollection().accept(ExprGenerator.INSTANCE, par);
+
+      par.bodyBuilder.append(") {\n");
+
+      par.indentLevel++;
+      takeSentence.getActions().accept(this, par);
+      par.indentLevel--;
+
+      par.emitIndent();
+      par.bodyBuilder.append("}\n");
 
       return null;
    }
