@@ -21,6 +21,7 @@ CONTAIN:  'contain';
 CONTAINS: 'contains';
 CREATE:   'create';
 CREATES:  'creates';
+DO:       'do';
 DOES:     'does';
 EG:       'e.g.';
 EQUAL:    'equal';

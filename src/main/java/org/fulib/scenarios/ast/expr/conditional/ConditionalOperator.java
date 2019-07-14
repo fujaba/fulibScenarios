@@ -1,5 +1,6 @@
 package org.fulib.scenarios.ast.expr.conditional;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,36 +9,51 @@ public enum ConditionalOperator
    // =============== Enum Constants ===============
 
    // boolean
-   OR("or", null, "<lhs> || <rhs>"),
-   AND("and", null, "<lhs> && <rhs>"),
+   OR("or", "or", "<lhs> || <rhs>"),
+   AND("and", "and", "<lhs> && <rhs>"),
    // equality
-   IS("is", "<lhs> == <rhs>", "<lhs>.equals(<rhs>)", "assertEquals(<lhs>, <rhs>, 0)", "assertEquals(<lhs>, <rhs>)"),
-   IS_NOT("is not", "<lhs> != <rhs>", "!<lhs>.equals(<rhs>)", "assertNotEquals(<lhs>, <rhs>, 0)",
+   IS("is", "are", "<lhs> == <rhs>", "<lhs>.equals(<rhs>)", "assertEquals(<lhs>, <rhs>, 0)",
+      "assertEquals(<lhs>, <rhs>)"),
+   IS_NOT("is not", "are not", "<lhs> != <rhs>", "!<lhs>.equals(<rhs>)", "assertNotEquals(<lhs>, <rhs>, 0)",
           "assertNotEquals(<lhs>, <rhs>)"),
-   IS_SAME("is the same as", null, "<lhs> == <rhs>", null, "assertSame(<lhs>, <rhs>)"),
-   IS_NOT_SAME("is not the same as", null, "<lhs> != <rhs>", null, "assertNotSame(<lhs>, <rhs>)"),
+   IS_SAME("is the same as", "are the same as", null, "<lhs> == <rhs>", null, "assertSame(<lhs>, <rhs>)"),
+   IS_NOT_SAME("is not the same as", "are not the same as", null, "<lhs> != <rhs>", null,
+               "assertNotSame(<lhs>, <rhs>)"),
    // comparison
-   LT("is less than", "<lhs> < <rhs>", "<lhs>.compareTo(<rhs>) < 0"),
-   NOT_LT("is not less than", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
-   LE("is less equal", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
-   GT("is greater than", "<lhs> > <rhs>", "<lhs>.compareTo(<rhs>)  > 0"),
-   GE("is greater equal", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
-   NOT_GT("is not greater than", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
+   LT("is less than", "are less than", "<lhs> < <rhs>", "<lhs>.compareTo(<rhs>) < 0"),
+   NOT_LT("is not less than", "are not less than", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
+   LE("is less equal", "are less equal", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
+   GT("is greater than", "are greater than", "<lhs> > <rhs>", "<lhs>.compareTo(<rhs>)  > 0"),
+   GE("is greater equal", "are greater equal", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
+   NOT_GT("is not greater than", "are not greater than", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
    // collection
-   CONTAIN("contain", "<lhs>.contains(<rhs>)"),
-   CONTAINS("contains", "<lhs>.contains(<rhs>)"),
-   NOT_CONTAINS("does not contain", "!<lhs>.contains(<rhs>)"),
+   CONTAINS("contains", "contain", "<lhs>.contains(<rhs>)"),
+   NOT_CONTAINS("does not contain", "do not contain", "!<lhs>.contains(<rhs>)"),
    // IS_IN("is in", "<rhs>.contains(<lhs>)"),
    // IS_NOT_IN("is not in", "!<rhs>.contains(<lhs>)"),
    ;
 
    // =============== Static Fields ===============
 
-   private static Map<String, ConditionalOperator> opMap;
+   public static final Map<String, ConditionalOperator> opMap;
+
+   static
+   {
+      final ConditionalOperator[] values = values();
+      final Map<String, ConditionalOperator> map = new HashMap<>(values.length);
+      for (ConditionalOperator operator : values)
+      {
+         map.put(operator.getSingular(), operator);
+         map.put(operator.getPlural(), operator);
+      }
+
+      opMap = Collections.unmodifiableMap(map);
+   }
 
    // =============== Fields ===============
 
-   private final String op;
+   private final String singular;
+   private final String plural;
    private final String numberOperator;
    private final String objectOperator;
    private final String numberAssertion;
@@ -45,21 +61,22 @@ public enum ConditionalOperator
 
    // =============== Constructors ===============
 
-   ConditionalOperator(String op, String javaOperator)
+   ConditionalOperator(String singular, String plural, String javaOperator)
    {
-      this(op, javaOperator, javaOperator);
+      this(singular, plural, javaOperator, javaOperator);
    }
 
-   ConditionalOperator(String op, String javaNumberOperator, String javaObjectOperator)
+   ConditionalOperator(String singular, String plural, String javaNumberOperator, String javaObjectOperator)
    {
-      this(op, javaNumberOperator, javaObjectOperator, wrapAssert(javaNumberOperator),
+      this(singular, plural, javaNumberOperator, javaObjectOperator, wrapAssert(javaNumberOperator),
            wrapAssert(javaObjectOperator));
    }
 
-   ConditionalOperator(String op, String numberOperator, String objectOperator, String numberAssertion,
-      String objectAssertion)
+   ConditionalOperator(String singular, String plural, String numberOperator, String objectOperator,
+      String numberAssertion, String objectAssertion)
    {
-      this.op = op;
+      this.singular = singular;
+      this.plural = plural;
       this.numberOperator = numberOperator;
       this.objectOperator = objectOperator;
       this.numberAssertion = numberAssertion;
@@ -75,25 +92,19 @@ public enum ConditionalOperator
 
    public static ConditionalOperator getByOp(String op)
    {
-      if (opMap != null)
-      {
-         return opMap.get(op);
-      }
-
-      final ConditionalOperator[] values = values();
-      opMap = new HashMap<>(values.length);
-      for (ConditionalOperator operator : values)
-      {
-         opMap.put(operator.getOp(), operator);
-      }
       return opMap.get(op);
    }
 
    // =============== Properties ===============
 
-   public String getOp()
+   public String getSingular()
    {
-      return this.op;
+      return this.singular;
+   }
+
+   public String getPlural()
+   {
+      return this.plural;
    }
 
    public String getNumberOperator()

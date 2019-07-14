@@ -139,8 +139,8 @@ attrCheck: access? (HAS | HAVE) namedExpr;
 condOpExpr: lhs=access? condOp rhs=access;
 condOp: eqOp | cmpOp | collOp;
 
-eqOp: IS | IS NOT
-    | IS THE SAME AS | IS NOT THE SAME AS;
-cmpOp: IS LESS THAN | IS NOT LESS THAN | IS LESS EQUAL
-     | IS GREATER THAN | IS GREATER EQUAL | IS NOT GREATER THAN;
-collOp: CONTAIN | CONTAINS | DOES NOT CONTAIN /* | IS IN | IS NOT IN */;
+eqOp: IS | ARE | (IS | ARE) NOT
+    | (IS | ARE) THE SAME AS | (IS | ARE) NOT THE SAME AS;
+cmpOp: (IS | ARE) LESS THAN | (IS | ARE) NOT LESS THAN | (IS | ARE) LESS EQUAL
+     | (IS | ARE) GREATER THAN | (IS | ARE) GREATER EQUAL | (IS | ARE) NOT GREATER THAN;
+collOp: CONTAIN | CONTAINS | (DO | DOES) NOT CONTAIN /* | (IS | ARE) IN | (IS | ARE) NOT IN */;
