@@ -58,8 +58,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final List<Sentence> newItems = new ArrayList<>(oldItems.size());
       for (final Sentence item : oldItems)
       {
-         item.accept(SymbolCollector.INSTANCE, decls);
          final Sentence resolved = item.accept(this, scope);
+         resolved.accept(SymbolCollector.INSTANCE, decls);
          FlattenSentenceList.add(newItems, resolved);
       }
       sentenceList.setItems(newItems);

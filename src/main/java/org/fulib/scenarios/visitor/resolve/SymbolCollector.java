@@ -2,7 +2,10 @@ package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
-import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
+import org.fulib.scenarios.ast.sentence.IsSentence;
+import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.visitor.Namer;
 
 import java.util.Map;
@@ -22,7 +25,17 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    @Override
    public Object visit(SentenceList sentenceList, Map<String, Decl> par)
    {
-      // the sentence list encapsulates declarations, so does not expose them here.
+      if (!(sentenceList instanceof FlattenSentenceList))
+      {
+         // the sentence list encapsulates declarations, so does not expose them here.
+         return null;
+      }
+
+      for (final Sentence sentence : sentenceList.getItems())
+      {
+         sentence.accept(this, par);
+      }
+
       return null;
    }
 
