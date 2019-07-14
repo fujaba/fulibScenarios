@@ -177,7 +177,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
 
       if (attribute.getType() instanceof ListType)
       {
-         par.bodyBuilder.append(".flatMap(List::stream)");
+         par.bodyBuilder.append(".flatMap(x -> x.stream())");
       }
       return null;
    }

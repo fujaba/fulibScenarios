@@ -1,8 +1,7 @@
 # Scenario Italy delivers Shoes.
 
   There is a Warehouse.
-  There are Areas with name fast area, middle area 
-  and slow area.
+  There are Areas with name fast area, middle area and slow area.
   The Warehouse has areas and is warehouse of fast area, middle area 
   and slow area.
   There are Places with name f1, f2, f3, m1, m2, s1.
@@ -18,8 +17,11 @@ There are Products with name High Heels, Nike Airs.
 There are Palette with id eu100, eu200, eu333
 and with quantity 100, 150, 150.
 
-High Heels has palettes eu200, eu333.
+High Heels has palettes and is product of eu200, eu333.
 Nike Airs has palettes eu100.
+
+Warehouse has products and is warehouse of High Heels and Nike Airs.
+F2 has palette and is place of eu100.
 
 There is an Arrival with id mondayArrival and with palettes
 eu100, eu200, eu333 and with producer Italy. 
@@ -28,16 +30,23 @@ eu100, eu200, eu333 and with producer Italy.
 
 ## operations
 
-We call addStock on Warehouse with arrival mondayArrival.
-// AddStock takes High Heels and all other products of palettes of mondayArrival 
-// and addStock adds High Heels to products of Warehouse. 
-// AddStock takes eu100 and all other palettes of mondayArrival and 
-// addStock calls findPlace with palette eu100. 
-// AddStock calls findPlace with palettes of mondayArrival.
+We call find-place on Warehouse with palette eu100. 
 
-// FindPlace checks that place of eu100 is empty and 
-// findPlace takes f1 or some other from places of areas of warehouse  
-// and findPlace writes f1 into place of eu100. 
+Find-place takes new-place f1 from places of areas of Warehouse
+and as palette of new-place is empty, 
+find-place writes eu100 into palette of new-place 
+and find-place answers with OK.
+find-place answers with FAILED.
+
+We call add-stock on Warehouse with arrival mondayArrival.
+
+Add-stock takes new-product High Heels from product of palettes of mondayArrival 
+and add-stock adds new-product to products of Warehouse. 
+Add-stock takes new-pal eu100 from palettes of mondayArrival
+and add-stock calls find-place on Warehouse with palette new-pal.
+
+
+![MondayArrival](ArrivalStored.svg)
 
 
 
