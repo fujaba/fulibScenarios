@@ -17,7 +17,7 @@ We write students of rooms of StudyRight into tmpList.
 
 // We expect that StudyRight is tmp. 
 
-![tmp](out.txt)
+// ![tmp](out.txt)
 ![tmp](out.svg)
 
 
