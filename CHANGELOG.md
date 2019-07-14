@@ -116,3 +116,30 @@
 
 + Added the `-cp`/`--classpath` options. #90
 + Added the `-i`/`--imports` options. #90
+
+# Fulib Scenarios v0.6.0
+
+### General
+
+* Number literals without a decimal point are now treated as integers. #39
+* Associations are now uni-directional by default if no reverse name is specified when they are introduced. #100
+* External classes are now loaded from `.class` files on the classpath instead of scenarios. #94
+* Ambiguous parses are now reported. #87
+* Independent packages are now compiled in parallel. #97
+- Moved the `MockupTools` class to FulibMockups. #98
+
+### Sentences
+
++ Added Take Sentences. #99
++ Has sentences can now declare reverse association name and cardinality. #37
+* Fixed an issue that caused `answers ... into` to work incorrectly. #104
+
+### Expressions
+
++ Added Range Expressions. #35
++ Added Filter Expressions. #45
++ Added the unary conditional operators `is empty` and `is not empty`. #114
++ Conditional operators can now be written in their plural form. #115
+* Chained Stream operations are now more efficient. #101
+* The result of vectorized access to multi-valued attributes or to-many associations is now flattened. #112
+* List expressions containing ranges are now flattened. #113
