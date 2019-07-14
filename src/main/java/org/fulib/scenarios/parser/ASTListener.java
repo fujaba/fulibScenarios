@@ -17,10 +17,7 @@ import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
+import org.fulib.scenarios.ast.expr.conditional.*;
 import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
 import org.fulib.scenarios.ast.expr.primary.IntLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -414,6 +411,21 @@ public class ASTListener extends ScenarioParserBaseListener
       final ConditionalOperatorExpr operatorExpr = ConditionalOperatorExpr.of(lhs, op, rhs);
 
       this.stack.push(operatorExpr);
+   }
+
+   @Override
+   public void exitPredOpExpr(ScenarioParser.PredOpExprContext ctx)
+   {
+      final Expr lhs = ctx.lhs != null ? this.pop() : null;
+      final String opText = inputText(ctx.predOp()).replaceAll("\\s+", " ");
+      final PredicateOperator op = PredicateOperator.nameMap.get(opText);
+      if (op == null)
+      {
+         throw new UnsupportedOperationException("no PredicateOperator constant for '" + opText + "'");
+      }
+
+      final PredicateOperatorExpr expr = PredicateOperatorExpr.of(lhs, op);
+      this.stack.push(expr);
    }
 
    @Override

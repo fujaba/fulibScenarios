@@ -133,7 +133,7 @@ condExpr: andCondExpr;
 andCondExpr: orCondExpr (AND orCondExpr)*;
 orCondExpr: primaryCondExpr (OR primaryCondExpr)*;
 
-primaryCondExpr : attrCheck | condOpExpr;
+primaryCondExpr : attrCheck | condOpExpr | predOpExpr;
 attrCheck: access? (HAS | HAVE) namedExpr;
 
 condOpExpr: lhs=access? condOp rhs=access;
@@ -144,3 +144,7 @@ eqOp: IS | ARE | (IS | ARE) NOT
 cmpOp: (IS | ARE) LESS THAN | (IS | ARE) NOT LESS THAN | (IS | ARE) LESS EQUAL
      | (IS | ARE) GREATER THAN | (IS | ARE) GREATER EQUAL | (IS | ARE) NOT GREATER THAN;
 collOp: CONTAIN | CONTAINS | (DO | DOES) NOT CONTAIN /* | (IS | ARE) IN | (IS | ARE) NOT IN */;
+
+predOpExpr: lhs=access? predOp;
+
+predOp: (IS | ARE) EMPTY | (IS | ARE) NOT EMPTY;

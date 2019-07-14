@@ -1,4 +1,5 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
+import org.fulib.scenarios.ast.expr.conditional.PredicateOperator
 
 import org.fulib.scenarios.tool.Config
 
@@ -90,6 +91,7 @@ abstract org.fulib.scenarios.ast.Node {
 		abstract conditional.ConditionalExpr {
 			AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
 			ConditionalOperatorExpr(lhs: Expr, operator: ConditionalOperator, rhs: Expr)
+			PredicateOperatorExpr(lhs: Expr, operator: PredicateOperator)
 		}
 
 		abstract collection.CollectionExpr {

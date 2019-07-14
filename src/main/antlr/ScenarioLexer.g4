@@ -24,6 +24,7 @@ CREATES:  'creates';
 DO:       'do';
 DOES:     'does';
 EG:       'e.g.';
+EMPTY:    'empty';
 EQUAL:    'equal';
 EXPECT:   'expect';
 FROM:     'from';
