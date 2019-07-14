@@ -11,10 +11,7 @@ import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
+import org.fulib.scenarios.ast.expr.conditional.*;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
@@ -278,6 +275,27 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       conditionalOperatorExpr.setRhs(conditionalOperatorExpr.getRhs().accept(this, par));
       return conditionalOperatorExpr;
+   }
+
+   @Override
+   public Expr visit(PredicateOperatorExpr predicateOperatorExpr, Scope par)
+   {
+      final Expr lhs = predicateOperatorExpr.getLhs();
+      if (lhs != null)
+      {
+         predicateOperatorExpr.setLhs(lhs.accept(this, par));
+      }
+      else
+      {
+         final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
+         if (predicateReceiver == null)
+         {
+            throw new IllegalStateException("invalid predicate operator - missing left-hand expression");
+         }
+         predicateOperatorExpr.setLhs(NameAccess.of(ResolvedName.of(predicateReceiver)));
+      }
+
+      return predicateOperatorExpr;
    }
 
    @Override

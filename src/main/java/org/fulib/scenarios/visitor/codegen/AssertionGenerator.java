@@ -1,8 +1,11 @@
 package org.fulib.scenarios.visitor.codegen;
 
+import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
+import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
+import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.Typer;
 
@@ -58,5 +61,47 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenDTO, Ob
       final Type lhsType = conditionalOperatorExpr.getLhs().accept(Typer.INSTANCE, null);
       final Type rhsType = conditionalOperatorExpr.getRhs().accept(Typer.INSTANCE, null);
       return Typer.isNumeric(lhsType) || Typer.isNumeric(rhsType);
+   }
+
+   @Override
+   public Object visit(PredicateOperatorExpr predicateOperatorExpr, CodeGenDTO par)
+   {
+      final Expr lhs = predicateOperatorExpr.getLhs();
+      switch (predicateOperatorExpr.getOperator())
+      {
+      case IS_NOT_EMPTY:
+         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         {
+            par.addImport("static org.junit.Assert.assertFalse");
+            par.bodyBuilder.append("assertFalse(");
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(".isEmpty())");
+         }
+         else
+         {
+            par.addImport("static org.junit.Assert.assertNotNull");
+            par.bodyBuilder.append("assertNotNull(");
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(')');
+         }
+         return null;
+      case IS_EMPTY:
+         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         {
+            par.addImport("static org.junit.Assert.assertTrue");
+            par.bodyBuilder.append("assertTrue(");
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(".isEmpty())");
+         }
+         else
+         {
+            par.addImport("static org.junit.Assert.assertNull");
+            par.bodyBuilder.append("assertNull(");
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(')');
+         }
+         return null;
+      }
+      return null;
    }
 }

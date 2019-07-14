@@ -12,6 +12,7 @@ import org.fulib.scenarios.ast.expr.collection.CollectionExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
+import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.visitor.ExtractDecl;
@@ -130,6 +131,41 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
       final String format = numeric ? operator.getNumberOperator() : operator.getObjectOperator();
       AssertionGenerator.generateCondOp(conditionalOperatorExpr, par, format);
+      return null;
+   }
+
+   @Override
+   public Object visit(PredicateOperatorExpr predicateOperatorExpr, CodeGenDTO par)
+   {
+      final Expr lhs = predicateOperatorExpr.getLhs();
+      switch (predicateOperatorExpr.getOperator())
+      {
+      case IS_NOT_EMPTY:
+         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         {
+            par.bodyBuilder.append('!');
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(".isEmpty()");
+         }
+         else
+         {
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(" != null");
+         }
+         return null;
+      case IS_EMPTY:
+         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         {
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(".isEmpty()");
+         }
+         else
+         {
+            lhs.accept(ExprGenerator.INSTANCE, par);
+            par.bodyBuilder.append(" == null");
+         }
+         return null;
+      }
       return null;
    }
 
