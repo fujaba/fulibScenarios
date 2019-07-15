@@ -87,8 +87,11 @@ WORD: [a-zA-Z_][a-zA-Z0-9'_-]*;
 // --------------- Whitespace ---------------
 
 WS:           [ \t\r\n\u000C]+ -> skip;
-COMMENT:      '<!--' .*? '-->' -> channel(HIDDEN);
-LINE_COMMENT: '//' ~[\r\n]*    -> channel(HIDDEN);
+
+// --------------- Comments ---------------
+
+COMMENT:      ('(' .*? ')' | '<!--' .*? '-->') -> channel(HIDDEN);
+LINE_COMMENT: '//' ~[\r\n]*                    -> channel(HIDDEN);
 
 // --------------- Images ---------------
 
