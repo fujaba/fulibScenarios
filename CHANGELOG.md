@@ -143,3 +143,7 @@
 * Chained Stream operations are now more efficient. #101
 * The result of vectorized access to multi-valued attributes or to-many associations is now flattened. #112
 * List expressions containing ranges are now flattened. #113
+
+# Fulib Scenarios v0.6.1
+
+* Fixed an invalid dependency configuration.
