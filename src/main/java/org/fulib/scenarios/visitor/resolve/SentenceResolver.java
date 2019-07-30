@@ -195,13 +195,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       takeSentence.setExample(takeSentence.getExample().accept(ExprResolver.INSTANCE, par));
       takeSentence.setCollection(takeSentence.getCollection().accept(ExprResolver.INSTANCE, par));
 
+      final String exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null);
+
       final VarDecl varDecl = resolveVar(takeSentence);
       final Scope scope = new DelegatingScope(par)
       {
          @Override
          public Decl resolve(String name)
          {
-            return name.equals(varDecl.getName()) ? varDecl : super.resolve(name);
+            return name.equals(varDecl.getName()) || name.equals(exampleName) ? varDecl : super.resolve(name);
          }
       };
 
