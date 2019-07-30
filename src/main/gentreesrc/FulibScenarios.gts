@@ -1,5 +1,6 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperator
+import org.fulib.scenarios.ast.sentence.CommentLevel
 
 import org.fulib.scenarios.tool.Config
 
@@ -42,7 +43,7 @@ abstract org.fulib.scenarios.ast.Node {
 	abstract sentence.Sentence {
 		SentenceList(items: [Sentence])
 
-		SectionSentence(text: String)
+		SectionSentence(text: String, level: CommentLevel)
 
 		ThereSentence(descriptors: [MultiDescriptor]) // like CreateSentence, but without an actor
 		ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion

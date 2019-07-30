@@ -96,7 +96,15 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitSectionSentence(ScenarioParser.SectionSentenceContext ctx)
    {
       final String text = ctx.HEADLINE_TEXT().getText().trim();
-      final SectionSentence sectionSentence = SectionSentence.of(text);
+      final SectionSentence sectionSentence = SectionSentence.of(text, CommentLevel.CODE_SECTION);
+      this.stack.push(sectionSentence);
+   }
+
+   @Override
+   public void exitCommentSentence(ScenarioParser.CommentSentenceContext ctx)
+   {
+      final String text = ctx.HEADLINE_TEXT().getText().trim();
+      final SectionSentence sectionSentence = SectionSentence.of(text, CommentLevel.REGULAR);
       this.stack.push(sectionSentence);
    }
 

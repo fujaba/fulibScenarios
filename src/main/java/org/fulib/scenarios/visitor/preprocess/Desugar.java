@@ -94,8 +94,8 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    @Override
    public Sentence visit(SectionSentence sectionSentence, Object par)
    {
-      final String processedComment = sectionSentence.getText().trim();
-      return TemplateSentence.of("// --- " + processedComment + " ---", Collections.emptyList());
+      final String processedComment = sectionSentence.getLevel().format(sectionSentence.getText().trim());
+      return TemplateSentence.of(processedComment, Collections.emptyList());
    }
 
    @Override

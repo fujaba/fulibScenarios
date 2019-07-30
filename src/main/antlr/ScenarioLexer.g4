@@ -65,8 +65,10 @@ WRITES:   'writes';
 
 // --------------- Key Symbols ---------------
 
-H1:        '#' -> mode(HEADLINE);
-H2:        '##' -> mode(HEADLINE);
+H1:           '#' -> mode(HEADLINE);
+H2:           '##' -> mode(HEADLINE);
+LINE_COMMENT: '//' -> mode(HEADLINE);
+
 COMMA:     [,];
 FULL_STOP: [.];
 PLUS:      [+];
@@ -91,7 +93,6 @@ WS:           [ \t\r\n\u000C]+ -> skip;
 // --------------- Comments ---------------
 
 COMMENT:      ('(' .*? ')' | '<!--' .*? '-->') -> channel(HIDDEN);
-LINE_COMMENT: '//' ~[\r\n]*                    -> channel(HIDDEN);
 
 // --------------- Images ---------------
 
