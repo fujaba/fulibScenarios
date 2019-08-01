@@ -69,8 +69,6 @@
 
 # Fulib Scenarios v0.4.0
 
-### General
-
 ### Sentences
 
 + Added Write Sentences. #78
