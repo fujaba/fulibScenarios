@@ -66,6 +66,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 		ConditionalSentence(condition: ConditionalExpr, actions: SentenceList)
 
+		AssignSentence(target: VarDecl, value: Expr) // i.e. a variable assignment
 		ExprSentence(expr: Expr)
 
 		// e.g. TemplateSentence("<%>.addAll(<*>);", [ foo, ListExpr.of([ bar, baz ]) ])

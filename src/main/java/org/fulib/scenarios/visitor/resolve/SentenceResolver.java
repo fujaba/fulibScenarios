@@ -250,6 +250,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    }
 
    @Override
+   public Sentence visit(AssignSentence assignSentence, Scope par)
+   {
+      assignSentence.setValue(assignSentence.getValue().accept(ExprResolver.INSTANCE, par));
+      return assignSentence;
+   }
+
+   @Override
    public Sentence visit(ExprSentence exprSentence, Scope par)
    {
       exprSentence.setExpr(exprSentence.getExpr().accept(ExprResolver.INSTANCE, par));

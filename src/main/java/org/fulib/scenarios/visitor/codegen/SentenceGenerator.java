@@ -198,6 +198,17 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    }
 
    @Override
+   public Object visit(AssignSentence assignSentence, CodeGenDTO par)
+   {
+      par.emitIndent();
+      par.bodyBuilder.append(assignSentence.getTarget().getName());
+      par.bodyBuilder.append(" = ");
+      assignSentence.getValue().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(";\n");
+      return null;
+   }
+
+   @Override
    public Object visit(ExprSentence exprSentence, CodeGenDTO par)
    {
       par.emitIndent();
