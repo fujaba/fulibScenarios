@@ -167,7 +167,7 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
             // alice.setCredits(_t0);
             // bob.setCredits(_t0);
 
-            final VarDecl temp = VarDecl.of("temp", null, attributeExpr);
+            final VarDecl temp = VarDecl.of("temp++", null, attributeExpr);
             result.add(IsSentence.of(temp));
 
             for (int i = 0; i < names.size(); i++)

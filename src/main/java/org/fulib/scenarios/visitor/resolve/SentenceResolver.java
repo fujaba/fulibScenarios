@@ -152,13 +152,47 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    public Sentence visit(IsSentence isSentence, Scope par)
    {
       final VarDecl varDecl = isSentence.getDescriptor();
-      varDecl.setExpr(varDecl.getExpr().accept(ExprResolver.INSTANCE, par));
+      final Expr expr = varDecl.getExpr().accept(ExprResolver.INSTANCE, par);
+      String name = varDecl.getName();
 
+      if (name == null)
+      {
+         name = expr.accept(Namer.INSTANCE, null);
+      }
+      else if (name.contains("++"))
+      {
+         name = findUnique(name, par);
+      }
+
+      final Decl existing = par.resolve(name);
+      if (existing != varDecl && existing instanceof VarDecl)
+      {
+         return AssignSentence.of((VarDecl) existing, expr);
+      }
+
+      varDecl.setName(name);
+      varDecl.setExpr(expr);
       if (varDecl.getType() == null)
       {
          varDecl.setType(varDecl.getExpr().accept(Typer.INSTANCE, null));
       }
       return isSentence;
+   }
+
+   private static String findUnique(String name, Scope par)
+   {
+      final int index = name.indexOf("++");
+      final String prefix = name.substring(0, index);
+      final String suffix = name.substring(index + 2);
+
+      for (int i = 1; ; i++)
+      {
+         final String numbered = prefix + i + suffix;
+         if (par.resolve(numbered) == null)
+         {
+            return numbered;
+         }
+      }
    }
 
    @Override

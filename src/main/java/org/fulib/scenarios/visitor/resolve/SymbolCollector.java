@@ -6,7 +6,6 @@ import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
 import org.fulib.scenarios.ast.sentence.IsSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.ast.sentence.SentenceList;
-import org.fulib.scenarios.visitor.Namer;
 
 import java.util.Map;
 
@@ -46,18 +45,10 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
       String name = varDecl.getName();
       if (name == null)
       {
-         name = varDecl.getExpr().accept(Namer.INSTANCE, null);
+
+         varDecl.setName(name);
       }
 
-      final String origName = name;
-      int num = 1;
-
-      while (par.containsKey(name))
-      {
-         name = origName + num++;
-      }
-
-      varDecl.setName(name);
       par.put(name, varDecl);
       return null;
    }

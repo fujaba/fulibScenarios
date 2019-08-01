@@ -81,7 +81,7 @@ public enum AssignmentDesugar implements Expr.Visitor<Expr, Sentence>
          // xs = temp
          // ys = temp
 
-         final VarDecl temp = VarDecl.of("temp", null, par);
+         final VarDecl temp = VarDecl.of("temp++", null, par);
          result.add(IsSentence.of(temp));
          for (final Expr target : targets)
          {
