@@ -14,6 +14,7 @@ import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.parser.Identifiers;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
@@ -66,6 +67,11 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
          @Override
          public void add(Decl decl)
+         {
+         }
+
+         @Override
+         public void report(Marker marker)
          {
          }
       };
@@ -148,6 +154,13 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          public Decl resolve(String name)
          {
             return className.equals(name) || ENCLOSING_CLASS.equals(name) ? classDecl : super.resolve(name);
+         }
+
+         @Override
+         public void report(Marker marker)
+         {
+            scenarioFile.getMarkers().add(marker);
+            marker.setSource(scenarioFile);
          }
       };
       for (final Scenario scenario : scenarioFile.getScenarios().values())

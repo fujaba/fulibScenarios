@@ -17,17 +17,16 @@ public class Marker implements Diagnostic<ScenarioFile>
 
    private final Kind kind;
    private final Position position;
-   private final ScenarioFile source;
+   private ScenarioFile source;
    private final String code;
    private final Object[] args;
 
    // =============== Constructors ===============
 
-   public Marker(Kind kind, Position position, ScenarioFile source, String code, Object... args)
+   public Marker(Kind kind, Position position, String code, Object... args)
    {
       this.kind = kind;
       this.position = position;
-      this.source = source;
       this.code = code;
       this.args = args;
    }
@@ -44,6 +43,11 @@ public class Marker implements Diagnostic<ScenarioFile>
    public ScenarioFile getSource()
    {
       return this.source;
+   }
+
+   public void setSource(ScenarioFile source)
+   {
+      this.source = source;
    }
 
    public Position getPositionObject()

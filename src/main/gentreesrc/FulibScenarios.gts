@@ -1,6 +1,8 @@
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperator
 import org.fulib.scenarios.ast.sentence.CommentLevel
+import org.fulib.scenarios.diagnostic.Position
+import org.fulib.scenarios.diagnostic.Marker
 
 import org.fulib.scenarios.tool.Config
 
@@ -9,7 +11,7 @@ abstract org.fulib.scenarios.ast.Node {
 	ScenarioGroup(context: CompilationContext, sourceDir: String, packageDir: String,
 	              files: [String:ScenarioFile], classes: [String:ClassDecl])
 	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl,
-	             noconstruct external: boolean)
+	             noconstruct external: boolean, noconstruct markers: [Marker])
 	Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
 	abstract decl.Decl(name: String, type: Type) {

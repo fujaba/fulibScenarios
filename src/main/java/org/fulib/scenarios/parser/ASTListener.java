@@ -72,6 +72,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final List<Scenario> scenarios = this.pop(Scenario.class, ctx.scenario().size());
       final LinkedHashMap<String, Scenario> scenarioMap = new LinkedHashMap<>();
       this.file = ScenarioFile.of(null, null, scenarioMap, null);
+      this.file.setMarkers(new ArrayList<>());
 
       for (final Scenario scenario : scenarios)
       {
