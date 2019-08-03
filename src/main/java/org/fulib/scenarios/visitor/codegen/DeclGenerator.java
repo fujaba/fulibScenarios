@@ -118,7 +118,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(ParameterDecl parameterDecl, CodeGenDTO par)
    {
-      throw new UnsupportedOperationException("handled by visit(MethodDecl, ...)");
+      throw new AssertionError("handled by visit(MethodDecl, ...)");
    }
 
    @Override

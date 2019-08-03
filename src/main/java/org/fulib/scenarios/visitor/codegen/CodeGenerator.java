@@ -265,7 +265,7 @@ public enum CodeGenerator
             return fMethod;
          }
       }
-      throw new RuntimeException("method " + clazz.getName() + "." + name + " not found");
+      throw new IllegalStateException("method " + clazz.getName() + "." + name + " not found");
    }
 }
 

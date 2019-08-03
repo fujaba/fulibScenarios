@@ -412,7 +412,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       {
          if (cardinality != otherCardinality)
          {
-            throw new UnsupportedOperationException(
+            throw new IllegalStateException(
                "mismatching cardinality of self-association\norigin:  " + cardinalityString(cardinality)
                + "\nreverse: " + cardinalityString(otherCardinality));
          }

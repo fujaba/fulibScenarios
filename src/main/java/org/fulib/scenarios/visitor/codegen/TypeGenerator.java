@@ -14,7 +14,7 @@ public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>, ClassDecl
    @Override
    public String visit(UnresolvedType unresolvedType, CodeGenDTO par)
    {
-      throw new UnsupportedOperationException("unresolved type " + unresolvedType.getName());
+      throw new IllegalStateException("unresolved type " + unresolvedType.getName());
    }
 
    @Override

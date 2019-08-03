@@ -271,7 +271,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return varDecl;
       }
 
-      throw new UnsupportedOperationException("cannot infer loop variable name");
+      throw new IllegalStateException("cannot infer loop variable name");
    }
 
    @Override
