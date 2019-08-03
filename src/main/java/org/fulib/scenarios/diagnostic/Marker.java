@@ -3,7 +3,7 @@ package org.fulib.scenarios.diagnostic;
 import org.fulib.scenarios.ast.ScenarioFile;
 
 import javax.tools.Diagnostic;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -104,7 +104,7 @@ public class Marker implements Diagnostic<ScenarioFile>
       return String.format(localizedCode, this.args);
    }
 
-   public void print(PrintStream out)
+   public void print(PrintWriter out)
    {
       // src/dir/package/name/file_name.md:10:20: error: info...
       out.print(this.source.getGroup().getSourceDir());

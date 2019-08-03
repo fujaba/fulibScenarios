@@ -9,6 +9,7 @@ import org.apache.commons.cli.*;
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
+import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.visitor.codegen.CodeGenerator;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
@@ -18,6 +19,7 @@ import org.fulib.scenarios.visitor.preprocess.Grouper;
 import org.fulib.scenarios.visitor.resolve.NameResolver;
 
 import javax.lang.model.SourceVersion;
+import javax.tools.Diagnostic;
 import javax.tools.Tool;
 import java.io.*;
 import java.util.*;
@@ -131,6 +133,8 @@ public class ScenarioCompiler implements Tool
       LibraryHelper.loadLibraries(this);
       this.discover();
 
+      int errors = this.errors;
+
       for (CompilationContext.Visitor phase : PHASES)
       {
          try
@@ -143,10 +147,26 @@ public class ScenarioCompiler implements Tool
             final String phaseName = phase.getClass().getSimpleName();
             this.err.println("failed to execute phase '" + phaseName + "' due to exception:");
             ex.printStackTrace(this.err);
-            this.errors++;
+            errors++;
          }
       }
-      return this.errors;
+
+      for (final ScenarioGroup group : this.context.getGroups().values())
+      {
+         for (final ScenarioFile file : group.getFiles().values())
+         {
+            for (final Marker marker : file.getMarkers())
+            {
+               marker.print(this.out);
+               if (marker.getKind() == Diagnostic.Kind.ERROR)
+               {
+                  errors++;
+               }
+            }
+         }
+      }
+
+      return this.errors = errors;
    }
 
    private void discover()
