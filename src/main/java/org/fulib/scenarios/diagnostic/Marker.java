@@ -31,6 +31,23 @@ public class Marker implements Diagnostic<ScenarioFile>
       this.args = args;
    }
 
+   // =============== Static Methods ===============
+
+   public static Marker error(Position position, String code, Object... args)
+   {
+      return new Marker(Kind.ERROR, position, code, args);
+   }
+
+   public static Marker warning(Position position, String code, Object... args)
+   {
+      return new Marker(Kind.WARNING, position, code, args);
+   }
+
+   public static Marker note(Position position, String code, Object... args)
+   {
+      return new Marker(Kind.NOTE, position, code, args);
+   }
+
    // =============== Properties ===============
 
    @Override
