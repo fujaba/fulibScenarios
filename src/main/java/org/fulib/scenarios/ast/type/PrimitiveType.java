@@ -1,6 +1,7 @@
 package org.fulib.scenarios.ast.type;
 
 import org.fulib.scenarios.ast.Node;
+import org.fulib.scenarios.diagnostic.Position;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,6 +67,18 @@ public enum PrimitiveType implements Type
    public String getJavaName()
    {
       return this.javaName;
+   }
+
+   @Override
+   public Position getPosition()
+   {
+      return null;
+   }
+
+   @Override
+   public void setPosition(Position position)
+   {
+      throw new UnsupportedOperationException();
    }
 
    // =============== Methods ===============
