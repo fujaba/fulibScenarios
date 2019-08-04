@@ -26,7 +26,6 @@ import java.util.*;
 
 public class ScenarioCompiler implements Tool
 {
-   // =============== Constants ===============
 
    private static final String TOOL_NAME = "scenarioc";
 
@@ -155,6 +154,8 @@ public class ScenarioCompiler implements Tool
       {
          for (final ScenarioFile file : group.getFiles().values())
          {
+            file.getMarkers().sort(null);
+
             for (final Marker marker : file.getMarkers())
             {
                marker.print(this.out);

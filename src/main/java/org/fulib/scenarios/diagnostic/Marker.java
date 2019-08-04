@@ -4,10 +4,12 @@ import org.fulib.scenarios.ast.ScenarioFile;
 
 import javax.tools.Diagnostic;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class Marker implements Diagnostic<ScenarioFile>
+public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
 {
    // =============== Constants ===============
 
@@ -15,11 +17,11 @@ public class Marker implements Diagnostic<ScenarioFile>
 
    // =============== Fields ===============
 
-   private final Kind kind;
-   private final Position position;
-   private ScenarioFile source;
-   private final String code;
-   private final Object[] args;
+   private final Kind         kind;
+   private final Position     position;
+   private       ScenarioFile source;
+   private final String       code;
+   private final Object[]     args;
 
    // =============== Constructors ===============
 
@@ -113,6 +115,8 @@ public class Marker implements Diagnostic<ScenarioFile>
       return this.getMessage(Locale.getDefault());
    }
 
+   // =============== Methods ===============
+
    @Override
    public String getMessage(Locale locale)
    {
@@ -137,5 +141,40 @@ public class Marker implements Diagnostic<ScenarioFile>
       out.print(this.getKind().name().toLowerCase());
       out.print(": ");
       out.println(this.getLocalizedMessage());
+   }
+
+   @Override
+   public int compareTo(Marker o)
+   {
+      return Long.compare(this.getPosition(), o.getPosition());
+   }
+
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o)
+      {
+         return true;
+      }
+      if (!(o instanceof Marker))
+      {
+         return false;
+      }
+
+      final Marker that = (Marker) o;
+
+      return this.kind == that.kind && this.position.equals(that.position) && Objects.equals(this.source, that.source)
+             && this.code.equals(that.code) && Arrays.equals(this.args, that.args);
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = this.kind.hashCode();
+      result = 31 * result + this.position.hashCode();
+      result = 31 * result + Objects.hashCode(this.source);
+      result = 31 * result + this.code.hashCode();
+      result = 31 * result + Arrays.hashCode(this.args);
+      return result;
    }
 }
