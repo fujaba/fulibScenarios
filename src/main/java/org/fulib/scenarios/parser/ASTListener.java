@@ -25,6 +25,7 @@ import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
+import org.fulib.scenarios.diagnostic.Position;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -418,6 +419,7 @@ public class ASTListener extends ScenarioParserBaseListener
       }
 
       final ConditionalOperatorExpr operatorExpr = ConditionalOperatorExpr.of(lhs, op, rhs);
+      operatorExpr.setPosition(position(ctx.condOp()));
 
       this.stack.push(operatorExpr);
    }
@@ -434,6 +436,8 @@ public class ASTListener extends ScenarioParserBaseListener
       }
 
       final PredicateOperatorExpr expr = PredicateOperatorExpr.of(lhs, op);
+      expr.setPosition(position(ctx.predOp()));
+
       this.stack.push(expr);
    }
 
@@ -453,6 +457,24 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    // =============== Static Methods ===============
+
+   static Position position(Token token)
+   {
+      return new Position(token.getStartIndex(), token.getStopIndex(), token.getLine(),
+                          token.getCharPositionInLine());
+   }
+
+   static Position position(TerminalNode terminal)
+   {
+      return position(terminal.getSymbol());
+   }
+
+   static Position position(ParserRuleContext ctx)
+   {
+      final Token start = ctx.getStart();
+      return new Position(start.getStartIndex(), ctx.getStop().getStopIndex(), start.getLine(),
+                          start.getCharPositionInLine());
+   }
 
    static String inputText(ParserRuleContext ctx)
    {
