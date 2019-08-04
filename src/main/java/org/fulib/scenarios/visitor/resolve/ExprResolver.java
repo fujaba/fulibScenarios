@@ -176,8 +176,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
          if (!params.equals(args))
          {
-            throw new IllegalStateException(
-               "mismatching parameters and arguments:\nparameters: " + params + "\narguments : " + args);
+            par.report(error(callExpr.getPosition(), "call.mismatch.params.args", params, args));
          }
       }
 
