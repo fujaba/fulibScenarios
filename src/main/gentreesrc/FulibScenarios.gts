@@ -80,6 +80,8 @@ abstract org.fulib.scenarios.ast.Node {
 		NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
 
 		abstract expr.Expr {
+			ErrorExpr(type: Type?)
+
 			abstract primary.PrimaryExpr {
 				IntLiteral(value: int)
 				DoubleLiteral(value: double)
