@@ -13,6 +13,69 @@ compileTestJava.dependsOn taskName
 sourceSets.test.java.srcDir(files(modelOutputDir).builtBy(taskName))
 sourceSets.test.java.srcDir(files(testOutputDir).builtBy(taskName))
 
+tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
+    def sourceDir = 'src/test/invalid_scenarios'
+    configureTestCompile(j, "$buildDir/generated-src/invalid_scenarios/main/",
+            "$buildDir/generated-src/invalid_scenarios/test/",
+            [ 'org.fulib.mockups' ], [ sourceDir ])
+
+    def writer = new ByteArrayOutputStream()
+    j.standardOutput = writer
+    j.ignoreExitValue = true
+
+    j.doLast {
+        def errored = false
+        def output = writer.toString('UTF-8')
+        def errorLines = getErrorLines(project.rootDir, sourceDir)
+
+        for (line in errorLines) {
+            if (!output.contains(line)) {
+                j.state.addFailure(new TaskExecutionException(j, new Exception('error line not in compiler ' +
+                        'output:\n' + line)))
+                errored = true
+            }
+        }
+
+        if (errored) {
+            j.state.addFailure(new TaskExecutionException(j, new Exception('output was:\n' + output)))
+        }
+
+        // TODO check exit code (should == errorLines.size())
+    }
+}
+
+check.dependsOn 'compileInvalidScenarios'
+
+private List<String> getErrorLines(File rootDir, String sourceDir) {
+    List<String> errorLines = [ ]
+
+    new File(rootDir, sourceDir).eachFileRecurse {
+        if (!it.path.matches(~/.*\.md$/)) {
+            return
+        }
+
+        int column = 0
+        int lineNum = 0
+        String text = ""
+
+        it.eachLine { line, num ->
+            if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
+                lineNum = num - 1
+            }
+            else if (line.contains('-->')) {
+                errorLines.add "${ rootDir.relativePath(it) }:$lineNum:$column: $text"
+                column = lineNum = 0
+                text = ""
+            }
+            else if (lineNum > 0 && column >= 0) {
+                text += line + '\n'
+            }
+        }
+    }
+
+    return errorLines
+}
+
 private void configureTestCompile(JavaExec j, String modelOutputDir, String testOutputDir, Iterable<?> imports,
                                   Iterable<?> sourceDirs) {
     j.classpath = sourceSets.main.runtimeClasspath
