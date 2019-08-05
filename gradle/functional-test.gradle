@@ -4,7 +4,17 @@ def imports = [ 'org.fulib.mockups' ]
 def modelOutputDir = "$buildDir/generated-src/scenarios/main/"
 def testOutputDir = "$buildDir/generated-src/scenarios/test/"
 
-tasks.register(taskName, JavaExec) { JavaExec j ->
+tasks.register(taskName, JavaExec) {
+    configureTestCompile(it, modelOutputDir, testOutputDir, imports, sourceDirs)
+}
+
+compileTestJava.dependsOn taskName
+
+sourceSets.test.java.srcDir(files(modelOutputDir).builtBy(taskName))
+sourceSets.test.java.srcDir(files(testOutputDir).builtBy(taskName))
+
+private void configureTestCompile(JavaExec j, String modelOutputDir, String testOutputDir, Iterable<?> imports,
+                                  Iterable<?> sourceDirs) {
     j.classpath = sourceSets.main.runtimeClasspath
     j.main = 'org.fulib.scenarios.Main'
 
@@ -22,8 +32,3 @@ tasks.register(taskName, JavaExec) { JavaExec j ->
     j.outputs.dir(modelOutputDir)
     j.outputs.dir(testOutputDir)
 }
-
-compileTestJava.dependsOn taskName
-
-sourceSets.test.java.srcDir(files(modelOutputDir).builtBy(taskName))
-sourceSets.test.java.srcDir(files(testOutputDir).builtBy(taskName))
