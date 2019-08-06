@@ -213,20 +213,35 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return answerSentence;
    }
 
-   @Override
-   public Sentence visit(AddSentence addSentence, Scope par)
+   private Sentence resolveAssignment(Sentence original, Scope par, Expr source, Expr target,
+      Expr.Visitor<Expr, Sentence> resolve, String code)
    {
-      final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
-      final Expr target = addSentence.getTarget();
-      final Sentence sentence = target.accept(AddResolve.INSTANCE, source);
+      final Sentence sentence = target.accept(resolve, source);
       if (sentence != null)
       {
          return sentence.accept(this, par);
       }
 
-      par.report(error(addSentence.getPosition(), "sentence.add.invalid",
-                       target.getClass().getEnclosingClass().getSimpleName()));
-      return addSentence;
+      par.report(error(original.getPosition(), code, target.getClass().getEnclosingClass().getSimpleName()));
+      return original;
+   }
+
+   @Override
+   public Sentence visit(WriteSentence writeSentence, Scope par)
+   {
+      // TODO maybe add .accept(ExprResolver.INSTANCE, par)
+      final Expr source = writeSentence.getSource();
+      final Expr target = writeSentence.getTarget();
+      return this.resolveAssignment(writeSentence, par, source, target, AssignmentResolve.INSTANCE,
+                                    "sentence.write.invalid");
+   }
+
+   @Override
+   public Sentence visit(AddSentence addSentence, Scope par)
+   {
+      final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
+      final Expr target = addSentence.getTarget();
+      return this.resolveAssignment(addSentence, par, source, target, AddResolve.INSTANCE, "sentence.add.invalid");
    }
 
    @Override
@@ -234,15 +249,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = removeSentence.getTarget();
-      final Sentence sentence = target.accept(RemoveResolve.INSTANCE, source);
-      if (sentence != null)
-      {
-         return sentence.accept(this, par);
-      }
-
-      par.report(error(removeSentence.getPosition(), "sentence.remove.invalid",
-                       target.getClass().getEnclosingClass().getSimpleName()));
-      return removeSentence;
+      return this.resolveAssignment(removeSentence, par, source, target, RemoveResolve.INSTANCE,
+                                    "sentence.remove.invalid");
    }
 
    @Override

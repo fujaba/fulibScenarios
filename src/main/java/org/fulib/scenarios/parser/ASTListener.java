@@ -225,6 +225,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr source = this.pop();
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final WriteSentence writeSentence = WriteSentence.of(actor, source, target);
+      writeSentence.setPosition(position(ctx.INTO()));
+
       this.stack.push(writeSentence);
    }
 
