@@ -15,11 +15,18 @@ We call first with list 1 to 0.
 first answers with -1 into j.
 We expect that j is -1.
 
-<!--
 # Get Last Item
 
 We call last with list 1 to 10.
 Last writes -1 into l.
 Last takes i 1 from list and last writes i into l.
 Last answers with l.
--->
+We expect that l is 10.
+
+# No Variable Name
+
+We write 1,2,3 into numbers.
+We write 0,0 into actual.
+We take 1 from numbers and we add 0 to actual.
+We write 0,0,0,0,0 into expected.
+We expect that actual is expected.
