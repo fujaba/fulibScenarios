@@ -102,19 +102,22 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
    private void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
    {
+      final Name name = namedExpr.getName();
+      final Name otherName = namedExpr.getOtherName();
+
       final Expr expr = namedExpr.getExpr().accept(ExprResolver.INSTANCE, scope);
       namedExpr.setExpr(expr);
 
-      if (namedExpr.getOtherName() == null)
+      if (otherName == null)
       {
-         namedExpr.setName(resolveAttributeOrAssociation(objectClass, namedExpr.getName(), expr));
+         namedExpr.setName(resolveAttributeOrAssociation(objectClass, name, expr));
          return;
       }
 
-      final String assocName = namedExpr.getName().accept(Namer.INSTANCE, null);
+      final String assocName = name.accept(Namer.INSTANCE, null);
       final int cardinality;
       final ClassDecl otherClass;
-      final String otherName = namedExpr.getOtherName().accept(Namer.INSTANCE, null);
+      final String otherAssocName = otherName.accept(Namer.INSTANCE, null);
       final int otherCardinality = namedExpr.getOtherMany() ? ClassModelBuilder.MANY : ClassModelBuilder.ONE;
 
       final Type exprType = expr.accept(Typer.INSTANCE, scope);
@@ -129,7 +132,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          }
          else
          {
-            throw new IllegalStateException("illegal reverse association name for attribute");
+            scope.report(error(otherName.getPosition(), "attribute.multi.reverse.name", otherAssocName, assocName));
+            return;
          }
       }
       else if (exprType instanceof ClassType)
@@ -139,11 +143,12 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
       else
       {
-         throw new IllegalStateException("illegal reverse association name for attribute");
+         scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, assocName));
+         return;
       }
 
-      final AssociationDecl assoc = resolveAssociation(objectClass, assocName, cardinality, otherClass, otherName,
-                                                       otherCardinality);
+      final AssociationDecl assoc = resolveAssociation(objectClass, assocName, cardinality, otherClass,
+                                                       otherAssocName, otherCardinality);
       final AssociationDecl other = assoc.getOther();
       namedExpr.setName(ResolvedName.of(assoc));
       namedExpr.setOtherName(ResolvedName.of(other));

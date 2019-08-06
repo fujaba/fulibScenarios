@@ -3,6 +3,7 @@ package org.fulib.scenarios.visitor.codegen;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -82,12 +83,15 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
 
    static void generateSetterCall(CodeGenDTO par, NamedExpr attribute)
    {
-      final String attributeName = attribute.getName().accept(Namer.INSTANCE, null);
-      final Decl decl = attribute.getName().accept(ExtractDecl.INSTANCE, null);
-      final boolean wither = decl.getType() instanceof ListType;
+      final Name name = attribute.getName();
+      final Expr expr = attribute.getExpr();
 
-      par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(attributeName)).append("(");
-      attribute.getExpr().accept(wither ? NO_LIST : INSTANCE, par);
+      final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
+      final boolean wither = (decl != null ? decl.getType() : expr.accept(Typer.INSTANCE, null)) instanceof ListType;
+
+      par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(name.accept(Namer.INSTANCE, null)))
+                     .append("(");
+      expr.accept(wither ? NO_LIST : INSTANCE, par);
       par.bodyBuilder.append(")");
    }
 

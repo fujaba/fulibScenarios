@@ -99,6 +99,8 @@ public class Identifiers
    private static Name name(String value, ParserRuleContext rule)
    {
       final String text = ASTListener.inputText(rule);
-      return UnresolvedName.of(value, text);
+      final UnresolvedName name = UnresolvedName.of(value, text);
+      name.setPosition(ASTListener.position(rule));
+      return name;
    }
 }
