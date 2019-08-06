@@ -235,6 +235,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr source = this.pop();
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final AddSentence addSentence = AddSentence.of(actor, source, target);
+      addSentence.setPosition(position(ctx.TO()));
+
       this.stack.push(addSentence);
    }
 
@@ -245,6 +247,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr source = this.pop();
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final RemoveSentence removeSentence = RemoveSentence.of(actor, source, target);
+      removeSentence.setPosition(position(ctx.FROM()));
+
       this.stack.push(removeSentence);
    }
 

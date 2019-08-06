@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.*;
 
 public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
@@ -212,7 +213,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = addSentence.getTarget();
-      return target.accept(AddResolve.INSTANCE, source).accept(this, par);
+      final Sentence sentence = target.accept(AddResolve.INSTANCE, source);
+      if (sentence != null)
+      {
+         return sentence.accept(this, par);
+      }
+
+      par.report(error(addSentence.getPosition(), "sentence.add.invalid",
+                       target.getClass().getEnclosingClass().getSimpleName()));
+      return addSentence;
    }
 
    @Override
@@ -220,7 +229,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = removeSentence.getTarget();
-      return target.accept(RemoveResolve.INSTANCE, source).accept(this, par);
+      final Sentence sentence = target.accept(RemoveResolve.INSTANCE, source);
+      if (sentence != null)
+      {
+         return sentence.accept(this, par);
+      }
+
+      par.report(error(removeSentence.getPosition(), "sentence.remove.invalid",
+                       target.getClass().getEnclosingClass().getSimpleName()));
+      return removeSentence;
    }
 
    @Override
