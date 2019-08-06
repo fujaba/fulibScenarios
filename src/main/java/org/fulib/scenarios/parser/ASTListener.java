@@ -271,7 +271,10 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr example = this.pop();
       final Name varName = name(ctx.simpleName());
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
-      this.stack.push(TakeSentence.of(actor, varName, example, collection, actions));
+      final TakeSentence takeSentence = TakeSentence.of(actor, varName, example, collection, actions);
+      takeSentence.setPosition(position(ctx.FROM()));
+
+      this.stack.push(takeSentence);
    }
 
    // --------------- Clauses ---------------

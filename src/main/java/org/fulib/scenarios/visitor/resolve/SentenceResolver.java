@@ -248,7 +248,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       final String exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null);
 
-      final VarDecl varDecl = resolveVar(takeSentence);
+      final VarDecl varDecl = resolveVar(takeSentence, par);
       final Scope scope = new DelegatingScope(par)
       {
          @Override
@@ -262,10 +262,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return takeSentence;
    }
 
-   private static VarDecl resolveVar(TakeSentence takeSentence)
+   private static VarDecl resolveVar(TakeSentence takeSentence, Scope par)
    {
       final Type type = takeSentence.getExample().accept(Typer.INSTANCE, null);
       final Name name = takeSentence.getVarName();
+      final String varName;
+      final String exampleName;
+
       if (name != null)
       {
          final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
@@ -274,21 +277,20 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             return (VarDecl) decl;
          }
 
-         final String nameValue = name.accept(Namer.INSTANCE, null);
-         final VarDecl varDecl = VarDecl.of(nameValue, type, null);
-         takeSentence.setVarName(ResolvedName.of(varDecl));
-         return varDecl;
+         varName = name.accept(Namer.INSTANCE, null);
       }
-
-      final String exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null);
-      if (exampleName != null)
+      else if ((exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null)) != null)
       {
-         final VarDecl varDecl = VarDecl.of(exampleName, type, null);
-         takeSentence.setVarName(ResolvedName.of(varDecl));
-         return varDecl;
+         varName = exampleName;
+      }
+      else
+      {
+         varName = findUnique("i++", par);
       }
 
-      throw new IllegalStateException("cannot infer loop variable name");
+      final VarDecl varDecl = VarDecl.of(varName, type, null);
+      takeSentence.setVarName(ResolvedName.of(varDecl));
+      return varDecl;
    }
 
    @Override
