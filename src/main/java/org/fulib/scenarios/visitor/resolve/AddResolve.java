@@ -23,8 +23,7 @@ public enum AddResolve implements Expr.Visitor<Expr, Sentence>
    @Override
    public Sentence visit(Expr expr, Expr par)
    {
-      // TODO diagnostic
-      throw new IllegalStateException("cannot add to " + expr.getClass().getEnclosingClass().getSimpleName());
+      return null;
    }
 
    @Override

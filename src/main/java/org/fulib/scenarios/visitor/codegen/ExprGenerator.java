@@ -3,6 +3,7 @@ package org.fulib.scenarios.visitor.codegen;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -15,6 +16,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
@@ -29,6 +31,23 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(Expr expr, CodeGenDTO par)
    {
+      return null;
+   }
+
+   @Override
+   public Object visit(ErrorExpr errorExpr, CodeGenDTO par)
+   {
+      final Type type = errorExpr.getType();
+      if (type != null)
+      {
+         // ((Type) null)
+         par.bodyBuilder.append("((");
+         par.bodyBuilder.append(type.accept(TypeGenerator.INSTANCE, par));
+         par.bodyBuilder.append(") error)");
+         return null;
+      }
+
+      par.bodyBuilder.append("error");
       return null;
    }
 

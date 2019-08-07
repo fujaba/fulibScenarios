@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.*;
 
 public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
@@ -212,7 +213,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = addSentence.getTarget();
-      return target.accept(AddResolve.INSTANCE, source).accept(this, par);
+      final Sentence sentence = target.accept(AddResolve.INSTANCE, source);
+      if (sentence != null)
+      {
+         return sentence.accept(this, par);
+      }
+
+      par.report(error(addSentence.getPosition(), "sentence.add.invalid",
+                       target.getClass().getEnclosingClass().getSimpleName()));
+      return addSentence;
    }
 
    @Override
@@ -220,7 +229,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = removeSentence.getTarget();
-      return target.accept(RemoveResolve.INSTANCE, source).accept(this, par);
+      final Sentence sentence = target.accept(RemoveResolve.INSTANCE, source);
+      if (sentence != null)
+      {
+         return sentence.accept(this, par);
+      }
+
+      par.report(error(removeSentence.getPosition(), "sentence.remove.invalid",
+                       target.getClass().getEnclosingClass().getSimpleName()));
+      return removeSentence;
    }
 
    @Override
@@ -231,7 +248,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       final String exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null);
 
-      final VarDecl varDecl = resolveVar(takeSentence);
+      final VarDecl varDecl = resolveVar(takeSentence, par);
       final Scope scope = new DelegatingScope(par)
       {
          @Override
@@ -245,10 +262,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return takeSentence;
    }
 
-   private static VarDecl resolveVar(TakeSentence takeSentence)
+   private static VarDecl resolveVar(TakeSentence takeSentence, Scope par)
    {
       final Type type = takeSentence.getExample().accept(Typer.INSTANCE, null);
       final Name name = takeSentence.getVarName();
+      final String varName;
+      final String exampleName;
+
       if (name != null)
       {
          final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
@@ -257,21 +277,20 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             return (VarDecl) decl;
          }
 
-         final String nameValue = name.accept(Namer.INSTANCE, null);
-         final VarDecl varDecl = VarDecl.of(nameValue, type, null);
-         takeSentence.setVarName(ResolvedName.of(varDecl));
-         return varDecl;
+         varName = name.accept(Namer.INSTANCE, null);
       }
-
-      final String exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null);
-      if (exampleName != null)
+      else if ((exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null)) != null)
       {
-         final VarDecl varDecl = VarDecl.of(exampleName, type, null);
-         takeSentence.setVarName(ResolvedName.of(varDecl));
-         return varDecl;
+         varName = exampleName;
+      }
+      else
+      {
+         varName = findUnique("i++", par);
       }
 
-      throw new IllegalStateException("cannot infer loop variable name");
+      final VarDecl varDecl = VarDecl.of(varName, type, null);
+      takeSentence.setVarName(ResolvedName.of(varDecl));
+      return varDecl;
    }
 
    @Override

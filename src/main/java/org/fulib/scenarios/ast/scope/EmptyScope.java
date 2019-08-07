@@ -1,6 +1,7 @@
 package org.fulib.scenarios.ast.scope;
 
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.diagnostic.Marker;
 
 public enum EmptyScope implements Scope
 {
@@ -14,6 +15,11 @@ public enum EmptyScope implements Scope
 
    @Override
    public void add(Decl decl)
+   {
+   }
+
+   @Override
+   public void report(Marker marker)
    {
    }
 }

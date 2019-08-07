@@ -2,6 +2,7 @@ package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.*;
+import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.*;
 
 public enum ExprResolver implements Expr.Visitor<Scope, Expr>
@@ -174,8 +176,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
          if (!params.equals(args))
          {
-            throw new IllegalStateException(
-               "mismatching parameters and arguments:\nparameters: " + params + "\narguments : " + args);
+            par.report(error(callExpr.getPosition(), "call.mismatch.params.args", params, args));
          }
       }
 
@@ -258,6 +259,9 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    @Override
    public Expr visit(ConditionalOperatorExpr conditionalOperatorExpr, Scope par)
    {
+      final Expr rhs = conditionalOperatorExpr.getRhs().accept(this, par);
+      conditionalOperatorExpr.setRhs(rhs);
+
       final Expr lhs = conditionalOperatorExpr.getLhs();
       if (lhs != null)
       {
@@ -268,12 +272,15 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
          if (predicateReceiver == null)
          {
-            throw new IllegalStateException("invalid conditional operator - missing left-hand expression");
+            par.report(error(conditionalOperatorExpr.getPosition(), "conditional.missing.lhs"));
+            conditionalOperatorExpr.setLhs(ErrorExpr.of(rhs.accept(Typer.INSTANCE, null)));
          }
-         conditionalOperatorExpr.setLhs(NameAccess.of(ResolvedName.of(predicateReceiver)));
+         else
+         {
+            conditionalOperatorExpr.setLhs(NameAccess.of(ResolvedName.of(predicateReceiver)));
+         }
       }
 
-      conditionalOperatorExpr.setRhs(conditionalOperatorExpr.getRhs().accept(this, par));
       return conditionalOperatorExpr;
    }
 
@@ -290,9 +297,13 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
          if (predicateReceiver == null)
          {
-            throw new IllegalStateException("invalid predicate operator - missing left-hand expression");
+            par.report(error(predicateOperatorExpr.getPosition(), "predicate.missing.lhs"));
+            predicateOperatorExpr.setLhs(ErrorExpr.of(null));
          }
-         predicateOperatorExpr.setLhs(NameAccess.of(ResolvedName.of(predicateReceiver)));
+         else
+         {
+            predicateOperatorExpr.setLhs(NameAccess.of(ResolvedName.of(predicateReceiver)));
+         }
       }
 
       return predicateOperatorExpr;

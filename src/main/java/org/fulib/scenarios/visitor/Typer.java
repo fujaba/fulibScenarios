@@ -3,6 +3,7 @@ package org.fulib.scenarios.visitor;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.UnresolvedName;
+import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -27,6 +28,12 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    INSTANCE;
 
    // --------------- Expr.Visitor ---------------
+
+   @Override
+   public Type visit(ErrorExpr errorExpr, Object par)
+   {
+      return errorExpr.getType();
+   }
 
    // --------------- PrimitiveExpr.Visitor ---------------
 

@@ -25,6 +25,7 @@ import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
+import org.fulib.scenarios.diagnostic.Position;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,6 +73,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final List<Scenario> scenarios = this.pop(Scenario.class, ctx.scenario().size());
       final LinkedHashMap<String, Scenario> scenarioMap = new LinkedHashMap<>();
       this.file = ScenarioFile.of(null, null, scenarioMap, null);
+      this.file.setMarkers(new ArrayList<>());
 
       for (final Scenario scenario : scenarios)
       {
@@ -200,6 +202,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr receiver = ctx.ON() != null ? this.pop() : null;
       final SentenceList body = SentenceList.of(new ArrayList<>());
       final CallExpr callExpr = CallExpr.of(name, receiver, args, body);
+      callExpr.setPosition(position(ctx.name()));
+
       final CallSentence callSentence = CallSentence.of(actor, callExpr);
       this.stack.push(callSentence);
    }
@@ -231,6 +235,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr source = this.pop();
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final AddSentence addSentence = AddSentence.of(actor, source, target);
+      addSentence.setPosition(position(ctx.TO()));
+
       this.stack.push(addSentence);
    }
 
@@ -241,6 +247,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr source = this.pop();
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final RemoveSentence removeSentence = RemoveSentence.of(actor, source, target);
+      removeSentence.setPosition(position(ctx.FROM()));
+
       this.stack.push(removeSentence);
    }
 
@@ -263,7 +271,10 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr example = this.pop();
       final Name varName = name(ctx.simpleName());
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
-      this.stack.push(TakeSentence.of(actor, varName, example, collection, actions));
+      final TakeSentence takeSentence = TakeSentence.of(actor, varName, example, collection, actions);
+      takeSentence.setPosition(position(ctx.FROM()));
+
+      this.stack.push(takeSentence);
    }
 
    // --------------- Clauses ---------------
@@ -417,6 +428,7 @@ public class ASTListener extends ScenarioParserBaseListener
       }
 
       final ConditionalOperatorExpr operatorExpr = ConditionalOperatorExpr.of(lhs, op, rhs);
+      operatorExpr.setPosition(position(ctx.condOp()));
 
       this.stack.push(operatorExpr);
    }
@@ -433,6 +445,8 @@ public class ASTListener extends ScenarioParserBaseListener
       }
 
       final PredicateOperatorExpr expr = PredicateOperatorExpr.of(lhs, op);
+      expr.setPosition(position(ctx.predOp()));
+
       this.stack.push(expr);
    }
 
@@ -452,6 +466,24 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    // =============== Static Methods ===============
+
+   static Position position(Token token)
+   {
+      return new Position(token.getStartIndex(), token.getStopIndex(), token.getLine(),
+                          token.getCharPositionInLine());
+   }
+
+   static Position position(TerminalNode terminal)
+   {
+      return position(terminal.getSymbol());
+   }
+
+   static Position position(ParserRuleContext ctx)
+   {
+      final Token start = ctx.getStart();
+      return new Position(start.getStartIndex(), ctx.getStop().getStopIndex(), start.getLine(),
+                          start.getCharPositionInLine());
+   }
 
    static String inputText(ParserRuleContext ctx)
    {

@@ -20,8 +20,7 @@ public enum RemoveResolve implements Expr.Visitor<Expr, Sentence>
    @Override
    public Sentence visit(Expr expr, Expr par)
    {
-      // TODO diagnostic
-      throw new IllegalStateException("cannot remove from " + expr.getClass().getEnclosingClass().getSimpleName());
+      return null;
    }
 
    @Override
