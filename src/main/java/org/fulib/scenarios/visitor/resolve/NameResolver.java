@@ -16,6 +16,7 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.parser.Identifiers;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
@@ -234,23 +235,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    static ClassDecl getEnclosingClass(Scope scope)
    {
       return (ClassDecl) scope.resolve(ENCLOSING_CLASS);
-   }
-
-   static ClassDecl resolveClass(Scope scope, Expr expr)
-   {
-      final Type type = expr.accept(Typer.INSTANCE, null);
-      return resolveClass(scope, type);
-   }
-
-   static ClassDecl resolveClass(Scope scope, Type type)
-   {
-      if (type instanceof ListType)
-      {
-         return resolveClass(scope, ((ListType) type).getElementType());
-      }
-
-      final String typeName = type.accept(Namer.INSTANCE, null);
-      return resolveClass(scope, typeName);
    }
 
    static ClassDecl resolveClass(Scope scope, String name)
@@ -477,7 +461,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return name;
       }
 
-      return getAttributeOrAssociation(resolveClass(scope, receiver), name.accept(Namer.INSTANCE, null));
+      final Type type = receiver.accept(Typer.INSTANCE, null);
+      return getAttributeOrAssociation(type.accept(ExtractClassDecl.INSTANCE, null), name.accept(Namer.INSTANCE, null));
    }
 
    static Name getAttributeOrAssociation(ClassDecl receiverClass, String name)

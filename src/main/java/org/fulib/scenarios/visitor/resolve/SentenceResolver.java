@@ -12,6 +12,7 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
@@ -88,13 +89,14 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Expr receiver = hasSentence.getObject().accept(ExprResolver.INSTANCE, par);
       hasSentence.setObject(receiver);
 
-      final ClassDecl objectClass = resolveClass(par, receiver);
-      final String name = receiver.accept(Namer.INSTANCE, null);
-      final Scope scope = name != null ? new HidingScope(name, par) : par;
+      final Type receiverType = receiver.accept(Typer.INSTANCE, null);
+      final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
+      final String receiverName = receiver.accept(Namer.INSTANCE, null);
+      final Scope scope = receiverName != null ? new HidingScope(receiverName, par) : par;
 
       for (final NamedExpr namedExpr : hasSentence.getClauses())
       {
-         this.resolveHasNamedExpr(namedExpr, objectClass, scope);
+         this.resolveHasNamedExpr(namedExpr, receiverClass, scope);
       }
 
       return hasSentence;
