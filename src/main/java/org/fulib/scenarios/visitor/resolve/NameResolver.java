@@ -240,6 +240,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return (ClassDecl) scope.resolve(ENCLOSING_CLASS);
    }
 
+   // --------------- Decl Resolution/Creation ---------------
+
    static ClassDecl resolveClass(Scope scope, String name, Position position)
    {
       final Decl resolved = scope.resolve(name);
@@ -450,15 +452,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return association;
    }
 
-   private static String associationString(ClassDecl owner, String name, int cardinality, ClassDecl other)
-   {
-      return owner.getName() + "." + name + ": " + cardinalityString(cardinality) + " " + other.getName();
-   }
-
-   private static String cardinalityString(int cardinality)
-   {
-      return cardinality == 1 ? "one" : "many";
-   }
+   // --------------- Decl Resolution (without Creation) ---------------
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
    {
@@ -486,6 +480,18 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
 
       throw new IllegalStateException("unresolved attribute or association " + receiverClass.getName() + "." + name);
+   }
+
+   // --------------- Helper Methods ---------------
+
+   private static String associationString(ClassDecl owner, String name, int cardinality, ClassDecl other)
+   {
+      return owner.getName() + "." + name + ": " + cardinalityString(cardinality) + " " + other.getName();
+   }
+
+   private static String cardinalityString(int cardinality)
+   {
+      return cardinality == 1 ? "one" : "many";
    }
 
    private static String kindString(Decl decl)
