@@ -154,7 +154,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
-      final MethodDecl method = resolveMethod(receiverClass, methodName);
+      final MethodDecl method = resolveMethod(par, receiverClass, methodName, callExpr.getName().getPosition());
       final List<ParameterDecl> parameters = method.getParameters();
       final boolean isNew = method.getParameters().isEmpty();
       final Map<String, Decl> decls = new HashMap<>();

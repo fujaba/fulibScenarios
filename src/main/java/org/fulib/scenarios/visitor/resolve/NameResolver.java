@@ -24,6 +24,7 @@ import org.fulib.scenarios.visitor.Typer;
 
 import java.util.*;
 
+import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.warning;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
@@ -265,9 +266,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return decl;
    }
 
-   static MethodDecl resolveMethod(ClassDecl classDecl, String name)
+   static MethodDecl resolveMethod(Scope scope, ClassDecl owner, String name, Position position)
    {
-      for (final MethodDecl decl : classDecl.getMethods())
+      for (final MethodDecl decl : owner.getMethods())
       {
          if (name.equals(decl.getName()))
          {
@@ -275,14 +276,18 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          }
       }
 
-      if (classDecl.getFrozen())
+      if (owner.getExternal())
       {
-         throw new IllegalStateException("unresolved external method " + classDecl.getName() + "." + name);
+         scope.report(error(position, "method.unresolved.external", name, owner.getName()));
+      }
+      else if (owner.getFrozen())
+      {
+         scope.report(error(position, "method.unresolved.frozen", name, owner.getName()));
       }
 
       final SentenceList body = SentenceList.of(new ArrayList<>());
-      final MethodDecl decl = MethodDecl.of(classDecl, name, new ArrayList<>(), null, body);
-      classDecl.getMethods().add(decl);
+      final MethodDecl decl = MethodDecl.of(owner, name, new ArrayList<>(), null, body);
+      owner.getMethods().add(decl);
       return decl;
    }
 
