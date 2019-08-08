@@ -35,6 +35,26 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
 
    // =============== Static Methods ===============
 
+   private static String localize(String key)
+   {
+      return localize(Locale.getDefault(), key);
+   }
+
+   private static String localize(Locale locale, String key)
+   {
+      return ResourceBundle.getBundle(BUNDLE_NAME, locale).getString(key);
+   }
+
+   public static String localize(String key, Object... args)
+   {
+      return localize(Locale.getDefault(), key, args);
+   }
+
+   public static String localize(Locale locale, String key, Object... args)
+   {
+      return String.format(localize(locale, key), args);
+   }
+
    public static Marker error(Position position, String code, Object... args)
    {
       return new Marker(Kind.ERROR, position, code, args);
@@ -120,9 +140,7 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
    @Override
    public String getMessage(Locale locale)
    {
-      final ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
-      final String localizedCode = bundle.getString(this.code);
-      return String.format(localizedCode, this.args);
+      return localize(locale, this.code, this.args);
    }
 
    public void print(PrintWriter out)
