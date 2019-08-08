@@ -18,7 +18,7 @@ public enum TypeResolver implements Type.Visitor<Scope, Type>
       final PrimitiveType primitive = PrimitiveType.javaNameMap.get(name);
 
       // TODO handle non-null packageDir
-      return primitive != null ? primitive : resolveClass(par, name).getType();
+      return primitive != null ? primitive : resolveClass(par, name, unresolvedType.getPosition()).getType();
    }
 
    @Override
