@@ -1,7 +1,7 @@
 # Fulib Scenarios
 
-[![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg) ](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion)
-[![Build Status](https://travis-ci.org/fujaba/fulibScenarios.svg?branch=master)](https://travis-ci.org/fujaba/fulibScenarios)
+[![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg) ](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion "Download")
+[![Build Status](https://travis-ci.org/fujaba/fulibScenarios.svg?branch=master)](https://travis-ci.org/fujaba/fulibScenarios "Build Status")
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/fujaba/fulibScenarios.svg)](http://isitmaintained.com/project/fujaba/fulibScenarios "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/fujaba/fulibScenarios.svg)](http://isitmaintained.com/project/fujaba/fulibScenarios "Percentage of issues still open")
 
@@ -9,7 +9,7 @@ A compiler for textual scenarios.
 
 ## Links
 
-- [Language Reference](https://app.gitbook.com/@fujaba/s/fulib-scenarios/)
+- [Language Reference](https://fujaba.gitbook.io/fulib-scenarios/)
 
 ## Installation
 
@@ -27,7 +27,7 @@ repositories {
 dependencies {
 	// ...
 	// https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-	compile group: 'org.fulib', name: 'fulibScenarios', version: '0.5.0'
+	compile group: 'org.fulib', name: 'fulibScenarios', version: '0.7.0'
 	// ...
 }
 ```
