@@ -225,6 +225,8 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr source = this.pop();
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final WriteSentence writeSentence = WriteSentence.of(actor, source, target);
+      writeSentence.setPosition(position(ctx.INTO()));
+
       this.stack.push(writeSentence);
    }
 
@@ -311,13 +313,18 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitSimpleTypeClause(ScenarioParser.SimpleTypeClauseContext ctx)
    {
-      this.stack.push(UnresolvedType.of(typeNameValue(ctx)));
+      final ScenarioParser.NameContext name = ctx.name();
+      final UnresolvedType unresolvedType = UnresolvedType.of(typeNameValue(ctx));
+      unresolvedType.setPosition(position(name != null ? name : ctx.simpleName()));
+      this.stack.push(unresolvedType);
    }
 
    @Override
    public void exitMultiTypeClause(ScenarioParser.MultiTypeClauseContext ctx)
    {
-      this.stack.push(UnresolvedType.of(typeNameValue(ctx)));
+      final UnresolvedType unresolvedType = UnresolvedType.of(typeNameValue(ctx));
+      unresolvedType.setPosition(position(ctx.name()));
+      this.stack.push(unresolvedType);
    }
 
    // --------------- Expressions ---------------

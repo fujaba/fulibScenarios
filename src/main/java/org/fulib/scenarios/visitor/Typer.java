@@ -2,7 +2,6 @@ package org.fulib.scenarios.visitor;
 
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -158,13 +157,6 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    }
 
    // --------------- Name.Visitor ---------------
-
-   @Override
-   public Type visit(UnresolvedName unresolvedName, Object par)
-   {
-      // TODO diagnostic
-      throw new IllegalStateException("unresolved name " + unresolvedName.getValue());
-   }
 
    @Override
    public Type visit(ResolvedName resolvedName, Object par)

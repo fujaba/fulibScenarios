@@ -19,6 +19,7 @@ import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 
@@ -53,7 +54,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       {
          final String attributeName = attributeAccess.getName().accept(Namer.INSTANCE, null);
          final Type elementType = ((ListType) receiverType).getElementType();
-         final Name resolvedName = getAttributeOrAssociation(resolveClass(par, elementType), attributeName);
+         final Name resolvedName = getAttributeOrAssociation(elementType.accept(ExtractClassDecl.INSTANCE, null), attributeName);
          return MapAccessExpr.of(resolvedName, receiver);
       }
 
@@ -116,7 +117,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    public Expr visit(CreationExpr creationExpr, Scope par)
    {
       creationExpr.setType(creationExpr.getType().accept(TypeResolver.INSTANCE, par));
-      final ClassDecl classDecl = resolveClass(par, creationExpr.getType());
+      final ClassDecl classDecl = creationExpr.getType().accept(ExtractClassDecl.INSTANCE, null);
 
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
@@ -149,10 +150,11 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       // generate method
 
-      final ClassDecl receiverClass = resolveClass(par, callExpr.getReceiver());
+      final Type receiverType = callExpr.getReceiver().accept(Typer.INSTANCE, null);
+      final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
-      final MethodDecl method = resolveMethod(receiverClass, methodName);
+      final MethodDecl method = resolveMethod(par, receiverClass, methodName, callExpr.getName().getPosition());
       final List<ParameterDecl> parameters = method.getParameters();
       final boolean isNew = method.getParameters().isEmpty();
       final Map<String, Decl> decls = new HashMap<>();

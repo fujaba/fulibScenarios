@@ -245,14 +245,6 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Sentence visit(WriteSentence writeSentence, Object par)
-   {
-      final Expr source = writeSentence.getSource();
-      final Expr target = writeSentence.getTarget();
-      return target.accept(AssignmentDesugar.INSTANCE, source);
-   }
-
-   @Override
    public Sentence visit(TakeSentence takeSentence, Object par)
    {
       takeSentence.setActions((SentenceList) takeSentence.getActions().accept(this, par));

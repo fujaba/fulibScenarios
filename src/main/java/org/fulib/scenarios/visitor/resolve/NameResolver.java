@@ -15,12 +15,17 @@ import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
+import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.parser.Identifiers;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 
 import java.util.*;
+
+import static org.fulib.scenarios.diagnostic.Marker.error;
+import static org.fulib.scenarios.diagnostic.Marker.warning;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
                                        ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
@@ -236,24 +241,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return (ClassDecl) scope.resolve(ENCLOSING_CLASS);
    }
 
-   static ClassDecl resolveClass(Scope scope, Expr expr)
-   {
-      final Type type = expr.accept(Typer.INSTANCE, null);
-      return resolveClass(scope, type);
-   }
+   // --------------- Decl Resolution/Creation ---------------
 
-   static ClassDecl resolveClass(Scope scope, Type type)
-   {
-      if (type instanceof ListType)
-      {
-         return resolveClass(scope, ((ListType) type).getElementType());
-      }
-
-      final String typeName = type.accept(Namer.INSTANCE, null);
-      return resolveClass(scope, typeName);
-   }
-
-   static ClassDecl resolveClass(Scope scope, String name)
+   static ClassDecl resolveClass(Scope scope, String name, Position position)
    {
       final Decl resolved = scope.resolve(name);
       if (resolved instanceof ClassDecl)
@@ -262,7 +252,10 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
       if (resolved != null)
       {
-         throw new IllegalStateException("class name " + name + " resolved to " + resolved);
+         // TODO find an example that causes this warning.
+         //      it "should" not appear because class names are normalized to UpperCamelCase while all other
+         //      declarations are lowerCamelCase.
+         scope.report(warning(position, "class.name.shadow.other.decl", name, kindString(resolved)));
       }
 
       final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
@@ -273,9 +266,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return decl;
    }
 
-   static MethodDecl resolveMethod(ClassDecl classDecl, String name)
+   static MethodDecl resolveMethod(Scope scope, ClassDecl owner, String name, Position position)
    {
-      for (final MethodDecl decl : classDecl.getMethods())
+      for (final MethodDecl decl : owner.getMethods())
       {
          if (name.equals(decl.getName()))
          {
@@ -283,14 +276,18 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          }
       }
 
-      if (classDecl.getFrozen())
+      if (owner.getExternal())
       {
-         throw new IllegalStateException("unresolved external method " + classDecl.getName() + "." + name);
+         scope.report(error(position, "method.unresolved.external", name, owner.getName()));
+      }
+      else if (owner.getFrozen())
+      {
+         scope.report(error(position, "method.unresolved.frozen", name, owner.getName()));
       }
 
       final SentenceList body = SentenceList.of(new ArrayList<>());
-      final MethodDecl decl = MethodDecl.of(classDecl, name, new ArrayList<>(), null, body);
-      classDecl.getMethods().add(decl);
+      final MethodDecl decl = MethodDecl.of(owner, name, new ArrayList<>(), null, body);
+      owner.getMethods().add(decl);
       return decl;
    }
 
@@ -460,15 +457,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return association;
    }
 
-   private static String associationString(ClassDecl owner, String name, int cardinality, ClassDecl other)
-   {
-      return owner.getName() + "." + name + ": " + cardinalityString(cardinality) + " " + other.getName();
-   }
-
-   private static String cardinalityString(int cardinality)
-   {
-      return cardinality == 1 ? "one" : "many";
-   }
+   // --------------- Decl Resolution (without Creation) ---------------
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
    {
@@ -477,7 +466,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return name;
       }
 
-      return getAttributeOrAssociation(resolveClass(scope, receiver), name.accept(Namer.INSTANCE, null));
+      final Type type = receiver.accept(Typer.INSTANCE, null);
+      return getAttributeOrAssociation(type.accept(ExtractClassDecl.INSTANCE, null), name.accept(Namer.INSTANCE, null));
    }
 
    static Name getAttributeOrAssociation(ClassDecl receiverClass, String name)
@@ -495,5 +485,25 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
 
       throw new IllegalStateException("unresolved attribute or association " + receiverClass.getName() + "." + name);
+   }
+
+   // --------------- Helper Methods ---------------
+
+   private static String associationString(ClassDecl owner, String name, int cardinality, ClassDecl other)
+   {
+      return owner.getName() + "." + name + ": " + cardinalityString(cardinality) + " " + other.getName();
+   }
+
+   private static String cardinalityString(int cardinality)
+   {
+      return cardinality == 1 ? "one" : "many";
+   }
+
+   private static String kindString(Decl decl)
+   {
+      final String simpleName = decl.getClass().getEnclosingClass().getSimpleName();
+      final String stripped = simpleName.endsWith("Decl") ? simpleName.substring(0, simpleName.length() - 4) : simpleName;
+      final String key = stripped.toLowerCase() + ".kind";
+      return Marker.localize(key);
    }
 }

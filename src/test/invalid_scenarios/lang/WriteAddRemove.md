@@ -1,4 +1,9 @@
-# Invalid Add and Remove
+# Invalid Write, Add and Remove
+
+We write 1 into 2.
+<!--       ^
+error: invalid write sentence - cannot write into IntLiteral
+-->
 
 We add 1 to 2.
 <!--     ^

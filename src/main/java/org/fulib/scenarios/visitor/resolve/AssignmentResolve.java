@@ -1,4 +1,4 @@
-package org.fulib.scenarios.visitor.preprocess;
+package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Name;
@@ -8,7 +8,6 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
-import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
 import org.fulib.scenarios.ast.sentence.HasSentence;
@@ -20,14 +19,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public enum AssignmentDesugar implements Expr.Visitor<Expr, Sentence>
+public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
 {
    INSTANCE;
 
    @Override
    public Sentence visit(Expr expr, Expr par)
    {
-      throw new IllegalStateException("cannot assign to " + expr.getClass().getEnclosingClass().getSimpleName());
+      return null;
    }
 
    @Override
@@ -43,12 +42,6 @@ public enum AssignmentDesugar implements Expr.Visitor<Expr, Sentence>
    public Sentence visit(ExampleAccess exampleAccess, Expr par)
    {
       return exampleAccess.getExpr().accept(this, par);
-   }
-
-   @Override
-   public Sentence visit(MapAccessExpr mapAccessExpr, Expr par)
-   {
-      throw new AssertionError("appears after NameResolver");
    }
 
    @Override
