@@ -145,3 +145,11 @@
 # Fulib Scenarios v0.6.1
 
 * Fixed an invalid dependency configuration.
+
+# Fulib Scenarios v0.7.0
+
++ Parenthesized text is now treated as comment. #106
++ `//` comments are now retained in the generated Java code. #109
+* Writing into an existing variable name now no longer creates a new variable. #105
+* Fixed unresolved references to the name of the take example value. #117
+* User-defined (non-temporary) variables are no longer auto-numbered.
