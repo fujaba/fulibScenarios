@@ -112,7 +112,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (otherName == null)
       {
-         namedExpr.setName(resolveAttributeOrAssociation(objectClass, name, expr));
+         namedExpr.setName(resolveAttributeOrAssociation(scope, objectClass, name, expr));
          return;
       }
 

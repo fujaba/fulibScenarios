@@ -21,6 +21,7 @@ import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.visitor.describe.DeclDescriber;
 
 import java.util.*;
 
@@ -291,7 +292,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return decl;
    }
 
-   static Name resolveAttributeOrAssociation(ClassDecl classDecl, Name name, Expr rhs)
+   static Name resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, Name name, Expr rhs)
    {
       if (name.accept(ExtractDecl.INSTANCE, null) != null)
       {
@@ -299,23 +300,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return name;
       }
 
-      return ResolvedName.of(resolveAttributeOrAssociation(classDecl, name.accept(Namer.INSTANCE, null), rhs));
+      final Decl decl = resolveAttributeOrAssociation(scope, classDecl, name.accept(Namer.INSTANCE, null), rhs,
+                                                      name.getPosition());
+      return ResolvedName.of(decl);
    }
 
-   static Decl resolveAttributeOrAssociation(ClassDecl classDecl, String attributeName, Expr rhs)
+   static Decl resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, String attributeName, Expr rhs,
+      Position position)
    {
-      final AttributeDecl existingAttribute = classDecl.getAttributes().get(attributeName);
-      if (existingAttribute != null)
-      {
-         return existingAttribute;
-      }
-
-      final AssociationDecl existingAssociation = classDecl.getAssociations().get(attributeName);
-      if (existingAssociation != null)
-      {
-         return existingAssociation;
-      }
-
       final Type attributeType = rhs.accept(Typer.INSTANCE, null);
 
       if (attributeType instanceof ListType)
@@ -330,7 +322,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          else
          {
             // was element type that we have no control over, e.g. List<String>
-            return resolveAttribute(classDecl, attributeName, attributeType);
+            return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
          }
       }
       else if (attributeType instanceof ClassType)
@@ -339,33 +331,46 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
       else
       {
-         return resolveAttribute(classDecl, attributeName, attributeType);
+         return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
       }
    }
 
-   static AttributeDecl resolveAttribute(ClassDecl classDecl, String name, Type type)
+   static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position)
    {
-      final AttributeDecl existing = classDecl.getAttributes().get(name);
-      if (existing != null)
+      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      if (existingAttribute != null)
       {
-         final Type existingType = existing.getType();
+         final Type existingType = existingAttribute.getType();
          if (!type.equals(existingType)) // TODO type equality
          {
-            throw new IllegalStateException(
-               "mismatched attribute type " + classDecl.getName() + "." + name + ": " + existingType + " vs "
-               + type);
+            scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+                               existingAttribute.accept(DeclDescriber.INSTANCE, null),
+                               AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
          }
 
-         return existing;
+         return existingAttribute;
       }
-
-      if (classDecl.getFrozen())
+      final AssociationDecl existingAssociation = owner.getAssociations().get(name);
+      if (existingAssociation != null)
       {
-         throw new IllegalStateException("unresolved external attribute " + classDecl.getName() + "." + name);
+         scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+                            existingAssociation.accept(DeclDescriber.INSTANCE, null),
+                            AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
+
+         return existingAssociation;
       }
 
-      final AttributeDecl attribute = AttributeDecl.of(classDecl, name, type);
-      classDecl.getAttributes().put(name, attribute);
+      if (owner.getExternal())
+      {
+         scope.report(error(position, "attribute.unresolved.external", name, owner.getName()));
+      }
+      else if (owner.getFrozen())
+      {
+         scope.report(error(position, "attribute.unresolved.frozen", name, owner.getName()));
+      }
+
+      final AttributeDecl attribute = AttributeDecl.of(owner, name, type);
+      owner.getAttributes().put(name, attribute);
       return attribute;
    }
 
@@ -398,7 +403,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
                   "conflicting redeclaration of reverse association\nold: none/uni-directional\nnew: " + newa);
             }
          }
-         else if (otherName != null && (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality()))
+         else if (otherName != null && (!otherName.equals(other.getName()) || otherCardinality != other
+                                                                                                     .getCardinality()))
          {
             final String olda = associationString(other.getOwner(), other.getName(), other.getCardinality(),
                                                   classDecl);
@@ -467,7 +473,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
 
       final Type type = receiver.accept(Typer.INSTANCE, null);
-      return getAttributeOrAssociation(type.accept(ExtractClassDecl.INSTANCE, null), name.accept(Namer.INSTANCE, null));
+      return getAttributeOrAssociation(type.accept(ExtractClassDecl.INSTANCE, null),
+                                       name.accept(Namer.INSTANCE, null));
    }
 
    static Name getAttributeOrAssociation(ClassDecl receiverClass, String name)
@@ -502,7 +509,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    private static String kindString(Decl decl)
    {
       final String simpleName = decl.getClass().getEnclosingClass().getSimpleName();
-      final String stripped = simpleName.endsWith("Decl") ? simpleName.substring(0, simpleName.length() - 4) : simpleName;
+      final String stripped = simpleName.endsWith("Decl") ?
+                                 simpleName.substring(0, simpleName.length() - 4) :
+                                 simpleName;
       final String key = stripped.toLowerCase() + ".kind";
       return Marker.localize(key);
    }
