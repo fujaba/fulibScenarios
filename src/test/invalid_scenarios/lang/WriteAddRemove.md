@@ -2,15 +2,15 @@
 
 We write 1 into 2.
 <!--       ^
-error: invalid write sentence - cannot write into IntLiteral
+error: invalid write sentence - cannot write into IntLiteral [sentence.write.invalid]
 -->
 
 We add 1 to 2.
 <!--     ^
-error: invalid add sentence - cannot add to IntLiteral
+error: invalid add sentence - cannot add to IntLiteral [sentence.add.invalid]
 -->
 
 We remove 3 from 4.
 <!--        ^
-error: invalid remove sentence - cannot remove from IntLiteral
+error: invalid remove sentence - cannot remove from IntLiteral [sentence.remove.invalid]
 -->
