@@ -157,7 +157,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       {
          final AssociationDecl other = assoc.getOther();
          namedExpr.setName(ResolvedName.of(assoc));
-         namedExpr.setOtherName(ResolvedName.of(other));
+         if (other != null)
+         {
+            namedExpr.setOtherName(ResolvedName.of(other));
+         }
       }
    }
 

@@ -303,7 +303,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
       final Decl decl = resolveAttributeOrAssociation(scope, classDecl, name.accept(Namer.INSTANCE, null), rhs,
                                                       name.getPosition());
-      return ResolvedName.of(decl);
+      return decl != null ? ResolvedName.of(decl) : name;
    }
 
    static Decl resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, String attributeName, Expr rhs,
@@ -389,10 +389,13 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
       {
-         scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
-                            existingAttribute.accept(DeclDescriber.INSTANCE, null),
-                            AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
-                                           .accept(DeclDescriber.INSTANCE, null)));
+         final String existingDesc = existingAttribute.accept(DeclDescriber.INSTANCE, null);
+         // TODO optimize
+         final String newDesc = AssociationDecl
+                                   .of(owner, name, cardinality, otherClass, createType(cardinality, otherClass),
+                                       null).accept(DeclDescriber.INSTANCE, null);
+         scope.report(
+            error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc, newDesc));
 
          return null;
       }
@@ -402,10 +405,13 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       {
          if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
          {
-            scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
-                               existing.accept(DeclDescriber.INSTANCE, null),
-                               AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
-                                              .accept(DeclDescriber.INSTANCE, null)));
+            final String existingDesc = existing.accept(DeclDescriber.INSTANCE, null);
+            // TODO optimize
+            final String newDesc = AssociationDecl.of(owner, name, cardinality, otherClass,
+                                                      createType(cardinality, otherClass), null)
+                                                  .accept(DeclDescriber.INSTANCE, null);
+            scope.report(
+               error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc, newDesc));
          }
          else if (otherName != null)
          {
@@ -416,11 +422,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
             }
             else if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
             {
+               final String existingDesc = other.accept(DeclDescriber.INSTANCE, null);
+               // TODO optimize
+               final String newDesc = AssociationDecl.of(otherClass, otherName, otherCardinality, owner,
+                                                         createType(otherCardinality, owner), null)
+                                                     .accept(DeclDescriber.INSTANCE, null);
                scope.report(error(otherPosition, "association.reverse.conflict", owner.getName(), name,
-                                  otherClass.getName(), other.getName(),
-                                  existing.accept(DeclDescriber.INSTANCE, null), otherClass.getName(), otherName,
-                                  AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
-                                                 .accept(DeclDescriber.INSTANCE, null)));
+                                  otherClass.getName(), other.getName(), existingDesc, otherClass.getName(),
+                                  otherName, newDesc));
             }
          }
 
@@ -470,11 +479,16 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    private static AssociationDecl createAssociation(ClassDecl owner, String name, int cardinality, ClassDecl target)
    {
-      final Type type = cardinality != 1 ? ListType.of(target.getType()) : target.getType();
+      final Type type = createType(cardinality, target);
       final AssociationDecl association = AssociationDecl.of(owner, name, cardinality, target, type, null);
 
       owner.getAssociations().put(association.getName(), association);
       return association;
+   }
+
+   private static Type createType(int cardinality, ClassDecl target)
+   {
+      return cardinality != 1 ? ListType.of(target.getType()) : target.getType();
    }
 
    // --------------- Decl Resolution (without Creation) ---------------
