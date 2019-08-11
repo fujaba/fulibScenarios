@@ -345,7 +345,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          final Type existingType = existingAttribute.getType();
          if (!type.equals(existingType)) // TODO type equality
          {
-            scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+            scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
                                existingAttribute.accept(DeclDescriber.INSTANCE, null),
                                AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
          }
@@ -355,7 +355,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final AssociationDecl existingAssociation = owner.getAssociations().get(name);
       if (existingAssociation != null)
       {
-         scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+         scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
                             existingAssociation.accept(DeclDescriber.INSTANCE, null),
                             AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
 
@@ -388,7 +388,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
       {
-         scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+         scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
                             existingAttribute.accept(DeclDescriber.INSTANCE, null),
                             AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
                                            .accept(DeclDescriber.INSTANCE, null)));
@@ -401,7 +401,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       {
          if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
          {
-            scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+            scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
                                existing.accept(DeclDescriber.INSTANCE, null),
                                AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
                                               .accept(DeclDescriber.INSTANCE, null)));
@@ -480,31 +480,39 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
    {
+      final Type type = receiver.accept(Typer.INSTANCE, null);
+      return getAttributeOrAssociation(scope, type, name);
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, Type owner, Name name)
+   {
+      final ClassDecl ownerClass = owner.accept(ExtractClassDecl.INSTANCE, null);
+      return getAttributeOrAssociation(scope, ownerClass, name);
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, ClassDecl owner, Name name)
+   {
       if (name.accept(ExtractDecl.INSTANCE, null) != null)
       {
          return name;
       }
 
-      final Type type = receiver.accept(Typer.INSTANCE, null);
-      return getAttributeOrAssociation(type.accept(ExtractClassDecl.INSTANCE, null),
-                                       name.accept(Namer.INSTANCE, null));
+      final String nameValue = name.accept(Namer.INSTANCE, null);
+      final Decl decl = getAttributeOrAssociation(owner, nameValue);
+
+      if (decl != null)
+      {
+         return ResolvedName.of(decl);
+      }
+
+      scope.report(error(name.getPosition(), "property.unresolved", owner.getName(), nameValue));
+      return name; // unresolved
    }
 
-   static Name getAttributeOrAssociation(ClassDecl receiverClass, String name)
+   static Decl getAttributeOrAssociation(ClassDecl owner, String name)
    {
-      final AttributeDecl attribute = receiverClass.getAttributes().get(name);
-      if (attribute != null)
-      {
-         return ResolvedName.of(attribute);
-      }
-
-      final AssociationDecl association = receiverClass.getAssociations().get(name);
-      if (association != null)
-      {
-         return ResolvedName.of(association);
-      }
-
-      throw new IllegalStateException("unresolved attribute or association " + receiverClass.getName() + "." + name);
+      final AttributeDecl attribute = owner.getAttributes().get(name);
+      return attribute != null ? attribute : owner.getAssociations().get(name);
    }
 
    // --------------- Helper Methods ---------------
