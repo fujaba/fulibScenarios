@@ -1,13 +1,68 @@
-# Invalid Associations
 
-There is a Student alice.
+# Invalid Self-Associations
 
-Alice has name and is student of 'Alice'.
-<!--                  ^
-error: invalid reverse association name 'student' - 'name' is an attribute, not an association [attribute.reverse.name]
+There are SelfEntity with name Alice, Bob, Charlie.
+Alice has friend and is one of the friend of bob.
+<!--      ^
+error: mismatching cardinalities of self-association 'SelfEntity.friend' [association.self.cardinality.mismatch]
 -->
 
-Alice has grades and is student of 1, 2, 3.
-<!--                    ^
-error: invalid reverse association name 'student' - 'grades' is a multi-attribute, not an association [attribute.multi.reverse.name]
+Charlie has enemies and is enemies of alice, bob.
+<!--        ^
+error: mismatching cardinalities of self-association 'SelfEntity.enemies' [association.self.cardinality.mismatch]
+-->
+
+# Invalid Reverse
+
+There are AssocReverseEntity Alice, Bob, Charlie.
+
+Alice has related Bob.
+Bob has related and is reverse-related of Charlie.
+<!--                   ^
+error: invalid reverse association name 'reverseRelated' - 'AssocReverseEntity.related' was already declared as unidirectional [association.reverse.late]
+-->
+
+Alice has parent and is child of Bob.
+Bob has parent and is kid of Charlie.
+<!--                  ^
+error: conflicting redeclaration of reverse association of 'AssocReverseEntity.parent': [association.reverse.conflict]
+was: AssocReverseEntity.child, association to one 'AssocReverseEntity'
+now: AssocReverseEntity.kid, association to one 'AssocReverseEntity'
+-->
+
+Bob has parent and is one of the child of Charlie.
+<!--                         ^
+error: conflicting redeclaration of reverse association of 'AssocReverseEntity.parent': [association.reverse.conflict]
+was: AssocReverseEntity.child, association to one 'AssocReverseEntity'
+now: AssocReverseEntity.child, association to many 'AssocReverseEntity'
+-->
+
+# Invalid Redeclaration
+
+There are AssocReEntity Alice, Bob, Charlie.
+Alice has related Bob.
+
+Alice has related and is reverse-related of Charlie.
+
+Alice has intAttr 123.
+Bob has intAttr Charlie.
+<!--    ^
+error: conflicting redeclaration of 'AssocReEntity.intAttr': [property.redeclaration.conflict]
+was: attribute of one 'int'
+now: association to one 'AssocReEntity'
+-->
+
+Charlie has related alice, bob.
+<!--        ^
+error: conflicting redeclaration of 'AssocReEntity.related': [property.redeclaration.conflict]
+was: association to one 'AssocReEntity'
+now: association to many 'AssocReEntity'
+-->
+
+There is a AssocReEntityOther.
+Charlie has related AssocReEntityOther.
+<!--        ^
+error: conflicting redeclaration of 'AssocReEntity.related': [property.redeclaration.conflict]
+was: association to one 'AssocReEntity'
+now: association to one 'AssocReEntityOther'
 -->
