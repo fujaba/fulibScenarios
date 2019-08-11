@@ -177,7 +177,9 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
          if (!params.equals(args))
          {
-            par.report(error(callExpr.getPosition(), "call.mismatch.params.args", params, args));
+            par.report(
+               error(callExpr.getPosition(), "call.mismatch.params.args", receiverClass.getName(), methodName,
+                     params, args));
          }
       }
 
@@ -273,7 +275,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
          if (predicateReceiver == null)
          {
-            par.report(error(conditionalOperatorExpr.getPosition(), "conditional.missing.lhs"));
+            par.report(error(conditionalOperatorExpr.getPosition(), "conditional.lhs.missing"));
             conditionalOperatorExpr.setLhs(ErrorExpr.of(rhs.accept(Typer.INSTANCE, null)));
          }
          else
@@ -298,7 +300,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
          if (predicateReceiver == null)
          {
-            par.report(error(predicateOperatorExpr.getPosition(), "predicate.missing.lhs"));
+            par.report(error(predicateOperatorExpr.getPosition(), "predicate.lhs.missing"));
             predicateOperatorExpr.setLhs(ErrorExpr.of(null));
          }
          else
