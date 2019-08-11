@@ -153,9 +153,12 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final AssociationDecl assoc = resolveAssociation(scope, objectClass, assocName, cardinality, otherClass,
                                                        otherAssocName, otherCardinality, name.getPosition(),
                                                        otherName.getPosition());
-      final AssociationDecl other = assoc.getOther();
-      namedExpr.setName(ResolvedName.of(assoc));
-      namedExpr.setOtherName(ResolvedName.of(other));
+      if (assoc != null)
+      {
+         final AssociationDecl other = assoc.getOther();
+         namedExpr.setName(ResolvedName.of(assoc));
+         namedExpr.setOtherName(ResolvedName.of(other));
+      }
    }
 
    @Override

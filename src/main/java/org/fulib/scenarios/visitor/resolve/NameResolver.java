@@ -385,35 +385,42 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
       ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition)
    {
-      final AssociationDecl existing = classDecl.getAssociations().get(name);
+      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      if (existingAttribute != null)
+      {
+         scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+                            existingAttribute.accept(DeclDescriber.INSTANCE, null),
+                            AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
+                                           .accept(DeclDescriber.INSTANCE, null)));
+
+         return null;
+      }
+
+      final AssociationDecl existing = owner.getAssociations().get(name);
       if (existing != null)
       {
          if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
          {
-            final String olda = associationString(classDecl, name, existing.getCardinality(), existing.getTarget());
-            final String newa = associationString(classDecl, name, cardinality, otherClass);
-            throw new IllegalStateException(
-               "conflicting redeclaration of association\nold: " + olda + "\nnew: " + newa);
+            scope.report(error(position, "redeclaration.conflict", owner.getName(), name,
+                               existing.accept(DeclDescriber.INSTANCE, null),
+                               AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
+                                              .accept(DeclDescriber.INSTANCE, null)));
          }
-
-         final AssociationDecl other = existing.getOther();
-         if (other == null)
+         else if (otherName != null)
          {
-            if (otherName != null)
+            final AssociationDecl other = existing.getOther();
+            if (other == null)
             {
-               final String newa = associationString(otherClass, otherName, otherCardinality, classDecl);
-               throw new IllegalStateException(
-                  "conflicting redeclaration of reverse association\nold: " + olda + "\nnew: " + newa);
+               scope.report(error(otherPosition, "association.reverse.late", otherName, owner.getName(), name));
             }
-         }
-         else if (otherName != null && (!otherName.equals(other.getName()) || otherCardinality != other
-                                                                                                     .getCardinality()))
-         {
-            final String olda = associationString(other.getOwner(), other.getName(), other.getCardinality(),
-                                                  classDecl);
-            final String newa = associationString(otherClass, otherName, otherCardinality, classDecl);
-            throw new IllegalStateException(
-               "conflicting redeclaration of reverse association\nold: " + olda + "\nnew: " + newa);
+            else if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
+            {
+               scope.report(error(otherPosition, "association.reverse.conflict", owner.getName(), name,
+                                  otherClass.getName(), other.getName(),
+                                  existing.accept(DeclDescriber.INSTANCE, null), otherClass.getName(), otherName,
+                                  AssociationDecl.of(owner, name, cardinality, otherClass, null, null)
+                                                 .accept(DeclDescriber.INSTANCE, null)));
+            }
          }
 
          return existing;
@@ -501,16 +508,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    }
 
    // --------------- Helper Methods ---------------
-
-   private static String associationString(ClassDecl owner, String name, int cardinality, ClassDecl other)
-   {
-      return owner.getName() + "." + name + ": " + cardinalityString(cardinality) + " " + other.getName();
-   }
-
-   private static String cardinalityString(int cardinality)
-   {
-      return cardinality == 1 ? "one" : "many";
-   }
 
    private static String kindString(Decl decl)
    {
