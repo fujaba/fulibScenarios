@@ -9,6 +9,7 @@ import java.util.Map;
 
 public enum PrimitiveType implements Type
 {
+   ERROR("ERROR"),
    VOID("void"),
    BOOLEAN("boolean"),
    // numeric types

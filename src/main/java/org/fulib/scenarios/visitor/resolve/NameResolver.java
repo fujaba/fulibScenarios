@@ -22,6 +22,7 @@ import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 import org.fulib.scenarios.visitor.describe.DeclDescriber;
+import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
 
@@ -486,8 +487,21 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    static Name getAttributeOrAssociation(Scope scope, Type owner, Name name)
    {
+      if (owner == PrimitiveType.ERROR)
+      {
+         return name;
+      }
+
       final ClassDecl ownerClass = owner.accept(ExtractClassDecl.INSTANCE, null);
-      return getAttributeOrAssociation(scope, ownerClass, name);
+      if (ownerClass != null)
+      {
+         return getAttributeOrAssociation(scope, ownerClass, name);
+      }
+
+      scope.report(
+         error(name.getPosition(), "property.unresolved.primitive", owner.accept(TypeDescriber.INSTANCE, null),
+               name.accept(Namer.INSTANCE, null)));
+      return name;
    }
 
    static Name getAttributeOrAssociation(Scope scope, ClassDecl owner, Name name)
