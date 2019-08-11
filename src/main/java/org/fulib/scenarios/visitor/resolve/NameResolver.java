@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
@@ -318,8 +319,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          final Type otherType = ((ListType) attributeType).getElementType();
          if (otherType instanceof ClassType)
          {
-            return resolveAssociation(scope, classDecl, attributeName, 2, ((ClassType) otherType).getClassDecl(),
-                                      position);
+            return resolveAssociation(scope, classDecl, attributeName, ClassModelBuilder.MANY,
+                                      ((ClassType) otherType).getClassDecl(), position);
          }
          else
          {
