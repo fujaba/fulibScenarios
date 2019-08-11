@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
-import static org.fulib.scenarios.visitor.resolve.NameResolver.*;
+import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveAssociation;
+import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveAttributeOrAssociation;
 
 public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 {
@@ -149,8 +150,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return;
       }
 
-      final AssociationDecl assoc = resolveAssociation(objectClass, assocName, cardinality, otherClass,
-                                                       otherAssocName, otherCardinality);
+      final AssociationDecl assoc = resolveAssociation(scope, objectClass, assocName, cardinality, otherClass,
+                                                       otherAssocName, otherCardinality, name.getPosition(),
+                                                       otherName.getPosition());
       final AssociationDecl other = assoc.getOther();
       namedExpr.setName(ResolvedName.of(assoc));
       namedExpr.setOtherName(ResolvedName.of(other));

@@ -317,7 +317,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          final Type otherType = ((ListType) attributeType).getElementType();
          if (otherType instanceof ClassType)
          {
-            return resolveAssociation(classDecl, attributeName, 2, ((ClassType) otherType).getClassDecl());
+            return resolveAssociation(scope, classDecl, attributeName, 2, ((ClassType) otherType).getClassDecl(),
+                                      position);
          }
          else
          {
@@ -327,7 +328,8 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
       else if (attributeType instanceof ClassType)
       {
-         return resolveAssociation(classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl());
+         return resolveAssociation(scope, classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl(),
+                                   position);
       }
       else
       {
@@ -374,13 +376,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return attribute;
    }
 
-   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass)
+   static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
+      ClassDecl otherClass, Position position)
    {
-      return resolveAssociation(classDecl, name, cardinality, otherClass, null, 0);
+      return resolveAssociation(scope, owner, name, cardinality, otherClass, null, 0, position, null);
    }
 
-   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass,
-      String otherName, int otherCardinality)
+   static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
+      ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition)
    {
       final AssociationDecl existing = classDecl.getAssociations().get(name);
       if (existing != null)
@@ -400,7 +403,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
             {
                final String newa = associationString(otherClass, otherName, otherCardinality, classDecl);
                throw new IllegalStateException(
-                  "conflicting redeclaration of reverse association\nold: none/uni-directional\nnew: " + newa);
+                  "conflicting redeclaration of reverse association\nold: " + olda + "\nnew: " + newa);
             }
          }
          else if (otherName != null && (!otherName.equals(other.getName()) || otherCardinality != other
@@ -416,21 +419,22 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return existing;
       }
 
-      if (classDecl.getFrozen())
+      if (otherClass.getExternal())
       {
-         throw new IllegalStateException(
-            "unresolved association " + associationString(classDecl, name, cardinality, otherClass));
+         scope.report(error(otherPosition, "association.unresolved.external", name, owner.getName()));
+      }
+      else if (otherClass.getFrozen())
+      {
+         scope.report(error(otherPosition, "association.unresolved.frozen", name, owner.getName()));
       }
 
-      final AssociationDecl association = createAssociation(classDecl, name, cardinality, otherClass);
+      final AssociationDecl association = createAssociation(owner, name, cardinality, otherClass);
 
-      if (otherClass == classDecl && name.equals(otherName))
+      if (otherClass == owner && name.equals(otherName))
       {
          if (cardinality != otherCardinality)
          {
-            throw new IllegalStateException(
-               "mismatching cardinality of self-association\norigin:  " + cardinalityString(cardinality)
-               + "\nreverse: " + cardinalityString(otherCardinality));
+            scope.report(error(position, "association.self.cardinality.mismatch", owner.getName(), name));
          }
 
          // self-association
@@ -438,14 +442,16 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
       else if (otherName != null)
       {
-         if (otherClass.getFrozen())
+         if (otherClass.getExternal())
          {
-            throw new IllegalStateException(
-               "unresolved reverse association " + associationString(otherClass, otherName, otherCardinality,
-                                                                     classDecl));
+            scope.report(error(otherPosition, "association.unresolved.external", otherName, otherClass.getName()));
+         }
+         else if (otherClass.getFrozen())
+         {
+            scope.report(error(otherPosition, "association.unresolved.frozen", otherName, otherClass.getName()));
          }
 
-         final AssociationDecl other = createAssociation(otherClass, otherName, otherCardinality, classDecl);
+         final AssociationDecl other = createAssociation(otherClass, otherName, otherCardinality, owner);
 
          association.setOther(other);
          other.setOther(association);
