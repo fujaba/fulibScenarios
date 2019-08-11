@@ -145,7 +145,9 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
 
    public void print(PrintWriter out)
    {
-      // src/dir/package/name/file_name.md:10:20: error: info...
+      // src/dir/package/name/file_name.md:10:20: error: info... [code]
+      // (more info...)
+
       out.print(this.source.getGroup().getSourceDir());
       out.print('/');
       out.print(this.source.getGroup().getPackageDir());
@@ -158,7 +160,28 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
       out.print(": ");
       out.print(this.getKind().name().toLowerCase());
       out.print(": ");
-      out.println(this.getLocalizedMessage());
+
+      // insert the code after the first line of the message
+
+      final String message = this.getLocalizedMessage();
+      final int newlineIndex = message.indexOf('\n');
+      if (newlineIndex >= 0)
+      {
+         out.print(message.substring(0, newlineIndex));
+      }
+      else
+      {
+         out.print(message);
+      }
+
+      out.print(" [");
+      out.print(this.code);
+      out.println(']');
+
+      if (newlineIndex >= 0)
+      {
+         out.println(message.substring(newlineIndex + 1));
+      }
    }
 
    @Override

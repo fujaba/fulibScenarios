@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
-import static org.fulib.scenarios.visitor.resolve.NameResolver.*;
+import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveAssociation;
+import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveAttributeOrAssociation;
 
 public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 {
@@ -112,7 +113,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (otherName == null)
       {
-         namedExpr.setName(resolveAttributeOrAssociation(objectClass, name, expr));
+         namedExpr.setName(resolveAttributeOrAssociation(scope, objectClass, name, expr));
          return;
       }
 
@@ -134,7 +135,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          }
          else
          {
-            scope.report(error(otherName.getPosition(), "attribute.multi.reverse.name", otherAssocName, assocName));
+            scope.report(
+               error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
+                     assocName));
             return;
          }
       }
@@ -145,15 +148,23 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
       else
       {
-         scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, assocName));
+         scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
+                            assocName));
          return;
       }
 
-      final AssociationDecl assoc = resolveAssociation(objectClass, assocName, cardinality, otherClass,
-                                                       otherAssocName, otherCardinality);
-      final AssociationDecl other = assoc.getOther();
-      namedExpr.setName(ResolvedName.of(assoc));
-      namedExpr.setOtherName(ResolvedName.of(other));
+      final AssociationDecl assoc = resolveAssociation(scope, objectClass, assocName, cardinality, otherClass,
+                                                       otherAssocName, otherCardinality, name.getPosition(),
+                                                       otherName.getPosition());
+      if (assoc != null)
+      {
+         final AssociationDecl other = assoc.getOther();
+         namedExpr.setName(ResolvedName.of(assoc));
+         if (other != null)
+         {
+            namedExpr.setOtherName(ResolvedName.of(other));
+         }
+      }
    }
 
    @Override
@@ -235,7 +246,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Expr source = writeSentence.getSource();
       final Expr target = writeSentence.getTarget();
       return this.resolveAssignment(writeSentence, par, source, target, AssignmentResolve.INSTANCE,
-                                    "sentence.write.invalid");
+                                    "write.target.invalid");
    }
 
    @Override
@@ -243,7 +254,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = addSentence.getTarget();
-      return this.resolveAssignment(addSentence, par, source, target, AddResolve.INSTANCE, "sentence.add.invalid");
+      return this.resolveAssignment(addSentence, par, source, target, AddResolve.INSTANCE, "add.target.invalid");
    }
 
    @Override
@@ -252,7 +263,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = removeSentence.getTarget();
       return this.resolveAssignment(removeSentence, par, source, target, RemoveResolve.INSTANCE,
-                                    "sentence.remove.invalid");
+                                    "remove.target.invalid");
    }
 
    @Override

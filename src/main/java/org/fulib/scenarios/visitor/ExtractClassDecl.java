@@ -12,6 +12,12 @@ public enum ExtractClassDecl implements Type.Visitor<Void, ClassDecl>
    // --------------- Type.Visitor ---------------
 
    @Override
+   public ClassDecl visit(Type type, Void par)
+   {
+      return null;
+   }
+
+   @Override
    public ClassDecl visit(ClassType classType, Void par)
    {
       return classType.getClassDecl();

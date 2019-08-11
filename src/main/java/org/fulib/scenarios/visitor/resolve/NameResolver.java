@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
@@ -21,6 +22,8 @@ import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.visitor.describe.DeclDescriber;
+import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
 
@@ -291,7 +294,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       return decl;
    }
 
-   static Name resolveAttributeOrAssociation(ClassDecl classDecl, Name name, Expr rhs)
+   static Name resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, Name name, Expr rhs)
    {
       if (name.accept(ExtractDecl.INSTANCE, null) != null)
       {
@@ -299,23 +302,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return name;
       }
 
-      return ResolvedName.of(resolveAttributeOrAssociation(classDecl, name.accept(Namer.INSTANCE, null), rhs));
+      final Decl decl = resolveAttributeOrAssociation(scope, classDecl, name.accept(Namer.INSTANCE, null), rhs,
+                                                      name.getPosition());
+      return decl != null ? ResolvedName.of(decl) : name;
    }
 
-   static Decl resolveAttributeOrAssociation(ClassDecl classDecl, String attributeName, Expr rhs)
+   static Decl resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, String attributeName, Expr rhs,
+      Position position)
    {
-      final AttributeDecl existingAttribute = classDecl.getAttributes().get(attributeName);
-      if (existingAttribute != null)
-      {
-         return existingAttribute;
-      }
-
-      final AssociationDecl existingAssociation = classDecl.getAssociations().get(attributeName);
-      if (existingAssociation != null)
-      {
-         return existingAssociation;
-      }
-
       final Type attributeType = rhs.accept(Typer.INSTANCE, null);
 
       if (attributeType instanceof ListType)
@@ -325,106 +319,140 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          final Type otherType = ((ListType) attributeType).getElementType();
          if (otherType instanceof ClassType)
          {
-            return resolveAssociation(classDecl, attributeName, 2, ((ClassType) otherType).getClassDecl());
+            return resolveAssociation(scope, classDecl, attributeName, ClassModelBuilder.MANY,
+                                      ((ClassType) otherType).getClassDecl(), position);
          }
          else
          {
             // was element type that we have no control over, e.g. List<String>
-            return resolveAttribute(classDecl, attributeName, attributeType);
+            return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
          }
       }
       else if (attributeType instanceof ClassType)
       {
-         return resolveAssociation(classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl());
+         return resolveAssociation(scope, classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl(),
+                                   position);
       }
       else
       {
-         return resolveAttribute(classDecl, attributeName, attributeType);
+         return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
       }
    }
 
-   static AttributeDecl resolveAttribute(ClassDecl classDecl, String name, Type type)
+   static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position)
    {
-      final AttributeDecl existing = classDecl.getAttributes().get(name);
-      if (existing != null)
+      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      if (existingAttribute != null)
       {
-         final Type existingType = existing.getType();
+         final Type existingType = existingAttribute.getType();
          if (!type.equals(existingType)) // TODO type equality
          {
-            throw new IllegalStateException(
-               "mismatched attribute type " + classDecl.getName() + "." + name + ": " + existingType + " vs "
-               + type);
+            scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
+                               existingAttribute.accept(DeclDescriber.INSTANCE, null),
+                               AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
          }
 
-         return existing;
+         return existingAttribute;
       }
-
-      if (classDecl.getFrozen())
+      final AssociationDecl existingAssociation = owner.getAssociations().get(name);
+      if (existingAssociation != null)
       {
-         throw new IllegalStateException("unresolved external attribute " + classDecl.getName() + "." + name);
+         scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
+                            existingAssociation.accept(DeclDescriber.INSTANCE, null),
+                            AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
+
+         return existingAssociation;
       }
 
-      final AttributeDecl attribute = AttributeDecl.of(classDecl, name, type);
-      classDecl.getAttributes().put(name, attribute);
+      if (owner.getExternal())
+      {
+         scope.report(error(position, "attribute.unresolved.external", name, owner.getName()));
+      }
+      else if (owner.getFrozen())
+      {
+         scope.report(error(position, "attribute.unresolved.frozen", name, owner.getName()));
+      }
+
+      final AttributeDecl attribute = AttributeDecl.of(owner, name, type);
+      owner.getAttributes().put(name, attribute);
       return attribute;
    }
 
-   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass)
+   static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
+      ClassDecl otherClass, Position position)
    {
-      return resolveAssociation(classDecl, name, cardinality, otherClass, null, 0);
+      return resolveAssociation(scope, owner, name, cardinality, otherClass, null, 0, position, null);
    }
 
-   static AssociationDecl resolveAssociation(ClassDecl classDecl, String name, int cardinality, ClassDecl otherClass,
-      String otherName, int otherCardinality)
+   static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
+      ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition)
    {
-      final AssociationDecl existing = classDecl.getAssociations().get(name);
+      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      if (existingAttribute != null)
+      {
+         final String existingDesc = existingAttribute.accept(DeclDescriber.INSTANCE, null);
+         // TODO optimize
+         final String newDesc = AssociationDecl
+                                   .of(owner, name, cardinality, otherClass, createType(cardinality, otherClass),
+                                       null).accept(DeclDescriber.INSTANCE, null);
+         scope.report(
+            error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc, newDesc));
+
+         return null;
+      }
+
+      final AssociationDecl existing = owner.getAssociations().get(name);
       if (existing != null)
       {
          if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
          {
-            final String olda = associationString(classDecl, name, existing.getCardinality(), existing.getTarget());
-            final String newa = associationString(classDecl, name, cardinality, otherClass);
-            throw new IllegalStateException(
-               "conflicting redeclaration of association\nold: " + olda + "\nnew: " + newa);
+            final String existingDesc = existing.accept(DeclDescriber.INSTANCE, null);
+            // TODO optimize
+            final String newDesc = AssociationDecl.of(owner, name, cardinality, otherClass,
+                                                      createType(cardinality, otherClass), null)
+                                                  .accept(DeclDescriber.INSTANCE, null);
+            scope.report(
+               error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc, newDesc));
          }
-
-         final AssociationDecl other = existing.getOther();
-         if (other == null)
+         else if (otherName != null)
          {
-            if (otherName != null)
+            final AssociationDecl other = existing.getOther();
+            if (other == null)
             {
-               final String newa = associationString(otherClass, otherName, otherCardinality, classDecl);
-               throw new IllegalStateException(
-                  "conflicting redeclaration of reverse association\nold: none/uni-directional\nnew: " + newa);
+               scope.report(error(otherPosition, "association.reverse.late", otherName, owner.getName(), name));
             }
-         }
-         else if (otherName != null && (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality()))
-         {
-            final String olda = associationString(other.getOwner(), other.getName(), other.getCardinality(),
-                                                  classDecl);
-            final String newa = associationString(otherClass, otherName, otherCardinality, classDecl);
-            throw new IllegalStateException(
-               "conflicting redeclaration of reverse association\nold: " + olda + "\nnew: " + newa);
+            else if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
+            {
+               final String existingDesc = other.accept(DeclDescriber.INSTANCE, null);
+               // TODO optimize
+               final String newDesc = AssociationDecl.of(otherClass, otherName, otherCardinality, owner,
+                                                         createType(otherCardinality, owner), null)
+                                                     .accept(DeclDescriber.INSTANCE, null);
+               scope.report(error(otherPosition, "association.reverse.conflict", owner.getName(), name,
+                                  otherClass.getName(), other.getName(), existingDesc, otherClass.getName(),
+                                  otherName, newDesc));
+            }
          }
 
          return existing;
       }
 
-      if (classDecl.getFrozen())
+      if (otherClass.getExternal())
       {
-         throw new IllegalStateException(
-            "unresolved association " + associationString(classDecl, name, cardinality, otherClass));
+         scope.report(error(otherPosition, "association.unresolved.external", name, owner.getName()));
+      }
+      else if (otherClass.getFrozen())
+      {
+         scope.report(error(otherPosition, "association.unresolved.frozen", name, owner.getName()));
       }
 
-      final AssociationDecl association = createAssociation(classDecl, name, cardinality, otherClass);
+      final AssociationDecl association = createAssociation(owner, name, cardinality, otherClass);
 
-      if (otherClass == classDecl && name.equals(otherName))
+      if (otherClass == owner && name.equals(otherName))
       {
          if (cardinality != otherCardinality)
          {
-            throw new IllegalStateException(
-               "mismatching cardinality of self-association\norigin:  " + cardinalityString(cardinality)
-               + "\nreverse: " + cardinalityString(otherCardinality));
+            scope.report(error(position, "association.self.cardinality.mismatch", owner.getName(), name));
          }
 
          // self-association
@@ -432,14 +460,16 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
       else if (otherName != null)
       {
-         if (otherClass.getFrozen())
+         if (otherClass.getExternal())
          {
-            throw new IllegalStateException(
-               "unresolved reverse association " + associationString(otherClass, otherName, otherCardinality,
-                                                                     classDecl));
+            scope.report(error(otherPosition, "association.unresolved.external", otherName, otherClass.getName()));
+         }
+         else if (otherClass.getFrozen())
+         {
+            scope.report(error(otherPosition, "association.unresolved.frozen", otherName, otherClass.getName()));
          }
 
-         final AssociationDecl other = createAssociation(otherClass, otherName, otherCardinality, classDecl);
+         final AssociationDecl other = createAssociation(otherClass, otherName, otherCardinality, owner);
 
          association.setOther(other);
          other.setOther(association);
@@ -450,59 +480,78 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
    private static AssociationDecl createAssociation(ClassDecl owner, String name, int cardinality, ClassDecl target)
    {
-      final Type type = cardinality != 1 ? ListType.of(target.getType()) : target.getType();
+      final Type type = createType(cardinality, target);
       final AssociationDecl association = AssociationDecl.of(owner, name, cardinality, target, type, null);
 
       owner.getAssociations().put(association.getName(), association);
       return association;
    }
 
+   private static Type createType(int cardinality, ClassDecl target)
+   {
+      return cardinality != 1 ? ListType.of(target.getType()) : target.getType();
+   }
+
    // --------------- Decl Resolution (without Creation) ---------------
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
+   {
+      final Type type = receiver.accept(Typer.INSTANCE, null);
+      return getAttributeOrAssociation(scope, type, name);
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, Type owner, Name name)
+   {
+      if (owner == PrimitiveType.ERROR)
+      {
+         return name;
+      }
+
+      final ClassDecl ownerClass = owner.accept(ExtractClassDecl.INSTANCE, null);
+      if (ownerClass != null)
+      {
+         return getAttributeOrAssociation(scope, ownerClass, name);
+      }
+
+      scope.report(
+         error(name.getPosition(), "property.unresolved.primitive", owner.accept(TypeDescriber.INSTANCE, null),
+               name.accept(Namer.INSTANCE, null)));
+      return name;
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, ClassDecl owner, Name name)
    {
       if (name.accept(ExtractDecl.INSTANCE, null) != null)
       {
          return name;
       }
 
-      final Type type = receiver.accept(Typer.INSTANCE, null);
-      return getAttributeOrAssociation(type.accept(ExtractClassDecl.INSTANCE, null), name.accept(Namer.INSTANCE, null));
+      final String nameValue = name.accept(Namer.INSTANCE, null);
+      final Decl decl = getAttributeOrAssociation(owner, nameValue);
+
+      if (decl != null)
+      {
+         return ResolvedName.of(decl);
+      }
+
+      scope.report(error(name.getPosition(), "property.unresolved", owner.getName(), nameValue));
+      return name; // unresolved
    }
 
-   static Name getAttributeOrAssociation(ClassDecl receiverClass, String name)
+   static Decl getAttributeOrAssociation(ClassDecl owner, String name)
    {
-      final AttributeDecl attribute = receiverClass.getAttributes().get(name);
-      if (attribute != null)
-      {
-         return ResolvedName.of(attribute);
-      }
-
-      final AssociationDecl association = receiverClass.getAssociations().get(name);
-      if (association != null)
-      {
-         return ResolvedName.of(association);
-      }
-
-      throw new IllegalStateException("unresolved attribute or association " + receiverClass.getName() + "." + name);
+      final AttributeDecl attribute = owner.getAttributes().get(name);
+      return attribute != null ? attribute : owner.getAssociations().get(name);
    }
 
    // --------------- Helper Methods ---------------
 
-   private static String associationString(ClassDecl owner, String name, int cardinality, ClassDecl other)
-   {
-      return owner.getName() + "." + name + ": " + cardinalityString(cardinality) + " " + other.getName();
-   }
-
-   private static String cardinalityString(int cardinality)
-   {
-      return cardinality == 1 ? "one" : "many";
-   }
-
    private static String kindString(Decl decl)
    {
       final String simpleName = decl.getClass().getEnclosingClass().getSimpleName();
-      final String stripped = simpleName.endsWith("Decl") ? simpleName.substring(0, simpleName.length() - 4) : simpleName;
+      final String stripped = simpleName.endsWith("Decl") ?
+                                 simpleName.substring(0, simpleName.length() - 4) :
+                                 simpleName;
       final String key = stripped.toLowerCase() + ".kind";
       return Marker.localize(key);
    }
