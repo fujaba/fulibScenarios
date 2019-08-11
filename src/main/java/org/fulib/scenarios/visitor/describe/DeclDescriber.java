@@ -11,30 +11,28 @@ public enum DeclDescriber implements Decl.Visitor<Void, String>
 {
    INSTANCE;
 
-   private static String visit(Type type, String name, String oneKey, String manyKey)
+   private static String visit(Type type, String oneKey, String manyKey)
    {
       if (type instanceof ListType)
       {
          final Type elementType = ((ListType) type).getElementType();
-         return Marker.localize(manyKey, name, elementType.accept(TypeDescriber.INSTANCE, null));
+         return Marker.localize(manyKey, elementType.accept(TypeDescriber.INSTANCE, null));
       }
-      return Marker.localize(oneKey, name, type.accept(TypeDescriber.INSTANCE, null));
+      return Marker.localize(oneKey, type.accept(TypeDescriber.INSTANCE, null));
    }
 
    @Override
    public String visit(AttributeDecl attributeDecl, Void par)
    {
       final Type type = attributeDecl.getType();
-      final String name = attributeDecl.getName();
-      return visit(type, name, "attribute.desc.1", "attribute.desc.*");
+      return visit(type, "attribute.desc.1", "attribute.desc.*");
    }
 
    @Override
    public String visit(AssociationDecl associationDecl, Void par)
    {
       final Type type = associationDecl.getType();
-      final String name = associationDecl.getName();
-      return visit(type, name, "association.desc.1", "association.desc.*");
+      return visit(type, "association.desc.1", "association.desc.*");
    }
 }
 
