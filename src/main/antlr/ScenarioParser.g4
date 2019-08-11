@@ -11,7 +11,7 @@ header: H1 HEADLINE_TEXT HEADLINE_END;
 
 // --------------- Sentences ---------------
 
-actor: WE | name;
+actor: WE | THE? name;
 
 sentence: simpleSentence FULL_STOP
         | diagramSentence
@@ -46,17 +46,17 @@ descriptor: simpleDescriptor | multiDescriptor;
 simpleDescriptor: simpleTypeClause name? withClauses?;
 multiDescriptor: multiTypeClause (name (sep name)+)? withClauses?;
 
-isSentence: name IS simpleTypeClause withClauses?;
+isSentence: THE? name IS simpleTypeClause withClauses?;
 
 simpleTypeClause: (A | AN | THE) (simpleName | name CARD);
-multiTypeClause: name CARDS | name;
+multiTypeClause: THE? name CARDS?;
 
 withClauses: withClause (sep withClause)*;
 withClause: WITH namedExpr;
 
-namedExpr: simpleName expr # NamedSimple
-         | number name     # NamedNumber;
-bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? otherName=simpleName OF expr;
+namedExpr: THE? simpleName expr # NamedSimple
+         | number name          # NamedNumber;
+bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF expr;
 
 hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
@@ -67,7 +67,7 @@ createSentence: actor (CREATE | CREATES) simpleDescriptor
 
 callSentence: actor (CALL | CALLS) name (ON expr)? withClauses?;
 
-answerSentence: actor (ANSWER | ANSWERS) WITH expr (INTO name)?;
+answerSentence: actor (ANSWER | ANSWERS) WITH expr (INTO THE? name)?;
 
 writeSentence: actor (WRITE | WRITES) expr INTO expr;
 addSentence: actor (ADD | ADDS) expr TO expr;
@@ -77,7 +77,7 @@ removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
 
 conditionalSentence: AS condExpr COMMA simpleSentence (sep simpleSentence)*;
 
-takeSentence: actor (TAKE | TAKES) simpleName? primaryExpr FROM expr AND simpleSentence (sep simpleSentence)*;
+takeSentence: actor (TAKE | TAKES) (THE? simpleName)? primaryExpr FROM expr AND simpleSentence (sep simpleSentence)*;
 
 // Testing
 
@@ -99,10 +99,10 @@ number: DECIMAL | INTEGER;
 stringLiteral: STRING_LITERAL;
 it: IT;
 
-simpleName: THE? WORD;
-name: THE? WORD+;
+simpleName: WORD;
+name: WORD+;
 
-nameAccess: name;
+nameAccess: THE? name;
 
 // string: (WORD | NUMBER)+;
 
@@ -112,7 +112,7 @@ access: primary | attributeAccess | exampleAccess | filterExpr;
 namedAccess: nameAccess | attributeAccess;
 named: namedAccess | exampleAccess;
 
-attributeAccess: name OF access;
+attributeAccess: THE? name OF access;
 exampleAccess: primaryExpr FROM namedAccess;
 
 filterExpr: ALL expr WHICH condExpr;
