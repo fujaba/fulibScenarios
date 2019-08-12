@@ -64,7 +64,7 @@ public class DeclResolver
 
    // --------------- Methods ---------------
 
-   static MethodDecl resolveMethod(Scope scope, ClassDecl owner, String name, Position position)
+   private static MethodDecl getMethod(ClassDecl owner, String name)
    {
       for (final MethodDecl decl : owner.getMethods())
       {
@@ -73,7 +73,17 @@ public class DeclResolver
             return decl;
          }
       }
+      return null;
+   }
 
+   static MethodDecl resolveMethod(Scope scope, Position position, ClassDecl owner, String name)
+   {
+      final MethodDecl existing = getMethod(owner, name);
+      return existing != null ? existing : createMethod(scope, position, owner, name);
+   }
+
+   private static MethodDecl createMethod(Scope scope, Position position, ClassDecl owner, String name)
+   {
       if (owner.getExternal())
       {
          scope.report(error(position, "method.unresolved.external", name, owner.getName()));
@@ -83,6 +93,11 @@ public class DeclResolver
          scope.report(error(position, "method.unresolved.frozen", name, owner.getName()));
       }
 
+      return createMethod(position, owner, name);
+   }
+
+   private static MethodDecl createMethod(Position position, ClassDecl owner, String name)
+   {
       final SentenceList body = SentenceList.of(new ArrayList<>());
       final MethodDecl decl = MethodDecl.of(owner, name, new ArrayList<>(), null, body);
       decl.setPosition(position);
