@@ -435,7 +435,11 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
             final AssociationDecl other = existing.getOther();
             if (other == null)
             {
-               scope.report(error(otherPosition, "association.reverse.late", otherName, owner.getName(), name));
+               final Marker error = error(otherPosition, "association.reverse.late", otherName, owner.getName(),
+                                          name);
+               final Marker note = note(existing.getPosition(), "property.declaration.first", owner.getName(),
+                                        name);
+               scope.report(error.note(note));
             }
             else if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
             {
@@ -444,9 +448,12 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
                final String newDesc = AssociationDecl.of(otherClass, otherName, otherCardinality, owner,
                                                          createType(otherCardinality, owner), null)
                                                      .accept(DeclDescriber.INSTANCE, null);
-               scope.report(error(otherPosition, "association.reverse.conflict", owner.getName(), name,
-                                  otherClass.getName(), other.getName(), existingDesc, otherClass.getName(),
-                                  otherName, newDesc));
+               final Marker error = error(otherPosition, "association.reverse.conflict", owner.getName(), name,
+                                          otherClass.getName(), other.getName(), existingDesc,
+                                          otherClass.getName(), otherName, newDesc);
+               final Marker note = note(other.getPosition(), "property.declaration.first", otherClass.getName(),
+                                        other.getName());
+               scope.report(error.note(note));
             }
          }
 
