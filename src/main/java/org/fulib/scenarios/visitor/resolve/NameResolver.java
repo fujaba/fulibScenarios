@@ -420,7 +420,10 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final AssociationDecl existing = owner.getAssociations().get(name);
       if (existing != null)
       {
-         if (existing.getTarget() != otherClass || existing.getCardinality() != cardinality)
+         // uses < because redeclaration as to-one when it was to-many is ok.
+         // TODO investigate this claim
+
+         if (existing.getTarget() != otherClass || existing.getCardinality() < cardinality)
          {
             final String existingDesc = existing.accept(DeclDescriber.INSTANCE, null);
             // TODO optimize
