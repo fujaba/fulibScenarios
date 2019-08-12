@@ -27,8 +27,7 @@ import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
 
-import static org.fulib.scenarios.diagnostic.Marker.error;
-import static org.fulib.scenarios.diagnostic.Marker.warning;
+import static org.fulib.scenarios.diagnostic.Marker.*;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
                                        ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
@@ -278,6 +277,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
       final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
                                           new ArrayList<>());
+      decl.setPosition(position);
       decl.setExternal(getEnclosingClass(scope).getExternal());
       decl.setType(ClassType.of(decl));
       scope.add(decl);
@@ -305,6 +305,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
       final SentenceList body = SentenceList.of(new ArrayList<>());
       final MethodDecl decl = MethodDecl.of(owner, name, new ArrayList<>(), null, body);
+      decl.setPosition(position);
       owner.getMethods().add(decl);
       return decl;
    }
@@ -362,9 +363,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          final Type existingType = existingAttribute.getType();
          if (!type.equals(existingType)) // TODO type equality
          {
-            scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
-                               existingAttribute.accept(DeclDescriber.INSTANCE, null),
-                               AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
+            // TODO optimize
+            final String newDesc = AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null);
+            scope.report(conflict(position, owner, name, existingAttribute, newDesc));
          }
 
          return existingAttribute;
@@ -372,9 +373,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final AssociationDecl existingAssociation = owner.getAssociations().get(name);
       if (existingAssociation != null)
       {
-         scope.report(error(position, "property.redeclaration.conflict", owner.getName(), name,
-                            existingAssociation.accept(DeclDescriber.INSTANCE, null),
-                            AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null)));
+         // TODO optimize
+         final String newDesc = AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null);
+         scope.report(conflict(position, owner, name, existingAssociation, newDesc));
 
          return existingAssociation;
       }
@@ -389,6 +390,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
 
       final AttributeDecl attribute = AttributeDecl.of(owner, name, type);
+      attribute.setPosition(position);
       owner.getAttributes().put(name, attribute);
       return attribute;
    }
@@ -405,13 +407,11 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
       {
-         final String existingDesc = existingAttribute.accept(DeclDescriber.INSTANCE, null);
          // TODO optimize
          final String newDesc = AssociationDecl
                                    .of(owner, name, cardinality, otherClass, createType(cardinality, otherClass),
                                        null).accept(DeclDescriber.INSTANCE, null);
-         scope.report(
-            error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc, newDesc));
+         scope.report(conflict(position, owner, name, existingAttribute, newDesc));
 
          return null;
       }
@@ -424,13 +424,11 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
 
          if (existing.getTarget() != otherClass || existing.getCardinality() < cardinality)
          {
-            final String existingDesc = existing.accept(DeclDescriber.INSTANCE, null);
             // TODO optimize
             final String newDesc = AssociationDecl.of(owner, name, cardinality, otherClass,
                                                       createType(cardinality, otherClass), null)
                                                   .accept(DeclDescriber.INSTANCE, null);
-            scope.report(
-               error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc, newDesc));
+            scope.report(conflict(position, owner, name, existing, newDesc));
          }
          else if (otherName != null)
          {
@@ -465,6 +463,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       }
 
       final AssociationDecl association = createAssociation(owner, name, cardinality, otherClass);
+      association.setPosition(position);
 
       if (otherClass == owner && name.equals(otherName))
       {
@@ -488,6 +487,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          }
 
          final AssociationDecl other = createAssociation(otherClass, otherName, otherCardinality, owner);
+         other.setPosition(otherPosition);
 
          association.setOther(other);
          other.setOther(association);
@@ -563,6 +563,16 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    }
 
    // --------------- Helper Methods ---------------
+
+   private static Marker conflict(Position position, ClassDecl owner, String name, Decl existing, String newDesc)
+   {
+      final String existingDesc = existing.accept(DeclDescriber.INSTANCE, null);
+      final Marker error = error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc,
+                                 newDesc);
+      final Marker note = note(existing.getPosition(), "property.declaration.first", owner.getName(), name);
+
+      return error.note(note);
+   }
 
    private static String kindString(Decl decl)
    {
