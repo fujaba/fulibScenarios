@@ -453,13 +453,13 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          return existing;
       }
 
-      if (otherClass.getExternal())
+      if (owner.getExternal())
       {
-         scope.report(error(otherPosition, "association.unresolved.external", name, owner.getName()));
+         scope.report(error(position, "association.unresolved.external", name, owner.getName()));
       }
-      else if (otherClass.getFrozen())
+      else if (owner.getFrozen())
       {
-         scope.report(error(otherPosition, "association.unresolved.frozen", name, owner.getName()));
+         scope.report(error(position, "association.unresolved.frozen", name, owner.getName()));
       }
 
       final AssociationDecl association = createAssociation(owner, name, cardinality, otherClass);
