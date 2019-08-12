@@ -1,6 +1,6 @@
 # Scenario Calls and Lists.
 
-There is the SEGroup.
+There is an SEGroup.
 
 We call init on SEGroup.
 

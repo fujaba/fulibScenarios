@@ -1,6 +1,6 @@
 # Scenario Shoe Shop. 
 
-There is the Shop24. 
+There is a Shop24. 
 
 There are ShopCustomer with name Alice and Bob and with address "Wonderland 1" and Neverland. 
 

@@ -1,6 +1,6 @@
 # Scenario Write Sentences.
 
-There are ListHolders x,y,z.
+There are the ListHolders x,y,z.
 We write y,z into xs.
 
 We write 1,2,3 into vals.          // * -> 1

@@ -67,25 +67,6 @@ public class Identifiers
       return context == null ? null : StrUtil.downFirstChar(joinCaps(context));
    }
 
-   static String typeNameValue(ScenarioParser.SimpleTypeClauseContext typeClause)
-   {
-      final ScenarioParser.SimpleNameContext simpleName = typeClause.simpleName();
-      return simpleName != null ? joinCaps(simpleName) : joinCaps(typeClause.name());
-   }
-
-   static String typeNameValue(ScenarioParser.MultiTypeClauseContext typeClause)
-   {
-      final ScenarioParser.NameContext name = typeClause.name();
-      final String typeName = joinCaps(name);
-
-      if (typeClause.CARDS() != null || !typeName.endsWith("s"))
-      {
-         return typeName;
-      }
-
-      return typeName.substring(0, typeName.length() - 1);
-   }
-
    static Name name(ScenarioParser.SimpleNameContext simpleName)
    {
       return simpleName == null ? null : name(varName(simpleName), simpleName);

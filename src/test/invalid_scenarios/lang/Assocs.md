@@ -14,7 +14,7 @@ error: mismatching cardinalities of self-association 'SelfEntity.enemies' [assoc
 
 # Invalid Reverse
 
-There are AssocReverseEntity Alice, Bob, Charlie.
+There are the AssocReverseEntity Alice, Bob, Charlie.
 
 Alice has related Bob.
 Bob has related and is reverse-related of Charlie.
@@ -39,7 +39,7 @@ now: AssocReverseEntity.child, association to many 'AssocReverseEntity'
 
 # Invalid Redeclaration
 
-There are AssocReEntity Alice, Bob, Charlie.
+There are the AssocReEntity Alice, Bob, Charlie.
 Alice has related Bob.
 
 Alice has related and is reverse-related of Charlie.

@@ -1,6 +1,6 @@
 # Scenario Add and Remove.
 
-There is a NumberList mynums with items 1,2,3.
+There is the NumberList mynums with items 1,2,3.
 We write 1,2,3 into numbers.
 
 We add 4 to numbers.

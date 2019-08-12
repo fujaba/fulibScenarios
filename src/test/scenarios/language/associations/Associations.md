@@ -1,6 +1,6 @@
 # Reverse Associations
 
-There is a University Uni Kassel.
+There is the University Uni Kassel.
 There are Students with name Alice, Bob, Charlie, Dude.
 
 // You can specify the name of the reverse association by adding "and is <name> of".

@@ -2,7 +2,7 @@
 
 ## Model
 
-There is the Warehouse51.
+There is a Warehouse51.
 There are PalettePlace with id p23x42 and p24x42 and p25x42
 and with row 42
 and with column 23 and 24 and 25.
@@ -45,7 +45,7 @@ and with newPlace p23x42.
 
 ## AddToStock
 
-AddToStock creates a Lot lot
+AddToStock creates the Lot lot
     with id      "lot1" from id,
 and with lotSize 20     from size
 and with place p23x42   from newPlace.
@@ -57,7 +57,7 @@ and with name "Cloud Sneakers" from productName.
 ## BuildProduct
 
 // As WHService has no "Cloud Sneakers" in name of products of theWarehouse,
-BuildProduct creates a WarehouseProduct product
+BuildProduct creates the WarehouseProduct product
     with id   "CloudSneakers" from id,
 and with name "Cloud Sneakers" from name.
 

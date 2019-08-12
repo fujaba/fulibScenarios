@@ -1,6 +1,6 @@
 # External Methods
 
-There is a WebApp app.
+There is the WebApp app.
 We call run on app.
 <!--    ^
 error: cannot resolve or add method 'run' in external class 'WebApp' [method.unresolved.external]

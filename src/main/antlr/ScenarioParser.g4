@@ -42,14 +42,20 @@ thereSentence: thereClause (sep thereClause)*;
 thereClause: THERE IS simpleDescriptor
            | THERE ARE multiDescriptor;
 
-descriptor: simpleDescriptor | multiDescriptor;
-simpleDescriptor: simpleTypeClause name? withClauses?;
-multiDescriptor: multiTypeClause (name (sep name)+)? withClauses?;
+simpleDescriptor: aTypeClause withClauses? // indefinite form
+                | theTypeClause name withClauses? // definite form
+                ;
 
-isSentence: THE? name IS simpleTypeClause withClauses?;
+multiDescriptor: aTypesClause withClauses? // indefinite form
+               | theTypesClause name (sep name)+ withClauses? // definite form
+               ;
 
-simpleTypeClause: (A | AN | THE) (simpleName | name CARD);
-multiTypeClause: THE? name CARDS?;
+aTypeClause: (A | AN) name CARD?;
+aTypesClause: name CARDS?;
+theTypeClause: THE (simpleName | name CARD);
+theTypesClause: THE (simpleName | name CARDS);
+
+isSentence: THE? name IS aTypeClause withClauses?;
 
 withClauses: withClause (sep withClause)*;
 withClause: WITH namedExpr;
@@ -62,8 +68,7 @@ hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: (HAS | HAVE) (namedExpr | bidiNamedExpr);
 
-createSentence: actor (CREATE | CREATES) simpleDescriptor
-              | actor (CREATE | CREATES) multiDescriptor;
+createSentence: actor (CREATE | CREATES) (simpleDescriptor | multiDescriptor);
 
 callSentence: actor (CALL | CALLS) name (ON expr)? withClauses?;
 

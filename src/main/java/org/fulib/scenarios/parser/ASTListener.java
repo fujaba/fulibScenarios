@@ -311,20 +311,50 @@ public class ASTListener extends ScenarioParserBaseListener
    // --------------- Types ---------------
 
    @Override
-   public void exitSimpleTypeClause(ScenarioParser.SimpleTypeClauseContext ctx)
+   public void exitATypeClause(ScenarioParser.ATypeClauseContext ctx)
    {
-      final ScenarioParser.NameContext name = ctx.name();
-      final UnresolvedType unresolvedType = UnresolvedType.of(typeNameValue(ctx));
-      unresolvedType.setPosition(position(name != null ? name : ctx.simpleName()));
-      this.stack.push(unresolvedType);
+      final UnresolvedType type = unresolvedType(ctx.name(), false);
+      this.stack.push(type);
    }
 
    @Override
-   public void exitMultiTypeClause(ScenarioParser.MultiTypeClauseContext ctx)
+   public void exitATypesClause(ScenarioParser.ATypesClauseContext ctx)
    {
-      final UnresolvedType unresolvedType = UnresolvedType.of(typeNameValue(ctx));
-      unresolvedType.setPosition(position(ctx.name()));
-      this.stack.push(unresolvedType);
+      final UnresolvedType type = unresolvedType(ctx.name(), ctx.CARDS() == null);
+      this.stack.push(type);
+   }
+
+   @Override
+   public void exitTheTypeClause(ScenarioParser.TheTypeClauseContext ctx)
+   {
+      final ScenarioParser.NameContext name = ctx.name();
+      final UnresolvedType type = name != null ? unresolvedType(name, false) : unresolvedType(ctx.simpleName());
+      this.stack.push(type);
+   }
+
+   @Override
+   public void exitTheTypesClause(ScenarioParser.TheTypesClauseContext ctx)
+   {
+      final ScenarioParser.NameContext name = ctx.name();
+      final UnresolvedType type =
+         name != null ? unresolvedType(name, ctx.CARDS() == null) : unresolvedType(ctx.simpleName());
+      this.stack.push(type);
+   }
+
+   private static UnresolvedType unresolvedType(ScenarioParser.NameContext name, boolean canBePlural)
+   {
+      final String caps = joinCaps(name);
+      final String typeName = canBePlural && caps.endsWith("s") ? caps.substring(0, caps.length() - 1) : caps;
+      final UnresolvedType type = UnresolvedType.of(typeName);
+      type.setPosition(position(name));
+      return type;
+   }
+
+   private static UnresolvedType unresolvedType(ScenarioParser.SimpleNameContext simpleName)
+   {
+      final UnresolvedType type = UnresolvedType.of(joinCaps(simpleName));
+      type.setPosition(position(simpleName));
+      return type;
    }
 
    // --------------- Expressions ---------------

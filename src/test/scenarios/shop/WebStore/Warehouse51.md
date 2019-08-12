@@ -1,6 +1,6 @@
 # Scenario Shoe Warehouse. 
 
-There is the Warehouse51. 
+There is a Warehouse51. 
 
 There are WarehouseProduct with id shoe42s8 and shoe42s9 
 and with name "Shoe 42, size 8" and "Shoe 42, size 9". 

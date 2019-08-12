@@ -1,6 +1,6 @@
 # Scenario Register Student.
 
-There is the SEGroup.
+There is an SEGroup.
 
 There is an SEStudent with name Alice and with studentId m42 and with SEGroup SEGroup.
 

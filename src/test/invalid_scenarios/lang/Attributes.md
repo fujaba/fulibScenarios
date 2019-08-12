@@ -30,7 +30,7 @@ now: attribute of one 'int'
 
 # Invalid Reverse Name
 
-There is a ReverseStudent alice.
+There is the ReverseStudent alice.
 
 Alice has name and is student of 'Alice'.
 <!--                  ^
