@@ -212,8 +212,7 @@ public class DeclResolver
          final Type existingType = existingAttribute.getType();
          if (!type.equals(existingType)) // TODO type equality
          {
-            // TODO optimize
-            final String newDesc = AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null);
+            final String newDesc = DeclDescriber.describeAttribute(type);
             scope.report(conflict(position, owner, name, existingAttribute, newDesc));
          }
 
@@ -222,8 +221,7 @@ public class DeclResolver
       final AssociationDecl existingAssociation = owner.getAssociations().get(name);
       if (existingAssociation != null)
       {
-         // TODO optimize
-         final String newDesc = AttributeDecl.of(owner, name, type).accept(DeclDescriber.INSTANCE, null);
+         final String newDesc = DeclDescriber.describeAttribute(type);
          scope.report(conflict(position, owner, name, existingAssociation, newDesc));
 
          return existingAssociation;
@@ -269,10 +267,7 @@ public class DeclResolver
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
       {
-         // TODO optimize
-         final String newDesc = AssociationDecl
-                                   .of(owner, name, cardinality, otherClass, createType(cardinality, otherClass),
-                                       null).accept(DeclDescriber.INSTANCE, null);
+         final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
          scope.report(conflict(position, owner, name, existingAttribute, newDesc));
 
          return null;
@@ -286,10 +281,7 @@ public class DeclResolver
 
          if (existing.getTarget() != otherClass || existing.getCardinality() < cardinality)
          {
-            // TODO optimize
-            final String newDesc = AssociationDecl.of(owner, name, cardinality, otherClass,
-                                                      createType(cardinality, otherClass), null)
-                                                  .accept(DeclDescriber.INSTANCE, null);
+            final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
             scope.report(conflict(position, owner, name, existing, newDesc));
          }
          else if (otherName != null)
@@ -305,10 +297,7 @@ public class DeclResolver
             else if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
             {
                final String existingDesc = other.accept(DeclDescriber.INSTANCE, null);
-               // TODO optimize
-               final String newDesc = AssociationDecl.of(otherClass, otherName, otherCardinality, owner,
-                                                         createType(otherCardinality, owner), null)
-                                                     .accept(DeclDescriber.INSTANCE, null);
+               final String newDesc = DeclDescriber.describeAssociation(otherCardinality, owner);
                final Marker error = error(otherPosition, "association.reverse.conflict", owner.getName(), name,
                                           otherClass.getName(), other.getName(), existingDesc,
                                           otherClass.getName(), otherName, newDesc);
