@@ -31,7 +31,7 @@ now: AssocReverseEntity.kid, association to one 'AssocReverseEntity'
 -->
 
 Bob has parent and is one of the child of Charlie.
-<!--                         ^
+<!--                             ^
 error: conflicting redeclaration of reverse association of 'AssocReverseEntity.parent' [association.reverse.conflict]
 was: AssocReverseEntity.child, association to one 'AssocReverseEntity'
 now: AssocReverseEntity.child, association to many 'AssocReverseEntity'
