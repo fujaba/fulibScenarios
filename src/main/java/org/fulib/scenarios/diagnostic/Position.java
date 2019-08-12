@@ -4,15 +4,17 @@ public class Position
 {
    // =============== Fields ===============
 
-   private final long startOffset;
-   private final long endOffset;
-   private final long lineNumber;
-   private final long columnNumber;
+   private final String sourceName;
+   private final long   startOffset;
+   private final long   endOffset;
+   private final long   lineNumber;
+   private final long   columnNumber;
 
    // =============== Constructors ===============
 
-   public Position(long startOffset, long endOffset, long lineNumber, long columnNumber)
+   public Position(String sourceName, long startOffset, long endOffset, long lineNumber, long columnNumber)
    {
+      this.sourceName = sourceName;
       this.startOffset = startOffset;
       this.endOffset = endOffset;
       this.lineNumber = lineNumber;
@@ -20,6 +22,11 @@ public class Position
    }
 
    // =============== Properties ===============
+
+   public String getSourceName()
+   {
+      return this.sourceName;
+   }
 
    public long getStartOffset()
    {

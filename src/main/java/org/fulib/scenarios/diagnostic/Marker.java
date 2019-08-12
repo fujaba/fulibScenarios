@@ -1,12 +1,10 @@
 package org.fulib.scenarios.diagnostic;
 
-import org.fulib.scenarios.ast.ScenarioFile;
-
 import javax.tools.Diagnostic;
 import java.io.PrintWriter;
 import java.util.*;
 
-public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
+public class Marker implements Diagnostic<String>, Comparable<Marker>
 {
    // =============== Constants ===============
 
@@ -14,11 +12,10 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
 
    // =============== Fields ===============
 
-   private final Kind         kind;
-   private final Position     position;
-   private       ScenarioFile source;
-   private final String       code;
-   private final Object[]     args;
+   private final Kind     kind;
+   private final Position position;
+   private final String   code;
+   private final Object[] args;
 
    private List<Marker> notes;
 
@@ -77,20 +74,15 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
       return this.kind;
    }
 
-   @Override
-   public ScenarioFile getSource()
-   {
-      return this.source;
-   }
-
-   public void setSource(ScenarioFile source)
-   {
-      this.source = source;
-   }
-
    public Position getPositionObject()
    {
       return this.position;
+   }
+
+   @Override
+   public String getSource()
+   {
+      return this.position.getSourceName();
    }
 
    @Override
@@ -158,12 +150,8 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
       // src/dir/package/name/file_name.md:10:20: error: info... [code]
       // (more info...)
 
-      out.print(this.source.getGroup().getSourceDir());
-      out.print('/');
-      out.print(this.source.getGroup().getPackageDir());
-      out.print('/');
-      out.print(this.source.getName());
-      out.print(".md:");
+      out.print(this.getSource());
+      out.print(':');
       out.print(this.getLineNumber());
       out.print(':');
       out.print(this.getColumnNumber());
@@ -222,8 +210,8 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
 
       final Marker that = (Marker) o;
 
-      return this.kind == that.kind && this.position.equals(that.position) && Objects.equals(this.source, that.source)
-             && this.code.equals(that.code) && Arrays.equals(this.args, that.args);
+      return this.kind == that.kind && this.position.equals(that.position) && this.code.equals(that.code) //
+             && Arrays.equals(this.args, that.args) && Objects.equals(this.notes, that.notes);
    }
 
    @Override
@@ -231,9 +219,9 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
    {
       int result = this.kind.hashCode();
       result = 31 * result + this.position.hashCode();
-      result = 31 * result + Objects.hashCode(this.source);
       result = 31 * result + this.code.hashCode();
       result = 31 * result + Arrays.hashCode(this.args);
+      result = 31 * result + Objects.hashCode(this.notes);
       return result;
    }
 }

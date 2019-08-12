@@ -506,8 +506,8 @@ public class ASTListener extends ScenarioParserBaseListener
 
    static Position position(Token token)
    {
-      return new Position(token.getStartIndex(), token.getStopIndex(), token.getLine(),
-                          token.getCharPositionInLine());
+      return new Position(token.getInputStream().getSourceName(), token.getStartIndex(), token.getStopIndex(),
+                          token.getLine(), token.getCharPositionInLine());
    }
 
    static Position position(TerminalNode terminal)
@@ -518,8 +518,8 @@ public class ASTListener extends ScenarioParserBaseListener
    static Position position(ParserRuleContext ctx)
    {
       final Token start = ctx.getStart();
-      return new Position(start.getStartIndex(), ctx.getStop().getStopIndex(), start.getLine(),
-                          start.getCharPositionInLine());
+      return new Position(start.getInputStream().getSourceName(), start.getStartIndex(), ctx.getStop().getStopIndex(),
+                          start.getLine(), start.getCharPositionInLine());
    }
 
    static String inputText(ParserRuleContext ctx)

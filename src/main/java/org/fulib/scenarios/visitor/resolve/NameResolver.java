@@ -184,7 +184,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          public void report(Marker marker)
          {
             scenarioFile.getMarkers().add(marker);
-            marker.setSource(scenarioFile);
          }
       };
       for (final Scenario scenario : scenarioFile.getScenarios().values())
