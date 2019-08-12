@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
-import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveAssociation;
-import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveAttributeOrAssociation;
+import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAssociation;
+import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAttributeOrAssociation;
 
 public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 {

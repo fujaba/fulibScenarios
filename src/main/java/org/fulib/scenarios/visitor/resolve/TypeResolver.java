@@ -3,7 +3,7 @@ package org.fulib.scenarios.visitor.resolve;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.type.*;
 
-import static org.fulib.scenarios.visitor.resolve.NameResolver.resolveClass;
+import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveClass;
 
 public enum TypeResolver implements Type.Visitor<Scope, Type>
 {

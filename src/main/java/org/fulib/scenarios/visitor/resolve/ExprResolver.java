@@ -53,11 +53,11 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       if (receiverType instanceof ListType)
       {
          final Type elementType = ((ListType) receiverType).getElementType();
-         final Name resolvedName = getAttributeOrAssociation(par, elementType, attributeAccess.getName());
+         final Name resolvedName = DeclResolver.getAttributeOrAssociation(par, elementType, attributeAccess.getName());
          return MapAccessExpr.of(resolvedName, receiver);
       }
 
-      attributeAccess.setName(getAttributeOrAssociation(par, receiver, attributeAccess.getName()));
+      attributeAccess.setName(DeclResolver.getAttributeOrAssociation(par, receiver, attributeAccess.getName()));
       return attributeAccess;
    }
 
@@ -123,7 +123,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
          namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
-         namedExpr.setName(resolveAttributeOrAssociation(par, classDecl, namedExpr.getName(), namedExpr.getExpr()));
+         namedExpr.setName(DeclResolver.resolveAttributeOrAssociation(par, classDecl, namedExpr.getName(), namedExpr.getExpr()));
       }
       return creationExpr;
    }
@@ -155,7 +155,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
-      final MethodDecl method = resolveMethod(par, receiverClass, methodName, callExpr.getName().getPosition());
+      final MethodDecl method = DeclResolver.resolveMethod(par, receiverClass, methodName, callExpr.getName().getPosition());
       final List<ParameterDecl> parameters = method.getParameters();
       final boolean isNew = method.getParameters().isEmpty();
       final Map<String, Decl> decls = new HashMap<>();
