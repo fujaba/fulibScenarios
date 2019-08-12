@@ -4,10 +4,7 @@ import org.fulib.scenarios.ast.ScenarioFile;
 
 import javax.tools.Diagnostic;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
 {
@@ -22,6 +19,8 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
    private       ScenarioFile source;
    private final String       code;
    private final Object[]     args;
+
+   private List<Marker> notes;
 
    // =============== Constructors ===============
 
@@ -137,6 +136,17 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
 
    // =============== Methods ===============
 
+   public List<Marker> getNotes()
+   {
+      return this.notes != null ? this.notes : (this.notes = new ArrayList<>());
+   }
+
+   public Marker note(Marker marker)
+   {
+      this.getNotes().add(marker);
+      return this;
+   }
+
    @Override
    public String getMessage(Locale locale)
    {
@@ -181,6 +191,14 @@ public class Marker implements Diagnostic<ScenarioFile>, Comparable<Marker>
       if (newlineIndex >= 0)
       {
          out.println(message.substring(newlineIndex + 1));
+      }
+
+      if (this.notes != null)
+      {
+         for (final Marker note : this.notes)
+         {
+            note.print(out);
+         }
       }
    }
 
