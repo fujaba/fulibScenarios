@@ -117,9 +117,25 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       // first, process and freeze external classes.
       for (final ClassDecl classDecl : scenarioGroup.getClasses().values())
       {
-         for (final AttributeDecl attributeDecl : classDecl.getAttributes().values())
+         for (Iterator<AttributeDecl> iterator = classDecl.getAttributes().values().iterator(); iterator.hasNext(); )
          {
-            attributeDecl.setType(attributeDecl.getType().accept(TypeResolver.INSTANCE, scope));
+            final AttributeDecl attribute = iterator.next();
+            final Type type = attribute.getType().accept(TypeResolver.INSTANCE, scope);
+            final ClassDecl otherClass = type.accept(ExtractClassDecl.INSTANCE, null);
+
+            if (otherClass == null)
+            {
+               attribute.setType(type);
+               continue;
+            }
+
+            // convert to association
+            final int cardinality = type instanceof ListType ? ClassModelBuilder.MANY : 1;
+            final String name = attribute.getName();
+            final AssociationDecl assoc = AssociationDecl.of(classDecl, name, cardinality, otherClass, type, null);
+
+            iterator.remove();
+            classDecl.getAssociations().put(name, assoc);
          }
 
          for (final MethodDecl methodDecl : classDecl.getMethods())
