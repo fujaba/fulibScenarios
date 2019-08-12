@@ -214,6 +214,12 @@ public class DeclResolver
          return existingAssociation;
       }
 
+      return createAttribute(scope, position, owner, name, type);
+   }
+
+   private static AttributeDecl createAttribute(Scope scope, Position position, ClassDecl owner, String name,
+      Type type)
+   {
       if (owner.getExternal())
       {
          scope.report(error(position, "attribute.unresolved.external", name, owner.getName()));
@@ -223,6 +229,11 @@ public class DeclResolver
          scope.report(error(position, "attribute.unresolved.frozen", name, owner.getName()));
       }
 
+      return createAttribute(position, owner, name, type);
+   }
+
+   private static AttributeDecl createAttribute(Position position, ClassDecl owner, String name, Type type)
+   {
       final AttributeDecl attribute = AttributeDecl.of(owner, name, type);
       attribute.setPosition(position);
       owner.getAttributes().put(name, attribute);
@@ -294,17 +305,7 @@ public class DeclResolver
          return existing;
       }
 
-      if (owner.getExternal())
-      {
-         scope.report(error(position, "association.unresolved.external", name, owner.getName()));
-      }
-      else if (owner.getFrozen())
-      {
-         scope.report(error(position, "association.unresolved.frozen", name, owner.getName()));
-      }
-
-      final AssociationDecl association = createAssociation(owner, name, cardinality, otherClass);
-      association.setPosition(position);
+      final AssociationDecl association = createAssociation(scope, position, owner, name, cardinality, otherClass);
 
       if (otherClass == owner && name.equals(otherName))
       {
@@ -318,17 +319,8 @@ public class DeclResolver
       }
       else if (otherName != null)
       {
-         if (otherClass.getExternal())
-         {
-            scope.report(error(otherPosition, "association.unresolved.external", otherName, otherClass.getName()));
-         }
-         else if (otherClass.getFrozen())
-         {
-            scope.report(error(otherPosition, "association.unresolved.frozen", otherName, otherClass.getName()));
-         }
-
-         final AssociationDecl other = createAssociation(otherClass, otherName, otherCardinality, owner);
-         other.setPosition(otherPosition);
+         final AssociationDecl other = createAssociation(scope, otherPosition, otherClass, otherName,
+                                                         otherCardinality, owner);
 
          association.setOther(other);
          other.setOther(association);
@@ -337,10 +329,27 @@ public class DeclResolver
       return association;
    }
 
-   private static AssociationDecl createAssociation(ClassDecl owner, String name, int cardinality, ClassDecl target)
+   private static AssociationDecl createAssociation(Scope scope, Position position, ClassDecl owner, String name,
+      int cardinality, ClassDecl target)
+   {
+      if (owner.getExternal())
+      {
+         scope.report(error(position, "association.unresolved.external", name, owner.getName()));
+      }
+      else if (owner.getFrozen())
+      {
+         scope.report(error(position, "association.unresolved.frozen", name, owner.getName()));
+      }
+
+      return createAssociation(position, owner, name, cardinality, target);
+   }
+
+   private static AssociationDecl createAssociation(Position position, ClassDecl owner, String name, int cardinality,
+      ClassDecl target)
    {
       final Type type = createType(cardinality, target);
       final AssociationDecl association = AssociationDecl.of(owner, name, cardinality, target, type, null);
+      association.setPosition(position);
 
       owner.getAssociations().put(association.getName(), association);
       return association;
