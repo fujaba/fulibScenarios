@@ -101,7 +101,9 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          final Decl target = par.resolve(unresolvedValue);
          if (target == null)
          {
-            return StringLiteral.of(unresolvedName.getText());
+            final StringLiteral stringLiteral = StringLiteral.of(unresolvedName.getText());
+            stringLiteral.setPosition(unresolvedName.getPosition());
+            return stringLiteral;
          }
          else
          {

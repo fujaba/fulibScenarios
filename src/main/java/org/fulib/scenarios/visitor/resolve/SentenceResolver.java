@@ -9,13 +9,13 @@ import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,6 +92,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       final Type receiverType = receiver.accept(Typer.INSTANCE, null);
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
+      if (receiverClass == null)
+      {
+         par.report(error(receiver.getPosition(), "has.subject.primitive",
+                          receiverType.accept(TypeDescriber.INSTANCE, null)));
+         return hasSentence;
+      }
+
       final String receiverName = receiver.accept(Namer.INSTANCE, null);
       final Scope scope = receiverName != null ? new HidingScope(receiverName, par) : par;
 
@@ -118,35 +125,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final String assocName = name.accept(Namer.INSTANCE, null);
-      final int cardinality;
-      final ClassDecl otherClass;
+      final Type exprType = expr.accept(Typer.INSTANCE, scope);
+      final int cardinality = exprType instanceof ListType ? ClassModelBuilder.MANY : 1;
+      final ClassDecl otherClass = exprType.accept(ExtractClassDecl.INSTANCE, null);
       final String otherAssocName = otherName.accept(Namer.INSTANCE, null);
       final int otherCardinality = namedExpr.getOtherMany() ? ClassModelBuilder.MANY : ClassModelBuilder.ONE;
 
-      final Type exprType = expr.accept(Typer.INSTANCE, scope);
-      if (exprType instanceof ListType)
-      {
-         cardinality = ClassModelBuilder.MANY;
-
-         final Type elementType = ((ListType) exprType).getElementType();
-         if (elementType instanceof ClassType)
-         {
-            otherClass = ((ClassType) elementType).getClassDecl();
-         }
-         else
-         {
-            scope.report(
-               error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
-                     assocName));
-            return;
-         }
-      }
-      else if (exprType instanceof ClassType)
-      {
-         cardinality = ClassModelBuilder.ONE;
-         otherClass = ((ClassType) exprType).getClassDecl();
-      }
-      else
+      if (otherClass == null)
       {
          scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
                             assocName));
