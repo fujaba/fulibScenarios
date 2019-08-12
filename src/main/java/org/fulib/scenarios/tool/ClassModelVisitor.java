@@ -108,28 +108,35 @@ public class ClassModelVisitor extends ClassVisitor
    {
       try
       {
-         final int returnTypeIndex = descriptor.indexOf(')') + 1;
-
-         if (descriptor.endsWith(")Ljava/util/List;") || descriptor.endsWith(")Ljava/util/ArrayList;"))
-         {
-            // multi-values attribute (or association - but that doesn't matter for decompiled classes)
-
-            final ListType listType = ListType.of(null);
-            final int elementTypeIndex = signature.indexOf('<', returnTypeIndex) + 1;
-            parseType(signature, elementTypeIndex, listType::setElementType);
-
-            final AttributeDecl attribute = AttributeDecl.of(this.classDecl, name, listType);
-            this.classDecl.getAttributes().put(name, attribute);
-            return;
-         }
-
-         final AttributeDecl attribute = AttributeDecl.of(this.classDecl, name, null);
-         parseType(descriptor, returnTypeIndex, attribute::setType);
-         this.classDecl.getAttributes().put(name, attribute);
+         this.createAttribute(name, descriptor, signature);
       }
       catch (UnsupportedOperationException ignored)
       {
       }
+   }
+
+   private void createAttribute(String name, String descriptor, String signature)
+   {
+      final int returnTypeIndex = descriptor.indexOf(')') + 1;
+
+      // We only create attributes at this point because types are unresolved.
+      // After external type resolution in NameResolver.visit(ScenarioGroup), we convert them
+      // to associations as necessary.
+
+      if (descriptor.endsWith(")Ljava/util/List;") || descriptor.endsWith(")Ljava/util/ArrayList;"))
+      {
+         final ListType listType = ListType.of(null);
+         final int elementTypeIndex = signature.indexOf('<', returnTypeIndex) + 1;
+         parseType(signature, elementTypeIndex, listType::setElementType);
+
+         final AttributeDecl attribute = AttributeDecl.of(this.classDecl, name, listType);
+         this.classDecl.getAttributes().put(name, attribute);
+         return;
+      }
+
+      final AttributeDecl attribute = AttributeDecl.of(this.classDecl, name, null);
+      parseType(descriptor, returnTypeIndex, attribute::setType);
+      this.classDecl.getAttributes().put(name, attribute);
    }
 
    private void tryCreateMethod(String name, String descriptor)
@@ -158,6 +165,13 @@ public class ClassModelVisitor extends ClassVisitor
    }
 
    // =============== Static Methods ===============
+
+   public static Type parseType(String descriptor, int index)
+   {
+      final Type[] holder = new Type[1];
+      parseType(descriptor, index, t -> holder[0] = t);
+      return holder[0];
+   }
 
    public static int parseType(String descriptor, int index, Consumer<? super Type> consumer)
    {
