@@ -19,6 +19,7 @@ import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
@@ -29,7 +30,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
-import static org.fulib.scenarios.visitor.resolve.NameResolver.*;
+import static org.fulib.scenarios.visitor.resolve.DeclResolver.firstDeclaration;
+import static org.fulib.scenarios.visitor.resolve.NameResolver.PREDICATE_RECEIVER;
 
 public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 {
@@ -53,7 +55,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       if (receiverType instanceof ListType)
       {
          final Type elementType = ((ListType) receiverType).getElementType();
-         final Name resolvedName = DeclResolver.getAttributeOrAssociation(par, elementType, attributeAccess.getName());
+         final Name resolvedName = DeclResolver
+                                      .getAttributeOrAssociation(par, elementType, attributeAccess.getName());
          return MapAccessExpr.of(resolvedName, receiver);
       }
 
@@ -123,7 +126,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
          namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
-         namedExpr.setName(DeclResolver.resolveAttributeOrAssociation(par, classDecl, namedExpr.getName(), namedExpr.getExpr()));
+         namedExpr.setName(
+            DeclResolver.resolveAttributeOrAssociation(par, classDecl, namedExpr.getName(), namedExpr.getExpr()));
       }
       return creationExpr;
    }
@@ -155,7 +159,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
-      final MethodDecl method = DeclResolver.resolveMethod(par, callExpr.getName().getPosition(), receiverClass, methodName);
+      final MethodDecl method = DeclResolver
+                                   .resolveMethod(par, callExpr.getName().getPosition(), receiverClass, methodName);
       final List<ParameterDecl> parameters = method.getParameters();
       final boolean isNew = method.getParameters().isEmpty();
       final Map<String, Decl> decls = new HashMap<>();
@@ -179,9 +184,10 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
          if (!params.equals(args))
          {
-            par.report(
-               error(callExpr.getPosition(), "call.mismatch.params.args", receiverClass.getName(), methodName,
-                     params, args));
+            final Marker error = error(callExpr.getPosition(), "call.mismatch.params.args", receiverClass.getName(),
+                                       methodName, params, args);
+            final Marker note = firstDeclaration(method.getPosition(), method.getOwner(), method.getName());
+            par.report(error.note(note));
          }
       }
 

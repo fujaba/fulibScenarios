@@ -366,7 +366,7 @@ public class DeclResolver
       return cardinality != 1 ? ListType.of(target.getType()) : target.getType();
    }
 
-   private static Marker firstDeclaration(Position position, ClassDecl owner, String name)
+   static Marker firstDeclaration(Position position, ClassDecl owner, String name)
    {
       return note(position, "property.declaration.first", owner.getName(), name);
    }
