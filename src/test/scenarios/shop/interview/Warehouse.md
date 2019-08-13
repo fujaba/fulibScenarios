@@ -32,7 +32,7 @@ eu100, eu200, eu333 and with producer Italy.
 
 We call find-place on Warehouse with palette eu100. 
 
-Find-place takes new-place f1 from places of areas of Warehouse
+Find-place take a new-place like f1 from places of areas of Warehouse
 and as palette of new-place is empty, 
 find-place writes eu100 into palette of new-place 
 and find-place answers with OK.
@@ -40,9 +40,9 @@ find-place answers with FAILED.
 
 We call add-stock on Warehouse with arrival mondayArrival.
 
-Add-stock takes new-product High Heels from product of palettes of mondayArrival 
+Add-stock takes a new-product like High Heels from product of palettes of mondayArrival 
 and add-stock adds new-product to products of Warehouse. 
-Add-stock takes new-pal eu100 from palettes of mondayArrival
+Add-stock takes a new-pal like eu100 from palettes of mondayArrival
 and add-stock calls find-place on Warehouse with palette new-pal.
 
 
