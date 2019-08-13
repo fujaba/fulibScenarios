@@ -29,6 +29,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    // =============== Constants ===============
 
    protected static final String PREDICATE_RECEIVER = "<predicate-receiver>";
+   protected static final String ANSWER_VAR         = "<answer-var>";
 
    // =============== Methods ===============
 
@@ -166,7 +167,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          @Override
          public Decl resolve(String name)
          {
-            return className.equals(name) || DeclResolver.ENCLOSING_CLASS.equals(name) ? classDecl : super.resolve(name);
+            return className.equals(name) || DeclResolver.ENCLOSING_CLASS.equals(name) ?
+                      classDecl :
+                      super.resolve(name);
          }
 
          @Override

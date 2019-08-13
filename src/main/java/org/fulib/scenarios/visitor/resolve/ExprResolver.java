@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.*;
+import org.fulib.scenarios.ast.expr.primary.AnswerLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.firstDeclaration;
+import static org.fulib.scenarios.visitor.resolve.NameResolver.ANSWER_VAR;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.PREDICATE_RECEIVER;
 
 public enum ExprResolver implements Expr.Visitor<Scope, Expr>
@@ -91,6 +93,18 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       };
       filterExpr.setPredicate((ConditionalExpr) filterExpr.getPredicate().accept(this, scope));
       return filterExpr;
+   }
+
+   @Override
+   public Expr visit(AnswerLiteral answerLiteral, Scope par)
+   {
+      final Decl answerVar = par.resolve(ANSWER_VAR);
+      if (answerVar == null)
+      {
+         par.report(error(answerLiteral.getPosition(), "answer.unresolved"));
+         return answerLiteral;
+      }
+      return NameAccess.of(ResolvedName.of(answerVar));
    }
 
    @Override

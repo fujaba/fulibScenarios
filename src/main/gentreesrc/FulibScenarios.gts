@@ -87,6 +87,7 @@ abstract org.fulib.scenarios.ast.Node {
 				DoubleLiteral(value: double)
 				StringLiteral(value: String)
 				NameAccess(name: Name)
+				AnswerLiteral()
 			}
 
 			access.AttributeAccess(name: Name, receiver: Expr)

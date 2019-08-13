@@ -98,12 +98,13 @@ diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 expr: access | collection;
 
 // Primary
-primary: number | stringLiteral | it | nameAccess;
+primary: number | stringLiteral | it | answer | nameAccess;
 primaryExpr: primary;
 
 number: DECIMAL | INTEGER;
 stringLiteral: STRING_LITERAL;
 it: IT;
+answer: THE? ANSWER;
 
 simpleName: WORD;
 name: WORD+;

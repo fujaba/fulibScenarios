@@ -2,10 +2,9 @@ package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.VarDecl;
-import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
-import org.fulib.scenarios.ast.sentence.IsSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.sentence.SentenceList;
+import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
+import org.fulib.scenarios.ast.sentence.*;
 
 import java.util.Map;
 
@@ -43,13 +42,25 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    {
       final VarDecl varDecl = isSentence.getDescriptor();
       String name = varDecl.getName();
-      if (name == null)
-      {
 
-         varDecl.setName(name);
-      }
+      this.addAnswerVar(par, varDecl, isSentence.getDescriptor().getExpr());
 
       par.put(name, varDecl);
       return null;
+   }
+
+   @Override
+   public Object visit(AssignSentence assignSentence, Map<String, Decl> par)
+   {
+      this.addAnswerVar(par, assignSentence.getTarget(), assignSentence.getValue());
+      return null;
+   }
+
+   private void addAnswerVar(Map<String, Decl> par, VarDecl varDecl, Expr expr)
+   {
+      if (expr instanceof CallExpr)
+      {
+         par.put(NameResolver.ANSWER_VAR, varDecl);
+      }
    }
 }

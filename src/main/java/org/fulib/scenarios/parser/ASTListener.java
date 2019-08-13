@@ -19,10 +19,7 @@ import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.*;
-import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
-import org.fulib.scenarios.ast.expr.primary.IntLiteral;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
@@ -406,6 +403,14 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    // TODO <it>
+
+   @Override
+   public void exitAnswer(ScenarioParser.AnswerContext ctx)
+   {
+      final AnswerLiteral answer = AnswerLiteral.of();
+      answer.setPosition(position(ctx.ANSWER()));
+      this.stack.push(answer);
+   }
 
    @Override
    public void exitNameAccess(ScenarioParser.NameAccessContext ctx)
