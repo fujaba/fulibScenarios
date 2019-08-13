@@ -26,6 +26,7 @@ import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
+import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 
 import java.util.*;
@@ -37,6 +38,7 @@ public class ASTListener extends ScenarioParserBaseListener
 {
    // =============== Fields ===============
 
+   private List<Marker> markers = new ArrayList<>();
    private ScenarioFile file;
 
    private Deque<Node> stack = new ArrayDeque<>();
@@ -66,6 +68,11 @@ public class ASTListener extends ScenarioParserBaseListener
       return result;
    }
 
+   private void report(Marker marker)
+   {
+      this.markers.add(marker);
+   }
+
    // --------------- Scenario ---------------
 
    @Override
@@ -74,7 +81,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final List<Scenario> scenarios = this.pop(Scenario.class, ctx.scenario().size());
       final LinkedHashMap<String, Scenario> scenarioMap = new LinkedHashMap<>();
       this.file = ScenarioFile.of(null, null, scenarioMap, null);
-      this.file.setMarkers(new ArrayList<>());
+      this.file.setMarkers(this.markers);
 
       for (final Scenario scenario : scenarios)
       {
