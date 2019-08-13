@@ -53,6 +53,7 @@ abstract org.fulib.scenarios.ast.Node {
 			DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 			HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
 			IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
+			AreSentence(descriptor: MultiDescriptor)
 
 			abstract ActorSentence(actor: Name) {
 				CreateSentence(actor: Name, descriptor: MultiDescriptor)

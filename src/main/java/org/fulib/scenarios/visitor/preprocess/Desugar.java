@@ -105,14 +105,68 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
       final List<Sentence> result = new ArrayList<>();
       for (MultiDescriptor multiDesc : thereSentence.getDescriptors())
       {
-         this.visit(multiDesc, result);
+         expand(multiDesc, result);
       }
       return new FlattenSentenceList(result);
    }
 
-   private void visit(MultiDescriptor multiDesc, List<Sentence> result)
+   @Override
+   public Sentence visit(AreSentence areSentence, Object par)
    {
-      final List<String> names = this.getNames(multiDesc);
+      return expand(areSentence.getDescriptor());
+   }
+
+   // --------------- ActorSentence.Visitor ---------------
+
+   @Override
+   public Sentence visit(CreateSentence createSentence, Object par)
+   {
+      return expand(createSentence.getDescriptor());
+   }
+
+   @Override
+   public Sentence visit(CallSentence callSentence, Object par)
+   {
+      final CallExpr call = callSentence.getCall();
+      call.setBody((SentenceList) call.getBody().accept(this, par));
+
+      final String name = call.accept(Namer.INSTANCE, null);
+      if (name == null)
+      {
+         return ExprSentence.of(call);
+      }
+
+      return WriteSentence.of(callSentence.getActor(), call, NameAccess.of(UnresolvedName.of(name, null)));
+   }
+
+   @Override
+   public Sentence visit(TakeSentence takeSentence, Object par)
+   {
+      takeSentence.setActions((SentenceList) takeSentence.getActions().accept(this, par));
+      return takeSentence;
+   }
+
+   // ---------------  ---------------
+
+   @Override
+   public Sentence visit(ConditionalSentence conditionalSentence, Object par)
+   {
+      conditionalSentence.setActions((SentenceList) conditionalSentence.getActions().accept(this, par));
+      return conditionalSentence;
+   }
+
+   // =============== Static Methods ===============
+
+   private static Sentence expand(MultiDescriptor descriptor)
+   {
+      final List<Sentence> result = new ArrayList<>();
+      expand(descriptor, result);
+      return new FlattenSentenceList(result);
+   }
+
+   private static void expand(MultiDescriptor multiDesc, List<Sentence> result)
+   {
+      final List<String> names = getNames(multiDesc);
       final List<VarDecl> varDecls = new ArrayList<>(names.size());
 
       // collect variable declarations from names
@@ -183,7 +237,7 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
       }
    }
 
-   private List<String> getNames(MultiDescriptor multiDesc)
+   private static List<String> getNames(MultiDescriptor multiDesc)
    {
       final List<String> names = multiDesc.getNames();
 
@@ -219,42 +273,5 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
       final String className = multiDesc.getType().accept(Namer.INSTANCE, null);
       final String objectName = StrUtil.downFirstChar(className);
       return Collections.singletonList(objectName);
-   }
-
-   @Override
-   public Sentence visit(CreateSentence createSentence, Object par)
-   {
-      final List<Sentence> result = new ArrayList<>();
-      this.visit(createSentence.getDescriptor(), result);
-      return new FlattenSentenceList(result);
-   }
-
-   @Override
-   public Sentence visit(CallSentence callSentence, Object par)
-   {
-      final CallExpr call = callSentence.getCall();
-      call.setBody((SentenceList) call.getBody().accept(this, par));
-
-      final String name = call.accept(Namer.INSTANCE, null);
-      if (name == null)
-      {
-         return ExprSentence.of(call);
-      }
-
-      return WriteSentence.of(callSentence.getActor(), call, NameAccess.of(UnresolvedName.of(name, null)));
-   }
-
-   @Override
-   public Sentence visit(TakeSentence takeSentence, Object par)
-   {
-      takeSentence.setActions((SentenceList) takeSentence.getActions().accept(this, par));
-      return takeSentence;
-   }
-
-   @Override
-   public Sentence visit(ConditionalSentence conditionalSentence, Object par)
-   {
-      conditionalSentence.setActions((SentenceList) conditionalSentence.getActions().accept(this, par));
-      return conditionalSentence;
    }
 }

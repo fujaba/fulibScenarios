@@ -128,13 +128,11 @@ public class ASTListener extends ScenarioParserBaseListener
       return this.pop(NamedExpr.class, numAttributes);
    }
 
-   private void pushDescriptor(List<String> names, ScenarioParser.WithClausesContext withClausesContext)
+   private MultiDescriptor multiDescriptor(List<String> names, ScenarioParser.WithClausesContext withClausesContext)
    {
       final List<NamedExpr> attributes = this.popAttributes(withClausesContext);
       final Type type = this.pop();
-      final MultiDescriptor multiDescriptor = MultiDescriptor.of(type, names, attributes);
-
-      this.stack.push(multiDescriptor);
+      return MultiDescriptor.of(type, names, attributes);
    }
 
    @Override
@@ -142,14 +140,14 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final String name = varName(ctx.name());
       final List<String> names = name == null ? Collections.emptyList() : Collections.singletonList(name);
-      this.pushDescriptor(names, ctx.withClauses());
+      this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
    }
 
    @Override
    public void exitMultiDescriptor(ScenarioParser.MultiDescriptorContext ctx)
    {
       final List<String> names = ctx.name().stream().map(Identifiers::varName).collect(Collectors.toList());
-      this.pushDescriptor(names, ctx.withClauses());
+      this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
    }
 
    @Override
@@ -186,6 +184,15 @@ public class ASTListener extends ScenarioParserBaseListener
       final String name = varName(ctx.name());
       final VarDecl varDecl = VarDecl.of(name, null, ctor);
       this.stack.push(IsSentence.of(varDecl));
+   }
+
+   @Override
+   public void exitAreSentence(ScenarioParser.AreSentenceContext ctx)
+   {
+      final List<String> names = ctx.name().stream().map(Identifiers::varName).collect(Collectors.toList());
+      final MultiDescriptor descriptor = this.multiDescriptor(names, ctx.withClauses());
+      final AreSentence areSentence = AreSentence.of(descriptor);
+      this.stack.push(areSentence);
    }
 
    @Override

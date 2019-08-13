@@ -21,6 +21,7 @@ sentence: simpleSentence FULL_STOP
 
 simpleSentence: thereSentence
               | isSentence
+              | areSentence
               | hasSentence
               | expectSentence
               | createSentence
@@ -56,6 +57,7 @@ theTypeClause: THE (simpleName | name CARD);
 theTypesClause: THE (simpleName | name CARDS);
 
 isSentence: THE? name IS aTypeClause withClauses?;
+areSentence: name (sep name)+ ARE aTypesClause withClauses?;
 
 withClauses: withClause (sep withClause)*;
 withClause: WITH namedExpr;
