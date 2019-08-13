@@ -30,3 +30,23 @@ error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mi
 parameters: bar baz
 arguments:  
 -->
+
+# Invalid Answer Literal
+
+We expect that the answer is 42.
+<!--               ^
+error: invalid answer literal - no preceding call [answer.unresolved]
+-->
+
+# Invalid Answer Literal after void Call
+
+We call moo.
+Moo answers with 1 into x.
+
+We expect that the answer is 1.
+
+We call voidMethod.
+We write the answer into y.
+<!--         ^
+error: invalid answer literal - no preceding call [answer.unresolved]
+-->
