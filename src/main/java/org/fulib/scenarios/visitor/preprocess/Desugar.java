@@ -4,6 +4,7 @@ import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
+import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -240,8 +241,7 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
          return ExprSentence.of(call);
       }
 
-      final VarDecl varDecl = VarDecl.of(name, null, call);
-      return IsSentence.of(varDecl);
+      return WriteSentence.of(callSentence.getActor(), call, NameAccess.of(UnresolvedName.of(name, null)));
    }
 
    @Override
