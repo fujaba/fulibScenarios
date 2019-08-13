@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.scenarios.ast.*;
@@ -457,7 +458,7 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Expr rhs = this.pop();
       final Expr lhs = ctx.lhs != null ? this.pop() : null;
-      final String opText = inputText(ctx.condOp()).replaceAll("\\s+", " ");
+      final String opText = inputText(ctx.condOp());
       final ConditionalOperator op = ConditionalOperator.getByOp(opText);
       if (op == null)
       {
@@ -474,7 +475,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitPredOpExpr(ScenarioParser.PredOpExprContext ctx)
    {
       final Expr lhs = ctx.lhs != null ? this.pop() : null;
-      final String opText = inputText(ctx.predOp()).replaceAll("\\s+", " ");
+      final String opText = inputText(ctx.predOp());
       final PredicateOperator op = PredicateOperator.nameMap.get(opText);
       if (op == null)
       {
@@ -522,20 +523,45 @@ public class ASTListener extends ScenarioParserBaseListener
                           start.getLine(), start.getCharPositionInLine());
    }
 
-   static String inputText(ParserRuleContext ctx)
+   /**
+    * @param ctx
+    * 	the parser rule
+    *
+    * @return the raw input text of everything the rule matches, including comments and raw whitespace.
+    */
+   static String rawInputText(ParserRuleContext ctx)
    {
-      // TODO may include comments?
       final CharStream inputStream = ctx.getStart().getInputStream();
       final Interval interval = Interval.of(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex());
       return inputStream.getText(interval);
    }
 
-   static void report(Token position, String message)
+   /**
+    * @param tree
+    * 	the parse tree
+    *
+    * @return the text of all tokens the parse tree encloses, separated by whitespace
+    */
+   static String inputText(ParseTree tree)
    {
-      final String sourceName = position.getInputStream().getSourceName();
-      final int line = position.getLine();
-      // + 1 because most editors start counting columns at 1, but ANTLR apparently doesn't.
-      final int column = position.getCharPositionInLine() + 1;
-      System.err.println(sourceName + ":" + line + ":" + column + ": error: " + message);
+      StringJoiner joiner = new StringJoiner(" ");
+      inputText(tree, joiner);
+      return joiner.toString();
+   }
+
+   private static void inputText(ParseTree tree, StringJoiner joiner)
+   {
+      for (int i = 0; i < tree.getChildCount(); i++)
+      {
+         final ParseTree child = tree.getChild(i);
+         if (child instanceof TerminalNode)
+         {
+            joiner.add(child.getText());
+         }
+         else
+         {
+            inputText(child, joiner);
+         }
+      }
    }
 }
