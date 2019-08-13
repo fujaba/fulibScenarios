@@ -19,6 +19,7 @@ import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
@@ -102,7 +103,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       if (answerVar == null)
       {
          par.report(error(answerLiteral.getPosition(), "answer.unresolved"));
-         return answerLiteral;
+         return ErrorExpr.of(PrimitiveType.ERROR);
       }
       return NameAccess.of(ResolvedName.of(answerVar));
    }
@@ -178,6 +179,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final List<ParameterDecl> parameters = method.getParameters();
       final boolean isNew = method.getParameters().isEmpty();
       final Map<String, Decl> decls = new HashMap<>();
+
+      callExpr.setName(ResolvedName.of(method));
 
       if (isNew)
       {

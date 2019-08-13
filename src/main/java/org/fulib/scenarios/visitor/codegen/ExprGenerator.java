@@ -17,6 +17,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
@@ -39,7 +40,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(ErrorExpr errorExpr, CodeGenDTO par)
    {
       final Type type = errorExpr.getType();
-      if (type != null)
+      if (type != null && type != PrimitiveType.ERROR)
       {
          // ((Type) null)
          par.bodyBuilder.append("((");

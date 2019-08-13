@@ -56,11 +56,27 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
       return null;
    }
 
+   @Override
+   public Object visit(ExprSentence exprSentence, Map<String, Decl> par)
+   {
+      this.addAnswerVar(par, null, exprSentence.getExpr());
+      return null;
+   }
+
    private void addAnswerVar(Map<String, Decl> par, VarDecl varDecl, Expr expr)
    {
-      if (expr instanceof CallExpr)
+      if (!(expr instanceof CallExpr))
+      {
+         return;
+      }
+
+      if (varDecl != null)
       {
          par.put(NameResolver.ANSWER_VAR, varDecl);
+      }
+      else
+      {
+         par.remove(NameResolver.ANSWER_VAR);
       }
    }
 }

@@ -93,7 +93,7 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
       final AnswerSentence answerSentence = callExpr.getBody().accept(GetAnswerSentence.INSTANCE, par);
       if (answerSentence == null)
       {
-         return null;
+         return "result++";
       }
 
       final String varName = answerSentence.getVarName();
@@ -103,7 +103,7 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
       }
 
       final Expr expr = answerSentence.getResult();
-      return expr != null ? expr.accept(Namer.INSTANCE, par) : null;
+      return expr != null ? expr.accept(Namer.INSTANCE, par) : "result++";
    }
 
    @Override

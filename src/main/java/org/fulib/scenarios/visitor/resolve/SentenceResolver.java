@@ -158,6 +158,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final VarDecl varDecl = isSentence.getDescriptor();
       final Expr expr = varDecl.getExpr().accept(ExprResolver.INSTANCE, par);
+      final Type exprType = expr.accept(Typer.INSTANCE, null);
+
+      if (exprType == PrimitiveType.VOID)
+      {
+         return ExprSentence.of(expr);
+      }
+
       String name = varDecl.getName();
 
       if (name == null)
@@ -179,7 +186,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       varDecl.setExpr(expr);
       if (varDecl.getType() == null)
       {
-         varDecl.setType(varDecl.getExpr().accept(Typer.INSTANCE, null));
+         varDecl.setType(exprType);
       }
       return isSentence;
    }

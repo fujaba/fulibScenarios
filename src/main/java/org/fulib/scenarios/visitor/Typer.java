@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor;
 
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.UnresolvedName;
@@ -14,10 +15,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
-import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
-import org.fulib.scenarios.ast.expr.primary.IntLiteral;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
@@ -84,6 +82,12 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    @Override
    public Type visit(CallExpr callExpr, Object par)
    {
+      final Decl method = callExpr.getName().accept(ExtractDecl.INSTANCE, null);
+      if (method != null && method.getType() != null)
+      {
+         return method.getType();
+      }
+
       final AnswerSentence answerSentence = callExpr.getBody().accept(GetAnswerSentence.INSTANCE, par);
       if (answerSentence == null)
       {
