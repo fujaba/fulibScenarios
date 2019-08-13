@@ -10,6 +10,7 @@ import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
@@ -254,12 +255,38 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(TakeSentence takeSentence, Scope par)
    {
-      takeSentence.setExample(takeSentence.getExample().accept(ExprResolver.INSTANCE, par));
-      takeSentence.setCollection(takeSentence.getCollection().accept(ExprResolver.INSTANCE, par));
+      Expr example = takeSentence.getExample();
+      final String exampleName;
+      if (example != null)
+      {
+         example = example.accept(ExprResolver.INSTANCE, par);
+         exampleName = example.accept(Namer.INSTANCE, null);
+         takeSentence.setExample(example);
+      }
+      else
+      {
+         exampleName = null;
+      }
 
-      final String exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null);
+      final Expr collection = takeSentence.getCollection().accept(ExprResolver.INSTANCE, par);
+      takeSentence.setCollection(collection);
 
-      final VarDecl varDecl = resolveVar(takeSentence, par);
+      final Type listType = collection.accept(Typer.INSTANCE, par);
+      final Type type;
+      if (listType instanceof ListType)
+      {
+         type = ((ListType) listType).getElementType();
+      }
+      else
+      {
+         if (listType != PrimitiveType.ERROR)
+         {
+            par.report(error(collection.getPosition(), "take.source.type", listType.accept(TypeDescriber.INSTANCE, null)));
+         }
+         type = PrimitiveType.ERROR;
+      }
+
+      final VarDecl varDecl = resolveVar(takeSentence, par, exampleName, type);
       final Scope scope = new DelegatingScope(par)
       {
          @Override
@@ -273,12 +300,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return takeSentence;
    }
 
-   private static VarDecl resolveVar(TakeSentence takeSentence, Scope par)
+   private static VarDecl resolveVar(TakeSentence takeSentence, Scope par, String exampleName, Type type)
    {
-      final Type type = takeSentence.getExample().accept(Typer.INSTANCE, null);
       final Name name = takeSentence.getVarName();
       final String varName;
-      final String exampleName;
 
       if (name != null)
       {
@@ -290,7 +315,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
          varName = name.accept(Namer.INSTANCE, null);
       }
-      else if ((exampleName = takeSentence.getExample().accept(Namer.INSTANCE, null)) != null)
+      else if (exampleName != null)
       {
          varName = exampleName;
       }

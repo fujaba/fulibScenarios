@@ -278,8 +278,20 @@ public class ASTListener extends ScenarioParserBaseListener
       final List<Sentence> sentences = this.pop(Sentence.class, ctx.simpleSentence().size());
       final SentenceList actions = SentenceList.of(sentences);
       final Expr collection = this.pop();
-      final Expr example = this.pop();
-      final Name varName = name(ctx.simpleName());
+      final Expr example = ctx.example != null ? this.pop() : null;
+      final Name varName;
+      if (ctx.simpleVarName != null)
+      {
+         varName = name(ctx.simpleVarName);
+         // TODO deprecation, remove in v0.9.0
+         this.report(Marker.warning(position(ctx.simpleVarName), "take.syntax.deprecated",
+                                    inputText(ctx.simpleVarName), inputText(ctx.example)));
+      }
+      else
+      {
+         varName = name(ctx.name());
+      }
+
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final TakeSentence takeSentence = TakeSentence.of(actor, varName, example, collection, actions);
       takeSentence.setPosition(position(ctx.FROM()));

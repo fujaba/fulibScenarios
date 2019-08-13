@@ -82,7 +82,8 @@ removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
 
 conditionalSentence: AS condExpr COMMA simpleSentence (sep simpleSentence)*;
 
-takeSentence: actor (TAKE | TAKES) (THE? simpleName)? primaryExpr FROM expr AND simpleSentence (sep simpleSentence)*;
+takeSentence: actor (TAKE | TAKES) ((A | AN) name (LIKE example=expr)? | (THE? simpleVarName=simpleName)? example=expr)
+              FROM source=expr AND simpleSentence (sep simpleSentence)*;
 
 // Testing
 

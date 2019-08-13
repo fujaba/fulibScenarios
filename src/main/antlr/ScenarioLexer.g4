@@ -36,6 +36,7 @@ INTO:     'into';
 IS:       'is';
 IT:       'it';
 LESS:     'less';
+LIKE:     'like';
 MANY:     'many';
 NOT:      'not';
 OF:       'of';
