@@ -11,10 +11,7 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
-import org.fulib.scenarios.visitor.ExtractClassDecl;
-import org.fulib.scenarios.visitor.ExtractDecl;
-import org.fulib.scenarios.visitor.Namer;
-import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.visitor.*;
 import org.fulib.scenarios.visitor.describe.DeclDescriber;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
@@ -210,7 +207,7 @@ public class DeclResolver
       if (existingAttribute != null)
       {
          final Type existingType = existingAttribute.getType();
-         if (!type.equals(existingType)) // TODO type equality
+         if (!TypeComparer.equals(type, existingType))
          {
             final String newDesc = DeclDescriber.describeAttribute(type);
             scope.report(conflict(position, owner, name, existingAttribute, newDesc));
