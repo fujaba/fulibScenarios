@@ -153,3 +153,25 @@
 * Writing into an existing variable name now no longer creates a new variable. #105
 * Fixed unresolved references to the name of the take example value. #117
 * User-defined (non-temporary) variables are no longer auto-numbered.
+
+# Fulib Scenarios v0.8.0
+
+### General
+
++ Added proper diagnostic messages for all sorts of compilation errors. #111 #121
+* Fixed error on valid redeclaration of multi-attribute. #125
+* Fixed the tool exit code being always 0. #123
+
+### Sentences
+
++ Added Are Sentences. #122
+* The descriptor syntax used by There and Is Sentences now uses a definite and indefinite form and disallows mixed forms. #120
+* Improved the syntax and error diagnostics of Take Sentences. #118
+* Improved the syntax of There, Is and Create Sentences. #120
+* Call Sentences no longer create a duplicate variable declaration if one already exists.
+* The result of non-void Call Sentences is now placed in an auto-numbered `result` variable if no better name can be inferred.
+
+### Expressions
+
++ Added the answer literal. #119
+* Fixed non-literal Strings including comments retaining the comment. #126
