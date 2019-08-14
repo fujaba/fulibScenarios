@@ -43,21 +43,19 @@ thereSentence: thereClause (sep thereClause)*;
 thereClause: THERE IS simpleDescriptor
            | THERE ARE multiDescriptor;
 
-simpleDescriptor: aTypeClause withClauses? // indefinite form
-                | theTypeClause name withClauses? // definite form
+simpleDescriptor: (A | AN) typeName name? withClauses? // indefinite form
+                | THE typeName name withClauses? // definite form
                 ;
 
-multiDescriptor: aTypesClause withClauses? // indefinite form
-               | theTypesClause name (sep name)+ withClauses? // definite form
+multiDescriptor: typesName (name (sep name)+)? withClauses? // indefinite form
+               | THE typesName name (sep name)+ withClauses? // definite form
                ;
 
-aTypeClause: (A | AN) name CARD?;
-aTypesClause: name CARDS?;
-theTypeClause: THE (simpleName | name CARD);
-theTypesClause: THE (simpleName | name CARDS);
+typeName: simpleName | name CARD;
+typesName: simpleName | name CARDS;
 
-isSentence: THE? name IS aTypeClause withClauses?;
-areSentence: name (sep name)+ ARE aTypesClause withClauses?;
+isSentence: THE? name IS (A | AN) typeName withClauses?;
+areSentence: name (sep name)+ ARE typesName withClauses?;
 
 withClauses: withClause (sep withClause)*;
 withClause: WITH namedExpr;

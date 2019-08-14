@@ -29,6 +29,7 @@ import org.fulib.scenarios.diagnostic.Position;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.fulib.scenarios.diagnostic.Marker.warning;
 import static org.fulib.scenarios.parser.Identifiers.*;
 
 public class ASTListener extends ScenarioParserBaseListener
@@ -138,8 +139,16 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitSimpleDescriptor(ScenarioParser.SimpleDescriptorContext ctx)
    {
-      final String name = varName(ctx.name());
-      final List<String> names = name == null ? Collections.emptyList() : Collections.singletonList(name);
+      final ScenarioParser.NameContext name = ctx.name();
+      final List<String> names = name == null ? Collections.emptyList() : Collections.singletonList(varName(name));
+
+      // TODO deprecation, remove in v0.9.0
+      if (name != null && ctx.THE() == null)
+      {
+         this.report(warning(position(ctx), "descriptor.indefinite.deprecated", inputText(ctx.typeName()),
+                             inputText(name)));
+      }
+
       this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
    }
 
@@ -147,6 +156,14 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitMultiDescriptor(ScenarioParser.MultiDescriptorContext ctx)
    {
       final List<String> names = ctx.name().stream().map(Identifiers::varName).collect(Collectors.toList());
+
+      // TODO deprecation, remove in v0.9.0
+      if (!names.isEmpty() && ctx.THE() == null)
+      {
+         this.report(warning(position(ctx), "descriptor.multi.indefinite.deprecated", inputText(ctx.typesName()),
+                             inputText(ctx.name())));
+      }
+
       this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
    }
 
@@ -288,8 +305,8 @@ public class ASTListener extends ScenarioParserBaseListener
       {
          varName = name(ctx.simpleVarName);
          // TODO deprecation, remove in v0.9.0
-         this.report(Marker.warning(position(ctx.simpleVarName), "take.syntax.deprecated",
-                                    inputText(ctx.simpleVarName), inputText(ctx.example)));
+         this.report(warning(position(ctx.simpleVarName), "take.syntax.deprecated", inputText(ctx.simpleVarName),
+                             inputText(ctx.example)));
       }
       else
       {
@@ -335,49 +352,49 @@ public class ASTListener extends ScenarioParserBaseListener
    // --------------- Types ---------------
 
    @Override
-   public void exitATypeClause(ScenarioParser.ATypeClauseContext ctx)
+   public void exitTypeName(ScenarioParser.TypeNameContext ctx)
    {
-      final UnresolvedType type = unresolvedType(ctx.name(), false);
+      final UnresolvedType type;
+      if (ctx.CARD() != null)
+      {
+         final ScenarioParser.NameContext name = ctx.name();
+         type = unresolvedType(position(name), joinCaps(name));
+      }
+      else
+      {
+         final ScenarioParser.SimpleNameContext simpleName = ctx.simpleName();
+         type = unresolvedType(position(simpleName), joinCaps(simpleName));
+      }
       this.stack.push(type);
    }
 
    @Override
-   public void exitATypesClause(ScenarioParser.ATypesClauseContext ctx)
+   public void exitTypesName(ScenarioParser.TypesNameContext ctx)
    {
-      final UnresolvedType type = unresolvedType(ctx.name(), ctx.CARDS() == null);
+      final UnresolvedType type;
+      if (ctx.CARDS() != null)
+      {
+         final ScenarioParser.NameContext name = ctx.name();
+         type = unresolvedType(position(name), joinCaps(name));
+      }
+      else
+      {
+         final ScenarioParser.SimpleNameContext simpleName = ctx.simpleName();
+         type = unresolvedTypePlural(position(simpleName), joinCaps(simpleName));
+      }
       this.stack.push(type);
    }
 
-   @Override
-   public void exitTheTypeClause(ScenarioParser.TheTypeClauseContext ctx)
+   private static UnresolvedType unresolvedTypePlural(Position position, String caps)
    {
-      final ScenarioParser.NameContext name = ctx.name();
-      final UnresolvedType type = name != null ? unresolvedType(name, false) : unresolvedType(ctx.simpleName());
-      this.stack.push(type);
+      final String typeName = caps.endsWith("s") ? caps.substring(0, caps.length() - 1) : caps;
+      return unresolvedType(position, typeName);
    }
 
-   @Override
-   public void exitTheTypesClause(ScenarioParser.TheTypesClauseContext ctx)
+   private static UnresolvedType unresolvedType(Position position, String typeName)
    {
-      final ScenarioParser.NameContext name = ctx.name();
-      final UnresolvedType type =
-         name != null ? unresolvedType(name, ctx.CARDS() == null) : unresolvedType(ctx.simpleName());
-      this.stack.push(type);
-   }
-
-   private static UnresolvedType unresolvedType(ScenarioParser.NameContext name, boolean canBePlural)
-   {
-      final String caps = joinCaps(name);
-      final String typeName = canBePlural && caps.endsWith("s") ? caps.substring(0, caps.length() - 1) : caps;
       final UnresolvedType type = UnresolvedType.of(typeName);
-      type.setPosition(position(name));
-      return type;
-   }
-
-   private static UnresolvedType unresolvedType(ScenarioParser.SimpleNameContext simpleName)
-   {
-      final UnresolvedType type = UnresolvedType.of(joinCaps(simpleName));
-      type.setPosition(position(simpleName));
+      type.setPosition(position);
       return type;
    }
 
@@ -580,19 +597,32 @@ public class ASTListener extends ScenarioParserBaseListener
       return joiner.toString();
    }
 
+   static String inputText(Iterable<? extends ParseTree> trees)
+   {
+      StringJoiner joiner = new StringJoiner(" ");
+      inputText(trees, joiner);
+      return joiner.toString();
+   }
+
+   private static void inputText(Iterable<? extends ParseTree> trees, StringJoiner joiner)
+   {
+      for (final ParseTree tree : trees)
+      {
+         inputText(tree, joiner);
+      }
+   }
+
    private static void inputText(ParseTree tree, StringJoiner joiner)
    {
+      if (tree instanceof TerminalNode)
+      {
+         joiner.add(tree.getText());
+      }
+
       for (int i = 0; i < tree.getChildCount(); i++)
       {
          final ParseTree child = tree.getChild(i);
-         if (child instanceof TerminalNode)
-         {
-            joiner.add(child.getText());
-         }
-         else
-         {
-            inputText(child, joiner);
-         }
+         inputText(child, joiner);
       }
    }
 }
