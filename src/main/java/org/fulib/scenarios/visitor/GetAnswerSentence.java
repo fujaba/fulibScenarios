@@ -30,12 +30,12 @@ public enum GetAnswerSentence implements Sentence.Visitor<Object, AnswerSentence
    @Override
    public AnswerSentence visit(ConditionalSentence conditionalSentence, Object par)
    {
-      return conditionalSentence.getActions().accept(this, par);
+      return conditionalSentence.getBody().accept(this, par);
    }
 
    @Override
    public AnswerSentence visit(TakeSentence takeSentence, Object par)
    {
-      return takeSentence.getActions().accept(this, par);
+      return takeSentence.getBody().accept(this, par);
    }
 }

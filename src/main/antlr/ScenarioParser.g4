@@ -13,7 +13,8 @@ header: H1 HEADLINE_TEXT HEADLINE_END;
 
 actor: WE | THE? name;
 
-sentence: simpleSentence FULL_STOP
+sentence: simpleSentences FULL_STOP
+		| compoundSentence FULL_STOP
         | diagramSentence
         | sectionSentence
         | commentSentence
@@ -30,9 +31,13 @@ simpleSentence: thereSentence
               | writeSentence
               | addSentence
               | removeSentence
-              | conditionalSentence
-              | takeSentence
               ;
+
+simpleSentences: simpleSentence (sep simpleSentence)*;
+
+compoundSentence: conditionalSentence
+                | takeSentence
+                ;
 
 sectionSentence: H2 HEADLINE_TEXT HEADLINE_END;
 commentSentence: LINE_COMMENT HEADLINE_TEXT HEADLINE_END;
@@ -78,12 +83,18 @@ writeSentence: actor (WRITE | WRITES) expr INTO expr;
 addSentence: actor (ADD | ADDS) expr TO expr;
 removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
 
-// Control Flow
+// Compound sentences, i.e. those that end in other sentences.
+// "Dangling Else" is solved by allowing exactly one "nested" compound sentence at the end,
+// or one or more non-compound (simple) sentences.
+// So "compound, compound, simple, simple" becomes "compound { compound { simple; simple } },
+// not "compound { compound { simple }; simple }
 
-conditionalSentence: AS condExpr COMMA simpleSentence (sep simpleSentence)*;
+conditionalSentence: AS condExpr COMMA compoundSentenceBody;
 
 takeSentence: actor (TAKE | TAKES) ((A | AN) name (LIKE example=expr)? | (THE? simpleVarName=simpleName)? example=expr)
-              FROM source=expr AND simpleSentence (sep simpleSentence)*;
+              FROM source=expr AND compoundSentenceBody;
+
+compoundSentenceBody: compoundSentence | simpleSentences;
 
 // Testing
 

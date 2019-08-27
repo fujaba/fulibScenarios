@@ -170,7 +170,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.bodyBuilder.append(") {\n");
 
       par.indentLevel++;
-      takeSentence.getActions().accept(this, par);
+      takeSentence.getBody().accept(this, par);
       par.indentLevel--;
 
       par.emitIndent();
@@ -188,7 +188,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.bodyBuilder.append(") {\n");
 
       par.indentLevel++;
-      conditionalSentence.getActions().accept(this, par);
+      conditionalSentence.getBody().accept(this, par);
       par.indentLevel--;
 
       par.emitIndent();

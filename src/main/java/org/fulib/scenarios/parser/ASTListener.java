@@ -284,20 +284,26 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitConditionalSentence(ScenarioParser.ConditionalSentenceContext ctx)
+   public void exitSimpleSentences(ScenarioParser.SimpleSentencesContext ctx)
    {
       final List<Sentence> sentences = this.pop(Sentence.class, ctx.simpleSentence().size());
-      final SentenceList actions = SentenceList.of(sentences);
+      final SentenceList list = SentenceList.of(sentences);
+      this.stack.push(list);
+   }
+
+   @Override
+   public void exitConditionalSentence(ScenarioParser.ConditionalSentenceContext ctx)
+   {
+      final SentenceList body = this.pop();
       final ConditionalExpr condition = this.pop();
-      final ConditionalSentence sentence = ConditionalSentence.of(condition, actions);
+      final ConditionalSentence sentence = ConditionalSentence.of(condition, body);
       this.stack.push(sentence);
    }
 
    @Override
    public void exitTakeSentence(ScenarioParser.TakeSentenceContext ctx)
    {
-      final List<Sentence> sentences = this.pop(Sentence.class, ctx.simpleSentence().size());
-      final SentenceList actions = SentenceList.of(sentences);
+      final Sentence body = this.pop();
       final Expr collection = this.pop();
       final Expr example = ctx.example != null ? this.pop() : null;
       final Name varName;
@@ -314,7 +320,7 @@ public class ASTListener extends ScenarioParserBaseListener
       }
 
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
-      final TakeSentence takeSentence = TakeSentence.of(actor, varName, example, collection, actions);
+      final TakeSentence takeSentence = TakeSentence.of(actor, varName, example, collection, body);
       takeSentence.setPosition(position(ctx.FROM()));
 
       this.stack.push(takeSentence);

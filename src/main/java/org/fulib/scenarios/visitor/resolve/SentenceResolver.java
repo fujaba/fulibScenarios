@@ -303,7 +303,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          }
       };
 
-      takeSentence.setActions((SentenceList) takeSentence.getActions().accept(this, scope));
+      takeSentence.setBody(takeSentence.getBody().accept(this, scope));
       return takeSentence;
    }
 
@@ -341,7 +341,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       conditionalSentence
          .setCondition((ConditionalExpr) conditionalSentence.getCondition().accept(ExprResolver.INSTANCE, par));
-      conditionalSentence.setActions((SentenceList) conditionalSentence.getActions().accept(this, par));
+      conditionalSentence.setBody((SentenceList) conditionalSentence.getBody().accept(this, par));
       return conditionalSentence;
    }
 
