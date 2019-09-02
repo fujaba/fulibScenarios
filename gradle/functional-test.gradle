@@ -37,7 +37,13 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
         }
 
         if (errored) {
-            j.state.addFailure(new TaskExecutionException(j, new Exception('output was:\n' + output)))
+            def filteredOutput = output
+            for (line in errorLines) {
+                filteredOutput = filteredOutput.replace(line, '')
+            }
+
+            j.state.addFailure(new TaskExecutionException(j, new Exception('output without matched markers:\n' +
+                    filteredOutput)))
         }
 
         // TODO check exit code (should == errorLines.size())
