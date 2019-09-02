@@ -43,6 +43,9 @@ There are the AssocReEntity Alice, Bob, Charlie.
 Alice has related Bob.
 
 Alice has related and is reverse-related of Charlie.
+<!--                     ^
+error: invalid reverse association name 'reverseRelated' - 'AssocReEntity.related' was already declared as unidirectional [association.reverse.late]
+-->
 
 Alice has intAttr 123.
 Bob has intAttr Charlie.
