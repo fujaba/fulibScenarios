@@ -36,6 +36,18 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
             }
         }
 
+        def lastLine = output[output.lastIndexOf('\n', output.length() - 2) + 1..-2]
+        def match = lastLine =~ /(\d+) warnings? and (\d+) errors?/
+        def errors = match[0][1] as int
+        def warnings = match[0][2] as int
+
+        if (errors + warnings != errorLines.size()) {
+            j.state.addFailure(new TaskExecutionException(j, new Exception("mismatching number of errors and " +
+                    "warnings," +
+                    " expected ${ errorLines.size() }, generated ${ errors + warnings }")))
+            errored = true
+        }
+
         if (errored) {
             def filteredOutput = output
             for (line in errorLines) {
@@ -45,8 +57,6 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
             j.state.addFailure(new TaskExecutionException(j, new Exception('output without matched markers:\n' +
                     filteredOutput)))
         }
-
-        // TODO check exit code (should == errorLines.size())
     }
 }
 
