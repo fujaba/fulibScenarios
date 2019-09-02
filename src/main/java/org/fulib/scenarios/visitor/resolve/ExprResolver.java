@@ -272,7 +272,21 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    public Expr visit(AttributeCheckExpr attributeCheckExpr, Scope par)
    {
       // extract
-      final Expr receiver = attributeCheckExpr.getReceiver();
+      Expr receiver = attributeCheckExpr.getReceiver();
+      if (receiver == null)
+      {
+         final Decl predicateReceiver = par.resolve(PREDICATE_RECEIVER);
+         if (predicateReceiver == null)
+         {
+            par.report(error(attributeCheckExpr.getPosition(), "attribute-check.receiver.missing"));
+            receiver = ErrorExpr.of(PrimitiveType.ERROR);
+         }
+         else
+         {
+            receiver = NameAccess.of(ResolvedName.of(predicateReceiver));
+         }
+      }
+
       final Expr expected = attributeCheckExpr.getValue();
       final Name attribute = attributeCheckExpr.getAttribute();
 

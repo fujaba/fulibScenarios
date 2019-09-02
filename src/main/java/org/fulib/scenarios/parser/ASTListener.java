@@ -480,7 +480,9 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr value = valueAndAttribute.getExpr();
       final Name attribute = valueAndAttribute.getName();
       final Expr receiver = ctx.access() != null ? this.pop() : null;
-      this.stack.push(AttributeCheckExpr.of(receiver, attribute, value));
+      final AttributeCheckExpr attributeCheckExpr = AttributeCheckExpr.of(receiver, attribute, value);
+      attributeCheckExpr.setPosition(position(ctx.HAS()));
+      this.stack.push(attributeCheckExpr);
    }
 
    @Override
