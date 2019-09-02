@@ -7,10 +7,14 @@ import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.diagnostic.Marker;
+import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.fulib.scenarios.diagnostic.Marker.error;
 
 public enum Grouper implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
                                   ScenarioFile.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
@@ -70,7 +74,8 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    @Override
    public Object visit(Scenario scenario, Object par)
    {
-      Frame top = new Frame();
+      final TopFrame top = new TopFrame();
+      top.file = scenario.getFile();
       top.key = ACTOR_TEST;
       top.target = new ArrayList<>();
 
@@ -108,19 +113,19 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    @Override
    public Frame visit(ThereSentence thereSentence, Frame par)
    {
-      return par.add(ACTOR_TEST, thereSentence);
+      return par.add(null, ACTOR_TEST, thereSentence);
    }
 
    @Override
    public Frame visit(ExpectSentence expectSentence, Frame par)
    {
-      return par.add(ACTOR_TEST, expectSentence);
+      return par.add(null, ACTOR_TEST, expectSentence);
    }
 
    @Override
    public Frame visit(DiagramSentence diagramSentence, Frame par)
    {
-      return par.add(ACTOR_TEST, diagramSentence);
+      return par.add(null, ACTOR_TEST, diagramSentence);
    }
 
    // --------------- ActorSentence.Visitor ---------------
@@ -128,7 +133,9 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    @Override
    public Frame visit(ActorSentence actorSentence, Frame par)
    {
-      return par.add(actorKey(actorSentence.getActor()), actorSentence);
+      final Name actor = actorSentence.getActor();
+      return par.add(actor == null ? actorSentence.getPosition() : actor.getPosition(),
+                     actorKey(actorSentence.getActor()), actorSentence);
    }
 
    @Override
@@ -136,13 +143,14 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    {
       final CallExpr callExpr = callSentence.getCall();
       final List<Sentence> sentences = callExpr.getBody().getItems();
-      return par.add(actorKey(callSentence.getActor()), callSentence).push(actorKey(callExpr.getName()), sentences);
+      return this.visit((ActorSentence) callSentence, par).push(actorKey(callExpr.getName()), sentences);
    }
 
    @Override
    public Frame visit(AnswerSentence answerSentence, Frame par)
    {
-      return par.addLast(actorKey(answerSentence.getActor()), answerSentence);
+      return this.visit((ActorSentence) answerSentence, par)
+                 .pop(answerSentence.getPosition(), actorKey(answerSentence.getActor()));
    }
 }
 
@@ -187,14 +195,9 @@ class Frame
       return this;
    }
 
-   Frame add(String key, Sentence sentence)
+   Frame add(Position position, String key, Sentence sentence)
    {
-      return this.popIncompatible(key).add(sentence);
-   }
-
-   Frame addLast(String key, Sentence sentence)
-   {
-      return this.add(key, sentence).popToDefinition(key).pop();
+      return this.popIncompatible(position, key).add(sentence);
    }
 
    Frame push(String key, List<Sentence> target)
@@ -211,23 +214,63 @@ class Frame
       return this.next;
    }
 
-   Frame popIncompatible(String key)
+   Frame pop(Position position, String key)
+   {
+      return this.popToDefinition(position, key).pop();
+   }
+
+   private Frame popIncompatible(Position position, String key)
    {
       Frame result = this;
       while (!keyMatches(key, result.key))
       {
+         if (result.next == null)
+         {
+            this.reportIncompatible(position, key);
+            return this;
+         }
          result = result.next;
       }
       return result;
    }
 
-   Frame popToDefinition(String key)
+   private Frame popToDefinition(Position position, String key)
    {
       Frame result = this;
       while (!result.key.contains(key))
       {
+         if (result.next == null)
+         {
+            this.reportIncompatible(position, key);
+            return this;
+         }
          result = result.next;
       }
       return result;
+   }
+
+   private void reportIncompatible(Position position, String key)
+   {
+      final int beginIndex = key.indexOf(':');
+      final int endIndex = key.indexOf(',', beginIndex + 1);
+      final String type = key.substring(0, beginIndex);
+      final String value = key.substring(beginIndex + 1, endIndex);
+      this.report(error(position, "frame.incompatible." + type, value));
+   }
+
+   void report(Marker marker)
+   {
+      this.next.report(marker);
+   }
+}
+
+class TopFrame extends Frame
+{
+   ScenarioFile file;
+
+   @Override
+   void report(Marker marker)
+   {
+      this.file.getMarkers().add(marker);
    }
 }

@@ -50,3 +50,20 @@ We write the answer into y.
 <!--         ^
 error: invalid answer literal - no preceding call [answer.unresolved]
 -->
+
+# Invalid Call Frames
+
+(  ) barbaz writes 2 into j.
+<!-- ^
+error: unknown actor 'barbaz' [frame.incompatible.actor]
+perhaps you did not call the method or the call was already closed?
+-->
+
+We call foobar.
+foobar answers with 1.
+
+(  ) foobar writes 1 into i.
+<!-- ^
+error: unknown actor 'foobar' [frame.incompatible.actor]
+perhaps you did not call the method or the call was already closed?
+-->
