@@ -10,16 +10,15 @@ import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.diagnostic.Marker;
-import org.fulib.scenarios.visitor.codegen.CodeGenerator;
 import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
+import org.fulib.scenarios.visitor.codegen.CodeGenerator;
 import org.fulib.scenarios.visitor.preprocess.Desugar;
 import org.fulib.scenarios.visitor.preprocess.Grouper;
 import org.fulib.scenarios.visitor.resolve.NameResolver;
 
 import javax.lang.model.SourceVersion;
-import javax.tools.Diagnostic;
 import javax.tools.Tool;
 import java.io.*;
 import java.util.*;
@@ -133,6 +132,7 @@ public class ScenarioCompiler implements Tool
       this.discover();
 
       int errors = this.errors;
+      int warnings = 0;
 
       for (CompilationContext.Visitor phase : PHASES)
       {
@@ -159,12 +159,35 @@ public class ScenarioCompiler implements Tool
             for (final Marker marker : file.getMarkers())
             {
                marker.print(this.out);
-               if (marker.getKind() == Diagnostic.Kind.ERROR)
+               switch (marker.getKind())
                {
+               case ERROR:
                   errors++;
+                  break;
+               case WARNING:
+               case MANDATORY_WARNING:
+                  warnings++;
+                  break;
                }
             }
          }
+      }
+
+      if (errors != 0 && warnings != 0)
+      {
+         final String key = "markers." + (warnings == 1 ? "1.warning" : "n.warnings") //
+                            + "." + (errors == 1 ? "1.error" : "n.errors");
+         this.getOut().println(Marker.localize(key, warnings, errors));
+      }
+      else if (errors != 0)
+      {
+         final String key = errors == 1 ? "markers.1.error" : "markers.n.errors";
+         this.getOut().println(Marker.localize(key, errors));
+      }
+      else if (warnings != 0)
+      {
+         final String key = warnings == 1 ? "markers.1.warning" : "markers.n.warnings";
+         this.getOut().println(Marker.localize(key, warnings));
       }
 
       return this.errors = errors;
