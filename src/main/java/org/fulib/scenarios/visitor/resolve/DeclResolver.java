@@ -207,7 +207,7 @@ public class DeclResolver
       if (existingAttribute != null)
       {
          final Type existingType = existingAttribute.getType();
-         if (!TypeComparer.equals(type, existingType))
+         if (!TypeComparer.isSuperType(existingType, type))
          {
             final String newDesc = DeclDescriber.describeAttribute(type);
             scope.report(conflict(position, owner, name, existingAttribute, newDesc));
