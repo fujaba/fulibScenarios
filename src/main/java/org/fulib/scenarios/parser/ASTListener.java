@@ -413,12 +413,16 @@ public class ASTListener extends ScenarioParserBaseListener
       if (decimal != null)
       {
          final double value = Double.parseDouble(decimal.getText());
-         this.stack.push(DoubleLiteral.of(value));
+         final DoubleLiteral doubleLiteral = DoubleLiteral.of(value);
+         doubleLiteral.setPosition(position(decimal));
+         this.stack.push(doubleLiteral);
       }
       else
       {
          final int value = Integer.parseInt(ctx.INTEGER().getText());
-         this.stack.push(IntLiteral.of(value));
+         final IntLiteral intLiteral = IntLiteral.of(value);
+         intLiteral.setPosition(position(ctx.INTEGER()));
+         this.stack.push(intLiteral);
       }
    }
 
@@ -429,7 +433,9 @@ public class ASTListener extends ScenarioParserBaseListener
       // strip opening and closing quotes
       final String stripped = text.substring(1, text.length() - 1);
       final String value = StringEscapeUtils.unescapeJava(stripped);
-      this.stack.push(StringLiteral.of(value));
+      final StringLiteral stringLiteral = StringLiteral.of(value);
+      stringLiteral.setPosition(position(ctx.STRING_LITERAL()));
+      this.stack.push(stringLiteral);
    }
 
    // TODO <it>
@@ -445,7 +451,10 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitNameAccess(ScenarioParser.NameAccessContext ctx)
    {
-      this.stack.push(NameAccess.of(name(ctx.name())));
+      final Name name = name(ctx.name());
+      final NameAccess nameAccess = NameAccess.of(name);
+      nameAccess.setPosition(name.getPosition());
+      this.stack.push(nameAccess);
    }
 
    @Override
@@ -453,7 +462,9 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Name name = name(ctx.name());
       final Expr receiver = this.pop();
-      this.stack.push(AttributeAccess.of(name, receiver));
+      final AttributeAccess attributeAccess = AttributeAccess.of(name, receiver);
+      attributeAccess.setPosition(position(ctx.OF()));
+      this.stack.push(attributeAccess);
    }
 
    @Override
@@ -461,7 +472,9 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Expr expr = this.pop();
       final Expr value = this.pop();
-      this.stack.push(ExampleAccess.of(value, expr));
+      final ExampleAccess exampleAccess = ExampleAccess.of(value, expr);
+      exampleAccess.setPosition(position(ctx.FROM()));
+      this.stack.push(exampleAccess);
    }
 
    @Override
@@ -470,6 +483,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final ConditionalExpr predicate = this.pop();
       final Expr source = this.pop();
       final FilterExpr filterExpr = FilterExpr.of(source, predicate);
+      filterExpr.setPosition(position(ctx.ALL()));
       this.stack.push(filterExpr);
    }
 
@@ -488,11 +502,13 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitAndCondExpr(ScenarioParser.AndCondExprContext ctx)
    {
-      for (int i = ctx.AND().size(); i > 0; i--)
+      final List<TerminalNode> ands = ctx.AND();
+      for (int i = ands.size(); i > 0; i--)
       {
          final Expr rhs = this.pop();
          final Expr lhs = this.pop();
          final ConditionalOperatorExpr condOp = ConditionalOperatorExpr.of(lhs, ConditionalOperator.AND, rhs);
+         condOp.setPosition(position(ands.get(i)));
          this.stack.push(condOp);
       }
    }
@@ -500,11 +516,13 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitOrCondExpr(ScenarioParser.OrCondExprContext ctx)
    {
-      for (int i = ctx.OR().size(); i > 0; i--)
+      final List<TerminalNode> ors = ctx.OR();
+      for (int i = ors.size(); i > 0; i--)
       {
          final Expr rhs = this.pop();
          final Expr lhs = this.pop();
          final ConditionalOperatorExpr condOp = ConditionalOperatorExpr.of(lhs, ConditionalOperator.OR, rhs);
+         condOp.setPosition(position(ors.get(i)));
          this.stack.push(condOp);
       }
    }
@@ -548,7 +566,9 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitList(ScenarioParser.ListContext ctx)
    {
       final List<Expr> elements = this.pop(Expr.class, ctx.listElem().size());
-      this.stack.push(ListExpr.of(elements));
+      final ListExpr listExpr = ListExpr.of(elements);
+      listExpr.setPosition(position(ctx));
+      this.stack.push(listExpr);
    }
 
    @Override
@@ -556,7 +576,9 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Expr end = this.pop();
       final Expr start = this.pop();
-      this.stack.push(RangeExpr.of(start, end));
+      final RangeExpr rangeExpr = RangeExpr.of(start, end);
+      rangeExpr.setPosition(position(ctx.TO()));
+      this.stack.push(rangeExpr);
    }
 
    // =============== Static Methods ===============
