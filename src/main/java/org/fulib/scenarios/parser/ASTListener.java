@@ -503,7 +503,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitAndCondExpr(ScenarioParser.AndCondExprContext ctx)
    {
       final List<TerminalNode> ands = ctx.AND();
-      for (int i = ands.size(); i > 0; i--)
+      for (int i = ands.size() - 1; i >= 0; i--)
       {
          final Expr rhs = this.pop();
          final Expr lhs = this.pop();
@@ -517,7 +517,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitOrCondExpr(ScenarioParser.OrCondExprContext ctx)
    {
       final List<TerminalNode> ors = ctx.OR();
-      for (int i = ors.size(); i > 0; i--)
+      for (int i = ors.size() - 1; i >= 0; i--)
       {
          final Expr rhs = this.pop();
          final Expr lhs = this.pop();
