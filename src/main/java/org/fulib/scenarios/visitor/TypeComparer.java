@@ -11,7 +11,7 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
 
    public enum Result
    {
-      EQUAL, SUBTYPE, UNRELATED
+      EQUAL, SUBTYPE, SUPERTYPE, UNRELATED
    }
 
    // =============== Static Methods ===============
@@ -19,6 +19,12 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
    public static boolean equals(Type a, Type b)
    {
       return a.accept(INSTANCE, b) == Result.EQUAL;
+   }
+
+   public static boolean isSuperType(Type a, Type b)
+   {
+      final Result relation = a.accept(INSTANCE, b);
+      return relation == Result.EQUAL || relation == Result.SUPERTYPE;
    }
 
    // =============== Methods ===============
@@ -32,12 +38,26 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
    @Override
    public Result visit(PrimitiveType primitiveType, Type par)
    {
-      return primitiveType == par ? Result.EQUAL : Result.UNRELATED;
+      if (primitiveType == par)
+      {
+         return Result.EQUAL;
+      }
+      if (primitiveType == PrimitiveType.OBJECT)
+      {
+         return Result.SUPERTYPE;
+      }
+
+      return Result.UNRELATED;
    }
 
    @Override
    public Result visit(ClassType classType, Type par)
    {
+      if (par == PrimitiveType.OBJECT)
+      {
+         return Result.SUBTYPE;
+      }
+
       final ClassDecl classA = classType.getClassDecl();
       final ClassDecl classB = par.accept(ExtractClassDecl.INSTANCE, null);
       return classA == classB ? Result.EQUAL : Result.UNRELATED;
@@ -46,6 +66,11 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
    @Override
    public Result visit(ListType listType, Type par)
    {
+      if (par == PrimitiveType.OBJECT)
+      {
+         return Result.SUBTYPE;
+      }
+
       if (!(par instanceof ListType))
       {
          return Result.UNRELATED;
