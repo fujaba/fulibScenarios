@@ -33,7 +33,7 @@ simpleSentence: thereSentence
               | removeSentence
               ;
 
-simpleSentences: simpleSentence (sep simpleSentence)*;
+simpleSentences: simpleSentence (sep simpleSentence)* (sep compoundSentence)?;
 
 compoundSentence: conditionalSentence
                 | takeSentence
