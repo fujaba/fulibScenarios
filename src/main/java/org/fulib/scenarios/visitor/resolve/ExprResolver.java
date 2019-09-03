@@ -24,7 +24,9 @@ import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.Namer;
+import org.fulib.scenarios.visitor.TypeComparer;
 import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.HashMap;
 import java.util.List;
@@ -221,17 +223,26 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          final NamedExpr argument = arguments.get(i);
          final String name = argument.getName().accept(Namer.INSTANCE, null);
          final Expr expr = argument.getExpr();
+         final Type type = expr.accept(Typer.INSTANCE, null);
          final ParameterDecl param;
 
          if (isNew)
          {
-            final Type type = expr.accept(Typer.INSTANCE, null);
             param = ParameterDecl.of(method, name, type);
             parameters.add(param);
          }
          else
          {
             param = parameters.get(i + 1);
+            final Type paramType = param.getType();
+
+            if (type != PrimitiveType.ERROR && paramType != PrimitiveType.ERROR //
+                && !TypeComparer.isSuperType(paramType, type))
+            {
+               par.report(error(expr.getPosition(), "call.mismatch.type",
+                                paramType.accept(TypeDescriber.INSTANCE, null),
+                                type.accept(TypeDescriber.INSTANCE, null)));
+            }
          }
 
          argument.setName(ResolvedName.of(param));

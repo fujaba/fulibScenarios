@@ -6,7 +6,7 @@ We call run on app.
 error: cannot resolve or add method 'run' in external class 'WebApp' [method.unresolved.external]
 -->
 
-# Invalid Calls
+# Mismatching Parameters and Arguments
 
 We call foo with bar 1 and with baz 2.
 
@@ -29,6 +29,21 @@ We call foo.
 error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
 parameters: bar baz
 arguments:  
+-->
+
+# Mismatching Parameter Types
+
+We call foo with bar "a"
+<!--                 ^
+error: incompatible parameter and argument types [call.mismatch.type]
+parameter type: int
+argument type:  String
+-->
+and with baz 1.5, 2.5, 3.5.
+<!--         ^
+error: incompatible parameter and argument types [call.mismatch.type]
+parameter type: int
+argument type:  list of double
 -->
 
 # Invalid Answer Literal
