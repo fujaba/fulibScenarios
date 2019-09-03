@@ -23,6 +23,7 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
 
    public Marker(Kind kind, Position position, String code, Object... args)
    {
+      Objects.requireNonNull(position, "position");
       this.kind = kind;
       this.position = position;
       this.code = code;
