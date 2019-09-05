@@ -175,3 +175,12 @@
 
 + Added the answer literal. #119
 * Fixed non-literal Strings including comments retaining the comment. #126
+
+# Fulib Scenarios v0.8.1
+
++ Added a diagnostic error for attribute check expressions with missing receiver. #130
++ Added a diagnostic error for grouper failure / invalid actors. #129
++ Added a diagnostic error for mismatching parameter and argument types. #131
++ Added support for separating simple sentences with `,`, `and` and `, and`. #127
++ The compiler now outputs a tally of warnings and errors.
+* Attribute redeclarations with sub-types are now allowed. #110

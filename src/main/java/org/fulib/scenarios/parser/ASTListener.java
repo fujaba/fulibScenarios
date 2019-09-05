@@ -145,8 +145,8 @@ public class ASTListener extends ScenarioParserBaseListener
       // TODO deprecation, remove in v0.9.0
       if (name != null && ctx.THE() == null)
       {
-         this.report(warning(position(ctx), "descriptor.indefinite.deprecated", inputText(ctx.typeName()),
-                             inputText(name)));
+         this.report(
+            warning(position(ctx), "descriptor.indefinite.deprecated", inputText(ctx.typeName()), inputText(name)));
       }
 
       this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
@@ -286,7 +286,8 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitSimpleSentences(ScenarioParser.SimpleSentencesContext ctx)
    {
-      final List<Sentence> sentences = this.pop(Sentence.class, ctx.simpleSentence().size());
+      final int count = ctx.simpleSentence().size() + (ctx.compoundSentence() != null ? 1 : 0);
+      final List<Sentence> sentences = this.pop(Sentence.class, count);
       final SentenceList list = SentenceList.of(sentences);
       this.stack.push(list);
    }
