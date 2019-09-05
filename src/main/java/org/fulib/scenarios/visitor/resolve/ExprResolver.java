@@ -239,9 +239,9 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
             if (type != PrimitiveType.ERROR && paramType != PrimitiveType.ERROR //
                 && !TypeComparer.isSuperType(paramType, type))
             {
-               par.report(error(expr.getPosition(), "call.mismatch.type",
-                                paramType.accept(TypeDescriber.INSTANCE, null),
-                                type.accept(TypeDescriber.INSTANCE, null)));
+               par.report(
+                  error(expr.getPosition(), "call.mismatch.type", paramType.accept(TypeDescriber.INSTANCE, null),
+                        type.accept(TypeDescriber.INSTANCE, null)));
             }
          }
 
@@ -372,8 +372,57 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    @Override
    public Expr visit(RangeExpr rangeExpr, Scope par)
    {
-      rangeExpr.setStart(rangeExpr.getStart().accept(this, par));
-      rangeExpr.setEnd(rangeExpr.getEnd().accept(this, par));
+      final Expr start = rangeExpr.getStart().accept(this, par);
+      final Expr end = rangeExpr.getEnd().accept(this, par);
+
+      rangeExpr.setStart(start);
+      rangeExpr.setEnd(end);
+
+      final Type startType = start.accept(Typer.INSTANCE, null);
+      final Type endType = end.accept(Typer.INSTANCE, null);
+
+      if (!TypeComparer.equals(startType, endType))
+      {
+         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch",
+                          startType.accept(TypeDescriber.INSTANCE, null),
+                          endType.accept(TypeDescriber.INSTANCE, null)));
+      }
+      if (!isValidRangeType(startType))
+      {
+         par.report(error(start.getPosition(), "range.element.type.unsupported",
+                          startType.accept(TypeDescriber.INSTANCE, null)));
+      }
+      if (!isValidRangeType(endType))
+      {
+         par.report(
+            error(end.getPosition(), "range.element.type.unsupported", endType.accept(TypeDescriber.INSTANCE, null)));
+      }
+
       return rangeExpr;
+   }
+
+   private static boolean isValidRangeType(Type type)
+   {
+      if (!(type instanceof PrimitiveType))
+      {
+         return false;
+      }
+
+      switch ((PrimitiveType) type)
+      {
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
+      case INT:
+      case INT_WRAPPER:
+      case LONG:
+      case LONG_WRAPPER:
+         return true;
+      default:
+         return false;
+      }
    }
 }
