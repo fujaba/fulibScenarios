@@ -14,7 +14,6 @@ import org.fulib.scenarios.parser.ASTListener;
 import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
 import org.fulib.scenarios.visitor.codegen.CodeGenerator;
-import org.fulib.scenarios.visitor.preprocess.Desugar;
 import org.fulib.scenarios.visitor.preprocess.Grouper;
 import org.fulib.scenarios.visitor.resolve.NameResolver;
 
@@ -29,7 +28,7 @@ public class ScenarioCompiler implements Tool
    private static final String TOOL_NAME = "scenarioc";
 
    private static final CompilationContext.Visitor[] PHASES = { //
-      Grouper.INSTANCE, Desugar.INSTANCE, NameResolver.INSTANCE, CodeGenerator.INSTANCE,
+      Grouper.INSTANCE, NameResolver.INSTANCE, CodeGenerator.INSTANCE,
       //
    };
 
