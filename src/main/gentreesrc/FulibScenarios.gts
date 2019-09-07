@@ -48,7 +48,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 			SectionSentence(text: String, level: CommentLevel)
 
-			ThereSentence(descriptors: [MultiDescriptor]) // like CreateSentence, but without an actor
+			ThereSentence(descriptor: MultiDescriptor) // like CreateSentence, but without an actor
 			ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 			DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 			HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy

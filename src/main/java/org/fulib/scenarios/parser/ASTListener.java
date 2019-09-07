@@ -119,8 +119,12 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitThereSentence(ScenarioParser.ThereSentenceContext ctx)
    {
-      final List<MultiDescriptor> descriptors = this.pop(MultiDescriptor.class, ctx.thereClause().size());
-      this.stack.push(ThereSentence.of(descriptors));
+      final MultiDescriptor desc = this.pop();
+      final Position position = position(ctx.THERE());
+      desc.setPosition(position);
+      final ThereSentence thereSentence = ThereSentence.of(desc);
+      thereSentence.setPosition(position);
+      this.stack.push(thereSentence);
    }
 
    private List<NamedExpr> popAttributes(ScenarioParser.WithClausesContext withClauses)

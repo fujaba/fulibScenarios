@@ -44,9 +44,8 @@ commentSentence: LINE_COMMENT HEADLINE_TEXT HEADLINE_END;
 
 // Definition
 
-thereSentence: thereClause (sep thereClause)*;
-thereClause: THERE IS simpleDescriptor
-           | THERE ARE multiDescriptor;
+thereSentence: THERE IS simpleDescriptor
+             | THERE ARE multiDescriptor;
 
 simpleDescriptor: (A | AN) typeName name? withClauses? // indefinite form
                 | THE typeName name withClauses? // definite form

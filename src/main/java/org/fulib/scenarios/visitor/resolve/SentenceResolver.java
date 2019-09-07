@@ -85,12 +85,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(ThereSentence thereSentence, Scope par)
    {
-      final List<Sentence> result = new ArrayList<>();
-      for (MultiDescriptor multiDesc : thereSentence.getDescriptors())
-      {
-         expand(multiDesc, result);
-      }
-      return new FlattenSentenceList(result).accept(this, par);
+      return expand(thereSentence.getDescriptor()).accept(this, par);
    }
 
    @Override
