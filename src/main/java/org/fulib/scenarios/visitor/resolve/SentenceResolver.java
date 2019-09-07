@@ -127,52 +127,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       for (final NamedExpr namedExpr : hasSentence.getClauses())
       {
-         this.resolveHasNamedExpr(namedExpr, receiverClass, scope);
+         resolveHasNamedExpr(namedExpr, receiverClass, scope);
       }
 
       return hasSentence;
-   }
-
-   private void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
-   {
-      final Name name = namedExpr.getName();
-      final Name otherName = namedExpr.getOtherName();
-
-      final Expr expr = namedExpr.getExpr().accept(ExprResolver.INSTANCE, scope);
-      namedExpr.setExpr(expr);
-
-      if (otherName == null)
-      {
-         namedExpr.setName(resolveAttributeOrAssociation(scope, objectClass, name, expr));
-         return;
-      }
-
-      final String assocName = name.accept(Namer.INSTANCE, null);
-      final Type exprType = expr.accept(Typer.INSTANCE, scope);
-      final int cardinality = exprType instanceof ListType ? ClassModelBuilder.MANY : 1;
-      final ClassDecl otherClass = exprType.accept(ExtractClassDecl.INSTANCE, null);
-      final String otherAssocName = otherName.accept(Namer.INSTANCE, null);
-      final int otherCardinality = namedExpr.getOtherMany() ? ClassModelBuilder.MANY : ClassModelBuilder.ONE;
-
-      if (otherClass == null)
-      {
-         scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
-                            assocName));
-         return;
-      }
-
-      final AssociationDecl assoc = resolveAssociation(scope, objectClass, assocName, cardinality, otherClass,
-                                                       otherAssocName, otherCardinality, name.getPosition(),
-                                                       otherName.getPosition());
-      if (assoc != null)
-      {
-         final AssociationDecl other = assoc.getOther();
-         namedExpr.setName(ResolvedName.of(assoc));
-         if (other != null)
-         {
-            namedExpr.setOtherName(ResolvedName.of(other));
-         }
-      }
    }
 
    @Override
@@ -213,6 +171,158 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return isSentence;
    }
 
+   @Override
+   public Sentence visit(AreSentence areSentence, Scope par)
+   {
+      return expand(areSentence.getDescriptor()).accept(this, par);
+   }
+
+   // --------------- ActorSentence.Visitor ---------------
+
+   @Override
+   public Sentence visit(CreateSentence createSentence, Scope par)
+   {
+      return expand(createSentence.getDescriptor()).accept(this, par);
+   }
+
+   @Override
+   public Sentence visit(CallSentence callSentence, Scope par)
+   {
+      final CallExpr call = callSentence.getCall();
+
+      final String name = call.accept(Namer.INSTANCE, null);
+      if (name == null)
+      {
+         return ExprSentence.of(call).accept(this, par);
+      }
+
+      final Name actor = callSentence.getActor();
+      final NameAccess target = NameAccess.of(UnresolvedName.of(name, null));
+      final WriteSentence writeSentence = WriteSentence.of(actor, call, target);
+      return writeSentence.accept(this, par);
+   }
+
+   @Override
+   public Sentence visit(AnswerSentence answerSentence, Scope par)
+   {
+      if (answerSentence.getActor() != null)
+      {
+         answerSentence.setActor(answerSentence.getActor().accept(NameResolver.INSTANCE, par));
+      }
+
+      answerSentence.setResult(answerSentence.getResult().accept(ExprResolver.INSTANCE, par));
+      return answerSentence;
+   }
+
+   @Override
+   public Sentence visit(WriteSentence writeSentence, Scope par)
+   {
+      // TODO maybe add .accept(ExprResolver.INSTANCE, par)
+      final Expr source = writeSentence.getSource();
+      final Expr target = writeSentence.getTarget();
+      return resolveAssignment(writeSentence, par, source, target, AssignmentResolve.INSTANCE,
+                               "write.target.invalid");
+   }
+
+   @Override
+   public Sentence visit(AddSentence addSentence, Scope par)
+   {
+      final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
+      final Expr target = addSentence.getTarget();
+      return resolveAssignment(addSentence, par, source, target, AddResolve.INSTANCE, "add.target.invalid");
+   }
+
+   @Override
+   public Sentence visit(RemoveSentence removeSentence, Scope par)
+   {
+      final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
+      final Expr target = removeSentence.getTarget();
+      return resolveAssignment(removeSentence, par, source, target, RemoveResolve.INSTANCE, "remove.target.invalid");
+   }
+
+   @Override
+   public Sentence visit(TakeSentence takeSentence, Scope par)
+   {
+      Expr example = takeSentence.getExample();
+      final String exampleName;
+      if (example != null)
+      {
+         example = example.accept(ExprResolver.INSTANCE, par);
+         exampleName = example.accept(Namer.INSTANCE, null);
+         takeSentence.setExample(example);
+      }
+      else
+      {
+         exampleName = null;
+      }
+
+      final Expr collection = takeSentence.getCollection().accept(ExprResolver.INSTANCE, par);
+      takeSentence.setCollection(collection);
+
+      final Type listType = collection.accept(Typer.INSTANCE, par);
+      final Type type;
+      if (listType instanceof ListType)
+      {
+         type = ((ListType) listType).getElementType();
+      }
+      else
+      {
+         if (listType != PrimitiveType.ERROR)
+         {
+            par.report(
+               error(collection.getPosition(), "take.source.type", listType.accept(TypeDescriber.INSTANCE, null)));
+         }
+         type = PrimitiveType.ERROR;
+      }
+
+      final VarDecl varDecl = resolveVar(takeSentence, par, exampleName, type);
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return name.equals(varDecl.getName()) || name.equals(exampleName) ? varDecl : super.resolve(name);
+         }
+      };
+
+      takeSentence.setBody(takeSentence.getBody().accept(this, scope));
+      return takeSentence;
+   }
+
+   // --------------- (end of ActorSentence.Visitor) ---------------
+
+   @Override
+   public Sentence visit(ConditionalSentence conditionalSentence, Scope par)
+   {
+      conditionalSentence
+         .setCondition((ConditionalExpr) conditionalSentence.getCondition().accept(ExprResolver.INSTANCE, par));
+      conditionalSentence.setBody(conditionalSentence.getBody().accept(this, par));
+      return conditionalSentence;
+   }
+
+   @Override
+   public Sentence visit(AssignSentence assignSentence, Scope par)
+   {
+      assignSentence.setValue(assignSentence.getValue().accept(ExprResolver.INSTANCE, par));
+      return assignSentence;
+   }
+
+   @Override
+   public Sentence visit(ExprSentence exprSentence, Scope par)
+   {
+      exprSentence.setExpr(exprSentence.getExpr().accept(ExprResolver.INSTANCE, par));
+      return exprSentence;
+   }
+
+   @Override
+   public Sentence visit(TemplateSentence templateSentence, Scope par)
+   {
+      templateSentence.getExprs().replaceAll(it -> it.accept(ExprResolver.INSTANCE, par));
+      return templateSentence;
+   }
+
+   // =============== Static Methods ===============
+
    private static String findUnique(String name, Scope par)
    {
       final int index = name.indexOf("++");
@@ -228,14 +338,6 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          }
       }
    }
-
-   @Override
-   public Sentence visit(AreSentence areSentence, Scope par)
-   {
-      return expand(areSentence.getDescriptor()).accept(this, par);
-   }
-
-   // --------------- ActorSentence.Visitor ---------------
 
    private static Sentence expand(MultiDescriptor descriptor)
    {
@@ -355,127 +457,59 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return Collections.singletonList(objectName);
    }
 
-   @Override
-   public Sentence visit(CreateSentence createSentence, Scope par)
+   private static void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
    {
-      return expand(createSentence.getDescriptor()).accept(this, par);
-   }
+      final Name name = namedExpr.getName();
+      final Name otherName = namedExpr.getOtherName();
 
-   @Override
-   public Sentence visit(CallSentence callSentence, Scope par)
-   {
-      final CallExpr call = callSentence.getCall();
+      final Expr expr = namedExpr.getExpr().accept(ExprResolver.INSTANCE, scope);
+      namedExpr.setExpr(expr);
 
-      final String name = call.accept(Namer.INSTANCE, null);
-      if (name == null)
+      if (otherName == null)
       {
-         return ExprSentence.of(call).accept(this, par);
+         namedExpr.setName(resolveAttributeOrAssociation(scope, objectClass, name, expr));
+         return;
       }
 
-      final Name actor = callSentence.getActor();
-      final NameAccess target = NameAccess.of(UnresolvedName.of(name, null));
-      final WriteSentence writeSentence = WriteSentence.of(actor, call, target);
-      return writeSentence.accept(this, par);
-   }
+      final String assocName = name.accept(Namer.INSTANCE, null);
+      final Type exprType = expr.accept(Typer.INSTANCE, scope);
+      final int cardinality = exprType instanceof ListType ? ClassModelBuilder.MANY : 1;
+      final ClassDecl otherClass = exprType.accept(ExtractClassDecl.INSTANCE, null);
+      final String otherAssocName = otherName.accept(Namer.INSTANCE, null);
+      final int otherCardinality = namedExpr.getOtherMany() ? ClassModelBuilder.MANY : ClassModelBuilder.ONE;
 
-   @Override
-   public Sentence visit(AnswerSentence answerSentence, Scope par)
-   {
-      if (answerSentence.getActor() != null)
+      if (otherClass == null)
       {
-         answerSentence.setActor(answerSentence.getActor().accept(NameResolver.INSTANCE, par));
+         scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
+                            assocName));
+         return;
       }
 
-      answerSentence.setResult(answerSentence.getResult().accept(ExprResolver.INSTANCE, par));
-      return answerSentence;
+      final AssociationDecl assoc = resolveAssociation(scope, objectClass, assocName, cardinality, otherClass,
+                                                       otherAssocName, otherCardinality, name.getPosition(),
+                                                       otherName.getPosition());
+      if (assoc != null)
+      {
+         final AssociationDecl other = assoc.getOther();
+         namedExpr.setName(ResolvedName.of(assoc));
+         if (other != null)
+         {
+            namedExpr.setOtherName(ResolvedName.of(other));
+         }
+      }
    }
 
-   private Sentence resolveAssignment(Sentence original, Scope par, Expr source, Expr target,
+   private static Sentence resolveAssignment(Sentence original, Scope par, Expr source, Expr target,
       Expr.Visitor<Expr, Sentence> resolve, String code)
    {
       final Sentence sentence = target.accept(resolve, source);
       if (sentence != null)
       {
-         return sentence.accept(this, par);
+         return sentence.accept(SentenceResolver.INSTANCE, par);
       }
 
       par.report(error(original.getPosition(), code, target.getClass().getEnclosingClass().getSimpleName()));
       return original;
-   }
-
-   @Override
-   public Sentence visit(WriteSentence writeSentence, Scope par)
-   {
-      // TODO maybe add .accept(ExprResolver.INSTANCE, par)
-      final Expr source = writeSentence.getSource();
-      final Expr target = writeSentence.getTarget();
-      return this.resolveAssignment(writeSentence, par, source, target, AssignmentResolve.INSTANCE,
-                                    "write.target.invalid");
-   }
-
-   @Override
-   public Sentence visit(AddSentence addSentence, Scope par)
-   {
-      final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
-      final Expr target = addSentence.getTarget();
-      return this.resolveAssignment(addSentence, par, source, target, AddResolve.INSTANCE, "add.target.invalid");
-   }
-
-   @Override
-   public Sentence visit(RemoveSentence removeSentence, Scope par)
-   {
-      final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
-      final Expr target = removeSentence.getTarget();
-      return this.resolveAssignment(removeSentence, par, source, target, RemoveResolve.INSTANCE,
-                                    "remove.target.invalid");
-   }
-
-   @Override
-   public Sentence visit(TakeSentence takeSentence, Scope par)
-   {
-      Expr example = takeSentence.getExample();
-      final String exampleName;
-      if (example != null)
-      {
-         example = example.accept(ExprResolver.INSTANCE, par);
-         exampleName = example.accept(Namer.INSTANCE, null);
-         takeSentence.setExample(example);
-      }
-      else
-      {
-         exampleName = null;
-      }
-
-      final Expr collection = takeSentence.getCollection().accept(ExprResolver.INSTANCE, par);
-      takeSentence.setCollection(collection);
-
-      final Type listType = collection.accept(Typer.INSTANCE, par);
-      final Type type;
-      if (listType instanceof ListType)
-      {
-         type = ((ListType) listType).getElementType();
-      }
-      else
-      {
-         if (listType != PrimitiveType.ERROR)
-         {
-            par.report(error(collection.getPosition(), "take.source.type", listType.accept(TypeDescriber.INSTANCE, null)));
-         }
-         type = PrimitiveType.ERROR;
-      }
-
-      final VarDecl varDecl = resolveVar(takeSentence, par, exampleName, type);
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return name.equals(varDecl.getName()) || name.equals(exampleName) ? varDecl : super.resolve(name);
-         }
-      };
-
-      takeSentence.setBody(takeSentence.getBody().accept(this, scope));
-      return takeSentence;
    }
 
    private static VarDecl resolveVar(TakeSentence takeSentence, Scope par, String exampleName, Type type)
@@ -505,37 +539,5 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final VarDecl varDecl = VarDecl.of(varName, type, null);
       takeSentence.setVarName(ResolvedName.of(varDecl));
       return varDecl;
-   }
-
-   // --------------- (end of ActorSentence.Visitor) ---------------
-
-   @Override
-   public Sentence visit(ConditionalSentence conditionalSentence, Scope par)
-   {
-      conditionalSentence
-         .setCondition((ConditionalExpr) conditionalSentence.getCondition().accept(ExprResolver.INSTANCE, par));
-      conditionalSentence.setBody((SentenceList) conditionalSentence.getBody().accept(this, par));
-      return conditionalSentence;
-   }
-
-   @Override
-   public Sentence visit(AssignSentence assignSentence, Scope par)
-   {
-      assignSentence.setValue(assignSentence.getValue().accept(ExprResolver.INSTANCE, par));
-      return assignSentence;
-   }
-
-   @Override
-   public Sentence visit(ExprSentence exprSentence, Scope par)
-   {
-      exprSentence.setExpr(exprSentence.getExpr().accept(ExprResolver.INSTANCE, par));
-      return exprSentence;
-   }
-
-   @Override
-   public Sentence visit(TemplateSentence templateSentence, Scope par)
-   {
-      templateSentence.getExprs().replaceAll(it -> it.accept(ExprResolver.INSTANCE, par));
-      return templateSentence;
    }
 }
