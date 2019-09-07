@@ -207,6 +207,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
    }
 
+   // --------------- ActorSentence.Visitor ---------------
+
    @Override
    public Sentence visit(AnswerSentence answerSentence, Scope par)
    {
@@ -335,6 +337,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       takeSentence.setVarName(ResolvedName.of(varDecl));
       return varDecl;
    }
+
+   // --------------- (end of ActorSentence.Visitor) ---------------
 
    @Override
    public Sentence visit(ConditionalSentence conditionalSentence, Scope par)
