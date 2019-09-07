@@ -1,22 +1,14 @@
 package org.fulib.scenarios.visitor.preprocess;
 
-import org.fulib.StrUtil;
-import org.fulib.scenarios.ast.*;
-import org.fulib.scenarios.ast.decl.Name;
-import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.decl.VarDecl;
-import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.CompilationContext;
+import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.ScenarioFile;
+import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
-import org.fulib.scenarios.ast.expr.call.CreationExpr;
-import org.fulib.scenarios.ast.expr.collection.ListExpr;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.*;
-import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public enum Desugar implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
                                   ScenarioFile.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
@@ -91,30 +83,7 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
       return sentenceList;
    }
 
-   @Override
-   public Sentence visit(ThereSentence thereSentence, Object par)
-   {
-      final List<Sentence> result = new ArrayList<>();
-      for (MultiDescriptor multiDesc : thereSentence.getDescriptors())
-      {
-         expand(multiDesc, result);
-      }
-      return new FlattenSentenceList(result);
-   }
-
-   @Override
-   public Sentence visit(AreSentence areSentence, Object par)
-   {
-      return expand(areSentence.getDescriptor());
-   }
-
    // --------------- ActorSentence.Visitor ---------------
-
-   @Override
-   public Sentence visit(CreateSentence createSentence, Object par)
-   {
-      return expand(createSentence.getDescriptor());
-   }
 
    @Override
    public Sentence visit(CallSentence callSentence, Object par)
@@ -138,125 +107,5 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    {
       conditionalSentence.setBody(conditionalSentence.getBody().accept(this, par));
       return conditionalSentence;
-   }
-
-   // =============== Static Methods ===============
-
-   private static Sentence expand(MultiDescriptor descriptor)
-   {
-      final List<Sentence> result = new ArrayList<>();
-      expand(descriptor, result);
-      return new FlattenSentenceList(result);
-   }
-
-   private static void expand(MultiDescriptor multiDesc, List<Sentence> result)
-   {
-      final List<String> names = getNames(multiDesc);
-      final List<VarDecl> varDecls = new ArrayList<>(names.size());
-
-      // collect variable declarations from names
-      for (String name : names)
-      {
-         final CreationExpr expr = CreationExpr.of(multiDesc.getType(), Collections.emptyList());
-         final VarDecl varDecl = VarDecl.of(name, null, expr);
-
-         varDecls.add(varDecl);
-         result.add(IsSentence.of(varDecl));
-      }
-
-      // collect attribute assignments
-      for (NamedExpr attribute : multiDesc.getAttributes())
-      {
-         final Name attributeName = attribute.getName();
-         final Expr attributeExpr = attribute.getExpr();
-
-         if (names.size() == 1)
-         {
-            // only one name anyway, easy
-
-            final NameAccess object = NameAccess.of(ResolvedName.of(varDecls.get(0)));
-            final HasSentence hasSentence = HasSentence.of(object, Collections.singletonList(attribute));
-            result.add(hasSentence);
-            continue;
-         }
-
-         final List<Expr> elements;
-         if (attributeExpr instanceof ListExpr
-             && (elements = ((ListExpr) attributeExpr).getElements()).size() == names.size())
-         {
-            // assigning one by one
-            // e.g. Alice and Bob with credits 10 and 20
-            // =>
-            // alice.setCredits(10);
-            // bob.setCredits(20);
-
-            for (int i = 0; i < names.size(); i++)
-            {
-               final Expr object = NameAccess.of(ResolvedName.of(varDecls.get(i)));
-               final NamedExpr partialAttribute = NamedExpr.of(attributeName, elements.get(i));
-               final HasSentence hasSentence = HasSentence.of(object, Collections.singletonList(partialAttribute));
-               result.add(hasSentence);
-            }
-         }
-         else
-         {
-            // assigning the same expr to multiple attributes, we need a temporary
-            // e.g. Alice and Bob with credits 10
-            // =>
-            // int _t0 = 10;
-            // alice.setCredits(_t0);
-            // bob.setCredits(_t0);
-
-            final VarDecl temp = VarDecl.of("temp++", null, attributeExpr);
-            result.add(IsSentence.of(temp));
-
-            for (int i = 0; i < names.size(); i++)
-            {
-               final Expr object = NameAccess.of(ResolvedName.of(varDecls.get(i)));
-               final Expr tempAccess = NameAccess.of(ResolvedName.of(temp));
-               final NamedExpr partialAttribute = NamedExpr.of(attributeName, tempAccess);
-               final HasSentence hasSentence = HasSentence.of(object, Collections.singletonList(partialAttribute));
-               result.add(hasSentence);
-            }
-         }
-      }
-   }
-
-   private static List<String> getNames(MultiDescriptor multiDesc)
-   {
-      final List<String> names = multiDesc.getNames();
-
-      if (!names.isEmpty())
-      {
-         return names;
-      }
-
-      // user did not declare names, infer from attributes or class name
-      for (NamedExpr attribute : multiDesc.getAttributes())
-      {
-         if (attribute.getExpr() instanceof ListExpr)
-         {
-            final List<Expr> elements = ((ListExpr) attribute.getExpr()).getElements();
-            final List<String> potentialNames = elements.stream().map(it -> it.accept(Namer.INSTANCE, null))
-                                                        .collect(Collectors.toList());
-
-            if (!potentialNames.contains(null))
-            {
-               return potentialNames;
-            }
-         }
-         else
-         {
-            final String potentialName = attribute.getExpr().accept(Namer.INSTANCE, null);
-            if (potentialName != null)
-            {
-               return Collections.singletonList(potentialName);
-            }
-         }
-      }
-
-      final String className = multiDesc.getType().accept(Namer.INSTANCE, null);
-      final String objectName = StrUtil.downFirstChar(className);
-      return Collections.singletonList(objectName);
    }
 }
