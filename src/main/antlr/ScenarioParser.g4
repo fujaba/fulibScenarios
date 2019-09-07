@@ -73,7 +73,7 @@ hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: (HAS | HAVE) (namedExpr | bidiNamedExpr);
 
-createSentence: actor (CREATE | CREATES) (simpleDescriptor | multiDescriptor);
+createSentence: actor verb=(CREATE | CREATES) (simpleDescriptor | multiDescriptor);
 
 callSentence: actor (CALL | CALLS) name (ON expr)? withClauses?;
 

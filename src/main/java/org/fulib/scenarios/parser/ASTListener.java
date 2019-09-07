@@ -208,7 +208,10 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final List<String> names = ctx.name().stream().map(Identifiers::varName).collect(Collectors.toList());
       final MultiDescriptor descriptor = this.multiDescriptor(names, ctx.withClauses());
+      final Position position = position(ctx.ARE());
+      descriptor.setPosition(position);
       final AreSentence areSentence = AreSentence.of(descriptor);
+      areSentence.setPosition(position);
       this.stack.push(areSentence);
    }
 
@@ -217,7 +220,10 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Name actor = name(ctx.actor().name()); // null if actor is "we"
       final MultiDescriptor desc = this.pop();
+      final Position position = position(ctx.verb);
+      desc.setPosition(position);
       final CreateSentence createSentence = CreateSentence.of(actor, desc);
+      createSentence.setPosition(position);
       this.stack.push(createSentence);
    }
 
