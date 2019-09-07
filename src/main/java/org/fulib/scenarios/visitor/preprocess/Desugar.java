@@ -4,7 +4,6 @@ import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -93,13 +92,6 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Sentence visit(SectionSentence sectionSentence, Object par)
-   {
-      final String processedComment = sectionSentence.getLevel().format(sectionSentence.getText().trim());
-      return TemplateSentence.of(processedComment, Collections.emptyList());
-   }
-
-   @Override
    public Sentence visit(ThereSentence thereSentence, Object par)
    {
       final List<Sentence> result = new ArrayList<>();
@@ -129,14 +121,7 @@ public enum Desugar implements CompilationContext.Visitor<Object, Object>, Scena
    {
       final CallExpr call = callSentence.getCall();
       call.setBody((SentenceList) call.getBody().accept(this, par));
-
-      final String name = call.accept(Namer.INSTANCE, null);
-      if (name == null)
-      {
-         return ExprSentence.of(call);
-      }
-
-      return WriteSentence.of(callSentence.getActor(), call, NameAccess.of(UnresolvedName.of(name, null)));
+      return callSentence;
    }
 
    @Override

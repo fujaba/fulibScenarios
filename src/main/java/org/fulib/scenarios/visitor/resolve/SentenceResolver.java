@@ -4,7 +4,9 @@ import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
@@ -18,10 +20,7 @@ import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAssociation;
@@ -69,6 +68,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       sentenceList.setItems(newItems);
 
       return sentenceList;
+   }
+
+   @Override
+   public Sentence visit(SectionSentence sectionSentence, Scope par)
+   {
+      final String processedComment = sectionSentence.getLevel().format(sectionSentence.getText().trim());
+      return TemplateSentence.of(processedComment, Collections.emptyList());
    }
 
    @Override
@@ -208,6 +214,23 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    }
 
    // --------------- ActorSentence.Visitor ---------------
+
+   @Override
+   public Sentence visit(CallSentence callSentence, Scope par)
+   {
+      final CallExpr call = callSentence.getCall();
+
+      final String name = call.accept(Namer.INSTANCE, null);
+      if (name == null)
+      {
+         return ExprSentence.of(call).accept(this, par);
+      }
+
+      final Name actor = callSentence.getActor();
+      final NameAccess target = NameAccess.of(UnresolvedName.of(name, null));
+      final WriteSentence writeSentence = WriteSentence.of(actor, call, target);
+      return writeSentence.accept(this, par);
+   }
 
    @Override
    public Sentence visit(AnswerSentence answerSentence, Scope par)
