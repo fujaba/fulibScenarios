@@ -8,7 +8,7 @@ error: cannot resolve or add method 'run' in external class 'WebApp' [method.unr
 
 # Mismatching Parameters and Arguments
 
-We call foo with bar 1 and with baz 2.
+We call foo with bar 1 and with baz "2".
 
 We call foo with bar 3.
 <!--    ^
@@ -17,7 +17,7 @@ parameters: bar baz
 arguments:  bar
 -->
 
-We call foo with baz 4.
+We call foo with baz "4".
 <!--    ^
 error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
 parameters: bar baz
@@ -31,6 +31,20 @@ parameters: bar baz
 arguments:  
 -->
 
+We call foo with bar 5 and with baz "6" and with moo 7.
+<!--    ^
+error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
+parameters: bar baz
+arguments:  bar baz moo
+-->
+
+We call foo with baz "8" and with bar 9.
+<!--    ^
+error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
+parameters: bar baz
+arguments:  baz bar
+-->
+
 # Mismatching Parameter Types
 
 We call foo with bar "a"
@@ -42,7 +56,7 @@ argument type:  String
 and with baz 1.5, 2.5, 3.5.
 <!--         ^
 error: incompatible parameter and argument types [call.mismatch.type]
-parameter type: int
+parameter type: String
 argument type:  list of double
 -->
 
