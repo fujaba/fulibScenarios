@@ -111,6 +111,6 @@ abstract org.fulib.scenarios.ast.Node {
 
 	// Helpers
 
-	MultiDescriptor(type: Type, names: [String], attributes: [NamedExpr])
+	MultiDescriptor(type: Type, names: [Name], attributes: [NamedExpr])
 	NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
 }

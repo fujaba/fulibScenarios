@@ -131,7 +131,7 @@ public class ASTListener extends ScenarioParserBaseListener
       return this.pop(NamedExpr.class, numAttributes);
    }
 
-   private MultiDescriptor multiDescriptor(List<String> names, ScenarioParser.WithClausesContext withClausesContext)
+   private MultiDescriptor multiDescriptor(List<Name> names, ScenarioParser.WithClausesContext withClausesContext)
    {
       final List<NamedExpr> attributes = this.popAttributes(withClausesContext);
       final Type type = this.pop();
@@ -141,14 +141,14 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitSimpleDescriptor(ScenarioParser.SimpleDescriptorContext ctx)
    {
-      final ScenarioParser.NameContext name = ctx.name();
-      final List<String> names = name == null ? Collections.emptyList() : Collections.singletonList(varName(name));
+      final ScenarioParser.NameContext nameCtx = ctx.name();
+      final List<Name> names = nameCtx == null ? Collections.emptyList() : Collections.singletonList(name(nameCtx));
 
       // TODO deprecation, remove in v0.9.0
-      if (name != null && ctx.THE() == null)
+      if (nameCtx != null && ctx.THE() == null)
       {
-         this.report(
-            warning(position(ctx), "descriptor.indefinite.deprecated", inputText(ctx.typeName()), inputText(name)));
+         this.report(warning(position(ctx), "descriptor.indefinite.deprecated", inputText(ctx.typeName()),
+                             inputText(nameCtx)));
       }
 
       this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
@@ -157,7 +157,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitMultiDescriptor(ScenarioParser.MultiDescriptorContext ctx)
    {
-      final List<String> names = ctx.name().stream().map(Identifiers::varName).collect(Collectors.toList());
+      final List<Name> names = ctx.name().stream().map(Identifiers::name).collect(Collectors.toList());
 
       // TODO deprecation, remove in v0.9.0
       if (!names.isEmpty() && ctx.THE() == null)
@@ -208,7 +208,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitAreSentence(ScenarioParser.AreSentenceContext ctx)
    {
-      final List<String> names = ctx.name().stream().map(Identifiers::varName).collect(Collectors.toList());
+      final List<Name> names = ctx.name().stream().map(Identifiers::name).collect(Collectors.toList());
       final MultiDescriptor descriptor = this.multiDescriptor(names, ctx.withClauses());
       final AreSentence areSentence = AreSentence.of(descriptor);
       areSentence.setPosition(position(ctx.ARE()));

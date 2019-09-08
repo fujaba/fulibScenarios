@@ -18,6 +18,7 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
@@ -25,7 +26,6 @@ import org.fulib.scenarios.visitor.Typer;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAssociation;
@@ -343,14 +343,14 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
    private static void expand(MultiDescriptor multiDesc, List<Sentence> result)
    {
-      final List<String> names = getNames(multiDesc);
+      final List<Name> names = getNames(multiDesc);
       final List<VarDecl> varDecls = new ArrayList<>(names.size());
 
       // collect variable declarations from names
-      for (String name : names)
+      for (final Name name : names)
       {
          final CreationExpr expr = CreationExpr.of(multiDesc.getType(), Collections.emptyList());
-         final VarDecl varDecl = VarDecl.of(name, null, expr);
+         final VarDecl varDecl = VarDecl.of(name.accept(Namer.INSTANCE, null), null, expr);
 
          varDecls.add(varDecl);
          result.add(IsSentence.of(varDecl));
@@ -414,9 +414,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
    }
 
-   private static List<String> getNames(MultiDescriptor multiDesc)
+   private static List<Name> getNames(MultiDescriptor multiDesc)
    {
-      final List<String> names = multiDesc.getNames();
+      final List<Name> names = multiDesc.getNames();
 
       if (!names.isEmpty())
       {
@@ -424,32 +424,47 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       // user did not declare names, infer from attributes or class name
-      for (NamedExpr attribute : multiDesc.getAttributes())
+      outer: for (NamedExpr attribute : multiDesc.getAttributes())
       {
-         if (attribute.getExpr() instanceof ListExpr)
+         final Expr expr = attribute.getExpr();
+         if (expr instanceof ListExpr)
          {
-            final List<Expr> elements = ((ListExpr) attribute.getExpr()).getElements();
-            final List<String> potentialNames = elements.stream().map(it -> it.accept(Namer.INSTANCE, null))
-                                                        .collect(Collectors.toList());
+            final List<Expr> elements = ((ListExpr) expr).getElements();
+            final List<Name> result = new ArrayList<>(elements.size());
 
-            if (!potentialNames.contains(null))
+            for (final Expr element : elements)
             {
-               return potentialNames;
+               final String potentialName = element.accept(Namer.INSTANCE, null);
+               if (potentialName == null)
+               {
+                  continue outer;
+               }
+
+               result.add(unresolvedName(potentialName, element.getPosition()));
             }
+
+            return result;
          }
-         else
+
+         final String potentialName = expr.accept(Namer.INSTANCE, null);
+         if (potentialName != null)
          {
-            final String potentialName = attribute.getExpr().accept(Namer.INSTANCE, null);
-            if (potentialName != null)
-            {
-               return Collections.singletonList(potentialName);
-            }
+            final Name name = unresolvedName(potentialName, expr.getPosition());
+            return Collections.singletonList(name);
          }
       }
 
       final String className = multiDesc.getType().accept(Namer.INSTANCE, null);
       final String objectName = StrUtil.downFirstChar(className);
-      return Collections.singletonList(objectName);
+      final Name name = unresolvedName(objectName, multiDesc.getType().getPosition());
+      return Collections.singletonList(name);
+   }
+
+   private static Name unresolvedName(String potentialName, Position position)
+   {
+      final Name name = UnresolvedName.of(potentialName, null);
+      name.setPosition(position);
+      return name;
    }
 
    private static void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
