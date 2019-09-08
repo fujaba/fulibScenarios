@@ -41,8 +41,6 @@ abstract org.fulib.scenarios.ast.Node {
 			import PrimitiveType
 		}
 
-		MultiDescriptor(type: Type, names: [String], attributes: [NamedExpr])
-
 		abstract sentence.Sentence {
 			SentenceList(items: [Sentence])
 
@@ -78,8 +76,6 @@ abstract org.fulib.scenarios.ast.Node {
 			TemplateSentence(template: String, exprs: [Expr])
 		}
 
-		NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
-
 		abstract expr.Expr {
 			ErrorExpr(type: Type?)
 
@@ -112,4 +108,9 @@ abstract org.fulib.scenarios.ast.Node {
 			}
 		}
 	}
+
+	// Helpers
+
+	MultiDescriptor(type: Type, names: [String], attributes: [NamedExpr])
+	NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
 }
