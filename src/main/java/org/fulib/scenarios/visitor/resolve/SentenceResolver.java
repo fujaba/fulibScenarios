@@ -28,6 +28,7 @@ import org.fulib.scenarios.visitor.describe.TypeDescriber;
 import java.util.*;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
+import static org.fulib.scenarios.diagnostic.Marker.note;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAssociation;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAttributeOrAssociation;
 
@@ -85,7 +86,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(ThereSentence thereSentence, Scope par)
    {
-      return expand(thereSentence.getDescriptor()).accept(this, par);
+      return expand(thereSentence.getDescriptor(), par).accept(this, par);
    }
 
    @Override
@@ -169,7 +170,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(AreSentence areSentence, Scope par)
    {
-      return expand(areSentence.getDescriptor()).accept(this, par);
+      return expand(areSentence.getDescriptor(), par).accept(this, par);
    }
 
    // --------------- ActorSentence.Visitor ---------------
@@ -177,7 +178,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(CreateSentence createSentence, Scope par)
    {
-      return expand(createSentence.getDescriptor()).accept(this, par);
+      return expand(createSentence.getDescriptor(), par).accept(this, par);
    }
 
    @Override
@@ -334,14 +335,14 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
    }
 
-   private static Sentence expand(MultiDescriptor descriptor)
+   private static Sentence expand(MultiDescriptor descriptor, Scope scope)
    {
       final List<Sentence> result = new ArrayList<>();
-      expand(descriptor, result);
+      expand(descriptor, result, scope);
       return new FlattenSentenceList(result);
    }
 
-   private static void expand(MultiDescriptor multiDesc, List<Sentence> result)
+   private static void expand(MultiDescriptor multiDesc, List<Sentence> result, Scope scope)
    {
       final List<Name> names = getNames(multiDesc);
       final List<VarDecl> varDecls = new ArrayList<>(names.size());
@@ -350,10 +351,26 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       for (final Name name : names)
       {
          final CreationExpr expr = CreationExpr.of(multiDesc.getType(), Collections.emptyList());
-         final VarDecl varDecl = VarDecl.of(name.accept(Namer.INSTANCE, null), null, expr);
+         final String nameValue = name.accept(Namer.INSTANCE, null);
 
-         varDecls.add(varDecl);
-         result.add(IsSentence.of(varDecl));
+         final Decl existing = scope.resolve(nameValue);
+         if (existing instanceof VarDecl)
+         {
+            scope.report(error(name.getPosition(), "variable.redeclaration", nameValue)
+                            .note(note(existing.getPosition(), "variable.declaration.first", nameValue)));
+            varDecls.add((VarDecl) existing);
+         }
+         else
+         {
+            final VarDecl varDecl = VarDecl.of(nameValue, null, expr);
+            varDecl.setPosition(name.getPosition());
+
+            varDecls.add(varDecl);
+
+            final IsSentence isSentence = IsSentence.of(varDecl);
+            isSentence.setPosition(name.getPosition());
+            result.add(isSentence);
+         }
       }
 
       // collect attribute assignments
