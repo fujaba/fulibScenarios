@@ -149,8 +149,10 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    @Override
    public Frame visit(AnswerSentence answerSentence, Frame par)
    {
-      return this.visit((ActorSentence) answerSentence, par)
-                 .pop(answerSentence.getPosition(), actorKey(answerSentence.getActor()));
+      final Name actor = answerSentence.getActor();
+      final String actorKey = actorKey(actor);
+      final Position position = actor == null ? answerSentence.getPosition() : actor.getPosition();
+      return par.add(null, actorKey, answerSentence).pop(position, actorKey);
    }
 }
 
@@ -251,6 +253,11 @@ class Frame
 
    private void reportIncompatible(Position position, String key)
    {
+      if (position == null)
+      {
+         return;
+      }
+
       final int beginIndex = key.indexOf(':');
       final int endIndex = key.indexOf(',', beginIndex + 1);
       final String type = key.substring(0, beginIndex);

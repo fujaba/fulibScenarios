@@ -96,3 +96,9 @@ foobar answers with 1.
 error: unknown actor 'foobar' [frame.incompatible.actor]
 perhaps you did not call the method or the call was already closed?
 -->
+
+(  ) moobaz answers with 1.
+<!-- ^
+error: unknown actor 'moobaz' [frame.incompatible.actor]
+perhaps you did not call the method or the call was already closed?
+-->
