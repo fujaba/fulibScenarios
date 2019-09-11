@@ -535,7 +535,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return sentence.accept(SentenceResolver.INSTANCE, par);
       }
 
-      par.report(error(original.getPosition(), code, target.getClass().getEnclosingClass().getSimpleName()));
+      par.report(error(target.getPosition(), code, target.getClass().getEnclosingClass().getSimpleName()));
       return original;
    }
 
