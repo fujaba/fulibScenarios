@@ -27,7 +27,7 @@ repositories {
 dependencies {
 	// ...
 	// https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-	compile group: 'org.fulib', name: 'fulibScenarios', version: '0.8.1'
+	compile group: 'org.fulib', name: 'fulibScenarios', version: '0.8.2'
 	// ...
 }
 ```
