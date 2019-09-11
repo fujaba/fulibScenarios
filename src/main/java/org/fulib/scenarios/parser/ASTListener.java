@@ -247,7 +247,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final CallExpr callExpr = CallExpr.of(name, receiver, args, body);
       callExpr.setPosition(position(ctx.name()));
       final CallSentence callSentence = CallSentence.of(actor, callExpr);
-      callSentence.setPosition(position(ctx.CALL()));
+      callSentence.setPosition(position(ctx.verb));
       this.stack.push(callSentence);
    }
 
