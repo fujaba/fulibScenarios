@@ -102,3 +102,15 @@ perhaps you did not call the method or the call was already closed?
 error: unknown actor 'moobaz' [frame.incompatible.actor]
 perhaps you did not call the method or the call was already closed?
 -->
+
+We   answer with 1.
+<!-- ^
+error: cannot answer from the test method indicated by actor 'we' [answer.we]
+-->
+
+We call foo2.
+We   answer with 2.
+<!-- ^
+error: cannot answer from the test method indicated by actor 'we' [answer.we]
+perhaps you meant to write 'foo2 answers ...' instead of 'we answer ...'?
+-->
