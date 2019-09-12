@@ -44,9 +44,8 @@ commentSentence: LINE_COMMENT HEADLINE_TEXT HEADLINE_END;
 
 // Definition
 
-thereSentence: thereClause (sep thereClause)*;
-thereClause: THERE IS simpleDescriptor
-           | THERE ARE multiDescriptor;
+thereSentence: THERE IS simpleDescriptor
+             | THERE ARE multiDescriptor;
 
 simpleDescriptor: (A | AN) typeName name? withClauses? // indefinite form
                 | THE typeName name withClauses? // definite form
@@ -71,17 +70,17 @@ bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simp
 
 hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
-hasClause: (HAS | HAVE) (namedExpr | bidiNamedExpr);
+hasClause: verb=(HAS | HAVE) (namedExpr | bidiNamedExpr);
 
-createSentence: actor (CREATE | CREATES) (simpleDescriptor | multiDescriptor);
+createSentence: actor verb=(CREATE | CREATES) (simpleDescriptor | multiDescriptor);
 
-callSentence: actor (CALL | CALLS) name (ON expr)? withClauses?;
+callSentence: actor verb=(CALL | CALLS) name (ON expr)? withClauses?;
 
-answerSentence: actor (ANSWER | ANSWERS) WITH expr (INTO THE? name)?;
+answerSentence: actor verb=(ANSWER | ANSWERS) WITH expr (INTO THE? name)?;
 
-writeSentence: actor (WRITE | WRITES) expr INTO expr;
-addSentence: actor (ADD | ADDS) expr TO expr;
-removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
+writeSentence: actor verb=(WRITE | WRITES) expr INTO expr;
+addSentence: actor verb=(ADD | ADDS) expr TO expr;
+removeSentence: actor verb=(REMOVE | REMOVES) expr FROM expr;
 
 // Compound sentences, i.e. those that end in other sentences.
 // "Dangling Else" is solved by allowing exactly one "nested" compound sentence at the end,
@@ -91,7 +90,7 @@ removeSentence: actor (REMOVE | REMOVES) expr FROM expr;
 
 conditionalSentence: AS condExpr COMMA compoundSentenceBody;
 
-takeSentence: actor (TAKE | TAKES) ((A | AN) name (LIKE example=expr)? | (THE? simpleVarName=simpleName)? example=expr)
+takeSentence: actor verb=(TAKE | TAKES) ((A | AN) name (LIKE example=expr)? | (THE? simpleVarName=simpleName)? example=expr)
               FROM source=expr AND compoundSentenceBody;
 
 compoundSentenceBody: compoundSentence | simpleSentences;

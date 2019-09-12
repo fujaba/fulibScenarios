@@ -22,15 +22,20 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
 {
    INSTANCE;
 
-   // =============== Constants ===============
-
-   private static String ACTOR_TEST = "actor:<test>,";
+   private static final String ACTOR_KEY        = "actor:";
+   private static final String ACTOR_VALUE_TEST = "<test>";
+   private static final String ACTOR_TEST       = ACTOR_KEY + ACTOR_VALUE_TEST + ",";
 
    // =============== Static Methods ===============
 
    private static String actorKey(Name name)
    {
-      return name == null ? ACTOR_TEST : "actor:" + name.accept(Namer.INSTANCE, null) + ",";
+      return name == null ? ACTOR_TEST : actorKey(name.accept(Namer.INSTANCE, null));
+   }
+
+   private static String actorKey(String name)
+   {
+      return ACTOR_KEY + name + ",";
    }
 
    // =============== Methods ===============
@@ -149,8 +154,34 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    @Override
    public Frame visit(AnswerSentence answerSentence, Frame par)
    {
-      return this.visit((ActorSentence) answerSentence, par)
-                 .pop(answerSentence.getPosition(), actorKey(answerSentence.getActor()));
+      final Name actor = answerSentence.getActor();
+      final Position position;
+      final String actorKey;
+      if (actor != null)
+      {
+         actorKey = actorKey(actor);
+         position = actor.getPosition();
+      }
+      else
+      {
+         // "we return" - invalid
+         final String lastActor = par.getValue(ACTOR_KEY);
+         if (ACTOR_VALUE_TEST.equals(lastActor))
+         {
+            par.report(error(answerSentence.getPosition(), "answer.we", ""));
+            return par.add(answerSentence);
+         }
+         else
+         {
+            final String hint = "\n" + Marker.localize("answer.we.hint", lastActor);
+            par.report(error(answerSentence.getPosition(), "answer.we", hint));
+
+            actorKey = actorKey(lastActor);
+            position = null;
+         }
+      }
+
+      return par.add(null, actorKey, answerSentence).pop(position, actorKey);
    }
 }
 
@@ -189,6 +220,17 @@ class Frame
       return true;
    }
 
+   String getValue(String key)
+   {
+      final int index = this.key.indexOf(key);
+      if (index < 0)
+      {
+         return this.next != null ? this.next.getValue(key) : null;
+      }
+      final int end = this.key.indexOf(',', index);
+      return this.key.substring(index + key.length(), end);
+   }
+
    Frame add(Sentence sentence)
    {
       this.target.add(sentence);
@@ -216,7 +258,8 @@ class Frame
 
    Frame pop(Position position, String key)
    {
-      return this.popToDefinition(position, key).pop();
+      final Frame def = this.popToDefinition(position, key);
+      return def.next != null ? def.pop() : def;
    }
 
    private Frame popIncompatible(Position position, String key)
@@ -251,6 +294,11 @@ class Frame
 
    private void reportIncompatible(Position position, String key)
    {
+      if (position == null)
+      {
+         return;
+      }
+
       final int beginIndex = key.indexOf(':');
       final int endIndex = key.indexOf(',', beginIndex + 1);
       final String type = key.substring(0, beginIndex);

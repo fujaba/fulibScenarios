@@ -184,3 +184,13 @@
 + Added support for separating simple sentences with `,`, `and` and `, and`. #127
 + The compiler now outputs a tally of warnings and errors.
 * Attribute redeclarations with sub-types are now allowed. #110
+
+# Fulib Scenarios v0.8.2
+
++ Added a diagnostic error for mismatching range element types. #136
++ Added a diagnostic error for unsupported range element types. #136
++ Added a diagnostic error for variable redeclarations with There, Create and Are Sentences. #132
++ Added a diagnostic error for Answer Sentences with actor "we". #146
+* Improved argument/parameter matching.
+* Fixed an exception caused by misplaced Answer Sentences. #142
+* Fixed an exception when a call has more arguments than parameters. #144

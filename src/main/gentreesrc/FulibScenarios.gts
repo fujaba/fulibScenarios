@@ -41,14 +41,12 @@ abstract org.fulib.scenarios.ast.Node {
 			import PrimitiveType
 		}
 
-		MultiDescriptor(type: Type, names: [String], attributes: [NamedExpr])
-
 		abstract sentence.Sentence {
 			SentenceList(items: [Sentence])
 
 			SectionSentence(text: String, level: CommentLevel)
 
-			ThereSentence(descriptors: [MultiDescriptor]) // like CreateSentence, but without an actor
+			ThereSentence(descriptor: MultiDescriptor) // like CreateSentence, but without an actor
 			ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
 			DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 			HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
@@ -77,8 +75,6 @@ abstract org.fulib.scenarios.ast.Node {
 			// =>   foo.addAll(bar, baz);
 			TemplateSentence(template: String, exprs: [Expr])
 		}
-
-		NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
 
 		abstract expr.Expr {
 			ErrorExpr(type: Type?)
@@ -112,4 +108,9 @@ abstract org.fulib.scenarios.ast.Node {
 			}
 		}
 	}
+
+	// Helpers
+
+	MultiDescriptor(type: Type, names: [Name], attributes: [NamedExpr])
+	NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
 }

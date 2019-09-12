@@ -118,8 +118,15 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(RangeExpr rangeExpr, CodeGenDTO par)
    {
-      final PrimitiveType type = (PrimitiveType) rangeExpr.getStart().accept(Typer.INSTANCE, null);
-      switch (type)
+      final Type type = rangeExpr.getStart().accept(Typer.INSTANCE, null);
+      if (!(type instanceof PrimitiveType))
+      {
+         par.bodyBuilder.append("error");
+         return null;
+      }
+
+      final PrimitiveType primitiveType = (PrimitiveType) type;
+      switch (primitiveType)
       {
       case BYTE:
       case BYTE_WRAPPER:
@@ -129,7 +136,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
       case CHAR_WRAPPER:
          this.emitRangeStream(rangeExpr, par, "IntStream");
          par.bodyBuilder.append(".mapToObj(i -> (");
-         par.bodyBuilder.append(type.getJavaName());
+         par.bodyBuilder.append(primitiveType.getJavaName());
          par.bodyBuilder.append(") i)");
          return null;
       case INT:
@@ -143,7 +150,8 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
          par.bodyBuilder.append(".boxed()");
          return null;
       default:
-         throw new IllegalStateException("invalid range element type " + type.getJavaName());
+         par.bodyBuilder.append("error");
+         return null;
       }
    }
 

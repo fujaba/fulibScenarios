@@ -22,10 +22,7 @@ import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
-import org.fulib.scenarios.visitor.ExtractClassDecl;
-import org.fulib.scenarios.visitor.Namer;
-import org.fulib.scenarios.visitor.TypeComparer;
-import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.visitor.*;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.HashMap;
@@ -179,21 +176,40 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final MethodDecl method = DeclResolver
                                    .resolveMethod(par, callExpr.getName().getPosition(), receiverClass, methodName);
       final List<ParameterDecl> parameters = method.getParameters();
-      final boolean isNew = method.getParameters().isEmpty();
-      final Map<String, Decl> decls = new HashMap<>();
+      final ParameterDecl thisParameter;
+      final Map<String, ParameterDecl> decls = new HashMap<>();
 
       callExpr.setName(ResolvedName.of(method));
 
-      if (isNew)
+      if (method.getParameters().isEmpty()) // method is new
       {
-         // this parameter
-         final ParameterDecl thisParam = ParameterDecl.of(method, "this", receiverClass.getType());
-         parameters.add(thisParam);
-         decls.put("this", thisParam);
+         // create this parameter
+         thisParameter = ParameterDecl.of(method, "this", receiverClass.getType());
+         parameters.add(thisParameter);
+
+         // create parameters based on arguments
+         for (final NamedExpr argument : arguments)
+         {
+            final String name = argument.getName().accept(Namer.INSTANCE, null);
+            final Expr expr = argument.getExpr();
+            final Type type = expr.accept(Typer.INSTANCE, null);
+            final ParameterDecl param = ParameterDecl.of(method, name, type);
+
+            parameters.add(param);
+            argument.setName(ResolvedName.of(param));
+            decls.put(name, param);
+         }
       }
       else
       {
-         decls.put("this", parameters.get(0));
+         thisParameter = parameters.get(0);
+
+         // put all but the first (this) parameter into decls
+         for (int i = 1; i < parameters.size(); i++)
+         {
+            final ParameterDecl parameter = parameters.get(i);
+            decls.put(parameter.getName(), parameter);
+         }
 
          // check if arguments and parameters match (by label)
          final String params = parameters.stream().skip(1).map(ParameterDecl::getName)
@@ -208,52 +224,63 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
             final Marker note = firstDeclaration(method.getPosition(), method.getOwner(), method.getName());
             par.report(error.note(note));
          }
-      }
 
-      // references to the receiver name are replaced with 'this'
-      final String receiverName = receiver.accept(Namer.INSTANCE, null);
-      if (receiverName != null)
-      {
-         decls.put(receiverName, parameters.get(0));
-      }
-
-      // match arguments and parameters
-      for (int i = 0; i < arguments.size(); i++)
-      {
-         final NamedExpr argument = arguments.get(i);
-         final String name = argument.getName().accept(Namer.INSTANCE, null);
-         final Expr expr = argument.getExpr();
-         final Type type = expr.accept(Typer.INSTANCE, null);
-         final ParameterDecl param;
-
-         if (isNew)
+         // match arguments and check types
+         for (final NamedExpr argument : arguments)
          {
-            param = ParameterDecl.of(method, name, type);
-            parameters.add(param);
-         }
-         else
-         {
-            param = parameters.get(i + 1);
+            final Expr expr = argument.getExpr();
+            final Type type = expr.accept(Typer.INSTANCE, null);
+            final String name = argument.getName().accept(Namer.INSTANCE, null);
+            final ParameterDecl param = decls.get(name);
+
+            if (param == null)
+            {
+               // mismatch, was already reported.
+               continue;
+            }
+
+            argument.setName(ResolvedName.of(param));
+
+            // check type
             final Type paramType = param.getType();
 
             if (type != PrimitiveType.ERROR && paramType != PrimitiveType.ERROR //
                 && !TypeComparer.isSuperType(paramType, type))
             {
-               par.report(error(expr.getPosition(), "call.mismatch.type",
-                                paramType.accept(TypeDescriber.INSTANCE, null),
-                                type.accept(TypeDescriber.INSTANCE, null)));
+               par.report(
+                  error(expr.getPosition(), "call.mismatch.type", paramType.accept(TypeDescriber.INSTANCE, null),
+                        type.accept(TypeDescriber.INSTANCE, null)));
             }
          }
+      }
 
-         argument.setName(ResolvedName.of(param));
-         decls.put(name, param);
+      // add the "this" parameter to decls. done here to avoid having arguments matched with it.
+      decls.put("this", thisParameter);
 
-         // references to the expression name refer to the parameter
-         final String exprName = expr.accept(Namer.INSTANCE, null);
-         if (exprName != null)
+      // references to the receiver name are replaced with 'this'
+      final String receiverName = receiver.accept(Namer.INSTANCE, null);
+      if (receiverName != null)
+      {
+         decls.put(receiverName, thisParameter);
+      }
+
+      // make expression names resolve to the parameter
+      for (final NamedExpr argument : arguments)
+      {
+         final ParameterDecl param = (ParameterDecl) argument.getName().accept(ExtractDecl.INSTANCE, null);
+         if (param == null)
          {
-            decls.put(exprName, param);
+            continue;
          }
+
+         final Expr expr = argument.getExpr();
+         final String exprName = expr.accept(Namer.INSTANCE, null);
+         if (exprName == null)
+         {
+            continue;
+         }
+
+         decls.put(exprName, param);
       }
 
       final Scope scope = new DelegatingScope(par)
@@ -372,8 +399,57 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    @Override
    public Expr visit(RangeExpr rangeExpr, Scope par)
    {
-      rangeExpr.setStart(rangeExpr.getStart().accept(this, par));
-      rangeExpr.setEnd(rangeExpr.getEnd().accept(this, par));
+      final Expr start = rangeExpr.getStart().accept(this, par);
+      final Expr end = rangeExpr.getEnd().accept(this, par);
+
+      rangeExpr.setStart(start);
+      rangeExpr.setEnd(end);
+
+      final Type startType = start.accept(Typer.INSTANCE, null);
+      final Type endType = end.accept(Typer.INSTANCE, null);
+
+      if (!TypeComparer.equals(startType, endType))
+      {
+         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch",
+                          startType.accept(TypeDescriber.INSTANCE, null),
+                          endType.accept(TypeDescriber.INSTANCE, null)));
+      }
+      if (!isValidRangeType(startType))
+      {
+         par.report(error(start.getPosition(), "range.element.type.unsupported",
+                          startType.accept(TypeDescriber.INSTANCE, null)));
+      }
+      if (!isValidRangeType(endType))
+      {
+         par.report(
+            error(end.getPosition(), "range.element.type.unsupported", endType.accept(TypeDescriber.INSTANCE, null)));
+      }
+
       return rangeExpr;
+   }
+
+   private static boolean isValidRangeType(Type type)
+   {
+      if (!(type instanceof PrimitiveType))
+      {
+         return false;
+      }
+
+      switch ((PrimitiveType) type)
+      {
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
+      case INT:
+      case INT_WRAPPER:
+      case LONG:
+      case LONG_WRAPPER:
+         return true;
+      default:
+         return false;
+      }
    }
 }
