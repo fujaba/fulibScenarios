@@ -139,9 +139,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
-         namedExpr.setExpr(namedExpr.getExpr().accept(this, par));
-         namedExpr.setName(
-            DeclResolver.resolveAttributeOrAssociation(par, classDecl, namedExpr.getName(), namedExpr.getExpr()));
+         SentenceResolver.resolveHasNamedExpr(namedExpr, classDecl, par);
       }
       return creationExpr;
    }

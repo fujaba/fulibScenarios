@@ -154,19 +154,6 @@ public class DeclResolver
       return attribute != null ? attribute : owner.getAssociations().get(name);
    }
 
-   static Name resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, Name name, Expr rhs)
-   {
-      if (name.accept(ExtractDecl.INSTANCE, null) != null)
-      {
-         // already resolved
-         return name;
-      }
-
-      final Decl decl = resolveAttributeOrAssociation(scope, classDecl, name.accept(Namer.INSTANCE, null), rhs,
-                                                      name.getPosition());
-      return decl != null ? ResolvedName.of(decl) : name;
-   }
-
    static Decl resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, String attributeName, Expr rhs,
       Position position)
    {

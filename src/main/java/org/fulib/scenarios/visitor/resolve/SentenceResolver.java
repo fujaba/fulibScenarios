@@ -30,7 +30,6 @@ import java.util.*;
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAssociation;
-import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveAttributeOrAssociation;
 
 public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 {
@@ -441,7 +440,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       // user did not declare names, infer from attributes or class name
-      outer: for (NamedExpr attribute : multiDesc.getAttributes())
+      outer:
+      for (NamedExpr attribute : multiDesc.getAttributes())
       {
          final Expr expr = attribute.getExpr();
          if (expr instanceof ListExpr)
@@ -484,7 +484,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return name;
    }
 
-   private static void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
+   static void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
    {
       final Name name = namedExpr.getName();
       final Name otherName = namedExpr.getOtherName();
@@ -494,7 +494,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (otherName == null)
       {
-         namedExpr.setName(resolveAttributeOrAssociation(scope, objectClass, name, expr));
+         resolveSimpleHasNamedExpr(namedExpr, objectClass, scope);
          return;
       }
 
@@ -507,6 +507,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (otherClass == null)
       {
+         resolveSimpleHasNamedExpr(namedExpr, objectClass, scope);
+
          scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
                             assocName));
          return;
@@ -524,6 +526,28 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             namedExpr.setOtherName(ResolvedName.of(other));
          }
       }
+   }
+
+   private static void resolveSimpleHasNamedExpr(NamedExpr namedExpr, ClassDecl classDecl, Scope scope)
+   {
+      final Name name = namedExpr.getName();
+      final Expr expr = namedExpr.getExpr();
+
+      if (name.accept(ExtractDecl.INSTANCE, null) != null)
+      {
+         // already resolved
+         return;
+      }
+
+      final Decl decl = DeclResolver
+                           .resolveAttributeOrAssociation(scope, classDecl, name.accept(Namer.INSTANCE, null), expr,
+                                                          name.getPosition());
+      if (decl == null)
+      {
+         return;
+      }
+
+      namedExpr.setName(ResolvedName.of(decl));
    }
 
    private static Sentence resolveAssignment(Sentence original, Scope par, Expr source, Expr target,
