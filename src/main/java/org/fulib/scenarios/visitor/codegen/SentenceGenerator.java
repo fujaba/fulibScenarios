@@ -1,7 +1,9 @@
 package org.fulib.scenarios.visitor.codegen;
 
+import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
@@ -148,6 +150,43 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       answerSentence.getResult().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(";\n");
 
+      return null;
+   }
+
+   @Override
+   public Object visit(RemoveSentence removeSentence, CodeGenDTO par)
+   {
+      par.emitIndent();
+
+      final Expr target = removeSentence.getTarget();
+      final Expr source = removeSentence.getSource();
+
+      if (target instanceof AttributeAccess)
+      {
+         final AttributeAccess attributeAccess = (AttributeAccess) target;
+         final String attributeName = attributeAccess.getName().accept(Namer.INSTANCE, null);
+
+         attributeAccess.getReceiver().accept(ExprGenerator.INSTANCE, par);
+         par.bodyBuilder.append(".without").append(StrUtil.cap(attributeName)).append('(');
+         source.accept(ExprGenerator.NO_LIST, par);
+         par.bodyBuilder.append(");\n");
+         return null;
+      }
+
+      target.accept(ExprGenerator.INSTANCE, par);
+
+      if (source.accept(Typer.INSTANCE, null) instanceof ListType)
+      {
+         par.bodyBuilder.append(".removeAll(");
+         source.accept(ExprGenerator.INSTANCE, par);
+         par.bodyBuilder.append(");\n");
+         return null;
+      }
+
+      par.addImport("java.util.Collections");
+      par.bodyBuilder.append(".removeAll(Collections.singletonList(");
+      source.accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append("));\n");
       return null;
    }
 

@@ -230,9 +230,17 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(RemoveSentence removeSentence, Scope par)
    {
-      final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
-      final Expr target = removeSentence.getTarget();
-      return resolveAssignment(removeSentence, par, source, target, RemoveResolve.INSTANCE, "remove.target.invalid");
+      removeSentence.setSource(removeSentence.getSource().accept(ExprResolver.INSTANCE, par));
+      final Expr target = removeSentence.getTarget().accept(ExprResolver.INSTANCE, par);
+      removeSentence.setTarget(target);
+
+      final Type targetType = target.accept(Typer.INSTANCE, null);
+      if (!(targetType instanceof ListType))
+      {
+         par.report(error(removeSentence.getTarget().getPosition(), "remove.target.invalid", targetType.accept(TypeDescriber.INSTANCE, null)));
+      }
+
+      return removeSentence;
    }
 
    @Override

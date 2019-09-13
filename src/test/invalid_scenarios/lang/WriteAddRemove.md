@@ -12,5 +12,5 @@ error: invalid add target - cannot add to IntLiteral [add.target.invalid]
 
 We remove 3 from 4.
 <!--             ^
-error: invalid remove target - cannot remove from IntLiteral [remove.target.invalid]
+error: invalid remove target - cannot remove from expression of type 'int' [remove.target.invalid]
 -->
