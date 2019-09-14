@@ -9,12 +9,12 @@ repositories {
 }
 
 dependencies {
-    webapp group: 'org.fulib', name: 'fulibDotOrg', version: '[0.6.0,)', {
+    webapp group: 'org.fulib', name: 'fulibDotOrg', version: '[0.8.1,)', {
         exclude group: 'org.fulib', module: 'fulibScenarios'
     }
 }
 
 tasks.register('runWebApp', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath + configurations.webapp
-    main = 'org.fulib.scenarios.WebService'
+    main = 'org.fulib.webapp.WebService'
 }
