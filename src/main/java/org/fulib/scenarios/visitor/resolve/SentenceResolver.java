@@ -18,6 +18,7 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.*;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
@@ -151,14 +152,21 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Decl existing = par.resolve(name);
       if (existing != varDecl && existing instanceof VarDecl)
       {
-         return AssignSentence.of((VarDecl) existing, expr);
+         final VarDecl target = (VarDecl) existing;
+         final Expr converted = checkAssignment(expr, target, false, par);
+         return AssignSentence.of(target, converted);
       }
 
       varDecl.setName(name);
-      varDecl.setExpr(expr);
+
       if (varDecl.getType() == null)
       {
          varDecl.setType(exprType);
+         varDecl.setExpr(expr);
+      }
+      else
+      {
+         varDecl.setExpr(checkAssignment(expr, varDecl, true, par));
       }
       return isSentence;
    }
@@ -320,7 +328,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(AssignSentence assignSentence, Scope par)
    {
-      assignSentence.setValue(assignSentence.getValue().accept(ExprResolver.INSTANCE, par));
+      final Expr expr = assignSentence.getValue().accept(ExprResolver.INSTANCE, par);
+      final VarDecl target = assignSentence.getTarget();
+
+      assignSentence.setValue(checkAssignment(expr, target, false, par));
       return assignSentence;
    }
 
@@ -354,6 +365,27 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             return numbered;
          }
       }
+   }
+
+   private static Expr checkAssignment(Expr expr, VarDecl target, boolean isNew, Scope par)
+   {
+      final Type targetType = target.getType();
+      final Expr converted = TypeConversion.convert(expr, targetType);
+
+      if (converted != null)
+      {
+         return converted;
+      }
+
+      final Type exprType = expr.accept(Typer.INSTANCE, null);
+      final Marker error = error(expr.getPosition(), "assign.type", exprType.accept(TypeDescriber.INSTANCE, null),
+                                 target.getName(), targetType.accept(TypeDescriber.INSTANCE, null));
+      if (!isNew)
+      {
+         error.note(note(target.getPosition(), "variable.declaration.first", target.getName()));
+      }
+      par.report(error);
+      return expr;
    }
 
    private static Sentence expand(MultiDescriptor descriptor, Scope scope)
