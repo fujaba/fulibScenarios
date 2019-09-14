@@ -64,6 +64,8 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       {
          switch ((PrimitiveType) to)
          {
+         case BOOLEAN:
+            return staticCall(BOOLEAN_WRAPPER, "parseBoolean", expr);
          case BYTE:
             return staticCall(BYTE_WRAPPER, "parseByte", expr);
          case SHORT:
@@ -76,6 +78,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
             return staticCall(FLOAT_WRAPPER, "parseFloat", expr);
          case DOUBLE:
             return staticCall(DOUBLE_WRAPPER, "parseDouble", expr);
+         case BOOLEAN_WRAPPER:
          case BYTE_WRAPPER:
          case SHORT_WRAPPER:
          case INT_WRAPPER:
