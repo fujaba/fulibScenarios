@@ -8,6 +8,9 @@ and with row 42
 and with column 23 and 24 and 25.
 Warehouse51 has places p23x42 and p24x42 and p25x42.
 
+There are the WarehouseProducts p1 and p2.
+Warehouse51 has products and is warehouse of p1 and p2.
+
 There is the WarehouseService WHService with theWarehouse Warehouse51.
 
 ## Forklift App

@@ -1,3 +1,10 @@
+# Simple Model
+
+There is a ChessBoard.
+There is the Field f1 with row 1 and with col 1.
+There is the Field f2 with row 2 and with col 2.
+The ChessBoard has fields and is board of f1 and f2.
+
 # Chess Board
 
 ## Fields

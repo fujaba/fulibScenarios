@@ -154,6 +154,43 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    }
 
    @Override
+   public Object visit(AddSentence addSentence, CodeGenDTO par)
+   {
+      par.emitIndent();
+
+      final Expr target = addSentence.getTarget();
+      final Expr source = addSentence.getSource();
+
+      if (target instanceof AttributeAccess)
+      {
+         final AttributeAccess attributeAccess = (AttributeAccess) target;
+
+         attributeAccess.getReceiver().accept(ExprGenerator.INSTANCE, par);
+         par.bodyBuilder.append(".with").append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null)))
+                        .append('(');
+         source.accept(ExprGenerator.NO_LIST, par);
+         par.bodyBuilder.append(");\n");
+         return null;
+      }
+
+      target.accept(ExprGenerator.INSTANCE, par);
+
+      if (source.accept(Typer.INSTANCE, null) instanceof ListType)
+      {
+         par.bodyBuilder.append(".addAll(");
+      }
+      else
+      {
+         par.bodyBuilder.append(".add(");
+      }
+
+      source.accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(");\n");
+
+      return null;
+   }
+
+   @Override
    public Object visit(RemoveSentence removeSentence, CodeGenDTO par)
    {
       par.emitIndent();
@@ -164,10 +201,10 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       if (target instanceof AttributeAccess)
       {
          final AttributeAccess attributeAccess = (AttributeAccess) target;
-         final String attributeName = attributeAccess.getName().accept(Namer.INSTANCE, null);
 
          attributeAccess.getReceiver().accept(ExprGenerator.INSTANCE, par);
-         par.bodyBuilder.append(".without").append(StrUtil.cap(attributeName)).append('(');
+         par.bodyBuilder.append(".without")
+                        .append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null))).append('(');
          source.accept(ExprGenerator.NO_LIST, par);
          par.bodyBuilder.append(");\n");
          return null;

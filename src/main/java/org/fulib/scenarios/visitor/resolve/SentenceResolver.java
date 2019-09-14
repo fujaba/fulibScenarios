@@ -222,9 +222,18 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(AddSentence addSentence, Scope par)
    {
-      final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
-      final Expr target = addSentence.getTarget();
-      return resolveAssignment(addSentence, par, source, target, AddResolve.INSTANCE, "add.target.invalid");
+      addSentence.setSource(addSentence.getSource().accept(ExprResolver.INSTANCE, par));
+      final Expr target = addSentence.getTarget().accept(ExprResolver.INSTANCE, par);
+      addSentence.setTarget(target);
+
+      final Type targetType = target.accept(Typer.INSTANCE, null);
+      if (targetType != PrimitiveType.ERROR && !(targetType instanceof ListType))
+      {
+         par.report(
+            error(target.getPosition(), "add.target.invalid", targetType.accept(TypeDescriber.INSTANCE, null)));
+      }
+
+      return addSentence;
    }
 
    @Override
@@ -235,9 +244,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       removeSentence.setTarget(target);
 
       final Type targetType = target.accept(Typer.INSTANCE, null);
-      if (!(targetType instanceof ListType))
+      if (targetType != PrimitiveType.ERROR && !(targetType instanceof ListType))
       {
-         par.report(error(removeSentence.getTarget().getPosition(), "remove.target.invalid", targetType.accept(TypeDescriber.INSTANCE, null)));
+         par.report(
+            error(target.getPosition(), "remove.target.invalid", targetType.accept(TypeDescriber.INSTANCE, null)));
       }
 
       return removeSentence;

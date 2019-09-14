@@ -7,7 +7,7 @@ error: invalid write target - cannot write into IntLiteral [write.target.invalid
 
 We add 1 to 2.
 <!--        ^
-error: invalid add target - cannot add to IntLiteral [add.target.invalid]
+error: invalid add target - cannot add to expression of type 'int' [add.target.invalid]
 -->
 
 We remove 3 from 4.
