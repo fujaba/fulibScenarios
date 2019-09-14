@@ -212,8 +212,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       // TODO maybe add .accept(ExprResolver.INSTANCE, par)
       final Expr source = writeSentence.getSource();
       final Expr target = writeSentence.getTarget();
-      return resolveAssignment(writeSentence, par, source, target, AssignmentResolve.INSTANCE,
-                               "write.target.invalid");
+      final Sentence sentence = target.accept(AssignmentResolve.INSTANCE, source);
+      if (sentence != null)
+      {
+         return sentence.accept(SentenceResolver.INSTANCE, par);
+      }
+
+      par.report(
+         error(target.getPosition(), "write.target.invalid", target.getClass().getEnclosingClass().getSimpleName()));
+      return writeSentence;
    }
 
    @Override
@@ -570,19 +577,6 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          namedExpr.setExpr(converted);
       }
       // no extra error necessary, already reported by resolveAttributeOrAssociation
-   }
-
-   private static Sentence resolveAssignment(Sentence original, Scope par, Expr source, Expr target,
-      Expr.Visitor<Expr, Sentence> resolve, String code)
-   {
-      final Sentence sentence = target.accept(resolve, source);
-      if (sentence != null)
-      {
-         return sentence.accept(SentenceResolver.INSTANCE, par);
-      }
-
-      par.report(error(target.getPosition(), code, target.getClass().getEnclosingClass().getSimpleName()));
-      return original;
    }
 
    private static VarDecl resolveVar(TakeSentence takeSentence, Scope par, String exampleName, Type type)
