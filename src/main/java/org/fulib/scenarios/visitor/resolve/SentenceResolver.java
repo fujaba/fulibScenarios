@@ -19,10 +19,7 @@ import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Position;
-import org.fulib.scenarios.visitor.ExtractClassDecl;
-import org.fulib.scenarios.visitor.ExtractDecl;
-import org.fulib.scenarios.visitor.Namer;
-import org.fulib.scenarios.visitor.Typer;
+import org.fulib.scenarios.visitor.*;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
@@ -549,7 +546,6 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    private static void resolveSimpleHasNamedExpr(NamedExpr namedExpr, ClassDecl classDecl, Scope scope)
    {
       final Name name = namedExpr.getName();
-      final Expr expr = namedExpr.getExpr();
 
       if (name.accept(ExtractDecl.INSTANCE, null) != null)
       {
@@ -557,6 +553,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return;
       }
 
+      final Expr expr = namedExpr.getExpr();
       final Decl decl = DeclResolver
                            .resolveAttributeOrAssociation(scope, classDecl, name.accept(Namer.INSTANCE, null), expr,
                                                           name.getPosition());
@@ -566,6 +563,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       namedExpr.setName(ResolvedName.of(decl));
+
+      final Expr converted = TypeConversion.convert(expr, decl.getType());
+      if (converted != null)
+      {
+         namedExpr.setExpr(converted);
+      }
+      // no extra error necessary, already reported by resolveAttributeOrAssociation
    }
 
    private static Sentence resolveAssignment(Sentence original, Scope par, Expr source, Expr target,
