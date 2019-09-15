@@ -112,6 +112,13 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
    }
 
    @Override
+   public Expr visit(ErrorExpr errorExpr, Type par)
+   {
+      errorExpr.setType(par);
+      return errorExpr;
+   }
+
+   @Override
    public Expr visit(IntLiteral intLiteral, Type par)
    {
       if (!(par instanceof PrimitiveType))
@@ -157,5 +164,112 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       }
 
       return null;
+   }
+
+   @Override
+   public Expr visit(StringLiteral stringLiteral, Type par)
+   {
+      if (!(par instanceof PrimitiveType))
+      {
+         return null;
+      }
+
+      switch ((PrimitiveType) par)
+      {
+      case OBJECT:
+      case STRING:
+         return stringLiteral;
+      case INT:
+      case INT_WRAPPER:
+         try
+         {
+            return IntLiteral.of(Integer.parseInt(stringLiteral.getValue()));
+         }
+         catch (NumberFormatException ex)
+         {
+            return null;
+         }
+      case DOUBLE:
+      case DOUBLE_WRAPPER:
+         try
+         {
+            return DoubleLiteral.of(Double.parseDouble(stringLiteral.getValue()));
+         }
+         catch (NumberFormatException ex)
+         {
+            return null;
+         }
+      }
+
+      return null;
+   }
+
+   @Override
+   public Expr visit(ExampleAccess exampleAccess, Type par)
+   {
+      final Expr value = exampleAccess.getValue().accept(this, par);
+      if (value == null)
+      {
+         return null;
+      }
+      exampleAccess.setValue(value);
+      return exampleAccess;
+   }
+
+   // --------------- CollectionExpr.Visitor ---------------
+
+   @Override
+   public Expr visit(ListExpr listExpr, Type par)
+   {
+      if (!(par instanceof ListType))
+      {
+         return null;
+      }
+
+      final Type elementType = ((ListType) par).getElementType();
+
+      final List<Expr> oldElements = listExpr.getElements();
+      final List<Expr> newElements = new ArrayList<>(oldElements.size());
+
+      for (final Expr oldElement : oldElements)
+      {
+         final Expr newElement = oldElement.accept(this, elementType);
+         if (newElement == null)
+         {
+            return null;
+         }
+
+         newElements.add(newElement);
+      }
+
+      listExpr.setElements(newElements);
+      return listExpr;
+   }
+
+   @Override
+   public Expr visit(RangeExpr rangeExpr, Type par)
+   {
+      if (!(par instanceof ListType))
+      {
+         return null;
+      }
+
+      final Type elementType = ((ListType) par).getElementType();
+
+      final Expr start = rangeExpr.getStart().accept(this, elementType);
+      if (start == null)
+      {
+         return null;
+      }
+
+      final Expr end = rangeExpr.getEnd().accept(this, elementType);
+      if (end == null)
+      {
+         return null;
+      }
+
+      rangeExpr.setStart(start);
+      rangeExpr.setEnd(end);
+      return rangeExpr;
    }
 }
