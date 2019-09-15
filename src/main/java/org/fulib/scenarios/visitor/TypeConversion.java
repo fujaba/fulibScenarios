@@ -1,18 +1,27 @@
 package org.fulib.scenarios.visitor;
 
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
 import org.fulib.scenarios.ast.expr.primary.IntLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.sentence.AnswerSentence;
+import org.fulib.scenarios.ast.sentence.SentenceList;
+import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.fulib.scenarios.ast.type.PrimitiveType.*;
 
@@ -32,17 +41,19 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       return expr.accept(INSTANCE, to);
    }
 
-   private static Expr staticCall(Type type, String method, Expr arg)
+   private static Expr staticCall(Type type, String method, Expr arg, Type returnType)
    {
       final NameAccess receiver = NameAccess.of(UnresolvedName.of(type.accept(Namer.INSTANCE, null), null));
-      return methodCall(receiver, method, arg);
+      return methodCall(receiver, method, arg, returnType);
    }
 
-   private static Expr methodCall(Expr receiver, String method, Expr arg)
+   private static Expr methodCall(Expr receiver, String method, Expr arg, Type returnType)
    {
-      return CallExpr
-                .of(UnresolvedName.of(method, null), receiver, Collections.singletonList(NamedExpr.of(null, arg)),
-                    null);
+      final Name name = UnresolvedName.of(method, null);
+      final List<NamedExpr> args = Collections.singletonList(NamedExpr.of(null, arg));
+      final SentenceList body = SentenceList.of(Collections.singletonList(
+         AnswerSentence.of(null, ErrorExpr.of(returnType), null)));
+      return CallExpr.of(name, receiver, args, body);
    }
 
    // =============== Methods ===============
@@ -58,26 +69,26 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
 
       if (to == STRING)
       {
-         return staticCall(STRING, "valueOf", expr);
+         return staticCall(STRING, "valueOf", expr, STRING);
       }
       if (from == STRING && to instanceof PrimitiveType)
       {
          switch ((PrimitiveType) to)
          {
          case BOOLEAN:
-            return staticCall(BOOLEAN_WRAPPER, "parseBoolean", expr);
+            return staticCall(BOOLEAN_WRAPPER, "parseBoolean", expr, BOOLEAN);
          case BYTE:
-            return staticCall(BYTE_WRAPPER, "parseByte", expr);
+            return staticCall(BYTE_WRAPPER, "parseByte", expr, BYTE);
          case SHORT:
-            return staticCall(SHORT_WRAPPER, "parseShort", expr);
+            return staticCall(SHORT_WRAPPER, "parseShort", expr, SHORT);
          case INT:
-            return staticCall(INT_WRAPPER, "parseInt", expr);
+            return staticCall(INT_WRAPPER, "parseInt", expr, INT);
          case LONG:
-            return staticCall(LONG_WRAPPER, "parseLong", expr);
+            return staticCall(LONG_WRAPPER, "parseLong", expr, LONG);
          case FLOAT:
-            return staticCall(FLOAT_WRAPPER, "parseFloat", expr);
+            return staticCall(FLOAT_WRAPPER, "parseFloat", expr, FLOAT);
          case DOUBLE:
-            return staticCall(DOUBLE_WRAPPER, "parseDouble", expr);
+            return staticCall(DOUBLE_WRAPPER, "parseDouble", expr, DOUBLE);
          case BOOLEAN_WRAPPER:
          case BYTE_WRAPPER:
          case SHORT_WRAPPER:
@@ -85,11 +96,11 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          case LONG_WRAPPER:
          case FLOAT_WRAPPER:
          case DOUBLE_WRAPPER:
-            return staticCall(to, "valueOf", expr);
+            return staticCall(to, "valueOf", expr, to);
          case CHAR:
          case CHAR_WRAPPER:
             // <expr>.charAt(0)
-            return methodCall(expr, "charAt", IntLiteral.of(1));
+            return methodCall(expr, "charAt", IntLiteral.of(1), to);
          }
       }
       if (from == Typer.primitiveToWrapper(to) || to == Typer.primitiveToWrapper(from))
