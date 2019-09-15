@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
 import org.fulib.scenarios.ast.sentence.HasSentence;
 import org.fulib.scenarios.ast.sentence.IsSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
@@ -35,7 +36,9 @@ public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
       final Expr receiver = attributeAccess.getReceiver();
       final Name name = attributeAccess.getName();
       final NamedExpr namedExpr = NamedExpr.of(name, par);
-      return HasSentence.of(receiver, Collections.singletonList(namedExpr));
+      final HasSentence hasSentence = HasSentence.of(receiver, Collections.singletonList(namedExpr));
+      hasSentence.setPosition(attributeAccess.getPosition());
+      return hasSentence;
    }
 
    @Override
@@ -74,11 +77,19 @@ public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
          // xs = temp
          // ys = temp
 
+         final Position position = par.getPosition();
          final VarDecl temp = VarDecl.of("temp++", null, par);
-         result.add(IsSentence.of(temp));
+         temp.setPosition(position);
+         final IsSentence isSentence = IsSentence.of(temp);
+         isSentence.setPosition(position);
+         result.add(isSentence);
+
          for (final Expr target : targets)
          {
-            final NameAccess source = NameAccess.of(ResolvedName.of(temp));
+            final ResolvedName name = ResolvedName.of(temp);
+            name.setPosition(position);
+            final NameAccess source = NameAccess.of(name);
+            source.setPosition(position);
             final Sentence part = target.accept(this, source);
             result.add(part);
          }
@@ -92,6 +103,9 @@ public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
    {
       final String name = nameAccess.getName().accept(Namer.INSTANCE, null);
       final VarDecl varDecl = VarDecl.of(name, null, par);
-      return IsSentence.of(varDecl);
+      varDecl.setPosition(nameAccess.getPosition());
+      final IsSentence isSentence = IsSentence.of(varDecl);
+      isSentence.setPosition(varDecl.getPosition());
+      return isSentence;
    }
 }
