@@ -11,7 +11,10 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
-import org.fulib.scenarios.visitor.*;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
+import org.fulib.scenarios.visitor.ExtractDecl;
+import org.fulib.scenarios.visitor.TypeConversion;
+import org.fulib.scenarios.visitor.Typer;
 import org.fulib.scenarios.visitor.describe.DeclDescriber;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
@@ -125,7 +128,7 @@ public class DeclResolver
 
       scope.report(
          error(name.getPosition(), "property.unresolved.primitive", owner.accept(TypeDescriber.INSTANCE, null),
-               name.accept(Namer.INSTANCE, null)));
+               name.getValue()));
       return name;
    }
 
@@ -136,7 +139,7 @@ public class DeclResolver
          return name;
       }
 
-      final String nameValue = name.accept(Namer.INSTANCE, null);
+      final String nameValue = name.getValue();
       final Decl decl = getAttributeOrAssociation(owner, nameValue);
 
       if (decl != null)

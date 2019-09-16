@@ -20,7 +20,6 @@ import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
-import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.Typer;
 
 import java.util.List;
@@ -57,8 +56,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(AttributeAccess attributeAccess, CodeGenDTO par)
    {
       attributeAccess.getReceiver().accept(this, par);
-      par.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().accept(Namer.INSTANCE, null)))
-                     .append("()");
+      par.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().getValue())).append("()");
       return null;
    }
 
@@ -90,8 +88,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
       final boolean wither = (decl != null ? decl.getType() : expr.accept(Typer.INSTANCE, null)) instanceof ListType;
 
-      par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(name.accept(Namer.INSTANCE, null)))
-                     .append("(");
+      par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(name.getValue())).append("(");
       expr.accept(wither ? NO_LIST : INSTANCE, par);
       par.bodyBuilder.append(")");
    }
@@ -101,7 +98,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    {
       callExpr.getReceiver().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append('.');
-      par.bodyBuilder.append(callExpr.getName().accept(Namer.INSTANCE, null));
+      par.bodyBuilder.append(callExpr.getName().getValue());
       par.bodyBuilder.append('(');
 
       final List<NamedExpr> arguments = callExpr.getArguments();
@@ -123,7 +120,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(NameAccess nameAccess, CodeGenDTO par)
    {
-      par.bodyBuilder.append(nameAccess.getName().accept(Namer.INSTANCE, null));
+      par.bodyBuilder.append(nameAccess.getName().getValue());
       return null;
    }
 

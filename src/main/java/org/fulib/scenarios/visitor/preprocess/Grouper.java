@@ -9,7 +9,6 @@ import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
-import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
 
    private static String actorKey(Name name)
    {
-      return name == null ? ACTOR_TEST : actorKey(name.accept(Namer.INSTANCE, null));
+      return name == null ? ACTOR_TEST : actorKey(name.getValue());
    }
 
    private static String actorKey(String name)

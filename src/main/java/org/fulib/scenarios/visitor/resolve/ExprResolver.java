@@ -172,7 +172,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final Type receiverType = callExpr.getReceiver().accept(Typer.INSTANCE, null);
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
-      final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
+      final String methodName = callExpr.getName().getValue();
       final Position position = callExpr.getName().getPosition();
       final MethodDecl method = DeclResolver.resolveMethod(par, position, receiverClass, methodName);
       final List<ParameterDecl> parameters = method.getParameters();
@@ -192,7 +192,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          // create parameters based on arguments
          for (final NamedExpr argument : arguments)
          {
-            final String name = argument.getName().accept(Namer.INSTANCE, null);
+            final String name = argument.getName().getValue();
             final Expr expr = argument.getExpr();
             final Type type = expr.accept(Typer.INSTANCE, null);
             final ParameterDecl param = ParameterDecl.of(method, name, type);
@@ -216,7 +216,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          // check if arguments and parameters match (by label)
          final String params = parameters.stream().skip(1).map(ParameterDecl::getName)
                                          .collect(Collectors.joining(" "));
-         final String args = arguments.stream().map(NamedExpr::getName).map(n -> n.accept(Namer.INSTANCE, null))
+         final String args = arguments.stream().map(NamedExpr::getName).map(Name::getValue)
                                       .collect(Collectors.joining(" "));
 
          if (!params.equals(args))
@@ -232,7 +232,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          {
             final Expr expr = argument.getExpr();
             final Type type = expr.accept(Typer.INSTANCE, null);
-            final String name = argument.getName().accept(Namer.INSTANCE, null);
+            final String name = argument.getName().getValue();
             final ParameterDecl param = decls.get(name);
 
             if (param == null)

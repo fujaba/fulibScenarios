@@ -2,9 +2,6 @@ package org.fulib.scenarios.visitor;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.decl.Name;
-import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -16,7 +13,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.*;
 
-public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, String>, Name.Visitor<Object, String>
+public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, String>
 {
    INSTANCE;
 
@@ -57,13 +54,13 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    @Override
    public String visit(AttributeAccess attributeAccess, Object par)
    {
-      return attributeAccess.getName().accept(this, par);
+      return attributeAccess.getName().getValue();
    }
 
    @Override
    public String visit(MapAccessExpr mapAccessExpr, Object par)
    {
-      return mapAccessExpr.getName().accept(this, par);
+      return mapAccessExpr.getName().getValue();
    }
 
    @Override
@@ -109,7 +106,7 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    @Override
    public String visit(NameAccess nameAccess, Object par)
    {
-      return nameAccess.getName().accept(this, par);
+      return nameAccess.getName().getValue();
    }
 
    @Override
@@ -117,19 +114,5 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
    {
       // TODO maybe "e1,e2,e3" should be named "es" (i.e. common prefix)?
       return null;
-   }
-
-   // --------------- Name.Visitor ---------------
-
-   @Override
-   public String visit(ResolvedName resolvedName, Object par)
-   {
-      return resolvedName.getDecl().getName();
-   }
-
-   @Override
-   public String visit(UnresolvedName unresolvedName, Object par)
-   {
-      return unresolvedName.getValue();
    }
 }

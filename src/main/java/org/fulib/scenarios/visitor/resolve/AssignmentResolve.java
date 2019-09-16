@@ -14,7 +14,6 @@ import org.fulib.scenarios.ast.sentence.HasSentence;
 import org.fulib.scenarios.ast.sentence.IsSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
 import org.fulib.scenarios.diagnostic.Position;
-import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +100,7 @@ public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
    @Override
    public Sentence visit(NameAccess nameAccess, Expr par)
    {
-      final String name = nameAccess.getName().accept(Namer.INSTANCE, null);
+      final String name = nameAccess.getName().getValue();
       final VarDecl varDecl = VarDecl.of(name, null, par);
       varDecl.setPosition(nameAccess.getPosition());
       final IsSentence isSentence = IsSentence.of(varDecl);

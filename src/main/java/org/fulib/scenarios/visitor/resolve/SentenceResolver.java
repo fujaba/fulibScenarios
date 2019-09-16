@@ -423,7 +423,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       for (final Name name : names)
       {
          final CreationExpr expr = CreationExpr.of(multiDesc.getType(), Collections.emptyList());
-         final String nameValue = name.accept(Namer.INSTANCE, null);
+         final String nameValue = name.getValue();
 
          final Decl existing = scope.resolve(nameValue);
          if (existing instanceof VarDecl)
@@ -571,11 +571,11 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return;
       }
 
-      final String assocName = name.accept(Namer.INSTANCE, null);
+      final String assocName = name.getValue();
       final Type exprType = expr.accept(Typer.INSTANCE, scope);
       final int cardinality = exprType instanceof ListType ? ClassModelBuilder.MANY : 1;
       final ClassDecl otherClass = exprType.accept(ExtractClassDecl.INSTANCE, null);
-      final String otherAssocName = otherName.accept(Namer.INSTANCE, null);
+      final String otherAssocName = otherName.getValue();
       final int otherCardinality = namedExpr.getOtherMany() ? ClassModelBuilder.MANY : ClassModelBuilder.ONE;
 
       if (otherClass == null)
@@ -612,9 +612,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Expr expr = namedExpr.getExpr();
-      final Decl decl = DeclResolver
-                           .resolveAttributeOrAssociation(scope, classDecl, name.accept(Namer.INSTANCE, null), expr,
-                                                          name.getPosition());
+      final Decl decl = DeclResolver.resolveAttributeOrAssociation(scope, classDecl, name.getValue(), expr,
+                                                                   name.getPosition());
       if (decl == null)
       {
          return;
@@ -643,7 +642,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             return (VarDecl) decl;
          }
 
-         varName = name.accept(Namer.INSTANCE, null);
+         varName = name.getValue();
       }
       else if (exampleName != null)
       {
