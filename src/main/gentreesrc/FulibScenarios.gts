@@ -76,7 +76,7 @@ abstract org.fulib.scenarios.ast.Node {
 			TemplateSentence(template: String, exprs: [Expr])
 		}
 
-		abstract expr.Expr {
+		abstract expr.Expr(readonly delegate type: Type) {
 			ErrorExpr(type: Type)
 
 			abstract primary.PrimaryExpr {
