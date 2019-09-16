@@ -14,7 +14,6 @@ import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.TypeConversion;
-import org.fulib.scenarios.visitor.Typer;
 import org.fulib.scenarios.visitor.describe.DeclDescriber;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
@@ -109,7 +108,7 @@ public class DeclResolver
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
    {
-      final Type type = receiver.accept(Typer.INSTANCE, null);
+      final Type type = receiver.getType();
       return getAttributeOrAssociation(scope, type, name);
    }
 
@@ -160,7 +159,7 @@ public class DeclResolver
    static Decl resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, String attributeName, Expr rhs,
       Position position)
    {
-      final Type attributeType = rhs.accept(Typer.INSTANCE, null);
+      final Type attributeType = rhs.getType();
 
       if (attributeType instanceof ListType)
       {

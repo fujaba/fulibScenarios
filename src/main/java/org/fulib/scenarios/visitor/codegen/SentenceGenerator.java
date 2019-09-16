@@ -9,7 +9,6 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
-import org.fulib.scenarios.visitor.Typer;
 
 import java.util.Iterator;
 import java.util.List;
@@ -110,7 +109,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.emitIndent();
 
       final Expr receiver = hasSentence.getObject();
-      final Type receiverType = receiver.accept(Typer.INSTANCE, null);
+      final Type receiverType = receiver.getType();
 
       receiver.accept(ExprGenerator.INSTANCE, par);
 
@@ -173,7 +172,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       target.accept(ExprGenerator.INSTANCE, par);
 
-      if (source.accept(Typer.INSTANCE, null) instanceof ListType)
+      if (source.getType() instanceof ListType)
       {
          par.bodyBuilder.append(".addAll(");
       }
@@ -209,7 +208,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       target.accept(ExprGenerator.INSTANCE, par);
 
-      if (source.accept(Typer.INSTANCE, null) instanceof ListType)
+      if (source.getType() instanceof ListType)
       {
          par.bodyBuilder.append(".removeAll(");
          source.accept(ExprGenerator.INSTANCE, par);

@@ -20,7 +20,6 @@ import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
-import org.fulib.scenarios.visitor.Typer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,7 +85,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       final Expr expr = attribute.getExpr();
 
       final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
-      final boolean wither = (decl != null ? decl.getType() : expr.accept(Typer.INSTANCE, null)) instanceof ListType;
+      final boolean wither = (decl != null ? decl.getType() : expr.getType()) instanceof ListType;
 
       par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(name.getValue())).append("(");
       expr.accept(wither ? NO_LIST : INSTANCE, par);
@@ -162,7 +161,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       switch (predicateOperatorExpr.getOperator())
       {
       case IS_NOT_EMPTY:
-         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         if (lhs.getType() instanceof ListType)
          {
             par.bodyBuilder.append('!');
             lhs.accept(ExprGenerator.INSTANCE, par);
@@ -175,7 +174,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
          }
          return null;
       case IS_EMPTY:
-         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         if (lhs.getType() instanceof ListType)
          {
             lhs.accept(ExprGenerator.INSTANCE, par);
             par.bodyBuilder.append(".isEmpty()");
@@ -211,7 +210,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       {
          this.emitList(par, listExpr.getElements());
       }
-      else if (listExpr.getElements().stream().anyMatch(it -> it.accept(Typer.INSTANCE, null) instanceof ListType))
+      else if (listExpr.getElements().stream().anyMatch(it -> it.getType() instanceof ListType))
       {
          // let stream generator handle any necessary flattening
 

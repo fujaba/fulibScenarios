@@ -15,7 +15,10 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
-import org.fulib.scenarios.ast.expr.primary.*;
+import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
+import org.fulib.scenarios.ast.expr.primary.IntLiteral;
+import org.fulib.scenarios.ast.expr.primary.NameAccess;
+import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
@@ -95,7 +98,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
       }
 
       final Expr expr = answerSentence.getResult();
-      return expr != null ? expr.accept(Typer.INSTANCE, par) : PrimitiveType.VOID;
+      return expr != null ? expr.accept(this, par) : PrimitiveType.VOID;
    }
 
    // --------------- ConditionalExpr.Visitor ---------------
@@ -210,7 +213,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
 
       switch ((PrimitiveType) type)
       {
-         // @formatter:off
+      // @formatter:off
          case BYTE: case BYTE_WRAPPER:
          case SHORT: case SHORT_WRAPPER:
          case CHAR: case CHAR_WRAPPER:

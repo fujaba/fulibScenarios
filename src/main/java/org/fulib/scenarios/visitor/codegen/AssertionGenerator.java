@@ -58,8 +58,8 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenDTO, Ob
 
    static boolean isNumeric(ConditionalOperatorExpr conditionalOperatorExpr)
    {
-      final Type lhsType = conditionalOperatorExpr.getLhs().accept(Typer.INSTANCE, null);
-      final Type rhsType = conditionalOperatorExpr.getRhs().accept(Typer.INSTANCE, null);
+      final Type lhsType = conditionalOperatorExpr.getLhs().getType();
+      final Type rhsType = conditionalOperatorExpr.getRhs().getType();
       return Typer.isNumeric(lhsType) || Typer.isNumeric(rhsType);
    }
 
@@ -70,7 +70,7 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenDTO, Ob
       switch (predicateOperatorExpr.getOperator())
       {
       case IS_NOT_EMPTY:
-         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         if (lhs.getType() instanceof ListType)
          {
             par.addImport("static org.junit.Assert.assertFalse");
             par.bodyBuilder.append("assertFalse(");
@@ -86,7 +86,7 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenDTO, Ob
          }
          return null;
       case IS_EMPTY:
-         if (lhs.accept(Typer.INSTANCE, null) instanceof ListType)
+         if (lhs.getType() instanceof ListType)
          {
             par.addImport("static org.junit.Assert.assertTrue");
             par.bodyBuilder.append("assertTrue(");

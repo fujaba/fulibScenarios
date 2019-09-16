@@ -78,7 +78,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
    @Override
    public Expr visit(Expr expr, Type to)
    {
-      final Type from = expr.accept(Typer.INSTANCE, null);
+      final Type from = expr.getType();
       if (TypeComparer.isSuperType(to, from))
       {
          return expr;

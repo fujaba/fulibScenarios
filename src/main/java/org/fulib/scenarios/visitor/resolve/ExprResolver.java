@@ -55,7 +55,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final Expr receiver = attributeAccess.getReceiver().accept(this, par);
       attributeAccess.setReceiver(receiver);
 
-      final Type receiverType = receiver.accept(Typer.INSTANCE, null);
+      final Type receiverType = receiver.getType();
       if (receiverType instanceof ListType)
       {
          final Type elementType = ((ListType) receiverType).getElementType();
@@ -81,7 +81,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final Expr source = filterExpr.getSource().accept(this, par);
       filterExpr.setSource(source);
 
-      final Type sourceType = source.accept(Typer.INSTANCE, null);
+      final Type sourceType = source.getType();
       final Type elementType = ((ListType) sourceType).getElementType();
       final VarDecl it = VarDecl.of("it", elementType, null);
 
@@ -169,7 +169,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       // generate method
 
-      final Type receiverType = callExpr.getReceiver().accept(Typer.INSTANCE, null);
+      final Type receiverType = callExpr.getReceiver().getType();
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
       final String methodName = callExpr.getName().getValue();
@@ -194,7 +194,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          {
             final String name = argument.getName().getValue();
             final Expr expr = argument.getExpr();
-            final Type type = expr.accept(Typer.INSTANCE, null);
+            final Type type = expr.getType();
             final ParameterDecl param = ParameterDecl.of(method, name, type);
 
             parameters.add(param);
@@ -231,7 +231,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          for (final NamedExpr argument : arguments)
          {
             final Expr expr = argument.getExpr();
-            final Type type = expr.accept(Typer.INSTANCE, null);
+            final Type type = expr.getType();
             final String name = argument.getName().getValue();
             final ParameterDecl param = decls.get(name);
 
@@ -322,8 +322,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       if (methodType == null)
       {
          // method is new
-         final Type returnType =
-            answerSentence != null ? answerSentence.getResult().accept(Typer.INSTANCE, null) : PrimitiveType.VOID;
+         final Type returnType = answerSentence != null ? answerSentence.getResult().getType() : PrimitiveType.VOID;
          method.setType(returnType);
 
          return;
@@ -343,7 +342,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          return;
       }
 
-      final Type resultType = result.accept(Typer.INSTANCE, null);
+      final Type resultType = result.getType();
       par.report(error(result.getPosition(), "call.return.type", resultType.accept(TypeDescriber.INSTANCE, null),
                        method.getName(), methodType.accept(TypeDescriber.INSTANCE, null)));
    }
@@ -395,7 +394,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          if (predicateReceiver == null)
          {
             par.report(error(conditionalOperatorExpr.getPosition(), "conditional.lhs.missing"));
-            conditionalOperatorExpr.setLhs(ErrorExpr.of(rhs.accept(Typer.INSTANCE, null)));
+            conditionalOperatorExpr.setLhs(ErrorExpr.of(rhs.getType()));
          }
          else
          {
@@ -447,8 +446,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       rangeExpr.setStart(start);
       rangeExpr.setEnd(end);
 
-      final Type startType = start.accept(Typer.INSTANCE, null);
-      final Type endType = end.accept(Typer.INSTANCE, null);
+      final Type startType = start.getType();
+      final Type endType = end.getType();
 
       if (!TypeComparer.equals(startType, endType))
       {

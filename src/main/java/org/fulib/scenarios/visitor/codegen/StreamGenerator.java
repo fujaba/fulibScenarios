@@ -12,7 +12,6 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
-import org.fulib.scenarios.visitor.Typer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
          return null;
       }
 
-      if (elements.stream().noneMatch(it -> it.accept(Typer.INSTANCE, null) instanceof ListType))
+      if (elements.stream().noneMatch(it -> it.getType() instanceof ListType))
       {
          // no flattening required
 
@@ -94,7 +93,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
       while (start < size)
       {
          int end = start;
-         while (end < size && !(elements.get(end).accept(Typer.INSTANCE, null) instanceof ListType))
+         while (end < size && !(elements.get(end).getType() instanceof ListType))
          {
             end++;
          }
@@ -118,7 +117,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(RangeExpr rangeExpr, CodeGenDTO par)
    {
-      final Type type = rangeExpr.getStart().accept(Typer.INSTANCE, null);
+      final Type type = rangeExpr.getStart().getType();
       if (!(type instanceof PrimitiveType))
       {
          par.bodyBuilder.append("error");
@@ -171,7 +170,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(MapAccessExpr listAttributeAccess, CodeGenDTO par)
    {
-      final Type listType = listAttributeAccess.getReceiver().accept(Typer.INSTANCE, null);
+      final Type listType = listAttributeAccess.getReceiver().getType();
       final Type elementType = ((ListType) listType).getElementType();
       final String elementTypeName = elementType.accept(Namer.INSTANCE, elementType);
       final Decl attribute = listAttributeAccess.getName().accept(ExtractDecl.INSTANCE, null);

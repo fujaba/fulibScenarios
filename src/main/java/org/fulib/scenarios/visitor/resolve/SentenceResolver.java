@@ -106,7 +106,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Expr receiver = hasSentence.getObject().accept(ExprResolver.INSTANCE, par);
       hasSentence.setObject(receiver);
 
-      final Type receiverType = receiver.accept(Typer.INSTANCE, null);
+      final Type receiverType = receiver.getType();
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
       if (receiverClass == null)
       {
@@ -131,7 +131,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final VarDecl varDecl = isSentence.getDescriptor();
       final Expr expr = varDecl.getExpr().accept(ExprResolver.INSTANCE, par);
-      final Type exprType = expr.accept(Typer.INSTANCE, null);
+      final Type exprType = expr.getType();
 
       if (exprType == PrimitiveType.VOID)
       {
@@ -253,7 +253,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
    private static Expr convertAsList(Expr source, Expr target, String invalidSource, String invalidTarget, Scope par)
    {
-      final Type targetType = target.accept(Typer.INSTANCE, null);
+      final Type targetType = target.getType();
       if (targetType == PrimitiveType.ERROR)
       {
          return source;
@@ -278,7 +278,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return sourceAsList;
       }
 
-      final Type sourceType = source.accept(Typer.INSTANCE, null);
+      final Type sourceType = source.getType();
       par.report(error(source.getPosition(), invalidSource, sourceType.accept(TypeDescriber.INSTANCE, null),
                        targetType.accept(TypeDescriber.INSTANCE, null)));
       return source;
@@ -303,7 +303,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Expr collection = takeSentence.getCollection().accept(ExprResolver.INSTANCE, par);
       takeSentence.setCollection(collection);
 
-      final Type listType = collection.accept(Typer.INSTANCE, par);
+      final Type listType = collection.getType();
       final Type type;
       if (listType instanceof ListType)
       {
@@ -396,7 +396,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return converted;
       }
 
-      final Type exprType = expr.accept(Typer.INSTANCE, null);
+      final Type exprType = expr.getType();
       final Marker error = error(expr.getPosition(), "assign.type", exprType.accept(TypeDescriber.INSTANCE, null),
                                  target.getName(), targetType.accept(TypeDescriber.INSTANCE, null));
       if (!isNew)
@@ -572,7 +572,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final String assocName = name.getValue();
-      final Type exprType = expr.accept(Typer.INSTANCE, scope);
+      final Type exprType = expr.getType();
       final int cardinality = exprType instanceof ListType ? ClassModelBuilder.MANY : 1;
       final ClassDecl otherClass = exprType.accept(ExtractClassDecl.INSTANCE, null);
       final String otherAssocName = otherName.getValue();
