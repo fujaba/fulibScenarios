@@ -33,7 +33,24 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
 
    public static boolean isConvertible(Type from, Type to)
    {
-      return convert(ErrorExpr.of(from), to) != null;
+      if (TypeComparer.isSuperType(to, from))
+      {
+         return true;
+      }
+
+      if (to == STRING)
+      {
+         return true;
+      }
+
+      if (from == STRING && to instanceof PrimitiveType)
+      {
+         final int ordinal = ((PrimitiveType) to).ordinal();
+         return ordinal >= BOOLEAN.ordinal() && ordinal <= DOUBLE.ordinal()
+                || ordinal >= BOOLEAN_WRAPPER.ordinal() && ordinal <= DOUBLE_WRAPPER.ordinal();
+      }
+
+      return from == Typer.primitiveToWrapper(to) || to == Typer.primitiveToWrapper(from);
    }
 
    public static Expr convert(Expr expr, Type to)

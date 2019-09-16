@@ -13,12 +13,13 @@ error: unresolved attribute or association 'String.invalid' - 'String' is a prim
 
 # Invalid Redeclaration
 
-There is the AttributeEntity entity-foo with id foo.
-There is the AttributeEntity entity-123 with id 123 and with friend entity-foo.
+There is the Object o1.
+There is the AttributeEntity entity-foo with id 123.
+There is the AttributeEntity entity-123 with id o1 and with friend entity-foo.
 <!--                                         ^
 error: conflicting redeclaration of 'AttributeEntity.id' [property.redeclaration.conflict]
-was: attribute of one 'String'
-now: attribute of one 'int'
+was: attribute of one 'int'
+now: attribute of one 'Object'
 -->
 
 There is an AttributeEntity with id bar and with friend 123.
