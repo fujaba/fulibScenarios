@@ -17,5 +17,10 @@ We write str into i.
 We write str into i of TCHolder.
 We write str,"3" into ilist.
 
+# Calls
+
 We call foo with i 1.
-We call foo with i "123".
+As i is 1, Foo answers with i. (ensure return type int)
+
+We call foo with i "123". (conversion of argument)
+Foo answers with "-1". (conversion of result)

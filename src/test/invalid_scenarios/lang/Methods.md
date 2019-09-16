@@ -55,6 +55,17 @@ parameter type: int
 argument type:  Object
 -->
 
+# Incompatible Return Type
+
+We call bar.
+Bar answers with 1.
+
+We call bar.
+Bar creates the Object o1 and bar answers with o1.
+<!--                                           ^
+error: cannot return expression of type 'Object' from method 'bar' with return type 'int' [call.return.type]
+-->
+
 # Invalid Answer Literal
 
 We expect that the answer is 42.

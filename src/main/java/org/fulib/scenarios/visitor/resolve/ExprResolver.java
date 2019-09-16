@@ -18,10 +18,12 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.Scope;
+import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
+import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.*;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
@@ -171,13 +173,15 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
       final String methodName = callExpr.getName().accept(Namer.INSTANCE, null);
-      final MethodDecl method = DeclResolver
-                                   .resolveMethod(par, callExpr.getName().getPosition(), receiverClass, methodName);
+      final Position position = callExpr.getName().getPosition();
+      final MethodDecl method = DeclResolver.resolveMethod(par, position, receiverClass, methodName);
       final List<ParameterDecl> parameters = method.getParameters();
       final ParameterDecl thisParameter;
       final Map<String, ParameterDecl> decls = new HashMap<>();
 
-      callExpr.setName(ResolvedName.of(method));
+      final ResolvedName resolvedName = ResolvedName.of(method);
+      resolvedName.setPosition(position);
+      callExpr.setName(resolvedName);
 
       if (method.getParameters().isEmpty()) // method is new
       {
@@ -304,15 +308,44 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       callExpr.getBody().accept(SentenceResolver.INSTANCE, scope);
 
       // set return type if necessary. has to happen after body resolution!
-      if (method.getType() == null)
-      {
-         final Type returnType = callExpr.accept(Typer.INSTANCE, null);
-         method.setType(returnType);
-      }
+      inferMethodType(method, callExpr, par);
 
       method.getBody().getItems().addAll(callExpr.getBody().getItems());
 
       return callExpr;
+   }
+
+   private static void inferMethodType(MethodDecl method, CallExpr callExpr, Scope par)
+   {
+      final AnswerSentence answerSentence = callExpr.getBody().accept(GetAnswerSentence.INSTANCE, null);
+      final Type methodType = method.getType();
+      if (methodType == null)
+      {
+         // method is new
+         final Type returnType =
+            answerSentence != null ? answerSentence.getResult().accept(Typer.INSTANCE, null) : PrimitiveType.VOID;
+         method.setType(returnType);
+
+         return;
+      }
+
+      if (answerSentence == null)
+      {
+         // no additional error
+         return;
+      }
+
+      final Expr result = answerSentence.getResult();
+      final Expr converted = TypeConversion.convert(result, methodType);
+      if (converted != null)
+      {
+         answerSentence.setResult(converted);
+         return;
+      }
+
+      final Type resultType = result.accept(Typer.INSTANCE, null);
+      par.report(error(result.getPosition(), "call.return.type", resultType.accept(TypeDescriber.INSTANCE, null),
+                       method.getName(), methodType.accept(TypeDescriber.INSTANCE, null)));
    }
 
    @Override
