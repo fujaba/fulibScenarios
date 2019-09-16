@@ -6,8 +6,8 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.visitor.Typer;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,7 +60,7 @@ public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenDTO, Ob
    {
       final Type lhsType = conditionalOperatorExpr.getLhs().getType();
       final Type rhsType = conditionalOperatorExpr.getRhs().getType();
-      return Typer.isNumeric(lhsType) || Typer.isNumeric(rhsType);
+      return PrimitiveType.isNumeric(lhsType) || PrimitiveType.isNumeric(rhsType);
    }
 
    @Override

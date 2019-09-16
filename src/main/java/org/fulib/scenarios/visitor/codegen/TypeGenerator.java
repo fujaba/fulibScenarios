@@ -3,7 +3,6 @@ package org.fulib.scenarios.visitor.codegen;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.*;
-import org.fulib.scenarios.visitor.Typer;
 
 public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>, ClassDecl.Visitor<CodeGenDTO, String>
 {
@@ -28,7 +27,7 @@ public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>, ClassDecl
    {
       par.addImport("java.util.List");
       final Type elementType = listType.getElementType();
-      final Type wrappedType = Typer.primitiveToWrapper(elementType);
+      final Type wrappedType = PrimitiveType.primitiveToWrapper(elementType);
       return "List<" + wrappedType.accept(this, par) + ">";
    }
 

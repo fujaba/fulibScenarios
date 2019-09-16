@@ -103,6 +103,55 @@ public enum PrimitiveType implements Type
       return visitor.visit(this, par);
    }
 
+   // =============== Static Methods ===============
+
+   public static Type primitiveToWrapper(Type primitive)
+   {
+      if (!(primitive instanceof PrimitiveType))
+      {
+         return primitive;
+      }
+
+      switch ((PrimitiveType) primitive)
+      {
+      // @formatter:off
+      case VOID: return VOID_WRAPPER;
+      case BOOLEAN: return BOOLEAN_WRAPPER;
+      case BYTE: return BYTE_WRAPPER;
+      case SHORT: return SHORT_WRAPPER;
+      case CHAR: return CHAR_WRAPPER;
+      case INT: return INT_WRAPPER;
+      case LONG: return LONG_WRAPPER;
+      case FLOAT: return FLOAT_WRAPPER;
+      case DOUBLE: return DOUBLE_WRAPPER;
+      default: return primitive;
+      // @formatter:on
+      }
+   }
+
+   public static boolean isNumeric(Type type)
+   {
+      if (!(type instanceof PrimitiveType))
+      {
+         return false;
+      }
+
+      switch ((PrimitiveType) type)
+      {
+      // @formatter:off
+         case BYTE: case BYTE_WRAPPER:
+         case SHORT: case SHORT_WRAPPER:
+         case CHAR: case CHAR_WRAPPER:
+         case INT: case INT_WRAPPER:
+         case LONG: case LONG_WRAPPER:
+         case FLOAT: case FLOAT_WRAPPER:
+         case DOUBLE: case DOUBLE_WRAPPER:
+         // @formatter:on
+         return true;
+      }
+      return false;
+   }
+
    // =============== Classes ===============
 
    interface Visitor<P, R>

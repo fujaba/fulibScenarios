@@ -50,7 +50,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
                 || ordinal >= BOOLEAN_WRAPPER.ordinal() && ordinal <= DOUBLE_WRAPPER.ordinal();
       }
 
-      return from == Typer.primitiveToWrapper(to) || to == Typer.primitiveToWrapper(from);
+      return from == primitiveToWrapper(to) || to == primitiveToWrapper(from);
    }
 
    public static Expr convert(Expr expr, Type to)
@@ -120,7 +120,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
             return methodCall(expr, "charAt", IntLiteral.of(1), to);
          }
       }
-      if (from == Typer.primitiveToWrapper(to) || to == Typer.primitiveToWrapper(from))
+      if (from == primitiveToWrapper(to) || to == primitiveToWrapper(from))
       {
          return expr;
       }
