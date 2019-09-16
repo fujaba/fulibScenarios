@@ -238,6 +238,14 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
    @Override
    public Expr visit(ListExpr listExpr, Type par)
    {
+      if (par == OBJECT)
+      {
+         return listExpr;
+      }
+      if (par == STRING)
+      {
+         return staticCall(STRING, "valueOf", listExpr, STRING);
+      }
       if (!(par instanceof ListType))
       {
          return null;
@@ -266,6 +274,14 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
    @Override
    public Expr visit(RangeExpr rangeExpr, Type par)
    {
+      if (par == OBJECT)
+      {
+         return rangeExpr;
+      }
+      if (par == STRING)
+      {
+         return staticCall(STRING, "valueOf", rangeExpr, STRING);
+      }
       if (!(par instanceof ListType))
       {
          return null;
