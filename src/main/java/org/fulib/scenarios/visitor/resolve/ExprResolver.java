@@ -239,16 +239,27 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
             argument.setName(ResolvedName.of(param));
 
-            // check type
-            final Type paramType = param.getType();
-
-            if (type != PrimitiveType.ERROR && paramType != PrimitiveType.ERROR //
-                && !TypeComparer.isSuperType(paramType, type))
+            if (type == PrimitiveType.ERROR)
             {
-               par.report(
-                  error(expr.getPosition(), "call.mismatch.type", paramType.accept(TypeDescriber.INSTANCE, null),
-                        type.accept(TypeDescriber.INSTANCE, null)));
+               continue;
             }
+
+            final Type paramType = param.getType();
+            if (paramType == PrimitiveType.ERROR)
+            {
+               continue;
+            }
+
+            final Expr converted = TypeConversion.convert(expr, paramType);
+            if (converted != null)
+            {
+               argument.setExpr(converted);
+               continue;
+            }
+
+            par.report(
+               error(expr.getPosition(), "call.mismatch.type", paramType.accept(TypeDescriber.INSTANCE, null),
+                     type.accept(TypeDescriber.INSTANCE, null)));
          }
       }
 
@@ -419,8 +430,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       }
       if (!isValidRangeType(endType))
       {
-         par.report(
-            error(end.getPosition(), "range.element.type.unsupported", endType.accept(TypeDescriber.INSTANCE, null)));
+         par.report(error(end.getPosition(), "range.element.type.unsupported",
+                          endType.accept(TypeDescriber.INSTANCE, null)));
       }
 
       return rangeExpr;

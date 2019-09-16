@@ -16,3 +16,6 @@ We write str into i.
 
 We write str into i of TCHolder.
 We write str,"3" into ilist.
+
+We call foo with i 1.
+We call foo with i "123".

@@ -47,17 +47,12 @@ arguments:  baz bar
 
 # Mismatching Parameter Types
 
-We call foo with bar "a"
+There are the Objects o1, o2.
+We call foo with bar o1 and with baz o1, o2.
 <!--                 ^
 error: incompatible parameter and argument types [call.mismatch.type]
 parameter type: int
-argument type:  String
--->
-and with baz 1.5, 2.5, 3.5.
-<!--         ^
-error: incompatible parameter and argument types [call.mismatch.type]
-parameter type: String
-argument type:  list of double
+argument type:  Object
 -->
 
 # Invalid Answer Literal
