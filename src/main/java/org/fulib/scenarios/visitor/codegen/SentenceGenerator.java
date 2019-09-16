@@ -8,7 +8,6 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.visitor.ExtractDecl;
 
 import java.util.Iterator;
 import java.util.List;
@@ -229,7 +228,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.emitIndent();
       par.bodyBuilder.append("for (final ");
 
-      final Type elementType = takeSentence.getVarName().accept(ExtractDecl.INSTANCE, null).getType();
+      final Type elementType = takeSentence.getVarName().getDecl().getType();
       final String varName = takeSentence.getVarName().getValue();
 
       par.bodyBuilder.append(elementType.accept(TypeGenerator.INSTANCE, par));

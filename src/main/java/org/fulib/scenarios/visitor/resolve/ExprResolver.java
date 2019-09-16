@@ -280,7 +280,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       // make expression names resolve to the parameter
       for (final NamedExpr argument : arguments)
       {
-         final ParameterDecl param = (ParameterDecl) argument.getName().accept(ExtractDecl.INSTANCE, null);
+         final ParameterDecl param = (ParameterDecl) argument.getName().getDecl();
          if (param == null)
          {
             continue;

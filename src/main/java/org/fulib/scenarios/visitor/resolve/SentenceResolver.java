@@ -20,7 +20,9 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
-import org.fulib.scenarios.visitor.*;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
+import org.fulib.scenarios.visitor.Namer;
+import org.fulib.scenarios.visitor.TypeConversion;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
@@ -605,7 +607,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Name name = namedExpr.getName();
 
-      if (name.accept(ExtractDecl.INSTANCE, null) != null)
+      if (name.getDecl() != null)
       {
          // already resolved
          return;
@@ -636,7 +638,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (name != null)
       {
-         final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
+         final Decl decl = name.getDecl();
          if (decl != null)
          {
             return (VarDecl) decl;

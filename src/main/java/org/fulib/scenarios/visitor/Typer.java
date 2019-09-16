@@ -85,7 +85,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    @Override
    public Type visit(CallExpr callExpr, Object par)
    {
-      final Decl method = callExpr.getName().accept(ExtractDecl.INSTANCE, null);
+      final Decl method = callExpr.getName().getDecl();
       if (method != null && method.getType() != null)
       {
          return method.getType();
@@ -149,7 +149,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    @Override
    public Type visit(MapAccessExpr mapAccessExpr, Object par)
    {
-      final Type attributeType = mapAccessExpr.getName().accept(ExtractDecl.INSTANCE, null).getType();
+      final Type attributeType = mapAccessExpr.getName().getDecl().getType();
       if (attributeType instanceof ListType)
       {
          return attributeType;

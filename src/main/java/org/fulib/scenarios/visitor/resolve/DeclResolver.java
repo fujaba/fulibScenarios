@@ -12,7 +12,6 @@ import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
-import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.TypeConversion;
 import org.fulib.scenarios.visitor.describe.DeclDescriber;
 import org.fulib.scenarios.visitor.describe.TypeDescriber;
@@ -133,7 +132,7 @@ public class DeclResolver
 
    static Name getAttributeOrAssociation(Scope scope, ClassDecl owner, Name name)
    {
-      if (name.accept(ExtractDecl.INSTANCE, null) != null)
+      if (name.getDecl() != null)
       {
          return name;
       }

@@ -19,7 +19,6 @@ import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.visitor.ExtractDecl;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,7 +83,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       final Name name = attribute.getName();
       final Expr expr = attribute.getExpr();
 
-      final Decl decl = name.accept(ExtractDecl.INSTANCE, null);
+      final Decl decl = name.getDecl();
       final boolean wither = (decl != null ? decl.getType() : expr.getType()) instanceof ListType;
 
       par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(name.getValue())).append("(");

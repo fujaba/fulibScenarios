@@ -10,7 +10,6 @@ import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.visitor.ExtractDecl;
 import org.fulib.scenarios.visitor.Namer;
 
 import java.util.ArrayList;
@@ -173,7 +172,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
       final Type listType = listAttributeAccess.getReceiver().getType();
       final Type elementType = ((ListType) listType).getElementType();
       final String elementTypeName = elementType.accept(Namer.INSTANCE, elementType);
-      final Decl attribute = listAttributeAccess.getName().accept(ExtractDecl.INSTANCE, null);
+      final Decl attribute = listAttributeAccess.getName().getDecl();
 
       listAttributeAccess.getReceiver().accept(this, par);
       par.bodyBuilder.append(".map(");
