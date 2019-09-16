@@ -420,7 +420,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          if (predicateReceiver == null)
          {
             par.report(error(predicateOperatorExpr.getPosition(), "predicate.lhs.missing"));
-            predicateOperatorExpr.setLhs(ErrorExpr.of(null));
+            predicateOperatorExpr.setLhs(ErrorExpr.of(PrimitiveType.ERROR));
          }
          else
          {

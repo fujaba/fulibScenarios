@@ -77,7 +77,7 @@ abstract org.fulib.scenarios.ast.Node {
 		}
 
 		abstract expr.Expr {
-			ErrorExpr(type: Type?)
+			ErrorExpr(type: Type)
 
 			abstract primary.PrimaryExpr {
 				IntLiteral(value: int)
