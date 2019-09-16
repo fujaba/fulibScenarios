@@ -105,14 +105,14 @@ public enum PrimitiveType implements Type
 
    // =============== Static Methods ===============
 
-   public static Type primitiveToWrapper(Type primitive)
+   public static Type primitiveToWrapper(Type type)
    {
-      if (!(primitive instanceof PrimitiveType))
-      {
-         return primitive;
-      }
+      return type instanceof PrimitiveType ? primitiveToWrapper((PrimitiveType) type) : type;
+   }
 
-      switch ((PrimitiveType) primitive)
+   public static PrimitiveType primitiveToWrapper(PrimitiveType type)
+   {
+      switch (type)
       {
       // @formatter:off
       case VOID: return VOID_WRAPPER;
@@ -124,32 +124,21 @@ public enum PrimitiveType implements Type
       case LONG: return LONG_WRAPPER;
       case FLOAT: return FLOAT_WRAPPER;
       case DOUBLE: return DOUBLE_WRAPPER;
-      default: return primitive;
+      default: return type;
       // @formatter:on
       }
    }
 
    public static boolean isNumeric(Type type)
    {
-      if (!(type instanceof PrimitiveType))
-      {
-         return false;
-      }
+      return type instanceof PrimitiveType && isNumeric((PrimitiveType) type);
+   }
 
-      switch ((PrimitiveType) type)
-      {
-      // @formatter:off
-         case BYTE: case BYTE_WRAPPER:
-         case SHORT: case SHORT_WRAPPER:
-         case CHAR: case CHAR_WRAPPER:
-         case INT: case INT_WRAPPER:
-         case LONG: case LONG_WRAPPER:
-         case FLOAT: case FLOAT_WRAPPER:
-         case DOUBLE: case DOUBLE_WRAPPER:
-         // @formatter:on
-         return true;
-      }
-      return false;
+   public static boolean isNumeric(PrimitiveType type)
+   {
+      final int ordinal = type.ordinal();
+      return ordinal >= BYTE.ordinal() && ordinal <= DOUBLE.ordinal()
+             || ordinal >= BYTE_WRAPPER.ordinal() && ordinal <= DOUBLE_WRAPPER.ordinal();
    }
 
    public static boolean isIntegral(Type type)
