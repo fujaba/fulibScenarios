@@ -45,9 +45,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
 
       if (from == STRING && to instanceof PrimitiveType)
       {
-         final int ordinal = ((PrimitiveType) to).ordinal();
-         return ordinal >= BOOLEAN.ordinal() && ordinal <= DOUBLE.ordinal()
-                || ordinal >= BOOLEAN_WRAPPER.ordinal() && ordinal <= DOUBLE_WRAPPER.ordinal();
+         return PrimitiveType.isPrimitiveOrWrapperValue(to);
       }
 
       return from == primitiveToWrapper(to) || to == primitiveToWrapper(from);

@@ -455,42 +455,17 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
                           startType.accept(TypeDescriber.INSTANCE, null),
                           endType.accept(TypeDescriber.INSTANCE, null)));
       }
-      if (!isValidRangeType(startType))
+      if (!PrimitiveType.isIntegral(startType))
       {
          par.report(error(start.getPosition(), "range.element.type.unsupported",
                           startType.accept(TypeDescriber.INSTANCE, null)));
       }
-      if (!isValidRangeType(endType))
+      if (!PrimitiveType.isIntegral(endType))
       {
          par.report(error(end.getPosition(), "range.element.type.unsupported",
                           endType.accept(TypeDescriber.INSTANCE, null)));
       }
 
       return rangeExpr;
-   }
-
-   private static boolean isValidRangeType(Type type)
-   {
-      if (!(type instanceof PrimitiveType))
-      {
-         return false;
-      }
-
-      switch ((PrimitiveType) type)
-      {
-      case BYTE:
-      case BYTE_WRAPPER:
-      case SHORT:
-      case SHORT_WRAPPER:
-      case CHAR:
-      case CHAR_WRAPPER:
-      case INT:
-      case INT_WRAPPER:
-      case LONG:
-      case LONG_WRAPPER:
-         return true;
-      default:
-         return false;
-      }
    }
 }

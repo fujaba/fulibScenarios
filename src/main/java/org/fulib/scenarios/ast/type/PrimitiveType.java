@@ -152,6 +152,43 @@ public enum PrimitiveType implements Type
       return false;
    }
 
+   public static boolean isIntegral(Type type)
+   {
+      return type instanceof PrimitiveType && isIntegral((PrimitiveType) type);
+   }
+
+   public static boolean isIntegral(PrimitiveType type)
+   {
+      switch (type)
+      {
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
+      case INT:
+      case INT_WRAPPER:
+      case LONG:
+      case LONG_WRAPPER:
+         return true;
+      default:
+         return false;
+      }
+   }
+
+   public static boolean isPrimitiveOrWrapperValue(Type type)
+   {
+      return type instanceof PrimitiveType && isPrimitiveOrWrapperValue((PrimitiveType) type);
+   }
+
+   public static boolean isPrimitiveOrWrapperValue(PrimitiveType type)
+   {
+      final int ordinal = type.ordinal();
+      return ordinal >= BOOLEAN.ordinal() && ordinal <= DOUBLE.ordinal()
+             || ordinal >= BOOLEAN_WRAPPER.ordinal() && ordinal <= DOUBLE_WRAPPER.ordinal();
+   }
+
    // =============== Classes ===============
 
    interface Visitor<P, R>
