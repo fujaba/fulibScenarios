@@ -29,9 +29,9 @@ abstract org.fulib.scenarios.ast.Node {
 			VarDecl(name: String, type: Type, expr: Expr)
 		}
 
-		abstract decl.Name(readonly value: String) {
-			UnresolvedName(value: String, text: String)
-			ResolvedName(delegate readonly value: String, decl: Decl)
+		abstract decl.Name(readonly value: String, readonly decl: Decl) {
+			UnresolvedName(value: String, text: String, readonly delegate decl: Decl)
+			ResolvedName(readonly delegate value: String, decl: Decl)
 		}
 
 		abstract type.Type {
