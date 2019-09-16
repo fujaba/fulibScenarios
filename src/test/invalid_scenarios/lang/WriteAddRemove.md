@@ -23,12 +23,34 @@ error: cannot assign expression of type 'Student' to variable 'i' of type 'int' 
 
 We add 1 to 2.
 <!--        ^
-error: invalid add target - cannot add to expression of type 'int' [add.target.invalid]
+error: cannot add to expression of type 'int' [add.target.type]
+-->
+
+There are the Objects o1,o2.
+We add o1 to 1,2,3.
+<!--   ^
+error: cannot add expression of type 'Object' to 'list of int' [add.source.type]
+-->
+
+We add o1, o2 to 1,2,3.
+<!--   ^
+error: cannot add expression of type 'list of Object' to 'list of int' [add.source.type]
 -->
 
 # Invalid Remove
 
 We remove 3 from 4.
 <!--             ^
-error: invalid remove target - cannot remove from expression of type 'int' [remove.target.invalid]
+error: cannot remove from expression of type 'int' [remove.target.type]
+-->
+
+There are the Objects o1,o2.
+We remove o1 from 1,2,3.
+<!--      ^
+error: cannot remove expression of type 'Object' from 'list of int' [remove.source.type]
+-->
+
+We remove o1, o2 from 1,2,3.
+<!--      ^
+error: cannot remove expression of type 'list of Object' from 'list of int' [remove.source.type]
 -->

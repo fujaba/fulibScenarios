@@ -7,8 +7,9 @@ We write 1 into i.
 We write "2" into i.
 
 We write 1,2,3 into ilist.
-We write "4","5","6" into ilist.
-We write "7",8,"9" into ilist.
+We add "4","5","6" to ilist.
+We add "7",8,"9" to ilist.
+We add "10" to ilist.
 
 We write "4" into str.
 We write str into i.

@@ -234,35 +234,54 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(AddSentence addSentence, Scope par)
    {
-      addSentence.setSource(addSentence.getSource().accept(ExprResolver.INSTANCE, par));
+      final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = addSentence.getTarget().accept(ExprResolver.INSTANCE, par);
       addSentence.setTarget(target);
-
-      final Type targetType = target.accept(Typer.INSTANCE, null);
-      if (targetType != PrimitiveType.ERROR && !(targetType instanceof ListType))
-      {
-         par.report(
-            error(target.getPosition(), "add.target.invalid", targetType.accept(TypeDescriber.INSTANCE, null)));
-      }
-
+      addSentence.setSource(convertAsList(source, target, "add.source.type", "add.target.type", par));
       return addSentence;
    }
 
    @Override
    public Sentence visit(RemoveSentence removeSentence, Scope par)
    {
-      removeSentence.setSource(removeSentence.getSource().accept(ExprResolver.INSTANCE, par));
+      final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = removeSentence.getTarget().accept(ExprResolver.INSTANCE, par);
       removeSentence.setTarget(target);
+      removeSentence.setSource(convertAsList(source, target, "remove.source.type", "remove.target.type", par));
+      return removeSentence;
+   }
 
+   private static Expr convertAsList(Expr source, Expr target, String invalidSource, String invalidTarget, Scope par)
+   {
       final Type targetType = target.accept(Typer.INSTANCE, null);
-      if (targetType != PrimitiveType.ERROR && !(targetType instanceof ListType))
+      if (targetType == PrimitiveType.ERROR)
       {
-         par.report(
-            error(target.getPosition(), "remove.target.invalid", targetType.accept(TypeDescriber.INSTANCE, null)));
+         return source;
       }
 
-      return removeSentence;
+      if (!(targetType instanceof ListType))
+      {
+         par.report(error(target.getPosition(), invalidTarget, targetType.accept(TypeDescriber.INSTANCE, null)));
+         return source;
+      }
+
+      final Type elementType = ((ListType) targetType).getElementType();
+      final Expr sourceAsElement = TypeConversion.convert(source, elementType);
+      if (sourceAsElement != null)
+      {
+         return sourceAsElement;
+      }
+
+      final Expr sourceAsList = TypeConversion.convert(source, targetType);
+      if (sourceAsList != null)
+      {
+         return sourceAsList;
+      }
+
+      final Type sourceType = source.accept(Typer.INSTANCE, null);
+      par.report(error(source.getPosition(), invalidSource, sourceType.accept(TypeDescriber.INSTANCE, null),
+                       targetType.accept(TypeDescriber.INSTANCE, null)));
+      return source;
    }
 
    @Override
