@@ -35,7 +35,7 @@ abstract org.fulib.scenarios.ast.Node {
 			ResolvedName(readonly delegate value: String, decl: Decl)
 		}
 
-		abstract type.Type {
+		abstract type.Type(readonly delegate description: String) {
 			UnresolvedType(noconstruct packageDir: String, name: String)
 			ClassType(classDecl: ClassDecl)
 			ListType(elementType: Type)
