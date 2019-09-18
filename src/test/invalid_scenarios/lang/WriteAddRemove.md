@@ -23,7 +23,7 @@ error: cannot assign expression of type 'Student' to variable 'i' of type 'int' 
 
 We add 1 to 2.
 <!--        ^
-error: cannot add to expression of type 'int' [add.target.type]
+error: cannot add to 'IntLiteral' - must be a name [add.target.not.name]
 -->
 
 There are the Objects o1,o2.
