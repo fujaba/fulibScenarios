@@ -487,7 +487,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return addSentence;
       }
 
-      addSentence.setSource(convertAddSource(source, targetType, par));
+      addSentence.setSource(TypeConversion.convert(source, targetType, par, "add.source.type"));
 
       if (target instanceof AttributeAccess)
       {
@@ -530,19 +530,6 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          error(target.getPosition(), "add.target.not.name", target.getClass().getEnclosingClass().getSimpleName()));
       addSentence.setSource(source);
       return addSentence;
-   }
-
-   private static Expr convertAddSource(Expr source, Type targetType, Scope par)
-   {
-      final Expr converted = TypeConversion.convert(source, targetType);
-      if (converted != null)
-      {
-         return converted;
-      }
-
-      par.report(error(source.getPosition(), "add.source.type", source.getType().getDescription(),
-                       targetType.getDescription()));
-      return source;
    }
 
    @Override

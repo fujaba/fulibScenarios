@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
 import org.fulib.scenarios.ast.expr.primary.IntLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.ast.type.ListType;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.fulib.scenarios.ast.type.PrimitiveType.*;
+import static org.fulib.scenarios.diagnostic.Marker.error;
 
 public enum TypeConversion implements Expr.Visitor<Type, Expr>
 {
@@ -54,6 +56,18 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
    public static Expr convert(Expr expr, Type to)
    {
       return expr.accept(INSTANCE, to);
+   }
+
+   public static Expr convert(Expr expr, Type to, Scope scope, String code)
+   {
+      final Expr converted = convert(expr, to);
+      if (converted != null)
+      {
+         return converted;
+      }
+
+      scope.report(error(expr.getPosition(), code, expr.getType().getDescription(), to.getDescription()));
+      return expr;
    }
 
    private static Expr staticCall(Type type, String method, Expr arg, Type returnType)
