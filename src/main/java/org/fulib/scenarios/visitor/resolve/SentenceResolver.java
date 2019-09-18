@@ -476,30 +476,36 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(AddSentence addSentence, Scope par)
    {
-      final Expr resolvedSource = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
-      final Expr target = addSentence.getTarget().accept(ExprResolver.INSTANCE, par);
-      addSentence.setTarget(target);
+      return resolveMutating(addSentence, true, BinaryOperator.PLUS, par, "add.source.type", "add.target.type",
+                             "add.target.not.name");
+   }
+
+   private static Sentence resolveMutating(MutatingSentence sentence, boolean allowLists, BinaryOperator operator,
+      Scope par, String sourceTypeCode, String targetTypeCode, String targetShapeCode)
+   {
+      final Expr resolvedSource = sentence.getSource().accept(ExprResolver.INSTANCE, par);
+      final Expr target = sentence.getTarget().accept(ExprResolver.INSTANCE, par);
+      sentence.setTarget(target);
 
       final Type targetType = target.getType();
-      if (!PrimitiveType.isNumeric(targetType))
+      if (allowLists && !PrimitiveType.isNumeric(targetType))
       {
-         addSentence.setSource(convertAsList(resolvedSource, target, "add.source.type", "add.target.type", par));
-         return addSentence;
+         sentence.setSource(convertAsList(resolvedSource, target, sourceTypeCode, targetTypeCode, par));
+         return sentence;
       }
 
-      final Expr checkedSource = TypeConversion.convert(resolvedSource, targetType, par, "add.source.type");
-      addSentence.setSource(checkedSource);
+      final Expr checkedSource = TypeConversion.convert(resolvedSource, targetType, par, sourceTypeCode);
+      sentence.setSource(checkedSource);
 
-      final Sentence compoundAssignment = compoundAssignment(target, BinaryOperator.PLUS, checkedSource, par,
-                                                             addSentence.getPosition());
+      final Sentence compoundAssignment = compoundAssignment(target, operator, checkedSource, par,
+                                                             sentence.getPosition());
       if (compoundAssignment != null)
       {
          return compoundAssignment;
       }
 
-      par.report(
-         error(target.getPosition(), "add.target.not.name", target.getClass().getEnclosingClass().getSimpleName()));
-      return addSentence;
+      par.report(error(target.getPosition(), targetShapeCode, target.getClass().getEnclosingClass().getSimpleName()));
+      return sentence;
    }
 
    private static Sentence compoundAssignment(Expr lhs, BinaryOperator operator, Expr rhs, Scope par,
