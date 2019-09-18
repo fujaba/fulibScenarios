@@ -14,7 +14,9 @@ We remove items of mynums from numbers.
 # Add with Numbers
 
 We write 1 into i.
-We add -2 to i.
+We add 2 to i.
+We remove 3 from i.
 
 There is a Counter with i 1.
-We add 1 to i of counter.
+We add 4 to i of counter.
+We remove 2 from i of counter.

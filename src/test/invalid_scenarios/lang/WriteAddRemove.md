@@ -26,6 +26,11 @@ We add 1 to 2.
 error: cannot add to 'IntLiteral' - must be a name or attribute access [add.target.not.name]
 -->
 
+We add "a" to "b".
+<!--          ^
+error: cannot add to expression of type 'String' [add.target.type]
+-->
+
 There are the Objects o1,o2.
 We add o1 to 1,2,3.
 <!--   ^
@@ -39,9 +44,14 @@ error: cannot add expression of type 'list of Object' to 'list of int' [add.sour
 
 # Invalid Remove
 
-We remove 3 from 4.
+We remove 1 from 2.
 <!--             ^
-error: cannot remove from expression of type 'int' [remove.target.type]
+error: cannot remove from 'IntLiteral' - must be a name or attribute access [remove.target.not.name]
+-->
+
+We remove "a" from "b".
+<!--               ^
+error: cannot remove from expression of type 'String' [remove.target.type]
 -->
 
 There are the Objects o1,o2.
