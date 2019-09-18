@@ -12,7 +12,10 @@ import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
-import org.fulib.scenarios.ast.expr.conditional.*;
+import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
+import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.primary.AnswerLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -94,8 +97,23 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
             return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
          }
       };
-      filterExpr.setPredicate(filterExpr.getPredicate().accept(this, scope));
+
+      final Expr predicate = filterExpr.getPredicate().accept(this, scope);
+      filterExpr.setPredicate(checkConditional(predicate, par));
       return filterExpr;
+   }
+
+   static Expr checkConditional(Expr predicate, Scope par)
+   {
+      final Expr converted = TypeConversion.convert(predicate, PrimitiveType.BOOLEAN);
+      if (converted != null)
+      {
+         return converted;
+      }
+
+      par.report(error(predicate.getPosition(), "conditional.type",
+                       predicate.getType().accept(TypeDescriber.INSTANCE, null)));
+      return predicate;
    }
 
    @Override

@@ -240,7 +240,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(ExpectSentence expectSentence, Scope par)
    {
-      expectSentence.getPredicates().replaceAll(it -> it.accept(ExprResolver.INSTANCE, par));
+      expectSentence.getPredicates().replaceAll(predicate -> {
+         final Expr resolved = predicate.accept(ExprResolver.INSTANCE, par);
+         return ExprResolver.checkConditional(resolved, par);
+      });
       return expectSentence;
    }
 
@@ -631,7 +634,11 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(ConditionalSentence conditionalSentence, Scope par)
    {
-      conditionalSentence.setCondition(conditionalSentence.getCondition().accept(ExprResolver.INSTANCE, par));
+      final Expr condition = conditionalSentence.getCondition();
+      final Expr resolvedCondition = condition.accept(ExprResolver.INSTANCE, par);
+      final Expr checkedCondition = ExprResolver.checkConditional(resolvedCondition, par);
+      conditionalSentence.setCondition(checkedCondition);
+
       conditionalSentence.setBody(conditionalSentence.getBody().accept(this, par));
       return conditionalSentence;
    }
