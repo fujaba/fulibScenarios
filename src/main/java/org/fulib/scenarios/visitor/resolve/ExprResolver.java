@@ -52,67 +52,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       return expr;
    }
 
-   @Override
-   public Expr visit(AttributeAccess attributeAccess, Scope par)
-   {
-      final Expr receiver = attributeAccess.getReceiver().accept(this, par);
-      attributeAccess.setReceiver(receiver);
-
-      final Type receiverType = receiver.getType();
-      if (receiverType instanceof ListType)
-      {
-         final Type elementType = ((ListType) receiverType).getElementType();
-         final Name resolvedName = DeclResolver
-                                      .getAttributeOrAssociation(par, elementType, attributeAccess.getName());
-         return MapAccessExpr.of(resolvedName, receiver);
-      }
-
-      attributeAccess.setName(DeclResolver.getAttributeOrAssociation(par, receiver, attributeAccess.getName()));
-      return attributeAccess;
-   }
-
-   @Override
-   public Expr visit(ExampleAccess exampleAccess, Scope par)
-   {
-      exampleAccess.setExpr(exampleAccess.getExpr().accept(this, par));
-      return exampleAccess;
-   }
-
-   @Override
-   public Expr visit(FilterExpr filterExpr, Scope par)
-   {
-      final Expr source = filterExpr.getSource().accept(this, par);
-      filterExpr.setSource(source);
-
-      final Type sourceType = source.getType();
-      final Type elementType = ((ListType) sourceType).getElementType();
-      final VarDecl it = VarDecl.of("it", elementType, null);
-
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
-         }
-      };
-
-      final Expr predicate = filterExpr.getPredicate().accept(this, scope);
-      filterExpr.setPredicate(checkConditional(predicate, par));
-      return filterExpr;
-   }
-
-   static Expr checkConditional(Expr predicate, Scope par)
-   {
-      final Expr converted = TypeConversion.convert(predicate, PrimitiveType.BOOLEAN);
-      if (converted != null)
-      {
-         return converted;
-      }
-
-      par.report(error(predicate.getPosition(), "conditional.type", predicate.getType().getDescription()));
-      return predicate;
-   }
+   // --------------- PrimaryExpr.Visitor ---------------
 
    @Override
    public Expr visit(AnswerLiteral answerLiteral, Scope par)
@@ -148,6 +88,34 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       }
 
       return nameAccess;
+   }
+
+   // --------------- Expr.Visitor ---------------
+
+   @Override
+   public Expr visit(AttributeAccess attributeAccess, Scope par)
+   {
+      final Expr receiver = attributeAccess.getReceiver().accept(this, par);
+      attributeAccess.setReceiver(receiver);
+
+      final Type receiverType = receiver.getType();
+      if (receiverType instanceof ListType)
+      {
+         final Type elementType = ((ListType) receiverType).getElementType();
+         final Name resolvedName = DeclResolver
+                                      .getAttributeOrAssociation(par, elementType, attributeAccess.getName());
+         return MapAccessExpr.of(resolvedName, receiver);
+      }
+
+      attributeAccess.setName(DeclResolver.getAttributeOrAssociation(par, receiver, attributeAccess.getName()));
+      return attributeAccess;
+   }
+
+   @Override
+   public Expr visit(ExampleAccess exampleAccess, Scope par)
+   {
+      exampleAccess.setExpr(exampleAccess.getExpr().accept(this, par));
+      return exampleAccess;
    }
 
    @Override
@@ -371,6 +339,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       return binaryExpr;
    }
 
+   // --------------- ConditionalExpr.Visitor ---------------
+
    @Override
    public Expr visit(AttributeCheckExpr attributeCheckExpr, Scope par)
    {
@@ -454,6 +424,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       return predicateOperatorExpr;
    }
 
+   // --------------- CollectionExpr.Visitor ---------------
+
    @Override
    public Expr visit(ListExpr listExpr, Scope par)
    {
@@ -488,5 +460,41 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       }
 
       return rangeExpr;
+   }
+
+   @Override
+   public Expr visit(FilterExpr filterExpr, Scope par)
+   {
+      final Expr source = filterExpr.getSource().accept(this, par);
+      filterExpr.setSource(source);
+
+      final Type sourceType = source.getType();
+      final Type elementType = ((ListType) sourceType).getElementType();
+      final VarDecl it = VarDecl.of("it", elementType, null);
+
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
+         }
+      };
+
+      final Expr predicate = filterExpr.getPredicate().accept(this, scope);
+      filterExpr.setPredicate(checkConditional(predicate, par));
+      return filterExpr;
+   }
+
+   static Expr checkConditional(Expr predicate, Scope par)
+   {
+      final Expr converted = TypeConversion.convert(predicate, PrimitiveType.BOOLEAN);
+      if (converted != null)
+      {
+         return converted;
+      }
+
+      par.report(error(predicate.getPosition(), "conditional.type", predicate.getType().getDescription()));
+      return predicate;
    }
 }
