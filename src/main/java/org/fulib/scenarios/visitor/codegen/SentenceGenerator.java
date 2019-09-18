@@ -7,6 +7,7 @@ import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 
 import java.util.Iterator;
@@ -157,6 +158,15 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       final Expr target = addSentence.getTarget();
       final Expr source = addSentence.getSource();
+
+      if (PrimitiveType.isNumeric(target.getType()))
+      {
+         target.accept(ExprGenerator.INSTANCE, par);
+         par.bodyBuilder.append(" += ");
+         source.accept(ExprGenerator.INSTANCE, par);
+         par.bodyBuilder.append(";\n");
+         return null;
+      }
 
       if (target instanceof AttributeAccess)
       {

@@ -477,7 +477,32 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = addSentence.getTarget().accept(ExprResolver.INSTANCE, par);
       addSentence.setTarget(target);
-      addSentence.setSource(convertAsList(source, target, "add.source.type", "add.target.type", par));
+
+      final Type targetType = target.getType();
+      if (!PrimitiveType.isNumeric(targetType))
+      {
+         addSentence.setSource(convertAsList(source, target, "add.source.type", "add.target.type", par));
+         return addSentence;
+      }
+
+      if (!(target instanceof NameAccess))
+      {
+         par.report(error(target.getPosition(), "add.target.not.name",
+                          target.getClass().getEnclosingClass().getSimpleName()));
+         addSentence.setSource(source);
+         return addSentence;
+      }
+
+      final Expr converted = TypeConversion.convert(source, targetType);
+      if (converted != null)
+      {
+         addSentence.setSource(converted);
+         return addSentence;
+      }
+
+      par.report(error(source.getPosition(), "add.source.type", source.getType().accept(TypeDescriber.INSTANCE, null),
+                       targetType.accept(TypeDescriber.INSTANCE, null)));
+      addSentence.setSource(source);
       return addSentence;
    }
 
