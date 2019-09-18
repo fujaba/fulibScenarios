@@ -476,20 +476,22 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(AddSentence addSentence, Scope par)
    {
-      final Expr source = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
+      final Expr resolvedSource = addSentence.getSource().accept(ExprResolver.INSTANCE, par);
       final Expr target = addSentence.getTarget().accept(ExprResolver.INSTANCE, par);
       addSentence.setTarget(target);
 
       final Type targetType = target.getType();
       if (!PrimitiveType.isNumeric(targetType))
       {
-         addSentence.setSource(convertAsList(source, target, "add.source.type", "add.target.type", par));
+         addSentence.setSource(convertAsList(resolvedSource, target, "add.source.type", "add.target.type", par));
          return addSentence;
       }
 
-      addSentence.setSource(TypeConversion.convert(source, targetType, par, "add.source.type"));
+      final Expr checkedSource = TypeConversion.convert(resolvedSource, targetType, par, "add.source.type");
+      addSentence.setSource(checkedSource);
 
-      final Sentence compoundAssignment = compoundAssignment(target, BinaryOperator.PLUS, source, par, addSentence.getPosition());
+      final Sentence compoundAssignment = compoundAssignment(target, BinaryOperator.PLUS, checkedSource, par,
+                                                             addSentence.getPosition());
       if (compoundAssignment != null)
       {
          return compoundAssignment;
@@ -500,7 +502,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return addSentence;
    }
 
-   private static Sentence compoundAssignment(Expr lhs, BinaryOperator operator, Expr rhs, Scope par, Position position)
+   private static Sentence compoundAssignment(Expr lhs, BinaryOperator operator, Expr rhs, Scope par,
+      Position position)
    {
       if (lhs instanceof AttributeAccess)
       {
