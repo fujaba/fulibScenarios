@@ -71,10 +71,6 @@ abstract org.fulib.scenarios.ast.Node {
 
 			AssignSentence(target: VarDecl, value: Expr) // i.e. a variable assignment
 			ExprSentence(expr: Expr)
-
-			// e.g. TemplateSentence("<%>.addAll(<*>);", [ foo, ListExpr.of([ bar, baz ]) ])
-			// =>   foo.addAll(bar, baz);
-			TemplateSentence(template: String, exprs: [Expr])
 		}
 
 		abstract expr.Expr(readonly delegate type: Type) {

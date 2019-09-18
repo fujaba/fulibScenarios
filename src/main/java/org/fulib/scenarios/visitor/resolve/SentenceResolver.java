@@ -679,11 +679,4 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       exprSentence.setExpr(exprSentence.getExpr().accept(ExprResolver.INSTANCE, par));
       return exprSentence;
    }
-
-   @Override
-   public Sentence visit(TemplateSentence templateSentence, Scope par)
-   {
-      templateSentence.getExprs().replaceAll(it -> it.accept(ExprResolver.INSTANCE, par));
-      return templateSentence;
-   }
 }
