@@ -77,8 +77,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(SectionSentence sectionSentence, Scope par)
    {
-      final String processedComment = sectionSentence.getLevel().format(sectionSentence.getText().trim());
-      return TemplateSentence.of(processedComment, Collections.emptyList());
+      return sectionSentence;
    }
 
    @Override

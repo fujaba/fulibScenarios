@@ -33,6 +33,15 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    }
 
    @Override
+   public Object visit(SectionSentence sectionSentence, CodeGenDTO par)
+   {
+      par.emitIndent();
+      par.bodyBuilder.append(sectionSentence.getLevel().format(sectionSentence.getText().trim()));
+      par.bodyBuilder.append('\n');
+      return null;
+   }
+
+   @Override
    public Object visit(ExpectSentence expectSentence, CodeGenDTO par)
    {
       for (final Expr expr : expectSentence.getPredicates())
