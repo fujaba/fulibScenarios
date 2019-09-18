@@ -489,9 +489,22 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       addSentence.setSource(TypeConversion.convert(source, targetType, par, "add.source.type"));
 
-      if (target instanceof AttributeAccess)
+      final Sentence compoundAssignment = compoundAssignment(target, BinaryOperator.PLUS, source, par, addSentence.getPosition());
+      if (compoundAssignment != null)
       {
-         final AttributeAccess attributeAccess = (AttributeAccess) target;
+         return compoundAssignment;
+      }
+
+      par.report(
+         error(target.getPosition(), "add.target.not.name", target.getClass().getEnclosingClass().getSimpleName()));
+      return addSentence;
+   }
+
+   private static Sentence compoundAssignment(Expr lhs, BinaryOperator operator, Expr rhs, Scope par, Position position)
+   {
+      if (lhs instanceof AttributeAccess)
+      {
+         final AttributeAccess attributeAccess = (AttributeAccess) lhs;
          final Expr receiver = attributeAccess.getReceiver();
          final Type receiverType = receiver.getType();
          final Position receiverPos = receiver.getPosition();
@@ -511,8 +524,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
          attributeAccess.setReceiver(tempAccess);
 
-         final BinaryExpr binaryOp = BinaryExpr.of(attributeAccess, BinaryOperator.PLUS, source);
-         binaryOp.setPosition(addSentence.getPosition());
+         final BinaryExpr binaryOp = BinaryExpr.of(attributeAccess, operator, rhs);
+         binaryOp.setPosition(position);
          final HasSentence hasSentence = HasSentence.of(tempAccess, Collections.singletonList(
             NamedExpr.of(attributeAccess.getName(), binaryOp)));
          hasSentence.setPosition(attributeAccess.getPosition());
@@ -520,16 +533,14 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return new FlattenSentenceList(Arrays.asList(isSentence, hasSentence));
       }
 
-      if (target instanceof NameAccess)
+      if (lhs instanceof NameAccess)
       {
-         final VarDecl decl = (VarDecl) ((NameAccess) target).getName().getDecl();
-         return AssignSentence.of(decl, BinaryOperator.PLUS, source);
+         final VarDecl decl = (VarDecl) ((NameAccess) lhs).getName().getDecl();
+         final AssignSentence assignSentence = AssignSentence.of(decl, operator, rhs);
+         assignSentence.setPosition(position);
+         return assignSentence;
       }
-
-      par.report(
-         error(target.getPosition(), "add.target.not.name", target.getClass().getEnclosingClass().getSimpleName()));
-      addSentence.setSource(source);
-      return addSentence;
+      return null;
    }
 
    @Override
