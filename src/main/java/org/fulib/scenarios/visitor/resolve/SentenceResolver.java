@@ -6,9 +6,12 @@ import org.fulib.scenarios.ast.MultiDescriptor;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
+import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
@@ -486,25 +489,61 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return addSentence;
       }
 
-      if (!(target instanceof NameAccess))
+      addSentence.setSource(convertAddSource(source, targetType, par));
+
+      if (target instanceof AttributeAccess)
       {
-         par.report(error(target.getPosition(), "add.target.not.name",
-                          target.getClass().getEnclosingClass().getSimpleName()));
-         addSentence.setSource(source);
+         final AttributeAccess attributeAccess = (AttributeAccess) target;
+         final Expr receiver = attributeAccess.getReceiver();
+         final Type receiverType = receiver.getType();
+         final Position receiverPos = receiver.getPosition();
+
+         // <receiver>.<attribute>
+         // ==>
+         // var temp = <receiver>;
+         // temp.set<attribute>(temp.get<attribute>() + <source>);
+
+         final VarDecl temp = VarDecl.of(findUnique("temp++", par), receiverType, receiver);
+         temp.setPosition(receiverPos);
+         final IsSentence isSentence = IsSentence.of(temp);
+         isSentence.setPosition(receiverPos);
+
+         final NameAccess tempAccess = NameAccess.of(ResolvedName.of(temp));
+         tempAccess.setPosition(receiverPos);
+
+         attributeAccess.setReceiver(tempAccess);
+
+         final BinaryExpr binaryOp = BinaryExpr.of(attributeAccess, BinaryOperator.PLUS, source);
+         binaryOp.setPosition(addSentence.getPosition());
+         final HasSentence hasSentence = HasSentence.of(tempAccess, Collections.singletonList(
+            NamedExpr.of(attributeAccess.getName(), binaryOp)));
+         hasSentence.setPosition(attributeAccess.getPosition());
+
+         return new FlattenSentenceList(Arrays.asList(isSentence, hasSentence));
+      }
+
+      if (target instanceof NameAccess)
+      {
          return addSentence;
       }
 
+      par.report(
+         error(target.getPosition(), "add.target.not.name", target.getClass().getEnclosingClass().getSimpleName()));
+      addSentence.setSource(source);
+      return addSentence;
+   }
+
+   private static Expr convertAddSource(Expr source, Type targetType, Scope par)
+   {
       final Expr converted = TypeConversion.convert(source, targetType);
       if (converted != null)
       {
-         addSentence.setSource(converted);
-         return addSentence;
+         return converted;
       }
 
       par.report(error(source.getPosition(), "add.source.type", source.getType().accept(TypeDescriber.INSTANCE, null),
                        targetType.accept(TypeDescriber.INSTANCE, null)));
-      addSentence.setSource(source);
-      return addSentence;
+      return source;
    }
 
    @Override
