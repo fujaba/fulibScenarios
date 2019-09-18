@@ -60,9 +60,11 @@ abstract org.fulib.scenarios.ast.Node {
 				CallSentence(actor: Name, call: CallExpr)
 				AnswerSentence(actor: Name, result: Expr, varName: String)
 
-				WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
-				AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
-				RemoveSentence(actor: Name, source: Expr, target: Expr) // i.e. removing elements from a list
+				abstract MutatingSentence(actor: Name, source: Expr, target: Expr) {
+					WriteSentence(actor: Name, source: Expr, target: Expr) // i.e. an assignment
+					AddSentence(actor: Name, source: Expr, target: Expr) // i.e. adding elements to a list
+					RemoveSentence(actor: Name, source: Expr, target: Expr) // i.e. removing elements from a list
+				}
 
 				TakeSentence(actor: Name, varName: Name?, example: Expr, collection: Expr, body: Sentence)
 			}
