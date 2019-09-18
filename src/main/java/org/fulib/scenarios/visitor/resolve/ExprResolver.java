@@ -29,7 +29,6 @@ import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.*;
-import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.HashMap;
 import java.util.List;
@@ -111,8 +110,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          return converted;
       }
 
-      par.report(error(predicate.getPosition(), "conditional.type",
-                       predicate.getType().accept(TypeDescriber.INSTANCE, null)));
+      par.report(error(predicate.getPosition(), "conditional.type", predicate.getType().getDescription()));
       return predicate;
    }
 
@@ -281,8 +279,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
             }
 
             par.report(
-               error(expr.getPosition(), "call.mismatch.type", paramType.accept(TypeDescriber.INSTANCE, null),
-                     type.accept(TypeDescriber.INSTANCE, null)));
+               error(expr.getPosition(), "call.mismatch.type", paramType.getDescription(), type.getDescription()));
          }
       }
 
@@ -362,8 +359,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       }
 
       final Type resultType = result.getType();
-      par.report(error(result.getPosition(), "call.return.type", resultType.accept(TypeDescriber.INSTANCE, null),
-                       method.getName(), methodType.accept(TypeDescriber.INSTANCE, null)));
+      par.report(error(result.getPosition(), "call.return.type", resultType.getDescription(), method.getName(),
+                       methodType.getDescription()));
    }
 
    @Override
@@ -478,19 +475,16 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       if (!TypeComparer.equals(startType, endType))
       {
-         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch",
-                          startType.accept(TypeDescriber.INSTANCE, null),
-                          endType.accept(TypeDescriber.INSTANCE, null)));
+         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch", startType.getDescription(),
+                          endType.getDescription()));
       }
       if (!PrimitiveType.isIntegral(startType))
       {
-         par.report(error(start.getPosition(), "range.element.type.unsupported",
-                          startType.accept(TypeDescriber.INSTANCE, null)));
+         par.report(error(start.getPosition(), "range.element.type.unsupported", startType.getDescription()));
       }
       if (!PrimitiveType.isIntegral(endType))
       {
-         par.report(error(end.getPosition(), "range.element.type.unsupported",
-                          endType.accept(TypeDescriber.INSTANCE, null)));
+         par.report(error(end.getPosition(), "range.element.type.unsupported", endType.getDescription()));
       }
 
       return rangeExpr;

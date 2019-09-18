@@ -33,9 +33,9 @@ public enum DeclDescriber implements Decl.Visitor<Void, String>
       if (type instanceof ListType)
       {
          final Type elementType = ((ListType) type).getElementType();
-         return Marker.localize("attribute.desc.*", elementType.accept(TypeDescriber.INSTANCE, null));
+         return Marker.localize("attribute.desc.*", elementType.getDescription());
       }
-      return Marker.localize("attribute.desc.1", type.accept(TypeDescriber.INSTANCE, null));
+      return Marker.localize("attribute.desc.1", type.getDescription());
    }
 
    public static String describeAssociation(int cardinality, ClassDecl target)

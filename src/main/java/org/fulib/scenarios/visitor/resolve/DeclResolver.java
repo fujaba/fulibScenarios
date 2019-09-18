@@ -14,7 +14,6 @@ import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.TypeConversion;
 import org.fulib.scenarios.visitor.describe.DeclDescriber;
-import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -125,8 +124,7 @@ public class DeclResolver
       }
 
       scope.report(
-         error(name.getPosition(), "property.unresolved.primitive", owner.accept(TypeDescriber.INSTANCE, null),
-               name.getValue()));
+         error(name.getPosition(), "property.unresolved.primitive", owner.getDescription(), name.getValue()));
       return name;
    }
 

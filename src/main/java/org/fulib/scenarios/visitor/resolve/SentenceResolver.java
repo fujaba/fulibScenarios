@@ -25,7 +25,6 @@ import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.TypeConversion;
-import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
 
@@ -266,8 +265,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
       if (receiverClass == null)
       {
-         par.report(error(receiver.getPosition(), "has.subject.primitive",
-                          receiverType.accept(TypeDescriber.INSTANCE, null)));
+         par.report(error(receiver.getPosition(), "has.subject.primitive", receiverType.getDescription()));
          return hasSentence;
       }
 
@@ -541,8 +539,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return converted;
       }
 
-      par.report(error(source.getPosition(), "add.source.type", source.getType().accept(TypeDescriber.INSTANCE, null),
-                       targetType.accept(TypeDescriber.INSTANCE, null)));
+      par.report(error(source.getPosition(), "add.source.type", source.getType().getDescription(),
+                       targetType.getDescription()));
       return source;
    }
 
@@ -566,7 +564,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (!(targetType instanceof ListType))
       {
-         par.report(error(target.getPosition(), invalidTarget, targetType.accept(TypeDescriber.INSTANCE, null)));
+         par.report(error(target.getPosition(), invalidTarget, targetType.getDescription()));
          return source;
       }
 
@@ -584,8 +582,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Type sourceType = source.getType();
-      par.report(error(source.getPosition(), invalidSource, sourceType.accept(TypeDescriber.INSTANCE, null),
-                       targetType.accept(TypeDescriber.INSTANCE, null)));
+      par.report(
+         error(source.getPosition(), invalidSource, sourceType.getDescription(), targetType.getDescription()));
       return source;
    }
 
@@ -618,8 +616,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       {
          if (listType != PrimitiveType.ERROR)
          {
-            par.report(
-               error(collection.getPosition(), "take.source.type", listType.accept(TypeDescriber.INSTANCE, null)));
+            par.report(error(collection.getPosition(), "take.source.type", listType.getDescription()));
          }
          type = PrimitiveType.ERROR;
       }
@@ -702,8 +699,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Type exprType = expr.getType();
-      final Marker error = error(expr.getPosition(), "assign.type", exprType.accept(TypeDescriber.INSTANCE, null),
-                                 target.getName(), targetType.accept(TypeDescriber.INSTANCE, null));
+      final Marker error = error(expr.getPosition(), "assign.type", exprType.getDescription(), target.getName(),
+                                 targetType.getDescription());
       if (!isNew)
       {
          error.note(note(target.getPosition(), "variable.declaration.first", target.getName()));
