@@ -522,7 +522,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (target instanceof NameAccess)
       {
-         return addSentence;
+         final VarDecl decl = (VarDecl) ((NameAccess) target).getName().getDecl();
+         return AssignSentence.of(decl, BinaryOperator.PLUS, source);
       }
 
       par.report(

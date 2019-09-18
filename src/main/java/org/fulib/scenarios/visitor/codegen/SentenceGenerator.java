@@ -7,7 +7,6 @@ import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
-import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
@@ -164,15 +163,6 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       final Expr target = addSentence.getTarget();
       final Expr source = addSentence.getSource();
-
-      if (PrimitiveType.isNumeric(target.getType()))
-      {
-         target.accept(ExprGenerator.INSTANCE, par);
-         par.bodyBuilder.append(" += ");
-         source.accept(ExprGenerator.INSTANCE, par);
-         par.bodyBuilder.append(";\n");
-         return null;
-      }
 
       if (target instanceof AttributeAccess)
       {
