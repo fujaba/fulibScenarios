@@ -15,6 +15,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
+import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
@@ -106,6 +107,18 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       }
       par.bodyBuilder.append(')');
 
+      return null;
+   }
+
+   @Override
+   public Object visit(BinaryExpr binaryExpr, CodeGenDTO par)
+   {
+      // TODO parenthesize if necessary (precedence)
+      binaryExpr.getLhs().accept(this, par);
+      par.bodyBuilder.append(' ');
+      par.bodyBuilder.append(binaryExpr.getOperator().getSymbol());
+      par.bodyBuilder.append(' ');
+      binaryExpr.getRhs().accept(this, par);
       return null;
    }
 

@@ -13,6 +13,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.*;
+import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.primary.AnswerLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
@@ -345,6 +346,14 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final Type resultType = result.getType();
       par.report(error(result.getPosition(), "call.return.type", resultType.accept(TypeDescriber.INSTANCE, null),
                        method.getName(), methodType.accept(TypeDescriber.INSTANCE, null)));
+   }
+
+   @Override
+   public Expr visit(BinaryExpr binaryExpr, Scope par)
+   {
+      binaryExpr.setLhs(binaryExpr.getLhs().accept(this, par));
+      binaryExpr.setRhs(binaryExpr.getRhs().accept(this, par));
+      return binaryExpr;
    }
 
    @Override

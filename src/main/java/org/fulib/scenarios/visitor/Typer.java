@@ -15,6 +15,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.MapAccessExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
+import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
 import org.fulib.scenarios.ast.expr.primary.IntLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -99,6 +100,14 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
 
       final Expr expr = answerSentence.getResult();
       return expr != null ? expr.accept(this, par) : PrimitiveType.VOID;
+   }
+
+   @Override
+   public Type visit(BinaryExpr binaryExpr, Object par)
+   {
+      final Type lhs = binaryExpr.getLhs().accept(this, par);
+      final Type rhs = binaryExpr.getRhs().accept(this, par);
+      return binaryExpr.getOperator().getType(lhs, rhs);
    }
 
    // --------------- ConditionalExpr.Visitor ---------------

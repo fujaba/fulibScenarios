@@ -1,3 +1,4 @@
+import org.fulib.scenarios.ast.expr.operator.BinaryOperator
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperator
 import org.fulib.scenarios.ast.sentence.CommentLevel
@@ -92,6 +93,8 @@ abstract org.fulib.scenarios.ast.Node {
 
 			call.CreationExpr(type: Type, attributes: [NamedExpr])
 			call.CallExpr(name: Name, receiver: Expr, arguments: [NamedExpr], body: SentenceList)
+
+			operator.BinaryExpr(lhs: Expr, operator: BinaryOperator, rhs: Expr)
 
 			abstract conditional.ConditionalExpr {
 				AttributeCheckExpr(receiver: Expr, attribute: Name, value: Expr)
