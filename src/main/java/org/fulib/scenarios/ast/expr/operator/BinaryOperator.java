@@ -5,6 +5,7 @@ import org.fulib.scenarios.ast.type.Type;
 public enum BinaryOperator
 {
    PLUS("+", (t1, t2) -> t1),
+   MINUS("-", (t1, t2) -> t1),
    ;
 
    // =============== Fields ===============

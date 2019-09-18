@@ -480,6 +480,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
                              "add.target.not.name");
    }
 
+   @Override
+   public Sentence visit(RemoveSentence removeSentence, Scope par)
+   {
+      return resolveMutating(removeSentence, true, BinaryOperator.MINUS, par, "remove.source.type",
+                             "remove.target.type", "remove.target.not.name");
+   }
+
    private static Sentence resolveMutating(MutatingSentence sentence, boolean allowLists, BinaryOperator operator,
       Scope par, String sourceTypeCode, String targetTypeCode, String targetShapeCode)
    {
@@ -506,6 +513,39 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       par.report(error(target.getPosition(), targetShapeCode, target.getClass().getEnclosingClass().getSimpleName()));
       return sentence;
+   }
+
+   private static Expr convertAsList(Expr source, Expr target, String invalidSource, String invalidTarget, Scope par)
+   {
+      final Type targetType = target.getType();
+      if (targetType == PrimitiveType.ERROR)
+      {
+         return source;
+      }
+
+      if (!(targetType instanceof ListType))
+      {
+         par.report(error(target.getPosition(), invalidTarget, targetType.getDescription()));
+         return source;
+      }
+
+      final Type elementType = ((ListType) targetType).getElementType();
+      final Expr sourceAsElement = TypeConversion.convert(source, elementType);
+      if (sourceAsElement != null)
+      {
+         return sourceAsElement;
+      }
+
+      final Expr sourceAsList = TypeConversion.convert(source, targetType);
+      if (sourceAsList != null)
+      {
+         return sourceAsList;
+      }
+
+      final Type sourceType = source.getType();
+      par.report(
+         error(source.getPosition(), invalidSource, sourceType.getDescription(), targetType.getDescription()));
+      return source;
    }
 
    private static Sentence compoundAssignment(Expr lhs, BinaryOperator operator, Expr rhs, Scope par,
@@ -550,49 +590,6 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          return assignSentence;
       }
       return null;
-   }
-
-   @Override
-   public Sentence visit(RemoveSentence removeSentence, Scope par)
-   {
-      final Expr source = removeSentence.getSource().accept(ExprResolver.INSTANCE, par);
-      final Expr target = removeSentence.getTarget().accept(ExprResolver.INSTANCE, par);
-      removeSentence.setTarget(target);
-      removeSentence.setSource(convertAsList(source, target, "remove.source.type", "remove.target.type", par));
-      return removeSentence;
-   }
-
-   private static Expr convertAsList(Expr source, Expr target, String invalidSource, String invalidTarget, Scope par)
-   {
-      final Type targetType = target.getType();
-      if (targetType == PrimitiveType.ERROR)
-      {
-         return source;
-      }
-
-      if (!(targetType instanceof ListType))
-      {
-         par.report(error(target.getPosition(), invalidTarget, targetType.getDescription()));
-         return source;
-      }
-
-      final Type elementType = ((ListType) targetType).getElementType();
-      final Expr sourceAsElement = TypeConversion.convert(source, elementType);
-      if (sourceAsElement != null)
-      {
-         return sourceAsElement;
-      }
-
-      final Expr sourceAsList = TypeConversion.convert(source, targetType);
-      if (sourceAsList != null)
-      {
-         return sourceAsList;
-      }
-
-      final Type sourceType = source.getType();
-      par.report(
-         error(source.getPosition(), invalidSource, sourceType.getDescription(), targetType.getDescription()));
-      return source;
    }
 
    @Override
