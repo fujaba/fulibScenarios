@@ -194,3 +194,13 @@
 * Improved argument/parameter matching.
 * Fixed an exception caused by misplaced Answer Sentences. #142
 * Fixed an exception when a call has more arguments than parameters. #144
+
+# Fulib Scenarios v0.9.0
+
++ Add Sentences can now add numbers. #134
++ Remove Sentences can now subtract numbers. #148
+* Add Sentences can no longer define new attributes or associations.
+* Improved diagnostics for Add Sentences.
+* Improved diagnostics for Remove Sentences.
+* Fixed Remove Sentences not always removing all occurrences. #140
+* Fixed Remove Sentences removing by index. #141
