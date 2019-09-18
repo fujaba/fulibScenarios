@@ -69,7 +69,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 			ConditionalSentence(condition: Expr, body: Sentence)
 
-			AssignSentence(target: VarDecl, value: Expr) // i.e. a variable assignment
+			AssignSentence(target: VarDecl, operator: BinaryOperator?, value: Expr) // i.e. a variable assignment
 			ExprSentence(expr: Expr)
 		}
 

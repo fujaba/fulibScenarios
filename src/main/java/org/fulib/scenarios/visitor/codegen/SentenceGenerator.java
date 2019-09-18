@@ -4,6 +4,7 @@ import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
+import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
@@ -288,7 +289,15 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    {
       par.emitIndent();
       par.bodyBuilder.append(assignSentence.getTarget().getName());
-      par.bodyBuilder.append(" = ");
+      par.bodyBuilder.append(' ');
+
+      final BinaryOperator operator = assignSentence.getOperator();
+      if (operator != null)
+      {
+         par.bodyBuilder.append(operator.getSymbol());
+      }
+
+      par.bodyBuilder.append("= ");
       assignSentence.getValue().accept(ExprGenerator.INSTANCE, par);
       par.bodyBuilder.append(";\n");
       return null;

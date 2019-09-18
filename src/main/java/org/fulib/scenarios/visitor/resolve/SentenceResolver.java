@@ -380,7 +380,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       {
          final VarDecl target = (VarDecl) existing;
          final Expr converted = checkAssignment(expr, target, false, par);
-         return AssignSentence.of(target, converted);
+         return AssignSentence.of(target, null, converted);
       }
 
       varDecl.setName(name);
