@@ -9,7 +9,6 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.call.CreationExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
@@ -241,7 +240,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(ExpectSentence expectSentence, Scope par)
    {
-      expectSentence.getPredicates().replaceAll(it -> (ConditionalExpr) it.accept(ExprResolver.INSTANCE, par));
+      expectSentence.getPredicates().replaceAll(it -> it.accept(ExprResolver.INSTANCE, par));
       return expectSentence;
    }
 
@@ -632,8 +631,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(ConditionalSentence conditionalSentence, Scope par)
    {
-      conditionalSentence
-         .setCondition((ConditionalExpr) conditionalSentence.getCondition().accept(ExprResolver.INSTANCE, par));
+      conditionalSentence.setCondition(conditionalSentence.getCondition().accept(ExprResolver.INSTANCE, par));
       conditionalSentence.setBody(conditionalSentence.getBody().accept(this, par));
       return conditionalSentence;
    }

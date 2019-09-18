@@ -94,7 +94,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
             return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
          }
       };
-      filterExpr.setPredicate((ConditionalExpr) filterExpr.getPredicate().accept(this, scope));
+      filterExpr.setPredicate(filterExpr.getPredicate().accept(this, scope));
       return filterExpr;
    }
 

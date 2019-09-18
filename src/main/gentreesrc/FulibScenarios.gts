@@ -48,7 +48,7 @@ abstract org.fulib.scenarios.ast.Node {
 			SectionSentence(text: String, level: CommentLevel)
 
 			ThereSentence(descriptor: MultiDescriptor) // like CreateSentence, but without an actor
-			ExpectSentence(predicates: [ConditionalExpr]) // i.e. an assertion
+			ExpectSentence(predicates: [Expr]) // i.e. an assertion
 			DiagramSentence(object: Expr, fileName: String) // i.e. an object diagram dump
 			HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
 			IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
@@ -67,7 +67,7 @@ abstract org.fulib.scenarios.ast.Node {
 				TakeSentence(actor: Name, varName: Name?, example: Expr, collection: Expr, body: Sentence)
 			}
 
-			ConditionalSentence(condition: ConditionalExpr, body: Sentence)
+			ConditionalSentence(condition: Expr, body: Sentence)
 
 			AssignSentence(target: VarDecl, value: Expr) // i.e. a variable assignment
 			ExprSentence(expr: Expr)
@@ -107,7 +107,7 @@ abstract org.fulib.scenarios.ast.Node {
 				RangeExpr(start: Expr, end: Expr)
 
 				MapAccessExpr(name: Name, receiver: Expr)
-				FilterExpr(source: Expr, predicate: ConditionalExpr)
+				FilterExpr(source: Expr, predicate: Expr)
 			}
 		}
 	}

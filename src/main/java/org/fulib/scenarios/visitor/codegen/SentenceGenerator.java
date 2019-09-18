@@ -4,7 +4,6 @@ import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
@@ -36,7 +35,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(ExpectSentence expectSentence, CodeGenDTO par)
    {
-      for (ConditionalExpr expr : expectSentence.getPredicates())
+      for (final Expr expr : expectSentence.getPredicates())
       {
          par.emitIndent();
          expr.accept(AssertionGenerator.INSTANCE, par);

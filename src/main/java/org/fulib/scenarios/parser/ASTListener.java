@@ -174,7 +174,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitExpectSentence(ScenarioParser.ExpectSentenceContext ctx)
    {
-      final List<ConditionalExpr> exprs = this.pop(ConditionalExpr.class, ctx.thatClauses().thatClause().size());
+      final List<Expr> exprs = this.pop(Expr.class, ctx.thatClauses().thatClause().size());
       final ExpectSentence expectSentence = ExpectSentence.of(exprs);
       expectSentence.setPosition(position(ctx.EXPECT()));
       this.stack.push(expectSentence);
@@ -308,7 +308,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitConditionalSentence(ScenarioParser.ConditionalSentenceContext ctx)
    {
       final SentenceList body = this.pop();
-      final ConditionalExpr condition = this.pop();
+      final Expr condition = this.pop();
       final ConditionalSentence sentence = ConditionalSentence.of(condition, body);
       sentence.setPosition(position(ctx.AS()));
       this.stack.push(sentence);
@@ -493,7 +493,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitFilterExpr(ScenarioParser.FilterExprContext ctx)
    {
-      final ConditionalExpr predicate = this.pop();
+      final Expr predicate = this.pop();
       final Expr source = this.pop();
       final FilterExpr filterExpr = FilterExpr.of(source, predicate);
       filterExpr.setPosition(position(ctx.ALL()));

@@ -1,7 +1,6 @@
 package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.scenarios.ast.expr.Expr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalExpr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
@@ -12,11 +11,21 @@ import org.fulib.scenarios.ast.type.Type;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum AssertionGenerator implements ConditionalExpr.Visitor<CodeGenDTO, Object>
+public enum AssertionGenerator implements Expr.Visitor<CodeGenDTO, Object>
 {
    INSTANCE;
 
    private static final Pattern METHOD_PATTERN = Pattern.compile("(?!\\.)(\\w+)\\(");
+
+   @Override
+   public Object visit(Expr expr, CodeGenDTO par)
+   {
+      par.addImport("static org.junit.Assert.assertTrue");
+      par.bodyBuilder.append("assertTrue(");
+      expr.accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(')');
+      return null;
+   }
 
    @Override
    public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par)
