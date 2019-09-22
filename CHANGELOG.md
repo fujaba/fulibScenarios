@@ -204,3 +204,8 @@
 * Improved diagnostics for Remove Sentences.
 * Fixed Remove Sentences not always removing all occurrences. #140
 * Fixed Remove Sentences removing by index. #141
+
+# Fulib Scenarios v0.9.1
+
+* Fixed an exception caused by unresolved list attribute access. #149
+* Fixed invalid code being generated when using the `contains` and `does not contain` conditional operators. #150
