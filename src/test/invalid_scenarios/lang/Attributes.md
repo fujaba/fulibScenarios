@@ -11,6 +11,19 @@ We write invalid of 'some string' into y.
 error: unresolved attribute or association 'String.invalid' - 'String' is a primitive type [property.unresolved.primitive]
 -->
 
+There are Students with name Alice, Charlie, Bob.
+We write Alice, Charlie, Bob into students.
+We write names of students into names.
+<!--     ^
+error: unresolved attribute or association 'Student.names' [property.unresolved]
+-->
+
+We write 1,2,3 into numbers.
+We write names of numbers into names.
+<!--     ^
+error: unresolved attribute or association 'int.names' - 'int' is a primitive type [property.unresolved.primitive]
+-->
+
 # Invalid Redeclaration
 
 There is the Object o1.

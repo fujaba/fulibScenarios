@@ -2,6 +2,7 @@ package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.collection.FilterExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -172,18 +173,20 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
       final Type listType = listAttributeAccess.getReceiver().getType();
       final Type elementType = ((ListType) listType).getElementType();
       final String elementTypeName = elementType.accept(Namer.INSTANCE, elementType);
-      final Decl attribute = listAttributeAccess.getName().getDecl();
+      final Name name = listAttributeAccess.getName();
+      final Decl attribute = name.getDecl();
 
       listAttributeAccess.getReceiver().accept(this, par);
       par.bodyBuilder.append(".map(");
       par.bodyBuilder.append(elementTypeName);
       par.bodyBuilder.append("::get");
-      par.bodyBuilder.append(StrUtil.cap(attribute.getName()));
+      par.bodyBuilder.append(StrUtil.cap(name.getValue()));
       par.bodyBuilder.append(')');
 
-      if (attribute.getType() instanceof ListType)
+      if (attribute != null && attribute.getType() instanceof ListType)
       {
-         par.bodyBuilder.append(".flatMap(x -> x.stream())");
+         par.addImport("java.util.List");
+         par.bodyBuilder.append(".flatMap(List::stream)");
       }
       return null;
    }
