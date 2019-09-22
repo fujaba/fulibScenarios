@@ -15,7 +15,7 @@ public enum AssertionGenerator implements Expr.Visitor<CodeGenDTO, Object>
 {
    INSTANCE;
 
-   private static final Pattern METHOD_PATTERN = Pattern.compile("(?!\\.)(\\w+)\\(");
+   private static final Pattern METHOD_PATTERN = Pattern.compile("(\\.?\\w+)\\(");
 
    @Override
    public Object visit(Expr expr, CodeGenDTO par)
@@ -40,6 +40,10 @@ public enum AssertionGenerator implements Expr.Visitor<CodeGenDTO, Object>
       while (matcher.find())
       {
          final String methodName = matcher.group(1);
+         if (methodName.charAt(0) == '.')
+         {
+            continue;
+         }
          if (methodName.startsWith("assert"))
          {
             par.addImport("static org.junit.Assert." + methodName);

@@ -27,8 +27,10 @@ public enum ConditionalOperator
    GE("is greater equal", "are greater equal", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
    NOT_GT("is not greater than", "are not greater than", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
    // collection
-   CONTAINS("contains", "contain", "<lhs>.contains(<rhs>)"),
-   NOT_CONTAINS("does not contain", "do not contain", "!<lhs>.contains(<rhs>)"),
+   CONTAINS("contains", "contain", "<lhs>.contains(<rhs>)", "<lhs>.contains(<rhs>)",
+            "assertThat(<lhs>, hasItem(<rhs>))", "assertThat(<lhs>, hasItem(<rhs>))"),
+   NOT_CONTAINS("does not contain", "do not contain", "!<lhs>.contains(<rhs>)", "!<lhs>.contains(<rhs>)",
+                "assertThat(<lhs>, not(hasItem(<rhs>)))", "assertThat(<lhs>, not(hasItem(<rhs>)))"),
    // IS_IN("is in", "<rhs>.contains(<lhs>)"),
    // IS_NOT_IN("is not in", "!<rhs>.contains(<lhs>)"),
    ;
