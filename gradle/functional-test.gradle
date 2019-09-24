@@ -100,7 +100,7 @@ private void configureTestCompile(JavaExec j, String modelOutputDir, String test
     j.args '-m', modelOutputDir
     j.args '-t', testOutputDir
     j.args '-i', imports.join(',')
-    j.args '-cp', configurations.testCompile.join(File.pathSeparator)
+    j.args '-cp', sourceSets.test.compileClasspath.asPath
     j.args '--'
     j.args sourceDirs
 
