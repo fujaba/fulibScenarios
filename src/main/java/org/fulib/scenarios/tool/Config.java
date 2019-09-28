@@ -17,6 +17,12 @@ public class Config
    private List<String> classpath = new ArrayList<>();
    private Set<String>  imports   = new HashSet<>();
 
+   {
+      // default imports
+      this.imports.add("java.lang");
+      this.imports.add("org.fulib.mockups");
+   }
+
    private boolean classDiagram;
    private boolean classDiagramSVG;
 
