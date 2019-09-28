@@ -23,6 +23,15 @@ public class LibraryHelper
       {
          loadLibrary(entry, compiler);
       }
+
+      // load rt.jar (the jar file containing java.lang classes)
+
+      // url  = file:/Library/.../rt.jar!/java/lang/Object.class
+      // path =      ^^^^^^^^^^^^^^^^^^^
+      final String url = Object.class.getResource("/java/lang/Object.class").getFile();
+      final String path = url.substring(url.indexOf(':') + 1, url.indexOf(".jar!/") + 4);
+
+      loadLibrary(path, compiler);
    }
 
    private static void loadLibrary(String classpathEntry, ScenarioCompiler compiler)
