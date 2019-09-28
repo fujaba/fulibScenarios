@@ -66,28 +66,38 @@ public class ClassModelVisitor extends ClassVisitor
    @Override
    public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions)
    {
-      if ("<init>".equals(name) || "<clinit>".equals(name))
+      if (name.isEmpty() || "<init>".equals(name) || "<clinit>".equals(name))
       {
          // don't care about constructors or class initializer
          return null;
       }
-      if (name.startsWith("get") || name.startsWith("set") || name.startsWith("with") || name.startsWith("without"))
-      {
-         // check for an attribute with the UpperCamelCased name too for compatibility with older versions
-         final String attributeName = name.substring(3);
-         if (this.properties.contains(attributeName))
-         {
-            if (name.charAt(0) == 'g') // get
-            {
-               this.tryCreateAttribute(attributeName, descriptor, signature);
-            }
-            return null;
-         }
 
+      final int prefixLength;
+      if (name.startsWith("get") || name.startsWith("set"))
+      {
+         prefixLength = 3;
+      }
+      else if (name.startsWith("without"))
+      {
+         prefixLength = 7;
+      }
+      else if (name.startsWith("with"))
+      {
+         prefixLength = 4;
+      }
+      else
+      {
+         prefixLength = 0;
+      }
+
+      if (prefixLength > 0 && name.length() > prefixLength)
+      {
+         final String attributeName = name.substring(prefixLength);
          final String lowerAttributeName = StrUtil.downFirstChar(attributeName);
+
          if (this.properties.contains(lowerAttributeName))
          {
-            if (name.charAt(0) == 'g') // get
+            if (name.charAt(0) == 'g') // must be getter
             {
                this.tryCreateAttribute(lowerAttributeName, descriptor, signature);
             }
