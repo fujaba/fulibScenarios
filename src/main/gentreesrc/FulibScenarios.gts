@@ -13,9 +13,10 @@ abstract org.fulib.scenarios.ast.Node {
 	              files: [String:ScenarioFile], classes: [String:ClassDecl])
 	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl,
 	             noconstruct external: boolean, noconstruct markers: [Marker])
-	Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
 	Positioned(noconstruct position: Position) {
+		Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
+
 		abstract decl.Decl(name: String, type: Type) {
 			ClassDecl(group: ScenarioGroup, name: String, type: Type,
 			          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl],
@@ -71,7 +72,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 			ConditionalSentence(condition: Expr, body: Sentence)
 
-			AssignSentence(target: VarDecl, operator: BinaryOperator?, value: Expr) // i.e. a variable assignment
+			AssignSentence(target: Decl, operator: BinaryOperator?, value: Expr) // i.e. a variable assignment
 			ExprSentence(expr: Expr)
 		}
 

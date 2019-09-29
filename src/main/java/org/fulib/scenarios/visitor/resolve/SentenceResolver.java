@@ -97,33 +97,25 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
    private static void expand(MultiDescriptor multiDesc, List<Sentence> result, Scope scope)
    {
+      final Type type = multiDesc.getType();
       final List<Name> names = getNames(multiDesc);
-      final List<VarDecl> varDecls = new ArrayList<>(names.size());
+      final List<Decl> varDecls = new ArrayList<>(names.size());
 
       // collect variable declarations from names
       for (final Name name : names)
       {
-         final CreationExpr expr = CreationExpr.of(multiDesc.getType(), Collections.emptyList());
          final String nameValue = name.getValue();
 
-         final Decl existing = scope.resolve(nameValue);
-         if (existing instanceof VarDecl)
-         {
-            scope.report(error(name.getPosition(), "variable.redeclaration", nameValue)
-                            .note(note(existing.getPosition(), "variable.declaration.first", nameValue)));
-            varDecls.add((VarDecl) existing);
-         }
-         else
-         {
-            final VarDecl varDecl = VarDecl.of(nameValue, null, expr);
-            varDecl.setPosition(name.getPosition());
+         final CreationExpr expr = CreationExpr.of(type, Collections.emptyList());
+         expr.setPosition(name.getPosition());
 
-            varDecls.add(varDecl);
+         final VarDecl varDecl = VarDecl.of(nameValue, null, expr);
+         varDecl.setPosition(name.getPosition());
+         varDecls.add(varDecl);
 
-            final IsSentence isSentence = IsSentence.of(varDecl);
-            isSentence.setPosition(name.getPosition());
-            result.add(isSentence);
-         }
+         final IsSentence isSentence = IsSentence.of(varDecl);
+         isSentence.setPosition(name.getPosition());
+         result.add(isSentence);
       }
 
       // collect attribute assignments
@@ -376,11 +368,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Decl existing = par.resolve(name);
-      if (existing != varDecl && existing instanceof VarDecl)
+      if (existing != null)
       {
-         final VarDecl target = (VarDecl) existing;
-         final Expr converted = checkAssignment(expr, target, false, par);
-         return AssignSentence.of(target, null, converted);
+         par.report(error(varDecl.getPosition(), "variable.redeclaration", name)
+                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
       }
 
       varDecl.setName(name);
@@ -462,7 +453,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       // TODO maybe add .accept(ExprResolver.INSTANCE, par)
       final Expr source = writeSentence.getSource();
       final Expr target = writeSentence.getTarget();
-      final Sentence sentence = target.accept(AssignmentResolve.INSTANCE, source);
+      final Sentence sentence = target.accept(new AssignmentResolve(par), source);
       if (sentence != null)
       {
          return sentence.accept(SentenceResolver.INSTANCE, par);
@@ -584,7 +575,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (lhs instanceof NameAccess)
       {
-         final VarDecl decl = (VarDecl) ((NameAccess) lhs).getName().getDecl();
+         final Decl decl = ((NameAccess) lhs).getName().getDecl();
          final AssignSentence assignSentence = AssignSentence.of(decl, operator, rhs);
          assignSentence.setPosition(position);
          return assignSentence;
@@ -626,7 +617,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          type = PrimitiveType.ERROR;
       }
 
-      final VarDecl varDecl = resolveVar(takeSentence, par, exampleName, type);
+      final Decl varDecl = resolveVar(takeSentence, par, exampleName, type);
       final Scope scope = new DelegatingScope(par)
       {
          @Override
@@ -640,7 +631,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return takeSentence;
    }
 
-   private static VarDecl resolveVar(TakeSentence takeSentence, Scope par, String exampleName, Type type)
+   private static Decl resolveVar(TakeSentence takeSentence, Scope par, String exampleName, Type type)
    {
       final Name name = takeSentence.getVarName();
       final String varName;
@@ -650,7 +641,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          final Decl decl = name.getDecl();
          if (decl != null)
          {
-            return (VarDecl) decl;
+            return decl;
          }
 
          varName = name.getValue();
@@ -687,13 +678,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    public Sentence visit(AssignSentence assignSentence, Scope par)
    {
       final Expr expr = assignSentence.getValue().accept(ExprResolver.INSTANCE, par);
-      final VarDecl target = assignSentence.getTarget();
+      final Decl target = assignSentence.getTarget();
 
       assignSentence.setValue(checkAssignment(expr, target, false, par));
       return assignSentence;
    }
 
-   private static Expr checkAssignment(Expr expr, VarDecl target, boolean isNew, Scope par)
+   private static Expr checkAssignment(Expr expr, Decl target, boolean isNew, Scope par)
    {
       final Type targetType = target.getType();
       final Expr converted = TypeConversion.convert(expr, targetType);

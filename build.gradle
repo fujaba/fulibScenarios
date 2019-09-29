@@ -3,7 +3,7 @@ plugins {
     id 'antlr'
     id 'maven-publish'
     id 'com.jfrog.bintray' version '1.8.4'
-    id 'de.clashsoft.simple-publish' version '0.2.0'
+    id 'de.clashsoft.simple-publish' version '0.5.0'
     id 'de.clashsoft.gentreesrc-gradle' version '0.5.0'
 }
 
@@ -13,19 +13,17 @@ apply from: 'gradle/webapp.gradle'
 // --------------- Info ---------------
 
 group = 'org.fulib'
-version = "git describe --tags".execute().text[1..-2] // strip v and \n
+version = 'git describe --tags'.execute().text[1..-2] // strip v and \n
 description = 'A compiler for textual example scenarios.'
 
 publishInfo {
+    organization = 'fujaba'
     websiteUrl = 'https://www.fulib.org/'
-    issueTrackerUrl = 'https://github.com/fujaba/fulibScenarios'
-    vcsUrl = 'https://github.com/fujaba/fulibScenarios'
     githubRepo = 'fujaba/fulibScenarios'
     labels = [ 'source', 'generator', 'scenario', 'markdown' ]
 
     license {
-        shortName = 'BSD 3-Clause'
-        longName = 'BSD 3-Clause "New" or "Revised" License'
+        name = 'BSD 3-Clause License'
         url = 'https://opensource.org/licenses/BSD-3-Clause'
     }
 

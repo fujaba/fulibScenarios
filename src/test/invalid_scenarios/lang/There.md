@@ -39,3 +39,15 @@ We create the Student Bob.
 error: invalid redeclaration of 'bob' [variable.redeclaration]
 perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
 -->
+
+(#158) Alice is a Student.
+<!--   ^
+error: invalid redeclaration of 'alice' [variable.redeclaration]
+perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+-->
+
+(#159) InvalidRedeclarations is a Student.
+<!--   ^
+error: invalid redeclaration of 'invalidRedeclarations' [variable.redeclaration]
+perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+-->

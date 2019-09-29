@@ -1,6 +1,7 @@
 package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
@@ -9,19 +10,28 @@ import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
-import org.fulib.scenarios.ast.sentence.HasSentence;
-import org.fulib.scenarios.ast.sentence.IsSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.ast.scope.Scope;
+import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.diagnostic.Position;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
+public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
 {
-   INSTANCE;
+   // =============== Fields ===============
+
+   private final Scope scope;
+
+   // =============== Constructors ===============
+
+   public AssignmentResolve(Scope scope)
+   {
+      this.scope = scope;
+   }
+
+   // =============== Methods ===============
 
    @Override
    public Sentence visit(Expr expr, Expr par)
@@ -101,6 +111,14 @@ public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
    public Sentence visit(NameAccess nameAccess, Expr par)
    {
       final String name = nameAccess.getName().getValue();
+      final Decl existing = this.scope.resolve(name);
+      if (existing != null)
+      {
+         final AssignSentence assignSentence = AssignSentence.of(existing, null, par);
+         assignSentence.setPosition(nameAccess.getPosition());
+         return assignSentence;
+      }
+
       final VarDecl varDecl = VarDecl.of(name, null, par);
       varDecl.setPosition(nameAccess.getPosition());
       final IsSentence isSentence = IsSentence.of(varDecl);
