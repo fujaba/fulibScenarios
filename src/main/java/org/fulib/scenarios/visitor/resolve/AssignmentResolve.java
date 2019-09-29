@@ -9,6 +9,7 @@ import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
+import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
 import org.fulib.scenarios.ast.sentence.HasSentence;
 import org.fulib.scenarios.ast.sentence.IsSentence;
@@ -19,9 +20,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public enum AssignmentResolve implements Expr.Visitor<Expr, Sentence>
+public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
 {
-   INSTANCE;
+   // =============== Fields ===============
+
+   private final Scope scope;
+
+   // =============== Constructors ===============
+
+   public AssignmentResolve(Scope scope)
+   {
+      this.scope = scope;
+   }
+
+   // =============== Methods ===============
 
    @Override
    public Sentence visit(Expr expr, Expr par)

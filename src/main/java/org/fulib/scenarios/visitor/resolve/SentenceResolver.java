@@ -462,7 +462,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       // TODO maybe add .accept(ExprResolver.INSTANCE, par)
       final Expr source = writeSentence.getSource();
       final Expr target = writeSentence.getTarget();
-      final Sentence sentence = target.accept(AssignmentResolve.INSTANCE, source);
+      final Sentence sentence = target.accept(new AssignmentResolve(par), source);
       if (sentence != null)
       {
          return sentence.accept(SentenceResolver.INSTANCE, par);
