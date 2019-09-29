@@ -97,33 +97,25 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
    private static void expand(MultiDescriptor multiDesc, List<Sentence> result, Scope scope)
    {
+      final Type type = multiDesc.getType();
       final List<Name> names = getNames(multiDesc);
       final List<VarDecl> varDecls = new ArrayList<>(names.size());
 
       // collect variable declarations from names
       for (final Name name : names)
       {
-         final CreationExpr expr = CreationExpr.of(multiDesc.getType(), Collections.emptyList());
          final String nameValue = name.getValue();
 
-         final Decl existing = scope.resolve(nameValue);
-         if (existing instanceof VarDecl)
-         {
-            scope.report(error(name.getPosition(), "variable.redeclaration", nameValue)
-                            .note(note(existing.getPosition(), "variable.declaration.first", nameValue)));
-            varDecls.add((VarDecl) existing);
-         }
-         else
-         {
-            final VarDecl varDecl = VarDecl.of(nameValue, null, expr);
-            varDecl.setPosition(name.getPosition());
+         final CreationExpr expr = CreationExpr.of(type, Collections.emptyList());
+         expr.setPosition(name.getPosition());
 
-            varDecls.add(varDecl);
+         final VarDecl varDecl = VarDecl.of(nameValue, null, expr);
+         varDecl.setPosition(name.getPosition());
+         varDecls.add(varDecl);
 
-            final IsSentence isSentence = IsSentence.of(varDecl);
-            isSentence.setPosition(name.getPosition());
-            result.add(isSentence);
-         }
+         final IsSentence isSentence = IsSentence.of(varDecl);
+         isSentence.setPosition(name.getPosition());
+         result.add(isSentence);
       }
 
       // collect attribute assignments
@@ -376,11 +368,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Decl existing = par.resolve(name);
-      if (existing != varDecl && existing instanceof VarDecl)
+      if (existing != null)
       {
-         final VarDecl target = (VarDecl) existing;
-         final Expr converted = checkAssignment(expr, target, false, par);
-         return AssignSentence.of(target, null, converted);
+         par.report(error(varDecl.getPosition(), "variable.redeclaration", name)
+                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
       }
 
       varDecl.setName(name);
