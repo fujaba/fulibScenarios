@@ -95,6 +95,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final List<Sentence> sentences = this.pop(Sentence.class, ctx.sentence().size());
       final SentenceList body = SentenceList.of(sentences);
       final Scenario scenario = Scenario.of(null, name, body, null);
+      scenario.setPosition(position(ctx.header().HEADLINE_TEXT()));
       this.stack.push(scenario);
    }
 

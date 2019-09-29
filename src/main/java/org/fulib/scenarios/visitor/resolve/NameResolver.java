@@ -194,6 +194,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final String methodName = Identifiers.toLowerCamelCase(scenario.getName());
       final SentenceList body = scenario.getBody();
       final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, PrimitiveType.VOID, body);
+      methodDecl.setPosition(scenario.getPosition());
 
       final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
       methodDecl.setParameters(Collections.singletonList(thisParam));
