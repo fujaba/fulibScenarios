@@ -131,6 +131,11 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          for (final MethodDecl methodDecl : classDecl.getMethods())
          {
             methodDecl.setType(methodDecl.getType().accept(TypeResolver.INSTANCE, scope));
+
+            for (final ParameterDecl parameter : methodDecl.getParameters())
+            {
+               parameter.setType(parameter.getType().accept(TypeResolver.INSTANCE, scope));
+            }
          }
 
          classDecl.setFrozen(true);
