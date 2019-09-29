@@ -63,7 +63,7 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
       return null;
    }
 
-   private void addAnswerVar(Map<String, Decl> par, VarDecl varDecl, Expr expr)
+   private void addAnswerVar(Map<String, Decl> par, Decl varDecl, Expr expr)
    {
       if (!(expr instanceof CallExpr))
       {

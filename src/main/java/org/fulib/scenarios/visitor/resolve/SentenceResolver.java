@@ -99,7 +99,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    {
       final Type type = multiDesc.getType();
       final List<Name> names = getNames(multiDesc);
-      final List<VarDecl> varDecls = new ArrayList<>(names.size());
+      final List<Decl> varDecls = new ArrayList<>(names.size());
 
       // collect variable declarations from names
       for (final Name name : names)
@@ -575,7 +575,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (lhs instanceof NameAccess)
       {
-         final VarDecl decl = (VarDecl) ((NameAccess) lhs).getName().getDecl();
+         final Decl decl = ((NameAccess) lhs).getName().getDecl();
          final AssignSentence assignSentence = AssignSentence.of(decl, operator, rhs);
          assignSentence.setPosition(position);
          return assignSentence;
@@ -617,7 +617,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          type = PrimitiveType.ERROR;
       }
 
-      final VarDecl varDecl = resolveVar(takeSentence, par, exampleName, type);
+      final Decl varDecl = resolveVar(takeSentence, par, exampleName, type);
       final Scope scope = new DelegatingScope(par)
       {
          @Override
@@ -631,7 +631,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return takeSentence;
    }
 
-   private static VarDecl resolveVar(TakeSentence takeSentence, Scope par, String exampleName, Type type)
+   private static Decl resolveVar(TakeSentence takeSentence, Scope par, String exampleName, Type type)
    {
       final Name name = takeSentence.getVarName();
       final String varName;
@@ -641,7 +641,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          final Decl decl = name.getDecl();
          if (decl != null)
          {
-            return (VarDecl) decl;
+            return decl;
          }
 
          varName = name.getValue();
@@ -678,13 +678,13 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    public Sentence visit(AssignSentence assignSentence, Scope par)
    {
       final Expr expr = assignSentence.getValue().accept(ExprResolver.INSTANCE, par);
-      final VarDecl target = assignSentence.getTarget();
+      final Decl target = assignSentence.getTarget();
 
       assignSentence.setValue(checkAssignment(expr, target, false, par));
       return assignSentence;
    }
 
-   private static Expr checkAssignment(Expr expr, VarDecl target, boolean isNew, Scope par)
+   private static Expr checkAssignment(Expr expr, Decl target, boolean isNew, Scope par)
    {
       final Type targetType = target.getType();
       final Expr converted = TypeConversion.convert(expr, targetType);

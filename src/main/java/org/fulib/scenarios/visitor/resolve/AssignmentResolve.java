@@ -112,9 +112,9 @@ public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
    {
       final String name = nameAccess.getName().getValue();
       final Decl existing = this.scope.resolve(name);
-      if (existing instanceof VarDecl)
+      if (existing != null)
       {
-         final AssignSentence assignSentence = AssignSentence.of((VarDecl) existing, null, par);
+         final AssignSentence assignSentence = AssignSentence.of(existing, null, par);
          assignSentence.setPosition(nameAccess.getPosition());
          return assignSentence;
       }
