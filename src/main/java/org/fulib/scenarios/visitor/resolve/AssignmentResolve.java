@@ -1,6 +1,7 @@
 package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
@@ -10,10 +11,7 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.scope.Scope;
-import org.fulib.scenarios.ast.sentence.FlattenSentenceList;
-import org.fulib.scenarios.ast.sentence.HasSentence;
-import org.fulib.scenarios.ast.sentence.IsSentence;
-import org.fulib.scenarios.ast.sentence.Sentence;
+import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.diagnostic.Position;
 
 import java.util.ArrayList;
@@ -113,6 +111,14 @@ public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
    public Sentence visit(NameAccess nameAccess, Expr par)
    {
       final String name = nameAccess.getName().getValue();
+      final Decl existing = this.scope.resolve(name);
+      if (existing instanceof VarDecl)
+      {
+         final AssignSentence assignSentence = AssignSentence.of((VarDecl) existing, null, par);
+         assignSentence.setPosition(nameAccess.getPosition());
+         return assignSentence;
+      }
+
       final VarDecl varDecl = VarDecl.of(name, null, par);
       varDecl.setPosition(nameAccess.getPosition());
       final IsSentence isSentence = IsSentence.of(varDecl);
