@@ -1,21 +1,9 @@
 package org.fulib.scenarios.library;
 
-import org.fulib.scenarios.ast.ScenarioGroup;
-import org.fulib.scenarios.ast.decl.ClassDecl;
-import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.tool.ScenarioCompiler;
-import org.fulib.scenarios.visitor.resolve.DeclResolver;
-import org.objectweb.asm.ClassReader;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 public class LibraryHelper
 {
@@ -50,104 +38,21 @@ public class LibraryHelper
 
    private static void loadDirLibrary(String src, ScenarioCompiler compiler)
    {
-      for (String packageName : compiler.getConfig().getImports())
-      {
-         final String packageDir = packageName.replace('.', '/');
-         final File[] files = new File(src, packageDir).listFiles();
-         if (files == null)
-         {
-            return;
-         }
-
-         final ScenarioGroup scenarioGroup = DeclResolver.resolveGroup(compiler.getContext(), packageDir);
-
-         for (File file : files)
-         {
-            if (!file.isFile())
-            {
-               continue;
-            }
-
-            loadFile(compiler, scenarioGroup, file);
-         }
-      }
-   }
-
-   private static void loadFile(ScenarioCompiler compiler, ScenarioGroup scenarioGroup, File file)
-   {
-      final String fileName = file.getName();
-      if (fileName.endsWith(".class") && fileName.indexOf('$') < 0) // skip inner classes
-      {
-         try (final InputStream data = new FileInputStream(file))
-         {
-            loadClass(scenarioGroup, data);
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace(compiler.getErr());
-         }
-      }
+      final DirLibrary library = new DirLibrary(new File(src));
+      compiler.getContext().getLibraries().add(library);
    }
 
    private static void loadJarLibrary(String src, ScenarioCompiler compiler)
    {
-      try (JarFile jarFile = new JarFile(src))
+      try
       {
-         final Enumeration<JarEntry> entries = jarFile.entries();
-         while (entries.hasMoreElements())
-         {
-            final JarEntry entry = entries.nextElement();
-            loadJarEntry(compiler, jarFile, entry);
-         }
+         final JarLibrary library = new JarLibrary(new File(src));
+         compiler.getContext().getLibraries().add(library);
       }
       catch (IOException e)
       {
+         compiler.getOut().println("warning: failed to load library: " + src);
          e.printStackTrace(compiler.getErr());
       }
-   }
-
-   private static void loadJarEntry(ScenarioCompiler compiler, JarFile jarFile, JarEntry entry) throws IOException
-   {
-      final String entryName = entry.getName();
-      if (!entryName.endsWith(".class") || entryName.indexOf('$') >= 0) // skip inner classes
-      {
-         return;
-      }
-
-      final int slashIndex = entryName.lastIndexOf('/');
-      if (slashIndex < 0)
-      {
-         return;
-      }
-
-      // assert entryName.length() > 0 // because there is a '/' in there.
-      final int beginIndex = entryName.charAt(0) == '/' ? 1 : 0; // stripping leading /
-      final String packageDir = entryName.substring(beginIndex, slashIndex);
-
-      final String packageName = packageDir.replace('/', '.');
-      if (!compiler.getConfig().getImports().contains(packageName))
-      {
-         return;
-      }
-
-      final ScenarioGroup scenarioGroup = DeclResolver.resolveGroup(compiler.getContext(), packageDir);
-
-      try (InputStream stream = jarFile.getInputStream(entry))
-      {
-         loadClass(scenarioGroup, stream);
-      }
-   }
-
-   public static void loadClass(ScenarioGroup group, InputStream data) throws IOException
-   {
-      final ClassDecl classDecl = ClassDecl
-                                     .of(group, null, null, new HashMap<>(), new HashMap<>(), new ArrayList<>());
-      classDecl.setType(ClassType.of(classDecl));
-      classDecl.setExternal(true);
-
-      final ClassReader reader = new ClassReader(data);
-      reader.accept(new ClassModelVisitor(classDecl), ClassReader.SKIP_CODE);
-
-      group.getClasses().put(classDecl.getName(), classDecl);
    }
 }

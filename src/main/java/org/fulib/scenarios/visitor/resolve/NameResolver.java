@@ -1,23 +1,16 @@
 package org.fulib.scenarios.visitor.resolve;
 
-import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
-import org.fulib.scenarios.ast.scope.DelegatingScope;
-import org.fulib.scenarios.ast.scope.EmptyScope;
-import org.fulib.scenarios.ast.scope.GroupScope;
-import org.fulib.scenarios.ast.scope.Scope;
+import org.fulib.scenarios.ast.scope.*;
 import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.ast.type.ClassType;
-import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
-import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.parser.Identifiers;
-import org.fulib.scenarios.visitor.ExtractClassDecl;
 
 import java.util.*;
 
@@ -39,46 +32,13 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    @Override
    public Object visit(CompilationContext compilationContext, Object par)
    {
-      final Map<String, ScenarioGroup> groups = compilationContext.getGroups();
-      final Set<ScenarioGroup> importedGroups = new HashSet<>();
-      final Map<String, ClassDecl> importedClasses = new HashMap<>();
+      final Scope globalScope = new GlobalScope(compilationContext);
 
-      // first, process all groups that are imported.
-      for (final String packageName : compilationContext.getConfig().getImports())
-      {
-         final String packageDir = packageName.replace('.', '/');
-         final ScenarioGroup group = groups.get(packageDir);
-         if (group != null)
-         {
-            group.accept(this, EmptyScope.INSTANCE);
-            importedGroups.add(group);
-            importedClasses.putAll(group.getClasses());
-         }
-      }
-
-      final Scope importedScope = new Scope()
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return importedClasses.get(name);
-         }
-
-         @Override
-         public void add(Decl decl)
-         {
-         }
-
-         @Override
-         public void report(Marker marker)
-         {
-         }
-      };
-
-      // then, process remaining groups.
-      // since there are no more inter-group references, we can parallelize.
-      groups.values().parallelStream().filter(o -> !importedGroups.contains(o))
-            .forEach(it -> it.accept(this, importedScope));
+      // make a copy of the groups that actually need processing.
+      // new ones might be added to compilationContext.groups while resolving those,
+      // but they do not need resolving as they are external and do not contain any scenario files we care about.
+      final List<ScenarioGroup> groups = new ArrayList<>(compilationContext.getGroups().values());
+      groups.parallelStream().forEach(it -> it.accept(this, globalScope));
       return null;
    }
 
@@ -89,44 +49,6 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    {
       final Scope scope = new GroupScope(par, scenarioGroup);
 
-      // first, process and freeze external classes.
-      for (final ClassDecl classDecl : scenarioGroup.getClasses().values())
-      {
-         for (Iterator<AttributeDecl> iterator = classDecl.getAttributes().values().iterator(); iterator.hasNext(); )
-         {
-            final AttributeDecl attribute = iterator.next();
-            final Type type = attribute.getType().accept(TypeResolver.INSTANCE, scope);
-            final ClassDecl otherClass = type.accept(ExtractClassDecl.INSTANCE, null);
-
-            if (otherClass == null)
-            {
-               attribute.setType(type);
-               continue;
-            }
-
-            // convert to association
-            final int cardinality = type instanceof ListType ? ClassModelBuilder.MANY : 1;
-            final String name = attribute.getName();
-            final AssociationDecl assoc = AssociationDecl.of(classDecl, name, cardinality, otherClass, type, null);
-
-            iterator.remove();
-            classDecl.getAssociations().put(name, assoc);
-         }
-
-         for (final MethodDecl methodDecl : classDecl.getMethods())
-         {
-            methodDecl.setType(methodDecl.getType().accept(TypeResolver.INSTANCE, scope));
-
-            for (final ParameterDecl parameter : methodDecl.getParameters())
-            {
-               parameter.setType(parameter.getType().accept(TypeResolver.INSTANCE, scope));
-            }
-         }
-
-         classDecl.setFrozen(true);
-      }
-
-      // now process non-external files.
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
          if (!file.getExternal())
