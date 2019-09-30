@@ -26,7 +26,7 @@ public class ExternalParameterDecl extends ParameterDecl.Impl
    @Override
    public Type getType()
    {
-      return this.type.get(this.getOwner().getOwner().getGroup());
+      return this.type.get(this.getOwner().getOwner().getGroup().getContext());
    }
 
    @Override

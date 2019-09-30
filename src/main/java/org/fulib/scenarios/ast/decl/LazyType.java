@@ -1,8 +1,7 @@
 package org.fulib.scenarios.ast.decl;
 
-import org.fulib.scenarios.ast.ScenarioGroup;
-import org.fulib.scenarios.ast.scope.EmptyScope;
-import org.fulib.scenarios.ast.scope.GroupScope;
+import org.fulib.scenarios.ast.CompilationContext;
+import org.fulib.scenarios.ast.scope.GlobalScope;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.resolve.TypeResolver;
 
@@ -15,7 +14,7 @@ public class LazyType
 
    // =============== Methods ===============
 
-   public Type get(ScenarioGroup group)
+   public Type get(CompilationContext context)
    {
       if (!this.resolved)
       {
@@ -23,7 +22,7 @@ public class LazyType
          {
             if (!this.resolved)
             {
-               this.type = this.type.accept(TypeResolver.INSTANCE, new GroupScope(EmptyScope.INSTANCE, group));
+               this.type = this.type.accept(TypeResolver.INSTANCE, new GlobalScope(context));
             }
          }
       }

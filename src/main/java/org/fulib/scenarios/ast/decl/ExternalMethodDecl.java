@@ -30,7 +30,7 @@ public class ExternalMethodDecl extends MethodDecl.Impl
    @Override
    public Type getType()
    {
-      return this.type.get(this.getOwner().getGroup());
+      return this.type.get(this.getOwner().getGroup().getContext());
    }
 
    @Override

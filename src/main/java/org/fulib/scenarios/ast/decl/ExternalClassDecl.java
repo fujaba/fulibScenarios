@@ -2,8 +2,7 @@ package org.fulib.scenarios.ast.decl;
 
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.ScenarioGroup;
-import org.fulib.scenarios.ast.scope.EmptyScope;
-import org.fulib.scenarios.ast.scope.GroupScope;
+import org.fulib.scenarios.ast.scope.GlobalScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
@@ -51,7 +50,7 @@ public class ExternalClassDecl extends ClassDecl.Impl
 
    private void filterAttributes()
    {
-      final Scope scope = new GroupScope(EmptyScope.INSTANCE, this.getGroup());
+      final Scope scope = new GlobalScope(this.getGroup().getContext());
 
       for (Iterator<AttributeDecl> iterator = super.getAttributes().values().iterator(); iterator.hasNext(); )
       {
