@@ -1,4 +1,4 @@
-package org.fulib.scenarios.tool;
+package org.fulib.scenarios.library;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.AttributeDecl;

@@ -1,8 +1,9 @@
-package org.fulib.scenarios.tool;
+package org.fulib.scenarios.library;
 
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.ClassType;
+import org.fulib.scenarios.tool.ScenarioCompiler;
 import org.fulib.scenarios.visitor.resolve.DeclResolver;
 import org.objectweb.asm.ClassReader;
 
