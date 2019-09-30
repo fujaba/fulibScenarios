@@ -23,6 +23,7 @@ import javax.lang.model.SourceVersion;
 import javax.tools.Tool;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ScenarioCompiler implements Tool
 {
@@ -40,7 +41,8 @@ public class ScenarioCompiler implements Tool
    private PrintWriter err;
 
    private Config             config  = new Config();
-   private CompilationContext context = CompilationContext.of(this.config, new HashMap<>());
+   private CompilationContext context = CompilationContext
+                                           .of(this.config, new ConcurrentHashMap<>(), new ArrayList<>());
 
    private int errors;
 

@@ -20,6 +20,7 @@ import org.fulib.scenarios.visitor.describe.DeclDescriber;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.fulib.scenarios.diagnostic.Marker.*;
 
@@ -34,7 +35,7 @@ public class DeclResolver
    public static ScenarioGroup resolveGroup(CompilationContext context, String packageDir)
    {
       return context.getGroups().computeIfAbsent(packageDir, p -> {
-         return ScenarioGroup.of(context, null, p, new HashMap<>(), new HashMap<>());
+         return ScenarioGroup.of(context, null, p, new HashMap<>(), new ConcurrentHashMap<>());
       });
    }
 
