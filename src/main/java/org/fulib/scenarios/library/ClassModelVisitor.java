@@ -193,40 +193,20 @@ public class ClassModelVisitor extends ClassVisitor
       case 'T':
          throw new UnsupportedOperationException("generic type variables");
       case 'L':
-         final int end = descriptor.indexOf(';', index + 1);
-         final int slash = descriptor.lastIndexOf('/', end);
-
-         if (descriptor.charAt(end - 1) == '>')
+         final int genericStart = descriptor.indexOf('<', index + 1);
+         if (genericStart > 0)
          {
             throw new UnsupportedOperationException("generic type arguments");
          }
 
-         final String packageDir = slash < index ? "" : descriptor.substring(index + 1, slash);
-         final String className = descriptor.substring(slash < index ? index + 1 : slash + 1, end);
+         final int end = descriptor.indexOf(';', index + 1);
 
-         consumer.accept(resolveType(packageDir, className));
+         consumer.accept(UnresolvedType.of(descriptor.substring(index + 1, end)));
          return end + 1;
       default:
          consumer.accept(parsePrimitiveType(c));
          return index + 1;
       }
-   }
-
-   private static Type resolveType(String packageDir, String className)
-   {
-      if ("java/lang".equals(packageDir))
-      {
-         // Object, String and wrapper classes
-         final PrimitiveType primitive = PrimitiveType.javaNameMap.get(className);
-         if (primitive != null)
-         {
-            return primitive;
-         }
-      }
-
-      final UnresolvedType type = UnresolvedType.of(className);
-      type.setPackageDir(packageDir);
-      return type;
    }
 
    private static PrimitiveType parsePrimitiveType(char c)

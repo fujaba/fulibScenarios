@@ -4,11 +4,12 @@ import org.fulib.scenarios.ast.expr.conditional.PredicateOperator
 import org.fulib.scenarios.ast.sentence.CommentLevel
 import org.fulib.scenarios.diagnostic.Position
 import org.fulib.scenarios.diagnostic.Marker
+import org.fulib.scenarios.library.Library
 
 import org.fulib.scenarios.tool.Config
 
 abstract org.fulib.scenarios.ast.Node {
-	CompilationContext(config: Config, groups: [String:ScenarioGroup])
+	CompilationContext(config: Config, groups: [String:ScenarioGroup], libraries: [Library])
 	ScenarioGroup(context: CompilationContext, sourceDir: String, packageDir: String,
 	              files: [String:ScenarioFile], classes: [String:ClassDecl])
 	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl,
@@ -37,7 +38,7 @@ abstract org.fulib.scenarios.ast.Node {
 		}
 
 		abstract type.Type(readonly delegate description: String) {
-			UnresolvedType(noconstruct packageDir: String, name: String)
+			UnresolvedType(name: String)
 			ClassType(classDecl: ClassDecl)
 			ListType(elementType: Type)
 			import PrimitiveType

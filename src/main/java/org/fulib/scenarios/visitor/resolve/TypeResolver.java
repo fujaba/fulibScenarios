@@ -15,10 +15,16 @@ public enum TypeResolver implements Type.Visitor<Scope, Type>
    public Type visit(UnresolvedType unresolvedType, Scope par)
    {
       final String name = unresolvedType.getName();
-      final PrimitiveType primitive = PrimitiveType.javaNameMap.get(name);
 
-      // TODO handle non-null packageDir
-      return primitive != null ? primitive : resolveClass(par, name, unresolvedType.getPosition()).getType();
+      // potential primitive or wrapper type
+      final String primitiveName = name.startsWith("java/lang/") ? name.substring(10) : name;
+      final PrimitiveType primitive = PrimitiveType.javaNameMap.get(primitiveName);
+      if (primitive != null)
+      {
+         return primitive;
+      }
+
+      return resolveClass(par, name, unresolvedType.getPosition()).getType();
    }
 
    @Override
