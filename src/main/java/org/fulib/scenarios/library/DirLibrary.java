@@ -30,6 +30,7 @@ public class DirLibrary extends Library
    @Override
    public InputStream loadClass(String name) throws IOException
    {
-      return new FileInputStream(this.getFile(name));
+      final File file = this.getFile(name);
+      return file.exists() ? new FileInputStream(file) : null;
    }
 }
