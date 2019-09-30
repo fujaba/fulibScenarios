@@ -8,6 +8,7 @@ import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.scope.DelegatingScope;
 import org.fulib.scenarios.ast.scope.EmptyScope;
+import org.fulib.scenarios.ast.scope.GroupScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.ast.type.ClassType;
@@ -86,23 +87,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    @Override
    public Object visit(ScenarioGroup scenarioGroup, Scope par)
    {
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            final ClassDecl classDecl = scenarioGroup.getClasses().get(name);
-            return classDecl != null ? classDecl : super.resolve(name);
-         }
-
-         @Override
-         public void add(Decl decl)
-         {
-            final ClassDecl classDecl = (ClassDecl) decl;
-            classDecl.setGroup(scenarioGroup);
-            scenarioGroup.getClasses().put(decl.getName(), classDecl);
-         }
-      };
+      final Scope scope = new GroupScope(par, scenarioGroup);
 
       // first, process and freeze external classes.
       for (final ClassDecl classDecl : scenarioGroup.getClasses().values())
