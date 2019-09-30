@@ -15,6 +15,7 @@ import org.fulib.scenarios.parser.ScenarioLexer;
 import org.fulib.scenarios.parser.ScenarioParser;
 import org.fulib.scenarios.visitor.codegen.CodeGenerator;
 import org.fulib.scenarios.visitor.preprocess.Grouper;
+import org.fulib.scenarios.visitor.resolve.DeclResolver;
 import org.fulib.scenarios.visitor.resolve.NameResolver;
 
 import javax.lang.model.SourceVersion;
@@ -234,7 +235,7 @@ public class ScenarioCompiler implements Tool
 
       if (!scenarioFiles.isEmpty())
       {
-         final ScenarioGroup scenarioGroup = this.resolveGroup(packageDir);
+         final ScenarioGroup scenarioGroup = DeclResolver.resolveGroup(this.getContext(), packageDir);
          scenarioGroup.setSourceDir(sourceDir.toString());
 
          for (final ScenarioFile scenarioFile : scenarioFiles)
@@ -243,20 +244,6 @@ public class ScenarioCompiler implements Tool
             scenarioGroup.getFiles().put(scenarioFile.getName(), scenarioFile);
          }
       }
-   }
-
-   protected ScenarioGroup resolveGroup(String packageDir)
-   {
-      final ScenarioGroup existing = this.context.getGroups().get(packageDir);
-      if (existing != null)
-      {
-         return existing;
-      }
-
-      final ScenarioGroup newGroup = ScenarioGroup
-                                        .of(this.context, null, packageDir, new HashMap<>(), new HashMap<>());
-      this.context.getGroups().put(packageDir, newGroup);
-      return newGroup;
    }
 
    protected ScenarioFile parseScenario(File file)

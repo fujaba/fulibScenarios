@@ -3,6 +3,7 @@ package org.fulib.scenarios.tool;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.ClassType;
+import org.fulib.scenarios.visitor.resolve.DeclResolver;
 import org.objectweb.asm.ClassReader;
 
 import java.io.File;
@@ -57,7 +58,7 @@ public class LibraryHelper
             return;
          }
 
-         final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
+         final ScenarioGroup scenarioGroup = DeclResolver.resolveGroup(compiler.getContext(), packageDir);
 
          for (File file : files)
          {
@@ -128,7 +129,7 @@ public class LibraryHelper
          return;
       }
 
-      final ScenarioGroup scenarioGroup = compiler.resolveGroup(packageDir);
+      final ScenarioGroup scenarioGroup = DeclResolver.resolveGroup(compiler.getContext(), packageDir);
 
       try (InputStream stream = jarFile.getInputStream(entry))
       {

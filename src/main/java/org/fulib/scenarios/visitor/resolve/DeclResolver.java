@@ -1,6 +1,8 @@
 package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.builder.ClassModelBuilder;
+import org.fulib.scenarios.ast.CompilationContext;
+import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.scope.Scope;
@@ -16,6 +18,7 @@ import org.fulib.scenarios.visitor.TypeConversion;
 import org.fulib.scenarios.visitor.describe.DeclDescriber;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import static org.fulib.scenarios.diagnostic.Marker.*;
@@ -27,6 +30,13 @@ public class DeclResolver
    protected static final String ENCLOSING_CLASS = "<enclosing:class>";
 
    // =============== Static Methods ===============
+
+   public static ScenarioGroup resolveGroup(CompilationContext context, String packageDir)
+   {
+      return context.getGroups().computeIfAbsent(packageDir, p -> {
+         return ScenarioGroup.of(context, null, p, new HashMap<>(), new HashMap<>());
+      });
+   }
 
    // --------------- Classes ---------------
 
