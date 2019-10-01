@@ -243,6 +243,12 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       hasSentence.setObject(receiver);
 
       final Type receiverType = receiver.getType();
+      if (receiverType == PrimitiveType.ERROR)
+      {
+         // recover from previous error
+         return hasSentence;
+      }
+
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
       if (receiverClass == null)
       {
