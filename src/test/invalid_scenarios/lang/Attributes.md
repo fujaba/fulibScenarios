@@ -55,3 +55,10 @@ Alice has grades and is student of 1, 2, 3.
 <!--                    ^
 error: invalid reverse association name 'student' - 'ReverseStudent.grades' is an attribute, not an association [attribute.reverse.name]
 -->
+
+# Primitive Has Subject
+
+(   ) Asd has next 2.
+<!--  ^
+error: invalid has sentence - subject has primitive type 'String' [has.subject.primitive]
+-->
