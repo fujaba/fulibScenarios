@@ -6,6 +6,18 @@ We call run on app.
 error: cannot resolve or add method 'run' in external class 'WebApp' [method.unresolved.external]
 -->
 
+# Primitive Receiver
+
+We call foo on bar.
+<!--           ^
+error: cannot call method 'foo' on receiver of primitive type 'String' [call.receiver.primitive]
+-->
+
+We call foo on bar of moo.
+<!--           ^
+error: unresolved attribute or association 'String.bar' - 'String' is a primitive type [property.unresolved.primitive]
+-->
+
 # Mismatching Parameters and Arguments
 
 We call foo with bar 1 and with baz "2".

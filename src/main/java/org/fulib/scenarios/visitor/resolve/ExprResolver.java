@@ -29,6 +29,7 @@ import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.*;
+import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.HashMap;
 import java.util.List;
@@ -154,10 +155,24 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       // generate method
 
+      final String methodName = callExpr.getName().getValue();
       final Type receiverType = callExpr.getReceiver().getType();
+
+      if (receiverType == PrimitiveType.ERROR)
+      {
+         // recover from previous error
+         return callExpr;
+      }
+
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
 
-      final String methodName = callExpr.getName().getValue();
+      if (receiverClass == null)
+      {
+         par.report(error(receiver.getPosition(), "call.receiver.primitive", methodName,
+                          receiverType.accept(TypeDescriber.INSTANCE, null)));
+         return callExpr;
+      }
+
       final Position position = callExpr.getName().getPosition();
       final MethodDecl method = DeclResolver.resolveMethod(par, position, receiverClass, methodName);
       final List<ParameterDecl> parameters = method.getParameters();
