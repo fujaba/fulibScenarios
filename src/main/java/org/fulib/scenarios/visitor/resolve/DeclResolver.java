@@ -22,7 +22,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.fulib.scenarios.diagnostic.Marker.*;
+import static org.fulib.scenarios.diagnostic.Marker.error;
+import static org.fulib.scenarios.diagnostic.Marker.note;
 
 public class DeclResolver
 {
@@ -363,9 +364,14 @@ public class DeclResolver
       final String existingDesc = existing.accept(DeclDescriber.INSTANCE, null);
       final Marker error = error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc,
                                  newDesc);
-      final Marker note = firstDeclaration(existing.getPosition(), owner, name);
 
-      return error.note(note);
+      final Position existingPosition = existing.getPosition();
+      if (existingPosition != null)
+      {
+         error.note(firstDeclaration(existingPosition, owner, name));
+      }
+
+      return error;
    }
 
    private static String kindString(Decl decl)
