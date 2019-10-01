@@ -31,7 +31,8 @@ public class GlobalScope implements Scope
    public GlobalScope(CompilationContext context)
    {
       this.context = context;
-      this.importedGroups = context.getConfig().getImports().stream().map(i -> DeclResolver.resolveGroup(context, i))
+      this.importedGroups = context.getConfig().getImports().stream()
+                                   .map(i -> DeclResolver.resolveGroup(context, i.replace('.', '/')))
                                    .collect(Collectors.toList());
    }
 
