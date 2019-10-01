@@ -175,6 +175,13 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       final Position position = callExpr.getName().getPosition();
       final MethodDecl method = DeclResolver.resolveMethod(par, position, receiverClass, methodName);
+
+      if (method == null)
+      {
+         // cannot create method (external or frozen class)
+         return callExpr;
+      }
+
       final List<ParameterDecl> parameters = method.getParameters();
       final ParameterDecl thisParameter;
       final Map<String, ParameterDecl> decls = new HashMap<>();

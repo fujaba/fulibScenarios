@@ -88,10 +88,12 @@ public class DeclResolver
       if (owner.getExternal())
       {
          scope.report(error(position, "method.unresolved.external", name, owner.getName()));
+         return null;
       }
       else if (owner.getFrozen())
       {
          scope.report(error(position, "method.unresolved.frozen", name, owner.getName()));
+         return null;
       }
 
       return createMethod(position, owner, name);
