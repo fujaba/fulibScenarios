@@ -1,10 +1,7 @@
 package org.fulib.scenarios.library;
 
 import org.fulib.StrUtil;
-import org.fulib.scenarios.ast.decl.AttributeDecl;
-import org.fulib.scenarios.ast.decl.ClassDecl;
-import org.fulib.scenarios.ast.decl.MethodDecl;
-import org.fulib.scenarios.ast.decl.ParameterDecl;
+import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
@@ -24,13 +21,13 @@ public class ClassModelVisitor extends ClassVisitor
 {
    // =============== Fields ===============
 
-   private final ClassDecl classDecl;
+   private final ExternalClassDecl classDecl;
 
    private final Set<String> properties = new LinkedHashSet<>();
 
    // =============== Constructors ===============
 
-   public ClassModelVisitor(ClassDecl classDecl)
+   public ClassModelVisitor(ExternalClassDecl classDecl)
    {
       super(Opcodes.ASM7);
       this.classDecl = classDecl;
@@ -114,6 +111,12 @@ public class ClassModelVisitor extends ClassVisitor
       return null;
    }
 
+   @Override
+   public void visitEnd()
+   {
+      this.classDecl.markUnresolved();
+   }
+
    private void tryCreateAttribute(String name, String descriptor, String signature)
    {
       try
@@ -153,16 +156,16 @@ public class ClassModelVisitor extends ClassVisitor
    {
       try
       {
-         final MethodDecl methodDecl = MethodDecl.of(this.classDecl, name, new ArrayList<>(), null, null);
+         final MethodDecl methodDecl = new ExternalMethodDecl(this.classDecl, name, new ArrayList<>(), null, null);
          parseType(descriptor, descriptor.lastIndexOf(')') + 1, methodDecl::setType);
 
-         final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", this.classDecl.getType());
+         final ParameterDecl thisParam = new ExternalParameterDecl(methodDecl, "this", this.classDecl.getType());
          methodDecl.getParameters().add(thisParam);
 
          int index = 1;
          while (descriptor.charAt(index) != ')')
          {
-            final ParameterDecl param = ParameterDecl.of(methodDecl, null, null);
+            final ParameterDecl param = new ExternalParameterDecl(methodDecl, null, null);
             index = parseType(descriptor, index, param::setType);
             methodDecl.getParameters().add(param);
          }

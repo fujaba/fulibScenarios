@@ -4,6 +4,7 @@ import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.ExternalClassDecl;
 import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.library.ClassModelVisitor;
@@ -104,8 +105,8 @@ public class GlobalScope implements Scope
 
    private static ClassDecl loadClass(ScenarioGroup group, InputStream data) throws IOException
    {
-      final ClassDecl classDecl = ClassDecl
-                                     .of(group, null, null, new HashMap<>(), new HashMap<>(), new ArrayList<>());
+      final ExternalClassDecl classDecl = new ExternalClassDecl(group, null, null, new HashMap<>(), new HashMap<>(),
+                                                                new ArrayList<>());
       classDecl.setType(ClassType.of(classDecl));
       classDecl.setExternal(true);
 

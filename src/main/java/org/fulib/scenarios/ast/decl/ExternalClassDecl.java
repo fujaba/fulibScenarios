@@ -17,7 +17,7 @@ public class ExternalClassDecl extends ClassDecl.Impl
 {
    // =============== Fields ===============
 
-   private volatile boolean attributesResolved;
+   private volatile boolean attributesResolved = true;
 
    // =============== Constructors ===============
 
@@ -32,6 +32,11 @@ public class ExternalClassDecl extends ClassDecl.Impl
    }
 
    // =============== Methods ===============
+
+   public void markUnresolved()
+   {
+      this.attributesResolved = false;
+   }
 
    private void resolveAttributes()
    {
