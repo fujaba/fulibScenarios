@@ -4,6 +4,8 @@ import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.decl.Decl;
 
+import java.util.function.Function;
+
 public class GroupScope extends DelegatingScope
 {
    // =============== Fields ===============
@@ -28,10 +30,23 @@ public class GroupScope extends DelegatingScope
    }
 
    @Override
-   public void add(Decl decl)
+   public <T extends Decl> T resolve(String name, Class<T> type, Function<? super String, ? extends T> create)
    {
-      final ClassDecl classDecl = (ClassDecl) decl;
-      classDecl.setGroup(this.group);
-      this.group.getClasses().put(decl.getName(), classDecl);
+      if (!ClassDecl.class.isAssignableFrom(type) || name.indexOf('/') >= 0)
+      {
+         return super.resolve(name, type, create);
+      }
+
+      final Decl superDecl = super.resolve(name);
+      if (superDecl instanceof ClassDecl)
+      {
+         return (T) superDecl;
+      }
+
+      return (T) this.group.getClasses().computeIfAbsent(name, n -> {
+         final ClassDecl classDecl = (ClassDecl) create.apply(name);
+         classDecl.setGroup(this.group);
+         return classDecl;
+      });
    }
 }

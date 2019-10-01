@@ -50,17 +50,6 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             final Decl decl = decls.get(name);
             return decl != null ? decl : super.resolve(name);
          }
-
-         @Override
-         public void add(Decl decl)
-         {
-            if (decl instanceof VarDecl)
-            {
-               decls.put(decl.getName(), decl);
-               return;
-            }
-            super.add(decl);
-         }
       };
 
       final List<Sentence> oldItems = sentenceList.getItems();

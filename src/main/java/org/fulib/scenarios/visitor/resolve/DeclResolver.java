@@ -48,26 +48,18 @@ public class DeclResolver
 
    static ClassDecl resolveClass(Scope scope, String name, Position position)
    {
-      final Decl resolved = scope.resolve(name);
-      if (resolved instanceof ClassDecl)
-      {
-         return (ClassDecl) resolved;
-      }
-      if (resolved != null)
-      {
-         // TODO find an example that causes this warning.
-         //      it "should" not appear because class names are normalized to UpperCamelCase while all other
-         //      declarations are lowerCamelCase.
-         scope.report(warning(position, "class.name.shadow.other.decl", name, kindString(resolved)));
-      }
-
-      final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
-                                          new ArrayList<>());
-      decl.setPosition(position);
-      decl.setExternal(getEnclosingClass(scope).getExternal());
-      decl.setType(ClassType.of(decl));
-      scope.add(decl);
-      return decl;
+      /* TODO find an example that causes this warning.
+              it "should" not appear because class names are normalized to UpperCamelCase while all other
+              declarations are lowerCamelCase.
+      scope.report(warning(position, "class.name.shadow.other.decl", name, kindString(resolved)));
+       */
+      return scope.resolve(name, ClassDecl.class, n -> {
+         final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
+                                             new ArrayList<>());
+         decl.setPosition(position);
+         decl.setType(ClassType.of(decl));
+         return decl;
+      });
    }
 
    // --------------- Methods ---------------

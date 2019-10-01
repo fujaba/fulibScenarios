@@ -3,6 +3,8 @@ package org.fulib.scenarios.ast.scope;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.diagnostic.Marker;
 
+import java.util.function.Function;
+
 public abstract class DelegatingScope implements Scope
 {
    protected final Scope outer;
@@ -19,9 +21,9 @@ public abstract class DelegatingScope implements Scope
    }
 
    @Override
-   public void add(Decl decl)
+   public <T extends Decl> T resolve(String name, Class<T> type, Function<? super String, ? extends T> create)
    {
-      this.outer.add(decl);
+      return this.outer.resolve(name, type, create);
    }
 
    @Override

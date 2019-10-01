@@ -44,12 +44,6 @@ public class GlobalScope implements Scope
    }
 
    @Override
-   public void add(Decl decl)
-   {
-      throw new UnsupportedOperationException();
-   }
-
-   @Override
    public Decl resolve(String name)
    {
       final int nameSeparator = name.lastIndexOf('/');
