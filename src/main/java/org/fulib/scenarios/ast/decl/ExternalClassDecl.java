@@ -46,8 +46,8 @@ public class ExternalClassDecl extends ClassDecl.Impl
          {
             if (!this.attributesResolved)
             {
-               this.attributesResolved = true;
                this.filterAttributes();
+               this.attributesResolved = true;
             }
          }
       }
