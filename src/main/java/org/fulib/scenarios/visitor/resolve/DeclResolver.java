@@ -226,10 +226,12 @@ public class DeclResolver
       if (owner.getExternal())
       {
          scope.report(error(position, "attribute.unresolved.external", name, owner.getName()));
+         return null;
       }
       else if (owner.getFrozen())
       {
          scope.report(error(position, "attribute.unresolved.frozen", name, owner.getName()));
+         return null;
       }
 
       return createAttribute(position, owner, name, type);
@@ -329,10 +331,12 @@ public class DeclResolver
       if (owner.getExternal())
       {
          scope.report(error(position, "association.unresolved.external", name, owner.getName()));
+         return null;
       }
       else if (owner.getFrozen())
       {
          scope.report(error(position, "association.unresolved.frozen", name, owner.getName()));
+         return null;
       }
 
       return createAssociation(position, owner, name, cardinality, target);
