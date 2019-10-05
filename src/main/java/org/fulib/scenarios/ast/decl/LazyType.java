@@ -23,6 +23,7 @@ public class LazyType
             if (!this.resolved)
             {
                this.type = this.type.accept(TypeResolver.INSTANCE, new GlobalScope(context));
+               this.resolved = true;
             }
          }
       }
