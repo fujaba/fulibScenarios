@@ -12,7 +12,10 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
+import org.fulib.scenarios.visitor.describe.DeclDescriber;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +50,19 @@ public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
       final NamedExpr namedExpr = NamedExpr.of(name, par);
       final HasSentence hasSentence = HasSentence.of(receiver, Collections.singletonList(namedExpr));
       hasSentence.setPosition(attributeAccess.getPosition());
-      return hasSentence.accept(SentenceResolver.INSTANCE, this.scope);
+
+      final HasSentence resolved = (HasSentence) hasSentence.accept(SentenceResolver.INSTANCE, this.scope);
+      final Name resolvedName = resolved.getClauses().get(0).getName();
+      final Decl resolvedDecl = resolvedName.getDecl();
+
+      // #157
+      if (resolvedDecl != null && resolvedDecl.getType() instanceof ListType)
+      {
+         this.scope.report(Marker.error(name.getPosition(), "write.target.list",
+                                        resolvedDecl.accept(DeclDescriber.INSTANCE, null)));
+      }
+
+      return resolved;
    }
 
    @Override
