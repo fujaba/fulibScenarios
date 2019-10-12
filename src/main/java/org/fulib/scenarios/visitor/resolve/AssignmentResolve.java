@@ -47,7 +47,7 @@ public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
       final NamedExpr namedExpr = NamedExpr.of(name, par);
       final HasSentence hasSentence = HasSentence.of(receiver, Collections.singletonList(namedExpr));
       hasSentence.setPosition(attributeAccess.getPosition());
-      return hasSentence;
+      return hasSentence.accept(SentenceResolver.INSTANCE, this.scope);
    }
 
    @Override
@@ -104,7 +104,7 @@ public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
          }
       }
 
-      return new FlattenSentenceList(result);
+      return new FlattenSentenceList(result).accept(SentenceResolver.INSTANCE, this.scope);
    }
 
    @Override
@@ -116,13 +116,13 @@ public class AssignmentResolve implements Expr.Visitor<Expr, Sentence>
       {
          final AssignSentence assignSentence = AssignSentence.of(existing, null, par);
          assignSentence.setPosition(nameAccess.getPosition());
-         return assignSentence;
+         return assignSentence.accept(SentenceResolver.INSTANCE, this.scope);
       }
 
       final VarDecl varDecl = VarDecl.of(name, null, par);
       varDecl.setPosition(nameAccess.getPosition());
       final IsSentence isSentence = IsSentence.of(varDecl);
       isSentence.setPosition(varDecl.getPosition());
-      return isSentence;
+      return isSentence.accept(SentenceResolver.INSTANCE, this.scope);
    }
 }

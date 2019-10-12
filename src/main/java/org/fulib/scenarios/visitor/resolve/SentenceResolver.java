@@ -445,13 +445,12 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(WriteSentence writeSentence, Scope par)
    {
-      // TODO maybe add .accept(ExprResolver.INSTANCE, par)
       final Expr source = writeSentence.getSource();
       final Expr target = writeSentence.getTarget();
       final Sentence sentence = target.accept(new AssignmentResolve(par), source);
       if (sentence != null)
       {
-         return sentence.accept(SentenceResolver.INSTANCE, par);
+         return sentence;
       }
 
       par.report(
