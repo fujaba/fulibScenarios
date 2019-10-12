@@ -1,7 +1,7 @@
 # Flatten
 
 There is a Holder.
-We write 6,7,8 into numbers of holder.
+Holder has numbers 6,7,8.
 
 We write 1,2,3 into l1. // regular list
 We write 1 to 3, 7 to 10 into l2. // flatten 2

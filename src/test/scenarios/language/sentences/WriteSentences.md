@@ -5,7 +5,7 @@ We write y,z into xs.
 
 We write 1,2,3 into vals.          // * -> 1
 We write 4,5,6 into v1,v2,v3.      // n -> n
-We write 7,8,9 into vals of x.     // * -> 1.*
+// We write 7,8,9 into vals of x.     // * -> 1.*
 // We write 10,11,12 into vals of xs. // * -> *.*
 
 We write 13 into v4.               // 1 -> 1

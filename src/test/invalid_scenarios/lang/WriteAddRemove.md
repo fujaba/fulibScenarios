@@ -5,6 +5,27 @@ We write 1 into 2.
 error: invalid write target - cannot write into IntLiteral [write.target.invalid]
 -->
 
+# Write to Multi-Valued
+
+(#157)
+
+There is the WMVStudent stud with values 1,2,3.
+We write 4,5,6 into values of stud.
+<!--                ^
+error: cannot write into attribute of many 'int' - only single-valued attributes and associations are allowed [write.target.list]
+-->
+
+There is the WMVUni uni with students stud,stud,stud.
+We write stud into students of uni.
+<!--               ^
+error: cannot write into association to many 'WMVStudent' - only single-valued attributes and associations are allowed [write.target.list]
+-->
+
+We write stud,stud into students of uni.
+<!--                    ^
+error: cannot write into association to many 'WMVStudent' - only single-valued attributes and associations are allowed [write.target.list]
+-->
+
 # Invalid Type Conversions
 
 We write 1 into i.

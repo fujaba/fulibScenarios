@@ -78,15 +78,15 @@ AddToStock answers with the lot.
 
 There is a Page with id tasksPage and with description "button New Supply | Tasks".
 There is a Content with id lot1Line and with description "lot1 | Cloud Sneakers | 20 | p23x42 | button Done".
-We write lot1Line into content of tasksPage.
-We write tasksPage into content of ForkLiftGuide.
+We add lot1Line to content of tasksPage.
+We add tasksPage to content of ForkLiftGuide.
 ![ForkLiftGuide](step06.html)
 
 ## Second Lot
 
 We write "lot2" into value of lotId.
 We write "Ground Boots" into value of productName.
-We write addSupplyPage into content of ForkLiftGuide.
+We add addSupplyPage to content of ForkLiftGuide.
 ![ForkLiftGuide](step07.html)
 
 We call addToStock on WHService
@@ -100,8 +100,8 @@ and with newPlace p23x42.
 
 
 There is a Content with id lot2Line and with description "lot2 | Ground Boots | 20 | p24x42 | button Done".
-We write lot2Line into content of tasksPage.
-We write tasksPage into content of ForkLiftGuide.
+We add lot2Line to content of tasksPage.
+We add tasksPage to content of ForkLiftGuide.
 ![ForkLiftGuide](step10.html)
 
 ![WHService, Alice](step09.tables.html)
