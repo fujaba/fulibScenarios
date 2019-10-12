@@ -209,3 +209,26 @@
 
 * Fixed an exception caused by unresolved list attribute access. #149
 * Fixed invalid code being generated when using the `contains` and `does not contain` conditional operators. #150
+
+# Fulib Scenarios v1.0.0
+
+## Breaking Changes
+
++ Added a diagnostic error for writes to multi-valued attributes or associations. #157
+* Is Sentences can no longer be used to reassign variables. #158
+* It now counts as a redeclaration error if a variable name shadows a method name. #159
+* The artifact no longer includes Fulib, FulibYaml and FulibTools classes, but declares a Maven dependency instead.
+
+## Enhancements
+
++ Added a diagnostic error for calls with primitive receivers. #160
+* The `java.lang` and `org.fulib.mockups` packages are now imported by default.
+* The jar file containing `java.lang` classes is now automatically included on the classpath.
+
+## Bugfixes
+
+* Fixed an exception caused by unresolved call receivers. #160
+* Fixed an exception when adding to a parameter name. #153
+* Fixed an issue that caused method decompilation to fail in some cases.
+* Fixed creation of a duplicate variable when writing to a parameter name. #154
+* Has Sentences with erroneous receivers no longer produce a second error marker.
