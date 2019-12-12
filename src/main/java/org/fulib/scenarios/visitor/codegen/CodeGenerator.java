@@ -79,17 +79,25 @@ public enum CodeGenerator
          // model and test share the same output directory, so they have to share a class model.
 
          par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+         boolean generate = true;
 
          if (modelClassesToGenerate)
          {
             this.generateModel(scenarioGroup, par, modelDir, packageDir);
+            if (!this.runDecorators(par.modelManager, packageName))
+            {
+               generate = false;
+            }
          }
          if (testClassesToGenerate)
          {
             this.generateTests(scenarioGroup, par);
          }
 
-         new Generator().generate(par.modelManager.getClassModel());
+         if (generate)
+         {
+            new Generator().generate(par.modelManager.getClassModel());
+         }
 
          return null;
       }
@@ -102,7 +110,10 @@ public enum CodeGenerator
 
          this.generateModel(scenarioGroup, par, modelDir, packageDir);
 
-         new Generator().generate(par.modelManager.getClassModel());
+         if (this.runDecorators(par.modelManager, packageName))
+         {
+            new Generator().generate(par.modelManager.getClassModel());
+         }
       }
 
       if (testClassesToGenerate)
@@ -142,6 +153,11 @@ public enum CodeGenerator
          FulibTools.classDiagrams()
                    .dumpSVG(par.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
       }
+   }
+
+   private boolean runDecorators(ClassModelManager manager, String packageName)
+   {
+      return true;
    }
 
    private static boolean sameFile(String modelDir, String testDir)
