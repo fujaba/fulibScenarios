@@ -80,7 +80,10 @@ public enum CodeGenerator
       {
          // model and test share the same output directory, so they have to share a class model.
 
-         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+         par.modelManager = new ClassModelManager();
+         par.modelManager.usePackageName(packageName);
+         par.modelManager.useSourceFolder(modelDir);
+
          boolean generate = true;
 
          if (modelClassesToGenerate)
@@ -108,7 +111,9 @@ public enum CodeGenerator
 
       if (modelClassesToGenerate)
       {
-         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+         par.modelManager = new ClassModelManager();
+         par.modelManager.usePackageName(packageName);
+         par.modelManager.useSourceFolder(modelDir);
 
          this.generateModel(scenarioGroup, par, modelDir, packageDir);
 
@@ -120,7 +125,9 @@ public enum CodeGenerator
 
       if (testClassesToGenerate)
       {
-         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
+         par.modelManager = new ClassModelManager();
+         par.modelManager.usePackageName(packageName);
+         par.modelManager.useSourceFolder(testDir);
 
          this.generateTests(scenarioGroup, par);
 
