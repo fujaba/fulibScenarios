@@ -3,7 +3,9 @@ package org.fulib.scenarios.visitor.codegen;
 import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.FulibTools;
 import org.fulib.Generator;
+import org.fulib.builder.ClassModelDecorator;
 import org.fulib.builder.ClassModelManager;
+import org.fulib.builder.DecoratorMain;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.CompilationContext;
@@ -157,7 +159,39 @@ public enum CodeGenerator
 
    private boolean runDecorators(ClassModelManager manager, String packageName)
    {
-      return true;
+      boolean shouldGenerate = true;
+
+      final List<Class<? extends ClassModelDecorator>> decoratorClasses = DecoratorMain
+         .getDecoratorClasses(packageName);
+
+      for (final Class<? extends ClassModelDecorator> decoratorClass : decoratorClasses)
+      {
+         final ClassModelDecorator decorator;
+         try
+         {
+            decorator = decoratorClass.getConstructor().newInstance();
+         }
+         catch (ReflectiveOperationException e)
+         {
+            // TODO error handling
+            e.printStackTrace();
+            shouldGenerate = false;
+            continue;
+         }
+
+         try
+         {
+            decorator.decorate(manager);
+         }
+         catch (Exception e)
+         {
+            // TODO error handling
+            e.printStackTrace();
+            shouldGenerate = false;
+         }
+      }
+
+      return shouldGenerate;
    }
 
    private static boolean sameFile(String modelDir, String testDir)
