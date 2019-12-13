@@ -192,7 +192,7 @@ public class DeclResolver
 
    static Decl getAttributeOrAssociation(ClassDecl owner, String name)
    {
-      final AttributeDecl attribute = owner.getAttributes().get(name);
+      final AttributeDecl attribute = getAttribute(owner, name);
       return attribute != null ? attribute : owner.getAssociations().get(name);
    }
 
@@ -230,9 +230,32 @@ public class DeclResolver
 
    // --------------- Attributes ---------------
 
+   static AttributeDecl getAttribute(ClassDecl owner, String name)
+   {
+      while (true)
+      {
+         final AttributeDecl decl = getOwnAttribute(owner, name);
+         if (decl != null)
+         {
+            return decl;
+         }
+
+         final Type superType = owner.getSuperType();
+         if (superType == null || (owner = superType.accept(ExtractClassDecl.INSTANCE, null)) == null)
+         {
+            return null;
+         }
+      }
+   }
+
+   static AttributeDecl getOwnAttribute(ClassDecl owner, String name)
+   {
+      return owner.getAttributes().get(name);
+   }
+
    static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position, Expr rhs)
    {
-      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      final AttributeDecl existingAttribute = getAttribute(owner, name);
       if (existingAttribute != null)
       {
          final Type existingType = existingAttribute.getType();
@@ -297,7 +320,7 @@ public class DeclResolver
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
       ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition, Expr rhs)
    {
-      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      final AttributeDecl existingAttribute = getAttribute(owner, name);
       if (existingAttribute != null)
       {
          final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
