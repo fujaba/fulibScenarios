@@ -17,6 +17,7 @@ public class ExternalClassDecl extends ClassDecl.Impl
 {
    // =============== Fields ===============
 
+   private final    Object  attributesLock     = new Object();
    private volatile boolean attributesResolved = true;
 
    // =============== Constructors ===============
@@ -42,7 +43,7 @@ public class ExternalClassDecl extends ClassDecl.Impl
    {
       if (!this.attributesResolved)
       {
-         synchronized (this)
+         synchronized (this.attributesLock)
          {
             if (!this.attributesResolved)
             {
