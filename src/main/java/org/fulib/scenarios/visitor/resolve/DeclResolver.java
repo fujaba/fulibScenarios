@@ -70,6 +70,24 @@ public class DeclResolver
 
    private static MethodDecl getMethod(ClassDecl owner, String name)
    {
+      while (true)
+      {
+         final MethodDecl decl = getOwnMethod(owner, name);
+         if (decl != null)
+         {
+            return decl;
+         }
+
+         final Type superType = owner.getSuperType();
+         if (superType == null || (owner = superType.accept(ExtractClassDecl.INSTANCE, null)) == null)
+         {
+            return null;
+         }
+      }
+   }
+
+   private static MethodDecl getOwnMethod(ClassDecl owner, String name)
+   {
       for (final MethodDecl decl : owner.getMethods())
       {
          if (name.equals(decl.getName()))
