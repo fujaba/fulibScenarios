@@ -193,7 +193,7 @@ public class DeclResolver
    static Decl getAttributeOrAssociation(ClassDecl owner, String name)
    {
       final AttributeDecl attribute = getAttribute(owner, name);
-      return attribute != null ? attribute : owner.getAssociations().get(name);
+      return attribute != null ? attribute : getAssociation(owner, name);
    }
 
    static Decl resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, String attributeName, Expr rhs,
@@ -270,7 +270,7 @@ public class DeclResolver
 
          return existingAttribute;
       }
-      final AssociationDecl existingAssociation = owner.getAssociations().get(name);
+      final AssociationDecl existingAssociation = getAssociation(owner, name);
       if (existingAssociation != null)
       {
          final String newDesc = DeclDescriber.describeAttribute(type);
@@ -311,6 +311,11 @@ public class DeclResolver
 
    // --------------- Associations ---------------
 
+   static AssociationDecl getAssociation(ClassDecl owner, String name)
+   {
+      return owner.getAssociations().get(name);
+   }
+
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
       ClassDecl otherClass, Position position, Expr rhs)
    {
@@ -331,7 +336,7 @@ public class DeclResolver
          return null;
       }
 
-      final AssociationDecl existing = owner.getAssociations().get(name);
+      final AssociationDecl existing = getAssociation(owner, name);
       if (existing != null)
       {
          // uses < because redeclaration as to-one when it was to-many is ok.
