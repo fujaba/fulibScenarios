@@ -41,6 +41,11 @@ public class ClassModelVisitor extends ClassVisitor
       final int slashIndex = name.lastIndexOf('/');
       final String simpleName = slashIndex < 0 ? name : name.substring(slashIndex + 1);
       this.classDecl.setName(simpleName);
+
+      if (superName != null)
+      {
+         this.classDecl.setSuperType(UnresolvedType.of(superName));
+      }
    }
 
    @Override
