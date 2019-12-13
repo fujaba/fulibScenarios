@@ -115,8 +115,8 @@ public class GlobalScope implements Scope
 
    private static ClassDecl loadClass(ScenarioGroup group, InputStream data) throws IOException
    {
-      final ExternalClassDecl classDecl = new ExternalClassDecl(group, null, null, new HashMap<>(), new HashMap<>(),
-                                                                new ArrayList<>());
+      final ExternalClassDecl classDecl = new ExternalClassDecl(group, null, null, null, new HashMap<>(),
+                                                                new HashMap<>(), new ArrayList<>());
       classDecl.setType(ClassType.of(classDecl));
       classDecl.setExternal(true);
 

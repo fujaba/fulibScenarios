@@ -25,10 +25,10 @@ public class ExternalClassDecl extends ClassDecl.Impl
    {
    }
 
-   public ExternalClassDecl(ScenarioGroup group, String name, Type type, Map<String, AttributeDecl> attributes,
-      Map<String, AssociationDecl> associations, List<MethodDecl> methods)
+   public ExternalClassDecl(ScenarioGroup group, String name, Type type, Type superType,
+      Map<String, AttributeDecl> attributes, Map<String, AssociationDecl> associations, List<MethodDecl> methods)
    {
-      super(group, name, type, attributes, associations, methods);
+      super(group, name, type, superType, attributes, associations, methods);
    }
 
    // =============== Methods ===============

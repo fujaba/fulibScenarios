@@ -5,7 +5,10 @@ import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
-import org.fulib.scenarios.ast.scope.*;
+import org.fulib.scenarios.ast.scope.DelegatingScope;
+import org.fulib.scenarios.ast.scope.GlobalScope;
+import org.fulib.scenarios.ast.scope.GroupScope;
+import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
@@ -13,7 +16,10 @@ import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.parser.Identifiers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
@@ -68,8 +74,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    {
       final ScenarioGroup group = scenarioFile.getGroup();
       final String className = Identifiers.toUpperCamelCase(scenarioFile.getName()) + "Test";
-      final ClassDecl classDecl = ClassDecl.of(group, className, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
-                                               new ArrayList<>());
+      final ClassDecl classDecl = ClassDecl
+         .of(group, className, null, PrimitiveType.OBJECT, new LinkedHashMap<>(), new LinkedHashMap<>(),
+             new ArrayList<>());
       classDecl.setExternal(scenarioFile.getExternal());
       classDecl.setType(ClassType.of(classDecl));
 

@@ -57,8 +57,9 @@ public class DeclResolver
       scope.report(warning(position, "class.name.shadow.other.decl", name, kindString(resolved)));
        */
       return scope.resolve(name, ClassDecl.class, n -> {
-         final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
-                                             new ArrayList<>());
+         final ClassDecl decl = ClassDecl
+            .of(null, name, null, PrimitiveType.OBJECT, new LinkedHashMap<>(), new LinkedHashMap<>(),
+                new ArrayList<>());
          decl.setPosition(position);
          decl.setType(ClassType.of(decl));
          return decl;

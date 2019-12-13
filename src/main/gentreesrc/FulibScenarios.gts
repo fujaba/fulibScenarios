@@ -19,7 +19,7 @@ abstract org.fulib.scenarios.ast.Node {
 		Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
 		abstract decl.Decl(name: String, type: Type) {
-			ClassDecl(group: ScenarioGroup, name: String, type: Type,
+			ClassDecl(group: ScenarioGroup, name: String, type: Type, superType: Type,
 			          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl],
 			          noconstruct external: boolean, noconstruct frozen: boolean)
 
