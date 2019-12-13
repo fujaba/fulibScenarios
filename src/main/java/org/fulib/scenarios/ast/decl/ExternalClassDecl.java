@@ -20,6 +20,8 @@ public class ExternalClassDecl extends ClassDecl.Impl
    private final    Object  attributesLock     = new Object();
    private volatile boolean attributesResolved = true;
 
+   private final LazyType superType = new LazyType();
+
    // =============== Constructors ===============
 
    public ExternalClassDecl()
@@ -81,6 +83,18 @@ public class ExternalClassDecl extends ClassDecl.Impl
    }
 
    // =============== Properties ===============
+
+   @Override
+   public Type getSuperType()
+   {
+      return this.superType.get(this.getGroup().getContext());
+   }
+
+   @Override
+   public void setSuperType(Type superType)
+   {
+      this.superType.set(superType);
+   }
 
    @Override
    public Map<String, AttributeDecl> getAttributes()
