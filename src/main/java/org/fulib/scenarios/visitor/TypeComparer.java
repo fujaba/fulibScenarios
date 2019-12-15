@@ -3,6 +3,11 @@ package org.fulib.scenarios.visitor;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.*;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
 {
    INSTANCE;
@@ -25,6 +30,33 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
    {
       final Result relation = a.accept(INSTANCE, b);
       return relation == Result.EQUAL || relation == Result.SUPERTYPE;
+   }
+
+   public static Set<ClassDecl> getCommonSuperClasses(Iterable<? extends ClassDecl> classDecls)
+   {
+      final Iterator<? extends ClassDecl> iterator = classDecls.iterator();
+      if (!iterator.hasNext())
+      {
+         return Collections.emptySet();
+      }
+
+      final Set<ClassDecl> commonSuperClasses = new LinkedHashSet<>(iterator.next().getSuperClasses());
+      while (iterator.hasNext())
+      {
+         commonSuperClasses.retainAll(iterator.next().getSuperClasses());
+      }
+      return commonSuperClasses;
+   }
+
+   public static ClassDecl getCommonSuperClass(Iterable<? extends ClassDecl> classDecls)
+   {
+      final Set<ClassDecl> commonClasses = getCommonSuperClasses(classDecls);
+      if (commonClasses.isEmpty())
+      {
+         return null;
+      }
+      // since the set is sorted, the first is the most specific common super classes
+      return commonClasses.iterator().next();
    }
 
    // =============== Methods ===============
