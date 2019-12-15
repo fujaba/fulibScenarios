@@ -32,6 +32,11 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
       return relation == Result.EQUAL || relation == Result.SUPERTYPE;
    }
 
+   public static boolean isSuperClass(ClassDecl a, ClassDecl b)
+   {
+      return b.getSuperClasses().contains(a);
+   }
+
    public static Set<ClassDecl> getCommonSuperClasses(Iterable<? extends ClassDecl> classDecls)
    {
       final Iterator<? extends ClassDecl> iterator = classDecls.iterator();
