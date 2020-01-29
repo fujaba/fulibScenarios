@@ -14,7 +14,7 @@ header: H1 HEADLINE_TEXT HEADLINE_END;
 actor: WE | THE? name;
 
 sentence: simpleSentences FULL_STOP
-		| compoundSentence FULL_STOP
+        | compoundSentence FULL_STOP
         | diagramSentence
         | sectionSentence
         | commentSentence
