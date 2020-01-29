@@ -127,6 +127,12 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
+   public Frame visit(PatternExpectSentence patternExpectSentence, Frame par)
+   {
+      return par.add(null, ACTOR_TEST, patternExpectSentence);
+   }
+
+   @Override
    public Frame visit(DiagramSentence diagramSentence, Frame par)
    {
       return par.add(null, ACTOR_TEST, diagramSentence);
