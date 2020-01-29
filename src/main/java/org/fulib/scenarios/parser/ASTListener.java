@@ -182,6 +182,15 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
+   public void exitPatternExpectSentence(ScenarioParser.PatternExpectSentenceContext ctx)
+   {
+      final List<Expr> exprs = this.pop(Expr.class, ctx.thatClauses().thatClause().size());
+      final Name name = name(ctx.name());
+      final PatternExpectSentence patternExpectSentence = PatternExpectSentence.of(name, exprs);
+      this.stack.push(patternExpectSentence);
+   }
+
+   @Override
    public void exitDiagramSentence(ScenarioParser.DiagramSentenceContext ctx)
    {
       final Expr object = this.pop();
