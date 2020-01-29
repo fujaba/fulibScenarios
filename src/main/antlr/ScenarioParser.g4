@@ -25,6 +25,7 @@ simpleSentence: thereSentence
               | areSentence
               | hasSentence
               | expectSentence
+              | patternExpectSentence
               | createSentence
               | callSentence
               | answerSentence
@@ -100,6 +101,8 @@ compoundSentenceBody: compoundSentence | simpleSentences;
 expectSentence: WE EXPECT thatClauses;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
+
+patternExpectSentence: WE EXPECT THAT THERE IS SOME OBJECT name thatClauses;
 
 diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 
