@@ -39,7 +39,6 @@ LESS:     'less';
 LIKE:     'like';
 MANY:     'many';
 NOT:      'not';
-OBJECT:   'Object' | 'object';
 OF:       'of';
 OR:       'or';
 ON:       'on';

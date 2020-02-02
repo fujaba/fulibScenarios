@@ -56,7 +56,7 @@ abstract org.fulib.scenarios.ast.Node {
 			IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 			AreSentence(descriptor: MultiDescriptor)
 
-			PatternExpectSentence(name: Name, predicates: [Expr])
+			PatternExpectSentence(type: Type, name: Name, predicates: [Expr])
 
 			abstract ActorSentence(actor: Name) {
 				CreateSentence(actor: Name, descriptor: MultiDescriptor)

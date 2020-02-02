@@ -186,7 +186,8 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final List<Expr> exprs = this.pop(Expr.class, ctx.thatClauses().thatClause().size());
       final Name name = name(ctx.name());
-      final PatternExpectSentence patternExpectSentence = PatternExpectSentence.of(name, exprs);
+      final Type type = this.pop();
+      final PatternExpectSentence patternExpectSentence = PatternExpectSentence.of(type, name, exprs);
       this.stack.push(patternExpectSentence);
    }
 
