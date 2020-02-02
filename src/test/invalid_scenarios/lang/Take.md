@@ -8,7 +8,7 @@ write 'take a i like 1 from ...' instead
 
 # Type
 
-We take an i from some string and we write i into j.
+We take an i from my string and we write i into j.
 <!--              ^
 error: invalid take sentence - cannot iterate over source type 'String' [take.source.type]
 -->
