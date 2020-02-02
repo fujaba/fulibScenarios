@@ -293,6 +293,13 @@ class CodeGenDTO
       this.bodyBuilder.append(code);
    }
 
+   void emitLine(String line)
+   {
+      this.emitIndent();
+      this.emit(line);
+      this.bodyBuilder.append('\n');
+   }
+
    void emitStringLiteral(String text)
    {
       this.bodyBuilder.append('"').append(StringEscapeUtils.escapeJava(text)).append('"');
