@@ -2,7 +2,7 @@
 
 We expect that hello world is 'hello world'.
 We expect that "foo bar" is 'foo bar'.
-We expect that some (commented) string is 'some string'.
+We expect that my (commented) string is 'my string'.
 
 # Escape Sequences
 
