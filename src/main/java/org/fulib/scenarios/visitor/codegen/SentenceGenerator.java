@@ -2,9 +2,12 @@ package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.decl.UnresolvedName;
+import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
+import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
@@ -47,6 +50,37 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          expr.accept(AssertionGenerator.INSTANCE, par);
          par.bodyBuilder.append(";\n");
       }
+      return null;
+   }
+
+   @Override
+   public Object visit(PatternExpectSentence patternExpectSentence, CodeGenDTO par)
+   {
+      par.addImport("org.fulib.FulibTables");
+      par.addImport("org.fulib.patterns.PatternMatcher");
+      par.addImport("org.fulib.patterns.PatternBuilder");
+      par.addImport("org.fulib.patterns.model.PatternObject");
+
+      par.emitLine("final PatternBuilder builder = FulibTables.patternBuilder();");
+
+      final String name = patternExpectSentence.getName().getValue();
+      par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
+
+      final PatternPredicateGenerator gen = new PatternPredicateGenerator(name);
+      for (final Expr predicate : patternExpectSentence.getPredicates())
+      {
+         predicate.accept(gen, par);
+      }
+
+      par.emitLine("final PatternMatcher matcher = FulibTables.matcher(builder.getPattern());");
+      par.emitLine("matcher.withRootPatternObjects(" + name + "PO);");
+      par.emitLine("matcher.withRootObjects();"); // TODO
+      par.emitLine("matcher.match();");
+
+      // TODO hacky, improve this
+      ((VarDecl) patternExpectSentence.getName().getDecl()).setExpr(
+         NameAccess.of(UnresolvedName.of("matcher.findOne(" + name + "PO)", null)));
+
       return null;
    }
 
