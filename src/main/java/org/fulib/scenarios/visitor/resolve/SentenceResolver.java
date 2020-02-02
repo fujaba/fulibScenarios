@@ -232,11 +232,21 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(PatternExpectSentence patternExpectSentence, Scope par)
    {
+      patternExpectSentence.setType(patternExpectSentence.getType().accept(TypeResolver.INSTANCE, par));
       patternExpectSentence.getPredicates().replaceAll(predicate -> {
          final Expr resolved = predicate.accept(ExprResolver.INSTANCE, par);
          return ExprResolver.checkConditional(resolved, par);
       });
-      return patternExpectSentence;
+
+      if (patternExpectSentence.getName().getDecl() != null)
+      {
+         return patternExpectSentence;
+      }
+
+      final VarDecl varDecl = VarDecl.of(patternExpectSentence.getName().getValue(), patternExpectSentence.getType(), null);
+      patternExpectSentence.setName(ResolvedName.of(varDecl));
+      final Sentence isSentence = IsSentence.of(varDecl).accept(this, par);
+      return new FlattenSentenceList(Arrays.asList(patternExpectSentence, isSentence));
    }
 
    @Override
