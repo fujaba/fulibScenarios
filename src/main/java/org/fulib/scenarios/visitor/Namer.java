@@ -43,6 +43,12 @@ public enum Namer implements Type.Visitor<Object, String>, Expr.Visitor<Object, 
       return primitiveType.getJavaName();
    }
 
+   @Override
+   public String visit(DynamicType dynamicType, Object par)
+   {
+      return dynamicType.getBound().accept(this, par);
+   }
+
    // --------------- Expr.Visitor ---------------
 
    @Override

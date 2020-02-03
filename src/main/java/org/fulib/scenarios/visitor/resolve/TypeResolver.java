@@ -45,4 +45,11 @@ public enum TypeResolver implements Type.Visitor<Scope, Type>
       listType.setElementType(listType.getElementType().accept(this, par));
       return listType;
    }
+
+   @Override
+   public Type visit(DynamicType dynamicType, Scope par)
+   {
+      dynamicType.setBound(dynamicType.getBound().accept(this, par));
+      return dynamicType;
+   }
 }
