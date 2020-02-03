@@ -2,12 +2,10 @@ package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.decl.UnresolvedName;
-import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
@@ -77,9 +75,10 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.emitLine("matcher.withRootObjects();"); // TODO
       par.emitLine("matcher.match();");
 
-      // TODO hacky, improve this
-      ((VarDecl) patternExpectSentence.getName().getDecl()).setExpr(
-         NameAccess.of(UnresolvedName.of("matcher.findOne(" + name + "PO)", null)));
+      final Decl decl = patternExpectSentence.getName().getDecl();
+      par.emitLine(
+         "final " + decl.getType().accept(TypeGenerator.INSTANCE, par) + " " + name + " = matcher.findOne(" + name
+         + "PO);");
 
       return null;
    }

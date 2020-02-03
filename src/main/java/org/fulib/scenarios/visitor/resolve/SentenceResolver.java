@@ -232,21 +232,33 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(PatternExpectSentence patternExpectSentence, Scope par)
    {
-      patternExpectSentence.setType(patternExpectSentence.getType().accept(TypeResolver.INSTANCE, par));
-      patternExpectSentence.getPredicates().replaceAll(predicate -> {
-         final Expr resolved = predicate.accept(ExprResolver.INSTANCE, par);
-         return ExprResolver.checkConditional(resolved, par);
-      });
-
-      if (patternExpectSentence.getName().getDecl() != null)
+      final Decl oldDecl = patternExpectSentence.getName().getDecl();
+      final VarDecl varDecl;
+      if (oldDecl == null)
       {
-         return patternExpectSentence;
+         varDecl = VarDecl.of(patternExpectSentence.getName().getValue(), patternExpectSentence.getType(), null);
+         patternExpectSentence.setName(ResolvedName.of(varDecl));
+      }
+      else
+      {
+         varDecl = (VarDecl) oldDecl;
       }
 
-      final VarDecl varDecl = VarDecl.of(patternExpectSentence.getName().getValue(), patternExpectSentence.getType(), null);
-      patternExpectSentence.setName(ResolvedName.of(varDecl));
-      final Sentence isSentence = IsSentence.of(varDecl).accept(this, par);
-      return new FlattenSentenceList(Arrays.asList(patternExpectSentence, isSentence));
+      final Scope scope = new DelegatingScope(par)
+      {
+         @Override
+         public Decl resolve(String name)
+         {
+            return NameResolver.PREDICATE_RECEIVER.equals(name) ? varDecl : super.resolve(name);
+         }
+      };
+      patternExpectSentence.setType(patternExpectSentence.getType().accept(TypeResolver.INSTANCE, par));
+      patternExpectSentence.getPredicates().replaceAll(predicate -> {
+         final Expr resolved = predicate.accept(ExprResolver.INSTANCE, scope);
+         return ExprResolver.checkConditional(resolved, scope);
+      });
+
+      return patternExpectSentence;
    }
 
    @Override

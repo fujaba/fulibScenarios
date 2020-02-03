@@ -50,6 +50,14 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    }
 
    @Override
+   public Object visit(PatternExpectSentence patternExpectSentence, Map<String, Decl> par)
+   {
+      final Decl decl = patternExpectSentence.getName().getDecl();
+      par.put(decl.getName(), decl);
+      return null;
+   }
+
+   @Override
    public Object visit(AssignSentence assignSentence, Map<String, Decl> par)
    {
       this.addAnswerVar(par, assignSentence.getTarget(), assignSentence.getValue());
