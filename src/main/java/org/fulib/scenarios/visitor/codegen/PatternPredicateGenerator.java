@@ -30,7 +30,7 @@ public class PatternPredicateGenerator implements Expr.Visitor<CodeGenDTO, Void>
       attributeCheckExpr.getValue().accept(ExprGenerator.INSTANCE, par);
       par.emit(");\n");
 
-      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s)", this.receiverName,
+      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName,
                                  attribute != null ? attribute.getValue() : "*", name));
 
       return null;
