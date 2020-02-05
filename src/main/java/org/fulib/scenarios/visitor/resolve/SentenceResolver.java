@@ -232,6 +232,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(PatternExpectSentence patternExpectSentence, Scope par)
    {
+      patternExpectSentence.setType(patternExpectSentence.getType().accept(TypeResolver.INSTANCE, par));
+
       final Decl oldDecl = patternExpectSentence.getName().getDecl();
       final VarDecl varDecl;
       if (oldDecl == null)
@@ -252,7 +254,6 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             return NameResolver.PREDICATE_RECEIVER.equals(name) ? varDecl : super.resolve(name);
          }
       };
-      patternExpectSentence.setType(patternExpectSentence.getType().accept(TypeResolver.INSTANCE, par));
 
       // TODO re-enable resolution and implement codegen for ConditionalOperatorExprs and PredicateOperatorExprs
       // patternExpectSentence.getPredicates().replaceAll(predicate -> {
