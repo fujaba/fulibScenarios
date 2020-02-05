@@ -253,10 +253,12 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          }
       };
       patternExpectSentence.setType(patternExpectSentence.getType().accept(TypeResolver.INSTANCE, par));
-      patternExpectSentence.getPredicates().replaceAll(predicate -> {
-         final Expr resolved = predicate.accept(ExprResolver.INSTANCE, scope);
-         return ExprResolver.checkConditional(resolved, scope);
-      });
+
+      // TODO re-enable resolution and implement codegen for ConditionalOperatorExprs and PredicateOperatorExprs
+      // patternExpectSentence.getPredicates().replaceAll(predicate -> {
+      //    final Expr resolved = predicate.accept(ExprResolver.INSTANCE, scope);
+      //    return ExprResolver.checkConditional(resolved, scope);
+      // });
 
       return patternExpectSentence;
    }
