@@ -171,6 +171,7 @@ public enum CodeGenerator
       // before class gen: add diagram sentences if necessary
       for (final Scenario scenario : scenarioFile.getScenarios().values())
       {
+         par.scenario = scenario;
          this.addDiagramSentences(scenario, par);
       }
 
@@ -239,6 +240,7 @@ class CodeGenDTO
    // set or null depending on the level we are generating
    Config            config;
    ScenarioGroup     group;
+   Scenario scenario;
    ClassModelManager modelManager;
    Clazz             clazz;
    StringBuilder     bodyBuilder;
