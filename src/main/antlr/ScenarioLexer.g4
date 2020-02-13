@@ -12,6 +12,7 @@ ANSWER:   'answer';
 ANSWERS:  'answers';
 ARE:      'are';
 AS:       'As' | 'as';
+ATTRIBUTE:'attribute';
 CALL:     'call';
 CALLS:    'calls';
 CARD:     'card';
