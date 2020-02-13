@@ -35,7 +35,7 @@ abstract org.fulib.scenarios.ast.Node {
 		abstract decl.Name(readonly value: String, readonly decl: Decl) {
 			UnresolvedName(value: String, text: String, readonly delegate decl: Decl)
 			ResolvedName(readonly delegate value: String, decl: Decl)
-			WildcardName()
+			WildcardName(readonly delegate value: String, readonly delegate decl: Decl)
 		}
 
 		abstract type.Type(readonly delegate description: String) {
