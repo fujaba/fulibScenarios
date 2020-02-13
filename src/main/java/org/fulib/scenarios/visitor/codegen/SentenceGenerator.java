@@ -5,10 +5,12 @@ import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.resolve.SymbolCollector;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 {
@@ -58,6 +60,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.addImport("org.fulib.patterns.PatternMatcher");
       par.addImport("org.fulib.patterns.PatternBuilder");
       par.addImport("org.fulib.patterns.model.PatternObject");
+      par.addImport("org.fulib.yaml.ReflectorMap");
 
       par.emitLine("final PatternBuilder builder = FulibTables.patternBuilder();");
 
@@ -72,7 +75,18 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       par.emitLine("final PatternMatcher matcher = FulibTables.matcher(builder.getPattern());");
       par.emitLine("matcher.withRootPatternObjects(" + name + "PO);");
-      par.emitLine("matcher.withRootObjects();"); // TODO
+
+      final String packageName = par.modelManager.getClassModel().getPackageName();
+      final ListExpr roots = SymbolCollector.getRoots(par.scenario);
+      if (roots != null)
+      {
+         par.emitIndent();
+         par.emit("matcher.withRootObjects(new ReflectorMap(\"" + packageName + "\").discoverObjects(");
+         roots.accept(ExprGenerator.NO_LIST, par);
+         par.emit("));\n");
+      }
+      // TODO if roots == null, i.e. there are no root objects, the match will always fail.
+
       par.emitLine("matcher.match();");
 
       final Decl decl = patternExpectSentence.getName().getDecl();
