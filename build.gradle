@@ -87,7 +87,7 @@ dependencies {
     testImplementation group: 'org.fulib', name: 'fulibMockups', version: '[0.2.0,)'
 
     // https://mvnrepository.com/artifact/org.fulib/fulibTables
-    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.3.0-dev.2'
+    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.3.0-dev.3'
 }
 
 // --------------- Test Logging ---------------
