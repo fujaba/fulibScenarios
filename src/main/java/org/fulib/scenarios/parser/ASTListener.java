@@ -10,6 +10,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.decl.WildcardName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -365,6 +366,15 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Name name = name(ctx.name());
       final Expr expr = this.pop();
+      this.stack.push(NamedExpr.of(name, expr));
+   }
+
+   @Override
+   public void exitNamedWildcardAttribute(ScenarioParser.NamedWildcardAttributeContext ctx)
+   {
+      final Expr expr = this.pop();
+      final WildcardName name = WildcardName.of();
+      name.setPosition(position(ctx.SOME()));
       this.stack.push(NamedExpr.of(name, expr));
    }
 
