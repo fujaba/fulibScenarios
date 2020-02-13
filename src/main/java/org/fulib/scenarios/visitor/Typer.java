@@ -1,9 +1,6 @@
 package org.fulib.scenarios.visitor;
 
-import org.fulib.scenarios.ast.decl.Decl;
-import org.fulib.scenarios.ast.decl.Name;
-import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.decl.UnresolvedName;
+import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -191,5 +188,11 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    public Type visit(ResolvedName resolvedName, Object par)
    {
       return resolvedName.getDecl().getType();
+   }
+
+   @Override
+   public Type visit(WildcardName wildcardName, Object par)
+   {
+      return PrimitiveType.ERROR;
    }
 }
