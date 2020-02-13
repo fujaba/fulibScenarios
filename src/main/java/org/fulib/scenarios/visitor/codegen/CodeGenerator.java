@@ -11,26 +11,17 @@ import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
-import org.fulib.scenarios.ast.decl.Decl;
-import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
-import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.tool.Config;
-import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.resolve.SymbolCollector;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public enum CodeGenerator
    implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<CodeGenDTO, Object>,
@@ -204,46 +195,14 @@ public enum CodeGenerator
          return;
       }
 
-      final String methodName = scenario.getMethodDecl().getName();
+      final ListExpr listExpr = SymbolCollector.getRoots(scenario);
+      if (listExpr == null)
+      {
+         return;
+      }
+
       final List<Sentence> sentences = scenario.getBody().getItems();
-
-      if (sentences.isEmpty())
-      {
-         return;
-      }
-
-      // collect top-level variables
-      final Map<String, Decl> symbolTable = new TreeMap<>();
-      for (final Sentence item : sentences)
-      {
-         item.accept(SymbolCollector.INSTANCE, symbolTable);
-      }
-
-      if (symbolTable.isEmpty())
-      {
-         return;
-      }
-
-      final Map<String, ClassDecl> classes = scenario.getFile().getGroup().getClasses();
-      final List<Expr> exprs = new ArrayList<>();
-      for (Decl it : symbolTable.values())
-      {
-         // only add variables with types from the data model (i.e. exclude String, double, ... variables)
-         final Type type = it.getType();
-         final String typeName = type.accept(Namer.INSTANCE, null);
-         if (classes.get(typeName) != null)
-         {
-            exprs.add(NameAccess.of(ResolvedName.of(it)));
-         }
-      }
-
-      if (exprs.isEmpty())
-      {
-         return;
-      }
-
-      final ListExpr listExpr = ListExpr.of(exprs);
-
+      final String methodName = scenario.getMethodDecl().getName();
       if (par.config.isObjectDiagram())
       {
          final DiagramSentence diagramSentence = DiagramSentence.of(listExpr, methodName + ".png");

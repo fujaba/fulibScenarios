@@ -1,16 +1,67 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.scenarios.ast.Scenario;
+import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
+import org.fulib.scenarios.ast.expr.collection.ListExpr;
+import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.Namer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Object>
 {
    INSTANCE;
+
+   public static ListExpr getRoots(Scenario scenario)
+   {
+      final List<Sentence> sentences = scenario.getBody().getItems();
+      if (sentences.isEmpty())
+      {
+         return null;
+      }
+
+      // collect top-level variables
+      final Map<String, Decl> symbolTable = new TreeMap<>();
+      for (final Sentence item : sentences)
+      {
+         item.accept(SymbolCollector.INSTANCE, symbolTable);
+      }
+
+      if (symbolTable.isEmpty())
+      {
+         return null;
+      }
+
+      final Map<String, ClassDecl> classes = scenario.getFile().getGroup().getClasses();
+      final List<Expr> exprs = new ArrayList<>();
+      for (Decl it : symbolTable.values())
+      {
+         // only add variables with types from the data model (i.e. exclude String, double, ... variables)
+         final Type type = it.getType();
+         final String typeName = type.accept(Namer.INSTANCE, null);
+         if (classes.get(typeName) != null)
+         {
+            exprs.add(NameAccess.of(ResolvedName.of(it)));
+         }
+      }
+
+      if (exprs.isEmpty())
+      {
+         return null;
+      }
+
+      return ListExpr.of(exprs);
+   }
 
    // --------------- Sentence.Visitor ---------------
 
