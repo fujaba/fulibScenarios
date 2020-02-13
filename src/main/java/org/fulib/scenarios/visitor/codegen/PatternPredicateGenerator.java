@@ -19,9 +19,10 @@ public class PatternPredicateGenerator implements Expr.Visitor<CodeGenDTO, Void>
    public Void visit(AttributeCheckExpr attributeCheckExpr, CodeGenDTO par)
    {
       final Name attribute = attributeCheckExpr.getAttribute();
-      final String name = attribute != null ?
-         this.receiverName + StrUtil.cap(attribute.getValue()) :
-         this.generateUnknownAttributeName();
+      final String attributeValue = attribute.getValue();
+      final String name = "*".equals(attributeValue) ?
+         this.generateUnknownAttributeName() :
+         this.receiverName + StrUtil.cap(attributeValue);
 
       par.emitLine("final PatternObject " + name + " = builder.buildPatternObject(\"" + name + "\");");
 
@@ -30,8 +31,8 @@ public class PatternPredicateGenerator implements Expr.Visitor<CodeGenDTO, Void>
       attributeCheckExpr.getValue().accept(ExprGenerator.INSTANCE, par);
       par.emit(");\n");
 
-      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName,
-                                 attribute != null ? attribute.getValue() : "*", name));
+      par.emitLine(
+         String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName, attributeValue, name));
 
       return null;
    }
