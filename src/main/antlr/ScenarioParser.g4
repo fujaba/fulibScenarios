@@ -66,7 +66,8 @@ withClauses: withClause (sep withClause)*;
 withClause: WITH namedExpr;
 
 namedExpr: THE? simpleName expr # NamedSimple
-         | number name          # NamedNumber;
+         | number name          # NamedNumber
+         | SOME ATTRIBUTE expr  # NamedWildcardAttribute;
 bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF expr;
 
 hasSentence: nameAccess hasClauses;
