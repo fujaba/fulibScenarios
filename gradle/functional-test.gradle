@@ -26,9 +26,9 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
     j.doLast {
         def errored = false
         def output = writer.toString('UTF-8')
-        def errorLines = getErrorLines(project.rootDir, sourceDir)
+        def markerLines = getMarkerLines(project.rootDir, sourceDir)
 
-        for (line in errorLines) {
+        for (line in markerLines) {
             if (!output.contains(line)) {
                 j.state.addFailure(new TaskExecutionException(j, new Exception('error line not in compiler ' +
                         'output:\n' + line)))
@@ -41,8 +41,8 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
        def actualWarnings = match[0][1] as int
        def actualErrors = match[0][2] as int
 
-       def expectedWarnings = errorLines.count { it.contains(': warning: ') }
-       def expectedErrors = errorLines.count { it.contains(': error: ') }
+       def expectedWarnings = markerLines.count { it.contains(': warning: ') }
+       def expectedErrors = markerLines.count { it.contains(': error: ') }
 
        if (actualErrors != expectedErrors || actualWarnings != expectedWarnings) {
           def message = """mismatching number of errors and warnings,
@@ -54,7 +54,7 @@ but generated $actualErrors errors and $actualWarnings warnings"""
 
         if (errored) {
             def filteredOutput = output
-            for (line in errorLines) {
+            for (line in markerLines) {
                 filteredOutput = filteredOutput.replace(line, '')
             }
 
@@ -66,8 +66,8 @@ but generated $actualErrors errors and $actualWarnings warnings"""
 
 check.dependsOn 'compileInvalidScenarios'
 
-private List<String> getErrorLines(File rootDir, String sourceDir) {
-   List<String> errorLines = [ ]
+private List<String> getMarkerLines(File rootDir, String sourceDir) {
+   List<String> markerLines = [ ]
 
    new File(rootDir, sourceDir).eachFileRecurse {
       if (!it.path.matches(~/.*\.md$/)) {
@@ -84,12 +84,13 @@ private List<String> getErrorLines(File rootDir, String sourceDir) {
             text = "${ rootDir.relativePath(it) }:$startLine:$column: "
          }
          else if (line.trim() == '^') {
+            markerLines.add text
             column = line.indexOf('^')
-            text += "${ rootDir.relativePath(it) }:$startLine:$column: "
+            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
          }
          else if (text) {
             if (line.contains('-->')) {
-               errorLines.add text
+               markerLines.add text
                text = ""
                startLine = -1
             }
@@ -100,7 +101,7 @@ private List<String> getErrorLines(File rootDir, String sourceDir) {
       }
    }
 
-   return errorLines
+   return markerLines
 }
 
 private void configureTestCompile(JavaExec j, String modelOutputDir, String testOutputDir, Iterable<?> imports,
