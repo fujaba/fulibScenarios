@@ -247,28 +247,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
       if (receiverClass == null)
       {
-         final Position receiverPosition = receiver.getPosition();
-         final Marker error = error(receiverPosition, "has.subject.primitive", receiverType.getDescription());
-         if (receiver instanceof StringLiteral)
-         {
-            final String stringValue = ((StringLiteral) receiver).getValue();
-            final String identifier = stringValue.replaceAll("\\s+", "").toLowerCase();
-
-            final Map<String, Decl> decls = new LinkedHashMap<>();
-            par.list(decls::putIfAbsent);
-
-            final LevenshteinDistance levenshteinDistance = new LevenshteinDistance(2);
-            decls.entrySet().removeIf(entry -> {
-               final String lowerCaseDeclName = entry.getKey().toLowerCase();
-               final int distance = levenshteinDistance.apply(identifier, lowerCaseDeclName);
-               return distance < 0; // i.e., threshold exceeded
-            });
-
-            for (final Map.Entry<String, Decl> entry : decls.entrySet())
-            {
-               error.note(note(receiverPosition, "stringliteral.typo", stringValue, entry.getKey()));
-            }
-         }
+         final Marker error = error(receiver.getPosition(), "has.subject.primitive", receiverType.getDescription());
+         addStringLiteralTypoNotes(par, receiver, error);
          par.report(error);
          return hasSentence;
       }
@@ -282,6 +262,33 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       return hasSentence;
+   }
+
+   private static void addStringLiteralTypoNotes(Scope scope, Expr expr, Marker parent)
+   {
+      if (!(expr instanceof StringLiteral))
+      {
+         return;
+      }
+
+      final StringLiteral stringLiteral = (StringLiteral) expr;
+      final String stringValue = stringLiteral.getValue();
+      final String identifier = stringValue.replaceAll("\\s+", "").toLowerCase();
+
+      final Map<String, Decl> decls = new LinkedHashMap<>();
+      scope.list(decls::putIfAbsent);
+
+      final LevenshteinDistance levenshteinDistance = new LevenshteinDistance(2);
+      decls.entrySet().removeIf(entry -> {
+         final String lowerCaseDeclName = entry.getKey().toLowerCase();
+         final int distance = levenshteinDistance.apply(identifier, lowerCaseDeclName);
+         return distance < 0; // i.e., threshold exceeded
+      });
+
+      for (final Map.Entry<String, Decl> entry : decls.entrySet())
+      {
+         parent.note(note(expr.getPosition(), "stringliteral.typo", stringValue, entry.getKey()));
+      }
    }
 
    static void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
