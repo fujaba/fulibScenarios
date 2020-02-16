@@ -24,5 +24,6 @@ public class HidingScope extends DelegatingScope
    public void list(BiConsumer<? super String, ? super Decl> consumer)
    {
       consumer.accept(this.name, null);
+      super.list(consumer);
    }
 }
