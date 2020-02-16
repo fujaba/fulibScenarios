@@ -316,8 +316,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       {
          resolveSimpleHasNamedExpr(namedExpr, objectClass, scope);
 
-         scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
-                            assocName));
+         final Marker error = error(otherName.getPosition(), "attribute.reverse.name", otherAssocName,
+                                    objectClass.getName(), assocName);
+         addStringLiteralTypoNotes(scope, expr, error);
+         scope.report(error);
          return;
       }
 
