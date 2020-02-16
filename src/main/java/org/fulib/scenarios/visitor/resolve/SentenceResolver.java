@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.fulib.StrUtil;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.MultiDescriptor;
@@ -13,6 +14,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
+import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.scope.ExtendingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
@@ -25,6 +27,7 @@ import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.TypeConversion;
+import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
 
@@ -244,7 +247,29 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
       if (receiverClass == null)
       {
-         par.report(error(receiver.getPosition(), "has.subject.primitive", receiverType.getDescription()));
+         final Position receiverPosition = receiver.getPosition();
+         final Marker error = error(receiverPosition, "has.subject.primitive", receiverType.getDescription());
+         if (receiver instanceof StringLiteral)
+         {
+            final String stringValue = ((StringLiteral) receiver).getValue();
+            final String identifier = stringValue.replaceAll("\\s+", "").toLowerCase();
+
+            final Map<String, Decl> decls = new LinkedHashMap<>();
+            par.list(decls::putIfAbsent);
+
+            final LevenshteinDistance levenshteinDistance = new LevenshteinDistance(2);
+            decls.entrySet().removeIf(entry -> {
+               final String lowerCaseDeclName = entry.getKey().toLowerCase();
+               final int distance = levenshteinDistance.apply(identifier, lowerCaseDeclName);
+               return distance < 0; // i.e., threshold exceeded
+            });
+
+            for (final Map.Entry<String, Decl> entry : decls.entrySet())
+            {
+               error.note(note(receiverPosition, "stringliteral.typo", stringValue, entry.getKey()));
+            }
+         }
+         par.report(error);
          return hasSentence;
       }
 
