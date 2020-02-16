@@ -56,9 +56,46 @@ Alice has grades and is student of 1, 2, 3.
 error: invalid reverse association name 'student' - 'ReverseStudent.grades' is an attribute, not an association [attribute.reverse.name]
 -->
 
+## Hints
+
+There is the ReverseStudent Bob.
+
+Bob has friend and is friend of Alic and Alce.
+<!--                  ^
+error: invalid reverse association name 'friend' - 'ReverseStudent.friend' is an attribute, not an association [attribute.reverse.name]
+                                ^
+note: elements of list expression have common type 'String' [list.type]
+                                ^
+note: perhaps you meant to refer to 'alice' instead of the string literal 'Alic'? [stringliteral.typo]
+                                         ^
+note: perhaps you meant to refer to 'alice' instead of the string literal 'Alce'? [stringliteral.typo]
+-->
+
 # Primitive Has Subject
 
 (   ) Asd has next 2.
 <!--  ^
 error: invalid has sentence - subject has primitive type 'String' [has.subject.primitive]
+-->
+
+## Hints
+
+There is a HasPrimitivePerson with name Erbi.
+There is a HasPrimitivePerson with name Herba.
+There is a HasPrimitivePerson with name Ernie.
+There is a HasPrimitivePerson with name Erni.
+
+There is a HasPrimitiveCar with name Herbie.
+
+(  ) Herbi has speed 100.
+<!-- ^
+error: invalid has sentence - subject has primitive type 'String' [has.subject.primitive]
+     ^
+note: perhaps you meant to refer to 'herbie' instead of the string literal 'Herbi'? [stringliteral.typo]
+     ^
+note: perhaps you meant to refer to 'erni' instead of the string literal 'Herbi'? [stringliteral.typo]
+     ^
+note: perhaps you meant to refer to 'erbi' instead of the string literal 'Herbi'? [stringliteral.typo]
+     ^
+note: perhaps you meant to refer to 'herba' instead of the string literal 'Herbi'? [stringliteral.typo]
 -->
