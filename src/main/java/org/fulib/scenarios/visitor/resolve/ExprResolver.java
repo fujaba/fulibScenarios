@@ -29,7 +29,6 @@ import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.*;
-import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.HashMap;
 import java.util.List;
@@ -168,8 +167,10 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       if (receiverClass == null)
       {
-         par.report(error(receiver.getPosition(), "call.receiver.primitive", methodName,
-                          receiverType.accept(TypeDescriber.INSTANCE, null)));
+         final Marker error = error(receiver.getPosition(), "call.receiver.primitive", methodName,
+                                    receiverType.getDescription());
+         SentenceResolver.addStringLiteralTypoNotes(par, receiver, error);
+         par.report(error);
          return callExpr;
       }
 

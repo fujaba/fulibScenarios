@@ -264,7 +264,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return hasSentence;
    }
 
-   private static void addStringLiteralTypoNotes(Scope scope, Expr expr, Marker parent)
+   static void addStringLiteralTypoNotes(Scope scope, Expr expr, Marker parent)
    {
       if (expr instanceof ListExpr)
       {
