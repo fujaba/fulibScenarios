@@ -63,33 +63,33 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
 check.dependsOn 'compileInvalidScenarios'
 
 private List<String> getErrorLines(File rootDir, String sourceDir) {
-    List<String> errorLines = [ ]
+   List<String> errorLines = [ ]
 
-    new File(rootDir, sourceDir).eachFileRecurse {
-        if (!it.path.matches(~/.*\.md$/)) {
-            return
-        }
+   new File(rootDir, sourceDir).eachFileRecurse {
+      if (!it.path.matches(~/.*\.md$/)) {
+         return
+      }
 
-        int column = 0
-        int lineNum = 0
-        String text = ""
+      String text = null
 
-        it.eachLine { line, num ->
-            if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
-                lineNum = num - 1
+      it.eachLine { line, num ->
+         int column
+         if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
+            text = "${ rootDir.relativePath(it) }:${ num - 1 }:$column: "
+         }
+         else if (text) {
+            if (line.contains('-->')) {
+               errorLines.add text
+               text = ""
             }
-            else if (line.contains('-->')) {
-                errorLines.add "${ rootDir.relativePath(it) }:$lineNum:$column: $text"
-                column = lineNum = 0
-                text = ""
+            else {
+               text += line + '\n'
             }
-            else if (lineNum > 0 && column >= 0) {
-                text += line + '\n'
-            }
-        }
-    }
+         }
+      }
+   }
 
-    return errorLines
+   return errorLines
 }
 
 private void configureTestCompile(JavaExec j, String modelOutputDir, String testOutputDir, Iterable<?> imports,
