@@ -13,6 +13,7 @@ import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.parser.Identifiers;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
                                        ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
@@ -82,6 +83,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
             return className.equals(name) || DeclResolver.ENCLOSING_CLASS.equals(name) ?
                       classDecl :
                       super.resolve(name);
+         }
+
+         @Override
+         public void list(BiConsumer<? super String, ? super Decl> consumer)
+         {
+            consumer.accept(className, classDecl);
+            consumer.accept(DeclResolver.ENCLOSING_CLASS, classDecl);
+            super.list(consumer);
          }
 
          @Override

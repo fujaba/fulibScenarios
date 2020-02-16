@@ -4,6 +4,7 @@ import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.decl.Decl;
 
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class GroupScope extends DelegatingScope
@@ -27,6 +28,13 @@ public class GroupScope extends DelegatingScope
    {
       final ClassDecl classDecl = this.group.getClasses().get(name);
       return classDecl != null ? classDecl : super.resolve(name);
+   }
+
+   @Override
+   public void list(BiConsumer<? super String, ? super Decl> consumer)
+   {
+      this.group.getClasses().forEach(consumer);
+      super.list(consumer);
    }
 
    @Override

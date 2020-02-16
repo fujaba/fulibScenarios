@@ -3,6 +3,7 @@ package org.fulib.scenarios.ast.scope;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.diagnostic.Marker;
 
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public abstract class DelegatingScope implements Scope
@@ -18,6 +19,12 @@ public abstract class DelegatingScope implements Scope
    public Decl resolve(String name)
    {
       return this.outer.resolve(name);
+   }
+
+   @Override
+   public void list(BiConsumer<? super String, ? super Decl> consumer)
+   {
+      this.outer.list(consumer);
    }
 
    @Override

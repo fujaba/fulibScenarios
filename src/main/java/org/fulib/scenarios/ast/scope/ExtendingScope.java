@@ -5,6 +5,7 @@ import org.fulib.scenarios.ast.decl.Decl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,5 +48,12 @@ public class ExtendingScope extends DelegatingScope
          return this.names.get(name);
       }
       return super.resolve(name);
+   }
+
+   @Override
+   public void list(BiConsumer<? super String, ? super Decl> consumer)
+   {
+      this.names.forEach(consumer);
+      super.list(consumer);
    }
 }

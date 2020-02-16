@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class GlobalScope implements Scope
@@ -65,6 +66,15 @@ public class GlobalScope implements Scope
       }
 
       return null;
+   }
+
+   @Override
+   public void list(BiConsumer<? super String, ? super Decl> consumer)
+   {
+      for (final ScenarioGroup group : this.importedGroups)
+      {
+         group.getClasses().forEach(consumer);
+      }
    }
 
    private ClassDecl resolveClass(String packageDir, String simpleName, String fullName)
