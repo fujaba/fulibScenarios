@@ -13,7 +13,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.scope.DelegatingScope;
+import org.fulib.scenarios.ast.scope.ExtendingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.*;
@@ -42,15 +42,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    public Sentence visit(SentenceList sentenceList, Scope par)
    {
       final Map<String, Decl> decls = new HashMap<>();
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            final Decl decl = decls.get(name);
-            return decl != null ? decl : super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(decls, par);
 
       final List<Sentence> oldItems = sentenceList.getItems();
       final List<Sentence> newItems = new ArrayList<>(oldItems.size());
@@ -612,14 +604,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Decl varDecl = resolveVar(takeSentence, par, exampleName, type);
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return name.equals(varDecl.getName()) || name.equals(exampleName) ? varDecl : super.resolve(name);
-         }
-      };
+      final Map<String, Decl> decls = new HashMap<>();
+      decls.put(varDecl.getName(), varDecl);
+      decls.put(exampleName, varDecl);
+      final Scope scope = new ExtendingScope(decls, par);
 
       takeSentence.setBody(takeSentence.getBody().accept(this, scope));
       return takeSentence;

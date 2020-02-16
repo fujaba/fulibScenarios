@@ -114,23 +114,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       classDecl.getMethods().add(methodDecl);
       scenario.setMethodDecl(methodDecl);
 
-      final DelegatingScope scope = new DelegatingScope(par)
-      {
-
-         @Override
-         public Decl resolve(String name)
-         {
-            if ("this".equals(name))
-            {
-               return thisParam;
-            }
-            if (methodName.equals(name))
-            {
-               return methodDecl;
-            }
-            return super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(new Decl[] { thisParam, methodDecl }, par);
 
       body.accept(SentenceResolver.INSTANCE, scope);
       return null;

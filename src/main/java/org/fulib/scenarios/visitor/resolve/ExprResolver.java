@@ -20,7 +20,7 @@ import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.primary.AnswerLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.scope.DelegatingScope;
+import org.fulib.scenarios.ast.scope.ExtendingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.ListType;
@@ -302,15 +302,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          decls.put(exprName, param);
       }
 
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            final Decl decl = decls.get(name);
-            return decl != null ? decl : super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(decls, par);
       callExpr.getBody().accept(SentenceResolver.INSTANCE, scope);
 
       // set return type if necessary. has to happen after body resolution!
@@ -494,14 +486,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final Type elementType = ((ListType) sourceType).getElementType();
       final VarDecl it = VarDecl.of("it", elementType, null);
 
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(PREDICATE_RECEIVER, it, par);
 
       final Expr predicate = filterExpr.getPredicate().accept(this, scope);
       filterExpr.setPredicate(checkConditional(predicate, par));
