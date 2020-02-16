@@ -36,17 +36,21 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
             }
         }
 
-        def lastLine = output[output.lastIndexOf('\n', output.length() - 2) + 1..-2]
-        def match = lastLine =~ /(\d+) warnings? and (\d+) errors?/
-        def errors = match[0][1] as int
-        def warnings = match[0][2] as int
+       def lastLine = output[output.lastIndexOf('\n', output.length() - 2) + 1..-2]
+       def match = lastLine =~ /(\d+) warnings? and (\d+) errors?/
+       def actualWarnings = match[0][1] as int
+       def actualErrors = match[0][2] as int
 
-        if (errors + warnings != errorLines.size()) {
-            j.state.addFailure(new TaskExecutionException(j, new Exception("mismatching number of errors and " +
-                    "warnings," +
-                    " expected ${ errorLines.size() }, generated ${ errors + warnings }")))
-            errored = true
-        }
+       def expectedWarnings = errorLines.count { it.contains(': warning: ') }
+       def expectedErrors = errorLines.count { it.contains(': error: ') }
+
+       if (actualErrors != expectedErrors || actualWarnings != expectedWarnings) {
+          def message = """mismatching number of errors and warnings,
+expected $expectedErrors errors and $expectedWarnings warnings,
+but generated $actualErrors errors and $actualWarnings warnings"""
+          j.state.addFailure(new TaskExecutionException(j, new Exception(message)))
+          errored = true
+       }
 
         if (errored) {
             def filteredOutput = output
