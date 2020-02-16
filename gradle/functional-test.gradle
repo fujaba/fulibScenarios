@@ -70,17 +70,24 @@ private List<String> getErrorLines(File rootDir, String sourceDir) {
          return
       }
 
+      int startLine
       String text = null
 
       it.eachLine { line, num ->
          int column
          if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
-            text = "${ rootDir.relativePath(it) }:${ num - 1 }:$column: "
+            startLine = num - 1
+            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
+         }
+         else if (line.trim() == '^') {
+            column = line.indexOf('^')
+            text += "${ rootDir.relativePath(it) }:$startLine:$column: "
          }
          else if (text) {
             if (line.contains('-->')) {
                errorLines.add text
                text = ""
+               startLine = -1
             }
             else {
                text += line + '\n'
