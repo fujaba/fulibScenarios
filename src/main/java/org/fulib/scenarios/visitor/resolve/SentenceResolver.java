@@ -266,6 +266,18 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
    private static void addStringLiteralTypoNotes(Scope scope, Expr expr, Marker parent)
    {
+      if (expr instanceof ListExpr)
+      {
+         final ListType type = (ListType) expr.getType();
+         final Marker note = note(expr.getPosition(), "list.type", type.getElementType().getDescription());
+         parent.note(note);
+         for (final Expr element : ((ListExpr) expr).getElements())
+         {
+            addStringLiteralTypoNotes(scope, element, note);
+         }
+         return;
+      }
+
       if (!(expr instanceof StringLiteral))
       {
          return;
