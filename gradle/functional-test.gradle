@@ -52,14 +52,17 @@ but generated $actualErrors errors and $actualWarnings warnings"""
          errored = true
       }
 
-      if (errored) {
-         def filteredOutput = output
-         for (line in markerLines) {
-            filteredOutput = filteredOutput.replace(line, '')
-         }
+      def filteredOutput = output
+      for (line in markerLines) {
+         filteredOutput = filteredOutput.replace(line, '')
+      }
+      def message = "output without matched markers:\n$filteredOutput"
 
-         j.state.addFailure(new TaskExecutionException(j, new Exception('output without matched markers:\n' +
-            filteredOutput)))
+      if (errored) {
+         j.state.addFailure(new TaskExecutionException(j, new Exception(message)))
+      }
+      else {
+         println message
       }
    }
 }
