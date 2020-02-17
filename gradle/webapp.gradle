@@ -1,20 +1,20 @@
 configurations.create('webapp')
 
 repositories {
-    // the web app is intentionally not linked to jcenter
-    mavenLocal()
-    maven {
-        url 'https://dl.bintray.com/clashsoft/maven'
-    }
+   // the web app is intentionally not linked to jcenter
+   mavenLocal()
+   maven {
+      url 'https://dl.bintray.com/clashsoft/maven'
+   }
 }
 
 dependencies {
-    webapp group: 'org.fulib', name: 'fulibDotOrg', version: '[0.8.1,)', {
-        exclude group: 'org.fulib', module: 'fulibScenarios'
-    }
+   webapp group: 'org.fulib', name: 'fulibDotOrg', version: '[0.8.1,)', {
+      exclude group: 'org.fulib', module: 'fulibScenarios'
+   }
 }
 
 tasks.register('runWebApp', JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath + configurations.webapp
-    main = 'org.fulib.webapp.WebService'
+   classpath = sourceSets.main.runtimeClasspath + configurations.webapp
+   main = 'org.fulib.webapp.WebService'
 }

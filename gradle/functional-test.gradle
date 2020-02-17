@@ -5,7 +5,7 @@ def modelOutputDir = "$buildDir/generated-src/scenarios/main/"
 def testOutputDir = "$buildDir/generated-src/scenarios/test/"
 
 tasks.register(taskName, JavaExec) {
-    configureTestCompile(it, modelOutputDir, testOutputDir, imports, sourceDirs)
+   configureTestCompile(it, modelOutputDir, testOutputDir, imports, sourceDirs)
 }
 
 compileTestJava.dependsOn taskName
@@ -14,100 +14,112 @@ sourceSets.test.java.srcDir(files(modelOutputDir).builtBy(taskName))
 sourceSets.test.java.srcDir(files(testOutputDir).builtBy(taskName))
 
 tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
-    def sourceDir = 'src/test/invalid_scenarios'
-    configureTestCompile(j, "$buildDir/generated-src/invalid_scenarios/main/",
-            "$buildDir/generated-src/invalid_scenarios/test/",
-            [ 'org.fulib.mockups' ], [ sourceDir ])
+   def sourceDir = 'src/test/invalid_scenarios'
+   configureTestCompile(j, "$buildDir/generated-src/invalid_scenarios/main/",
+      "$buildDir/generated-src/invalid_scenarios/test/",
+      [ 'org.fulib.mockups' ], [ sourceDir ])
 
-    def writer = new ByteArrayOutputStream()
-    j.standardOutput = writer
-    j.ignoreExitValue = true
+   def writer = new ByteArrayOutputStream()
+   j.standardOutput = writer
+   j.ignoreExitValue = true
 
-    j.doLast {
-        def errored = false
-        def output = writer.toString('UTF-8')
-        def errorLines = getErrorLines(project.rootDir, sourceDir)
+   j.doLast {
+      def errored = false
+      def output = writer.toString('UTF-8')
+      def markerLines = getMarkerLines(project.rootDir, sourceDir)
 
-        for (line in errorLines) {
-            if (!output.contains(line)) {
-                j.state.addFailure(new TaskExecutionException(j, new Exception('error line not in compiler ' +
-                        'output:\n' + line)))
-                errored = true
-            }
-        }
-
-        def lastLine = output[output.lastIndexOf('\n', output.length() - 2) + 1..-2]
-        def match = lastLine =~ /(\d+) warnings? and (\d+) errors?/
-        def errors = match[0][1] as int
-        def warnings = match[0][2] as int
-
-        if (errors + warnings != errorLines.size()) {
-            j.state.addFailure(new TaskExecutionException(j, new Exception("mismatching number of errors and " +
-                    "warnings," +
-                    " expected ${ errorLines.size() }, generated ${ errors + warnings }")))
+      for (line in markerLines) {
+         if (!output.contains(line)) {
+            j.state.addFailure(new TaskExecutionException(j, new Exception('error line not in compiler ' +
+               'output:\n' + line)))
             errored = true
-        }
+         }
+      }
 
-        if (errored) {
-            def filteredOutput = output
-            for (line in errorLines) {
-                filteredOutput = filteredOutput.replace(line, '')
-            }
+      def lastLine = output[output.lastIndexOf('\n', output.length() - 2) + 1..-2]
+      def match = lastLine =~ /(\d+) warnings? and (\d+) errors?/
+      def actualWarnings = match[0][1] as int
+      def actualErrors = match[0][2] as int
 
-            j.state.addFailure(new TaskExecutionException(j, new Exception('output without matched markers:\n' +
-                    filteredOutput)))
-        }
-    }
+      def expectedWarnings = markerLines.count { it.contains(': warning: ') }
+      def expectedErrors = markerLines.count { it.contains(': error: ') }
+
+      if (actualErrors != expectedErrors || actualWarnings != expectedWarnings) {
+         def message = """mismatching number of errors and warnings,
+expected $expectedErrors errors and $expectedWarnings warnings,
+but generated $actualErrors errors and $actualWarnings warnings"""
+         j.state.addFailure(new TaskExecutionException(j, new Exception(message)))
+         errored = true
+      }
+
+      if (errored) {
+         def filteredOutput = output
+         for (line in markerLines) {
+            filteredOutput = filteredOutput.replace(line, '')
+         }
+
+         j.state.addFailure(new TaskExecutionException(j, new Exception('output without matched markers:\n' +
+            filteredOutput)))
+      }
+   }
 }
 
 check.dependsOn 'compileInvalidScenarios'
 
-private List<String> getErrorLines(File rootDir, String sourceDir) {
-    List<String> errorLines = [ ]
+private List<String> getMarkerLines(File rootDir, String sourceDir) {
+   List<String> markerLines = [ ]
 
-    new File(rootDir, sourceDir).eachFileRecurse {
-        if (!it.path.matches(~/.*\.md$/)) {
-            return
-        }
+   new File(rootDir, sourceDir).eachFileRecurse {
+      if (!it.path.matches(~/.*\.md$/)) {
+         return
+      }
 
-        int column = 0
-        int lineNum = 0
-        String text = ""
+      int startLine
+      String text = null
 
-        it.eachLine { line, num ->
-            if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
-                lineNum = num - 1
+      it.eachLine { line, num ->
+         int column
+         if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
+            startLine = num - 1
+            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
+         }
+         else if (line.trim() == '^') {
+            markerLines.add text
+            column = line.indexOf('^')
+            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
+         }
+         else if (text) {
+            if (line.contains('-->')) {
+               markerLines.add text
+               text = ""
+               startLine = -1
             }
-            else if (line.contains('-->')) {
-                errorLines.add "${ rootDir.relativePath(it) }:$lineNum:$column: $text"
-                column = lineNum = 0
-                text = ""
+            else {
+               text += line + '\n'
             }
-            else if (lineNum > 0 && column >= 0) {
-                text += line + '\n'
-            }
-        }
-    }
+         }
+      }
+   }
 
-    return errorLines
+   return markerLines
 }
 
 private void configureTestCompile(JavaExec j, String modelOutputDir, String testOutputDir, Iterable<?> imports,
                                   Iterable<?> sourceDirs) {
-    j.classpath = sourceSets.main.runtimeClasspath
-    j.main = 'org.fulib.scenarios.Main'
+   j.classpath = sourceSets.main.runtimeClasspath
+   j.main = 'org.fulib.scenarios.Main'
 
-    j.args '-m', modelOutputDir
-    j.args '-t', testOutputDir
-    j.args '-i', imports.join(',')
-    j.args '-cp', sourceSets.test.compileClasspath.asPath
-    j.args '--'
-    j.args sourceDirs
+   j.args '-m', modelOutputDir
+   j.args '-t', testOutputDir
+   j.args '-i', imports.join(',')
+   j.args '-cp', sourceSets.test.compileClasspath.asPath
+   j.args '--'
+   j.args sourceDirs
 
-    j.onlyIf { sourceDirs.any { file(it).exists() } }
+   j.onlyIf { sourceDirs.any { file(it).exists() } }
 
-    sourceDirs.each { j.inputs.dir(it) }
-    j.inputs.files(configurations.testCompile)
-    j.outputs.dir(modelOutputDir)
-    j.outputs.dir(testOutputDir)
+   sourceDirs.each { j.inputs.dir(it) }
+   j.inputs.files(configurations.testCompile)
+   j.outputs.dir(modelOutputDir)
+   j.outputs.dir(testOutputDir)
 }
