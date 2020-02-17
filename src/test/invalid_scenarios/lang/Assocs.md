@@ -17,12 +17,20 @@ error: mismatching cardinalities of self-association 'SelfEntity.enemies' [assoc
 There are the AssocReverseEntity Alice, Bob, Charlie.
 
 Alice has related Bob.
+<!--      ^
+note: 'AssocReverseEntity.related' was first declared here [property.declaration.first]
+-->
+
 Bob has related and is reverse-related of Charlie.
 <!--                   ^
 error: invalid reverse association name 'reverseRelated' - 'AssocReverseEntity.related' was already declared as unidirectional [association.reverse.late]
 -->
 
 Alice has parent and is child of Bob.
+<!--                    ^
+note: 'AssocReverseEntity.child' was first declared here [property.declaration.first]
+-->
+
 Bob has parent and is kid of Charlie.
 <!--                  ^
 error: conflicting redeclaration of reverse association of 'AssocReverseEntity.parent' [association.reverse.conflict]
@@ -41,6 +49,9 @@ now: AssocReverseEntity.child, association to many 'AssocReverseEntity'
 
 There are the AssocReEntity Alice, Bob, Charlie.
 Alice has related Bob.
+<!--      ^
+note: 'AssocReEntity.related' was first declared here [property.declaration.first]
+-->
 
 Alice has related and is reverse-related of Charlie.
 <!--                     ^
@@ -48,6 +59,10 @@ error: invalid reverse association name 'reverseRelated' - 'AssocReEntity.relate
 -->
 
 Alice has intAttr 123.
+<!--      ^
+note: 'AssocReEntity.intAttr' was first declared here [property.declaration.first]
+-->
+
 Bob has intAttr Charlie.
 <!--    ^
 error: conflicting redeclaration of 'AssocReEntity.intAttr' [property.redeclaration.conflict]

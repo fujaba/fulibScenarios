@@ -2,7 +2,7 @@
 
 We take i 1 from 1 to 10 and we write i into j.
 <!--    ^
-warning: the 'take <name> <expr> from ...' syntax is deprecated and will be unsupported in v0.9.0 [take.syntax.deprecated]
+warning: the 'take <name> <expr> from ...' syntax is deprecated [take.syntax.deprecated]
 write 'take a i like 1 from ...' instead
 -->
 

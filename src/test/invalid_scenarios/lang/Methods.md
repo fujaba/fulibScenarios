@@ -21,6 +21,9 @@ error: unresolved attribute or association 'String.bar' - 'String' is a primitiv
 # Mismatching Parameters and Arguments
 
 We call foo with bar 1 and with baz "2".
+<!--    ^
+note: 'MethodsTest.foo' was first declared here [property.declaration.first]
+-->
 
 We call foo with bar 3.
 <!--    ^
