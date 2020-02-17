@@ -31,6 +31,9 @@ note: perhaps you meant to refer to 'primrec' instead of the string literal 'pri
 # Mismatching Parameters and Arguments
 
 We call foo with bar 1 and with baz "2".
+<!--    ^
+note: 'MethodsTest.foo' was first declared here [property.declaration.first]
+-->
 
 We call foo with bar 3.
 <!--    ^

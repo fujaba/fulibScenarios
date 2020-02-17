@@ -12,9 +12,19 @@ warning: the '<type>s <names>' syntax is deprecated and will be unsupported in v
 write 'the Students bob charlie dude' instead
 -->
 
-# Invalid Redeclarations
+   # Invalid Redeclarations
+<!--^
+note: 'invalidRedeclarations' was first declared here [variable.declaration.first]
+-->
 
 There are the Students Alice, Bob, Charlie and Dude.
+<!--                   ^
+note: 'alice' was first declared here [variable.declaration.first]
+                              ^
+note: 'bob' was first declared here [variable.declaration.first]
+                                               ^
+note: 'dude' was first declared here [variable.declaration.first]
+-->
 
 There is the Student alice.
 <!--                 ^

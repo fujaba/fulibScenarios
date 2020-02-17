@@ -28,11 +28,17 @@ error: unresolved attribute or association 'int.names' - 'int' is a primitive ty
 
 There is the Object o1.
 There is the AttributeEntity entity-foo with id 123.
+<!--                                         ^
+note: 'AttributeEntity.id' was first declared here [property.declaration.first]
+-->
+
 There is the AttributeEntity entity-123 with id o1 and with friend entity-foo.
 <!--                                         ^
 error: conflicting redeclaration of 'AttributeEntity.id' [property.redeclaration.conflict]
 was: attribute of one 'int'
 now: attribute of one 'Object'
+                                                            ^
+note: 'AttributeEntity.friend' was first declared here [property.declaration.first]
 -->
 
 There is an AttributeEntity with id bar and with friend 123.
@@ -46,14 +52,16 @@ now: attribute of one 'int'
 
 There is the ReverseStudent alice.
 
-Alice has name and is student of 'Alice'.
-<!--                  ^
-error: invalid reverse association name 'student' - 'ReverseStudent.name' is an attribute, not an association [attribute.reverse.name]
+Alice has uni and is student of Uni Kassel.
+<!--                 ^
+error: invalid reverse association name 'student' - 'ReverseStudent.uni' is an attribute, not an association [attribute.reverse.name]
 -->
 
 Alice has grades and is student of 1, 2, 3.
 <!--                    ^
 error: invalid reverse association name 'student' - 'ReverseStudent.grades' is an attribute, not an association [attribute.reverse.name]
+                                   ^
+note: elements of list expression have common type 'int' [list.type]
 -->
 
 ## Hints
