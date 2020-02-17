@@ -29,6 +29,10 @@ error: cannot write into association to many 'WMVStudent' - only single-valued a
 # Invalid Type Conversions
 
 We write 1 into i.
+<!--            ^
+note: 'i' was first declared here [variable.declaration.first]
+-->
+
 We write 1,2,3 into i.
 <!--     ^
 error: cannot assign expression of type 'list of int' to variable 'i' of type 'int' [assign.type]
