@@ -97,6 +97,11 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
 
       final ClassDecl classA = classType.getClassDecl();
       final ClassDecl classB = par.accept(ExtractClassDecl.INSTANCE, null);
+      if (classB == null)
+      {
+         return Result.UNRELATED;
+      }
+
       if (classA == classB)
       {
          return Result.EQUAL;
