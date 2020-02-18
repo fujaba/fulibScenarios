@@ -23,6 +23,8 @@ public class Config
       this.imports.add("org.fulib.mockups");
    }
 
+   private boolean generateTables;
+
    private boolean classDiagram;
    private boolean classDiagramSVG;
 
@@ -64,6 +66,16 @@ public class Config
    public Set<String> getImports()
    {
       return this.imports;
+   }
+
+   public boolean isGenerateTables()
+   {
+      return this.generateTables;
+   }
+
+   public void setGenerateTables(boolean generateTables)
+   {
+      this.generateTables = generateTables;
    }
 
    public boolean isClassDiagram()
@@ -129,6 +141,8 @@ public class Config
       imports.setValueSeparator(',');
       options.addOption(imports);
 
+      options.addOption(new Option(null, "tables", false, "generate table classes for the model"));
+
       options.addOption(new Option(null, "class-diagram", false, "generate class diagram as .png into model folder"));
       options.addOption(
          new Option(null, "class-diagram-svg", false, "generate class diagram as .svg into model folder"));
@@ -146,6 +160,7 @@ public class Config
       this.setModelDir(cmd.getOptionValue("modelDir", "src/main/java"));
       this.setTestDir(cmd.getOptionValue("testDir", "src/test/java"));
       this.getInputDirs().addAll(cmd.getArgList());
+      this.setGenerateTables(cmd.hasOption("tables"));
       this.setClassDiagram(cmd.hasOption("class-diagram"));
       this.setClassDiagramSVG(cmd.hasOption("class-diagram-svg"));
       this.setObjectDiagram(cmd.hasOption("object-diagram"));
