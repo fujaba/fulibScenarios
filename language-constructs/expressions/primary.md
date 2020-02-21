@@ -1,5 +1,7 @@
 # Primary
 
+Primary expressions are those that do not involve any complex operations. Typically, they consist of one value or a few words.
+
 ```markup
 <primary> ::= <number> | <stringLiteral> | <it>
             | <nameAccess> | <string>
@@ -7,6 +9,8 @@
 ```
 
 ## Numbers
+
+Numbers can be written with or without a decimal part. Numbers without one will become `int` in Java, and those with a decimal part will become `double`s. Usually, the translation is as-is.
 
 ```markup
 <number> ::= /-?[0-9]+('.'[0-9]+)?/
@@ -36,12 +40,14 @@
 
 ## String Literals
 
+When you don't want to refer to an existing object or use special characters in a string, use a string literal with single or double quotes.
+
 ```markup
 <stringLiteral> ::= /"[^"]*"/
                   | /'[^']*'/
 ```
 
-When you don't want to refer to an existing object or use special characters in a string, use a string literal with single or double quotes.
+When using double quotes, the translation is mostly as-is. Single quotes in a Scenario become double quotes in Java.
 
 {% tabs %}
 {% tab title="Scenarios" %}
@@ -61,31 +67,32 @@ When you don't want to refer to an existing object or use special characters in 
 {% endtab %}
 {% endtabs %}
 
-## It
+## It \(not yet available\)
+
+The keyword `it` refers to the primary expression closest to the left of it.
 
 ```markup
 <it> ::= it
 ```
 
-The keyword `it` refers to the primary closest to the left of it.
-
 ## Words
+
+Words make up names and simple strings. Which one depends on context. When you are sure you want a string, you can use a [string literal](primary.md#string-literals) instead. When you want to refer to a name, use the keyword [`the`](primary.md#names).
 
 ```markup
 <word> ::= /[a-zA-Z][a-zA-Z0-9']*/
 ```
 
-Whether a word is a name or a string depends on context.
-
 ## Names
+
+Names may refer to objects, but can also be used for strings. In any case, they consist of one or more words. The keyword `the` always indicates an object name. It depends on context whether a name declares an object or refers to one.
 
 ```markup
 <simpleName> ::= the? <word>
 <multiName> ::= the? <word>+
 <name> ::= <multiName>
+<nameAccess> ::= <multiName>
 ```
-
-The keyword `the` always indicates an object name.
 
 {% tabs %}
 {% tab title="Scenarios" %}
@@ -115,26 +122,6 @@ peterPan
 myList
 otherList
 mixedCase
-```
-{% endtab %}
-{% endtabs %}
-
-## Name Access
-
-```markup
-<nameAccess> ::= <multiName>
-```
-
-{% tabs %}
-{% tab title="Scenarios" %}
-```markup
-<name>
-```
-{% endtab %}
-
-{% tab title="Java" %}
-```java
-<name>
 ```
 {% endtab %}
 {% endtabs %}
