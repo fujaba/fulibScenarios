@@ -3,6 +3,7 @@
 * [Introduction](README.md)
 * [Terminology](terminology.md)
 * [Language Constructs](language-constructs/README.md)
+  * [Basics](language-constructs/basics.md)
   * [Expressions](language-constructs/expressions/README.md)
     * [Primary](language-constructs/expressions/primary.md)
     * [Access](language-constructs/expressions/access.md)
