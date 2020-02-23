@@ -102,8 +102,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       if (receiverType instanceof ListType)
       {
          final Type elementType = ((ListType) receiverType).getElementType();
-         final Name resolvedName = DeclResolver
-                                      .getAttributeOrAssociation(par, elementType, attributeAccess.getName());
+         final Name resolvedName = DeclResolver.getAttributeOrAssociation(par, receiver, elementType,
+                                                                          attributeAccess.getName());
          return MapAccessExpr.of(resolvedName, receiver);
       }
 

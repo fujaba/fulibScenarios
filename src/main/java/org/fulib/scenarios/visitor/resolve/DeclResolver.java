@@ -112,11 +112,15 @@ public class DeclResolver
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
    {
-      final Type type = receiver.getType();
-      return getAttributeOrAssociation(scope, type, name);
+      return getAttributeOrAssociation(scope, receiver, receiver.getType(), name);
    }
 
    static Name getAttributeOrAssociation(Scope scope, Type owner, Name name)
+   {
+      return getAttributeOrAssociation(scope, null, owner, name);
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, Expr receiver, Type owner, Name name)
    {
       if (owner == PrimitiveType.ERROR)
       {
@@ -129,8 +133,13 @@ public class DeclResolver
          return getAttributeOrAssociation(scope, ownerClass, name);
       }
 
-      scope.report(
-         error(name.getPosition(), "property.unresolved.primitive", owner.getDescription(), name.getValue()));
+      final Marker error = error(name.getPosition(), "property.unresolved.primitive", owner.getDescription(),
+                                 name.getValue());
+      if (receiver != null)
+      {
+         SentenceResolver.addStringLiteralTypoNotes(scope, receiver, error);
+      }
+      scope.report(error);
       return name;
    }
 

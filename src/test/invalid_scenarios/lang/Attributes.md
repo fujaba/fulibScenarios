@@ -18,6 +18,13 @@ We write names of students into names.
 error: unresolved attribute or association 'Student.names' [property.unresolved]
 -->
 
+We write names of studens into invalidNames.
+<!--     ^
+error: unresolved attribute or association 'String.names' - 'String' is a primitive type [property.unresolved.primitive]
+                  ^
+note: perhaps you meant to refer to 'students' instead of the string literal 'studens'? [stringliteral.typo]
+-->
+
 We write 1,2,3 into numbers.
 We write names of numbers into names.
 <!--     ^
