@@ -19,6 +19,8 @@ import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.diagnostic.Marker;
+import org.fulib.scenarios.visitor.resolve.SentenceResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +68,9 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          return converted;
       }
 
-      scope.report(error(expr.getPosition(), code, expr.getType().getDescription(), to.getDescription()));
+      final Marker error = error(expr.getPosition(), code, expr.getType().getDescription(), to.getDescription());
+      SentenceResolver.addStringLiteralTypoNotes(scope, expr, error);
+      scope.report(error);
       return expr;
    }
 

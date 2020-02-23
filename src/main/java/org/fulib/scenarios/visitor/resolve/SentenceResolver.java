@@ -264,7 +264,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return hasSentence;
    }
 
-   static void addStringLiteralTypoNotes(Scope scope, Expr expr, Marker parent)
+   public static void addStringLiteralTypoNotes(Scope scope, Expr expr, Marker parent)
    {
       if (expr instanceof ListExpr)
       {
@@ -548,7 +548,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (!(targetType instanceof ListType))
       {
-         par.report(error(target.getPosition(), invalidTarget, targetType.getDescription()));
+         final Marker error = error(target.getPosition(), invalidTarget, targetType.getDescription());
+         addStringLiteralTypoNotes(par, target, error);
+         par.report(error);
          return source;
       }
 
@@ -566,8 +568,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Type sourceType = source.getType();
-      par.report(
-         error(source.getPosition(), invalidSource, sourceType.getDescription(), targetType.getDescription()));
+      final Marker error = error(source.getPosition(), invalidSource, sourceType.getDescription(),
+                                 targetType.getDescription());
+      addStringLiteralTypoNotes(par, source, error);
+      par.report(error);
       return source;
    }
 
