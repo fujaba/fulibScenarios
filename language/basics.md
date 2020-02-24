@@ -18,7 +18,7 @@ A scenario starts with a header line, like '\# Basics' at the top. The header li
 {% endtab %}
 
 {% tab title="Java" %}
-```text
+```java
 @Test
 void myFirstScenario() {
     // ...
@@ -43,7 +43,7 @@ Lines starting with `##` are section headlines. In Java code, they are shown as 
 {% endtab %}
 
 {% tab title="Java" %}
-```text
+```java
 // --- Examples ---
 ```
 {% endtab %}
@@ -62,7 +62,7 @@ Everything after `//` up to the end of a line becomes a Java comment.
 {% endtab %}
 
 {% tab title="Java" %}
-```text
+```java
 // comment
 ... // this does the thing
 ```
@@ -81,7 +81,7 @@ Another form of comment uses parentheses. These comments will not be present in 
 {% endtab %}
 
 {% tab title="Java" %}
-```text
+```java
 ... ...
 ```
 {% endtab %}
