@@ -15,6 +15,7 @@
     * [Write Sentences](language/sentences/write-sentences.md)
     * [Conditional Sentences](language/sentences/conditional-sentences.md)
     * [Loop Sentences](language/sentences/loop-sentences.md)
+    * [Call Sentences](language/sentences/call-sentences.md)
 * [Web App](web-app/README.md)
   * [API](web-app/api.md)
 
