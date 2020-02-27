@@ -1,4 +1,4 @@
-# Sentences
+# Sentences \[WIP\]
 
 ```markup
 <sentence> ::= <thereSentence> | <isSentence> | <hasSentence>
