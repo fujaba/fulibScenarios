@@ -27,6 +27,7 @@ simpleSentence: thereSentence
               | expectSentence
               | createSentence
               | callSentence
+              | tellSentence
               | answerSentence
               | writeSentence
               | addSentence
@@ -75,6 +76,7 @@ hasClause: verb=(HAS | HAVE) (namedExpr | bidiNamedExpr);
 createSentence: actor verb=(CREATE | CREATES) (simpleDescriptor | multiDescriptor);
 
 callSentence: actor verb=(CALL | CALLS) name (ON expr)? withClauses?;
+tellSentence: actor verb=(TELL | TELLS) expr TO name withClauses?;
 
 answerSentence: actor verb=(ANSWER | ANSWERS) WITH expr (INTO THE? name)?;
 
