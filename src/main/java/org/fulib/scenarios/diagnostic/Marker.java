@@ -13,9 +13,9 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
 
    // =============== Fields ===============
 
-   private final Kind     kind;
+   private final Kind kind;
    private final Position position;
-   private final String   code;
+   private final String code;
    private final Object[] args;
 
    private List<Marker> notes;
