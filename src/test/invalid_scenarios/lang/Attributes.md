@@ -55,6 +55,15 @@ was: association to one 'AttributeEntity'
 now: attribute of one 'int'
 -->
 
+There is an AttributeEntity with id baz and with friend enity-123.
+<!--                                             ^
+error: conflicting redeclaration of 'AttributeEntity.friend' [property.redeclaration.conflict]
+was: association to one 'AttributeEntity'
+now: attribute of one 'String'
+                                                        ^
+note: perhaps you meant to refer to 'entity123' instead of the string literal 'enity-123'? [stringliteral.typo]
+-->
+
 # Invalid Reverse Name
 
 There is the ReverseStudent alice.
