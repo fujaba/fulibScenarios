@@ -16,6 +16,15 @@ We write Alice, Charlie, Bob into students.
 We write names of students into names.
 <!--     ^
 error: unresolved attribute or association 'Student.names' [property.unresolved]
+         ^
+note: perhaps you meant to access 'name' instead of 'names'? [property.typo]
+-->
+
+We write names of studens into invalidNames.
+<!--     ^
+error: unresolved attribute or association 'String.names' - 'String' is a primitive type [property.unresolved.primitive]
+                  ^
+note: perhaps you meant to refer to 'students' instead of the string literal 'studens'? [stringliteral.typo]
 -->
 
 We write 1,2,3 into numbers.
@@ -48,6 +57,15 @@ was: association to one 'AttributeEntity'
 now: attribute of one 'int'
 -->
 
+There is an AttributeEntity with id baz and with friend enity-123.
+<!--                                             ^
+error: conflicting redeclaration of 'AttributeEntity.friend' [property.redeclaration.conflict]
+was: association to one 'AttributeEntity'
+now: attribute of one 'String'
+                                                        ^
+note: perhaps you meant to refer to 'entity123' instead of the string literal 'enity-123'? [stringliteral.typo]
+-->
+
 # Invalid Reverse Name
 
 There is the ReverseStudent alice.
@@ -60,6 +78,23 @@ error: invalid reverse association name 'student' - 'ReverseStudent.uni' is an a
 Alice has grades and is student of 1, 2, 3.
 <!--                    ^
 error: invalid reverse association name 'student' - 'ReverseStudent.grades' is an attribute, not an association [attribute.reverse.name]
+                                   ^
+note: elements of list expression have common type 'int' [list.type]
+-->
+
+## Hints
+
+There is the ReverseStudent Bob.
+
+Bob has friend and is friend of Alic and Alce.
+<!--                  ^
+error: invalid reverse association name 'friend' - 'ReverseStudent.friend' is an attribute, not an association [attribute.reverse.name]
+                                ^
+note: elements of list expression have common type 'String' [list.type]
+                                ^
+note: perhaps you meant to refer to 'alice' instead of the string literal 'Alic'? [stringliteral.typo]
+                                         ^
+note: perhaps you meant to refer to 'alice' instead of the string literal 'Alce'? [stringliteral.typo]
 -->
 
 # Primitive Has Subject
@@ -67,4 +102,26 @@ error: invalid reverse association name 'student' - 'ReverseStudent.grades' is a
 (   ) Asd has next 2.
 <!--  ^
 error: invalid has sentence - subject has primitive type 'String' [has.subject.primitive]
+-->
+
+## Hints
+
+There is a HasPrimitivePerson with name Erbi.
+There is a HasPrimitivePerson with name Herba.
+There is a HasPrimitivePerson with name Ernie.
+There is a HasPrimitivePerson with name Erni.
+
+There is a HasPrimitiveCar with name Herbie.
+
+(  ) Herbi has speed 100.
+<!-- ^
+error: invalid has sentence - subject has primitive type 'String' [has.subject.primitive]
+     ^
+note: perhaps you meant to refer to 'herbie' instead of the string literal 'Herbi'? [stringliteral.typo]
+     ^
+note: perhaps you meant to refer to 'erni' instead of the string literal 'Herbi'? [stringliteral.typo]
+     ^
+note: perhaps you meant to refer to 'erbi' instead of the string literal 'Herbi'? [stringliteral.typo]
+     ^
+note: perhaps you meant to refer to 'herba' instead of the string literal 'Herbi'? [stringliteral.typo]
 -->

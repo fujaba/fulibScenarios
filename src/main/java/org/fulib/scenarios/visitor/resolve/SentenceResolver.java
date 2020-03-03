@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.fulib.StrUtil;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.MultiDescriptor;
@@ -13,7 +14,8 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.scope.DelegatingScope;
+import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.scope.ExtendingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.*;
@@ -27,6 +29,7 @@ import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.TypeConversion;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
@@ -42,15 +45,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    public Sentence visit(SentenceList sentenceList, Scope par)
    {
       final Map<String, Decl> decls = new HashMap<>();
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            final Decl decl = decls.get(name);
-            return decl != null ? decl : super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(decls, par);
 
       final List<Sentence> oldItems = sentenceList.getItems();
       final List<Sentence> newItems = new ArrayList<>(oldItems.size());
@@ -252,7 +247,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
       if (receiverClass == null)
       {
-         par.report(error(receiver.getPosition(), "has.subject.primitive", receiverType.getDescription()));
+         final Marker error = error(receiver.getPosition(), "has.subject.primitive", receiverType.getDescription());
+         addStringLiteralTypoNotes(par, receiver, error);
+         par.report(error);
          return hasSentence;
       }
 
@@ -265,6 +262,47 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       return hasSentence;
+   }
+
+   public static void addStringLiteralTypoNotes(Scope scope, Expr expr, Marker parent)
+   {
+      if (expr instanceof ListExpr)
+      {
+         final ListType type = (ListType) expr.getType();
+         final Marker note = note(expr.getPosition(), "list.type", type.getElementType().getDescription());
+         parent.note(note);
+         for (final Expr element : ((ListExpr) expr).getElements())
+         {
+            addStringLiteralTypoNotes(scope, element, note);
+         }
+         return;
+      }
+
+      if (!(expr instanceof StringLiteral))
+      {
+         return;
+      }
+
+      final StringLiteral stringLiteral = (StringLiteral) expr;
+      final String stringValue = stringLiteral.getValue();
+      final String identifier = stringValue.replaceAll("\\s+", "");
+
+      final Map<String, Decl> decls = new LinkedHashMap<>();
+      scope.list(decls::putIfAbsent);
+
+      decls.keySet().stream().filter(caseInsensitiveLevenshteinDistance(identifier, 2)).forEach(key -> {
+         parent.note(note(expr.getPosition(), "stringliteral.typo", stringValue, key));
+      });
+   }
+
+   static Predicate<String> caseInsensitiveLevenshteinDistance(String base, int threshold)
+   {
+      final String lowerBase = base.toLowerCase();
+      final LevenshteinDistance levenshteinDistance = new LevenshteinDistance(2);
+      return s -> {
+         final int result = levenshteinDistance.apply(lowerBase, s);
+         return 0 <= result && result <= threshold;
+      };
    }
 
    static void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
@@ -292,14 +330,16 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       {
          resolveSimpleHasNamedExpr(namedExpr, objectClass, scope);
 
-         scope.report(error(otherName.getPosition(), "attribute.reverse.name", otherAssocName, objectClass.getName(),
-                            assocName));
+         final Marker error = error(otherName.getPosition(), "attribute.reverse.name", otherAssocName,
+                                    objectClass.getName(), assocName);
+         addStringLiteralTypoNotes(scope, expr, error);
+         scope.report(error);
          return;
       }
 
       final AssociationDecl assoc = resolveAssociation(scope, objectClass, assocName, cardinality, otherClass,
                                                        otherAssocName, otherCardinality, name.getPosition(),
-                                                       otherName.getPosition());
+                                                       otherName.getPosition(), expr);
       if (assoc != null)
       {
          final AssociationDecl other = assoc.getOther();
@@ -510,7 +550,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       if (!(targetType instanceof ListType))
       {
-         par.report(error(target.getPosition(), invalidTarget, targetType.getDescription()));
+         final Marker error = error(target.getPosition(), invalidTarget, targetType.getDescription());
+         addStringLiteralTypoNotes(par, target, error);
+         par.report(error);
          return source;
       }
 
@@ -528,8 +570,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Type sourceType = source.getType();
-      par.report(
-         error(source.getPosition(), invalidSource, sourceType.getDescription(), targetType.getDescription()));
+      final Marker error = error(source.getPosition(), invalidSource, sourceType.getDescription(),
+                                 targetType.getDescription());
+      addStringLiteralTypoNotes(par, source, error);
+      par.report(error);
       return source;
    }
 
@@ -612,14 +656,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Decl varDecl = resolveVar(takeSentence, par, exampleName, type);
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return name.equals(varDecl.getName()) || name.equals(exampleName) ? varDecl : super.resolve(name);
-         }
-      };
+      final Map<String, Decl> decls = new HashMap<>();
+      decls.put(varDecl.getName(), varDecl);
+      decls.put(exampleName, varDecl);
+      final Scope scope = new ExtendingScope(decls, par);
 
       takeSentence.setBody(takeSentence.getBody().accept(this, scope));
       return takeSentence;

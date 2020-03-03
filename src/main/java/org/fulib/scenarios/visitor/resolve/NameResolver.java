@@ -13,6 +13,7 @@ import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.parser.Identifiers;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
                                        ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
@@ -85,6 +86,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          }
 
          @Override
+         public void list(BiConsumer<? super String, ? super Decl> consumer)
+         {
+            consumer.accept(className, classDecl);
+            consumer.accept(DeclResolver.ENCLOSING_CLASS, classDecl);
+            super.list(consumer);
+         }
+
+         @Override
          public void report(Marker marker)
          {
             scenarioFile.getMarkers().add(marker);
@@ -114,23 +123,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       classDecl.getMethods().add(methodDecl);
       scenario.setMethodDecl(methodDecl);
 
-      final DelegatingScope scope = new DelegatingScope(par)
-      {
-
-         @Override
-         public Decl resolve(String name)
-         {
-            if ("this".equals(name))
-            {
-               return thisParam;
-            }
-            if (methodName.equals(name))
-            {
-               return methodDecl;
-            }
-            return super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(new Decl[] { thisParam, methodDecl }, par);
 
       body.accept(SentenceResolver.INSTANCE, scope);
       return null;

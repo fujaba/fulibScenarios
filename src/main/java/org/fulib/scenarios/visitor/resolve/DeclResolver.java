@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
@@ -30,6 +31,7 @@ public class DeclResolver
    // =============== Constants ===============
 
    protected static final String ENCLOSING_CLASS = "<enclosing:class>";
+   private static final int UNRESOLVED_HINT_DISTANCE_THRESHOLD = 3;
 
    // =============== Static Methods ===============
 
@@ -112,11 +114,15 @@ public class DeclResolver
 
    static Name getAttributeOrAssociation(Scope scope, Expr receiver, Name name)
    {
-      final Type type = receiver.getType();
-      return getAttributeOrAssociation(scope, type, name);
+      return getAttributeOrAssociation(scope, receiver, receiver.getType(), name);
    }
 
    static Name getAttributeOrAssociation(Scope scope, Type owner, Name name)
+   {
+      return getAttributeOrAssociation(scope, null, owner, name);
+   }
+
+   static Name getAttributeOrAssociation(Scope scope, Expr receiver, Type owner, Name name)
    {
       if (owner == PrimitiveType.ERROR)
       {
@@ -129,8 +135,13 @@ public class DeclResolver
          return getAttributeOrAssociation(scope, ownerClass, name);
       }
 
-      scope.report(
-         error(name.getPosition(), "property.unresolved.primitive", owner.getDescription(), name.getValue()));
+      final Marker error = error(name.getPosition(), "property.unresolved.primitive", owner.getDescription(),
+                                 name.getValue());
+      if (receiver != null)
+      {
+         SentenceResolver.addStringLiteralTypoNotes(scope, receiver, error);
+      }
+      scope.report(error);
       return name;
    }
 
@@ -149,7 +160,14 @@ public class DeclResolver
          return ResolvedName.of(decl);
       }
 
-      scope.report(error(name.getPosition(), "property.unresolved", owner.getName(), nameValue));
+      final Position position = name.getPosition();
+      final Marker error = error(position, "property.unresolved", owner.getName(), nameValue);
+      Stream.concat(owner.getAttributes().keySet().stream(), owner.getAssociations().keySet().stream())
+            .filter(SentenceResolver.caseInsensitiveLevenshteinDistance(nameValue, UNRESOLVED_HINT_DISTANCE_THRESHOLD))
+            .forEach(suggestion -> {
+               error.note(note(position, "property.typo", nameValue, suggestion));
+            });
+      scope.report(error);
       return name; // unresolved
    }
 
@@ -172,28 +190,28 @@ public class DeclResolver
          if (otherType instanceof ClassType)
          {
             return resolveAssociation(scope, classDecl, attributeName, ClassModelBuilder.MANY,
-                                      ((ClassType) otherType).getClassDecl(), position);
+                                      ((ClassType) otherType).getClassDecl(), position, rhs);
          }
          else
          {
             // was element type that we have no control over, e.g. List<String>
-            return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
+            return resolveAttribute(scope, classDecl, attributeName, attributeType, position, rhs);
          }
       }
       else if (attributeType instanceof ClassType)
       {
          return resolveAssociation(scope, classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl(),
-                                   position);
+                                   position, rhs);
       }
       else
       {
-         return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
+         return resolveAttribute(scope, classDecl, attributeName, attributeType, position, rhs);
       }
    }
 
    // --------------- Attributes ---------------
 
-   static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position)
+   static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position, Expr rhs)
    {
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
@@ -203,7 +221,9 @@ public class DeclResolver
              && !TypeConversion.isConvertible(type, existingType))
          {
             final String newDesc = DeclDescriber.describeAttribute(type);
-            scope.report(conflict(position, owner, name, existingAttribute, newDesc));
+            final Marker conflict = conflict(position, owner, name, existingAttribute, newDesc);
+            SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+            scope.report(conflict);
          }
 
          return existingAttribute;
@@ -212,7 +232,9 @@ public class DeclResolver
       if (existingAssociation != null)
       {
          final String newDesc = DeclDescriber.describeAttribute(type);
-         scope.report(conflict(position, owner, name, existingAssociation, newDesc));
+         final Marker conflict = conflict(position, owner, name, existingAssociation, newDesc);
+         SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+         scope.report(conflict);
 
          return existingAssociation;
       }
@@ -248,19 +270,21 @@ public class DeclResolver
    // --------------- Associations ---------------
 
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
-      ClassDecl otherClass, Position position)
+      ClassDecl otherClass, Position position, Expr rhs)
    {
-      return resolveAssociation(scope, owner, name, cardinality, otherClass, null, 0, position, null);
+      return resolveAssociation(scope, owner, name, cardinality, otherClass, null, 0, position, null, rhs);
    }
 
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
-      ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition)
+      ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition, Expr rhs)
    {
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
       {
          final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
-         scope.report(conflict(position, owner, name, existingAttribute, newDesc));
+         final Marker conflict = conflict(position, owner, name, existingAttribute, newDesc);
+         SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+         scope.report(conflict);
 
          return null;
       }
@@ -274,7 +298,9 @@ public class DeclResolver
          if (existing.getTarget() != otherClass || existing.getCardinality() < cardinality)
          {
             final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
-            scope.report(conflict(position, owner, name, existing, newDesc));
+            final Marker conflict = conflict(position, owner, name, existing, newDesc);
+            SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+            scope.report(conflict);
          }
          else if (otherName != null)
          {

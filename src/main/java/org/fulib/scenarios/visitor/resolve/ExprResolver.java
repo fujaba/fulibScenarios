@@ -20,7 +20,7 @@ import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.primary.AnswerLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
-import org.fulib.scenarios.ast.scope.DelegatingScope;
+import org.fulib.scenarios.ast.scope.ExtendingScope;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.type.ListType;
@@ -29,7 +29,6 @@ import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.*;
-import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.HashMap;
 import java.util.List;
@@ -103,8 +102,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       if (receiverType instanceof ListType)
       {
          final Type elementType = ((ListType) receiverType).getElementType();
-         final Name resolvedName = DeclResolver
-                                      .getAttributeOrAssociation(par, elementType, attributeAccess.getName());
+         final Name resolvedName = DeclResolver.getAttributeOrAssociation(par, receiver, elementType,
+                                                                          attributeAccess.getName());
          return MapAccessExpr.of(resolvedName, receiver);
       }
 
@@ -168,8 +167,10 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       if (receiverClass == null)
       {
-         par.report(error(receiver.getPosition(), "call.receiver.primitive", methodName,
-                          receiverType.accept(TypeDescriber.INSTANCE, null)));
+         final Marker error = error(receiver.getPosition(), "call.receiver.primitive", methodName,
+                                    receiverType.getDescription());
+         SentenceResolver.addStringLiteralTypoNotes(par, receiver, error);
+         par.report(error);
          return callExpr;
       }
 
@@ -302,15 +303,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          decls.put(exprName, param);
       }
 
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            final Decl decl = decls.get(name);
-            return decl != null ? decl : super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(decls, par);
       callExpr.getBody().accept(SentenceResolver.INSTANCE, scope);
 
       // set return type if necessary. has to happen after body resolution!
@@ -494,14 +487,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       final Type elementType = ((ListType) sourceType).getElementType();
       final VarDecl it = VarDecl.of("it", elementType, null);
 
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return PREDICATE_RECEIVER.equals(name) ? it : super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(PREDICATE_RECEIVER, it, par);
 
       final Expr predicate = filterExpr.getPredicate().accept(this, scope);
       filterExpr.setPredicate(checkConditional(predicate, par));
