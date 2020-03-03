@@ -239,16 +239,30 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitCallSentence(ScenarioParser.CallSentenceContext ctx)
    {
-      final Name actor = name(ctx.actor().name()); // null if actor is "we"
-      final Name name = name(ctx.name());
+      final boolean hasReceiver = ctx.ON() != null;
+      this.buildCall(ctx.actor(), ctx.verb, hasReceiver, ctx.name(), ctx.withClauses());
+   }
+
+   @Override
+   public void exitTellSentence(ScenarioParser.TellSentenceContext ctx)
+   {
+      this.buildCall(ctx.actor(), ctx.verb, true, ctx.name(), ctx.withClauses());
+   }
+
+   private void buildCall(ScenarioParser.ActorContext actorCtx, Token verb, boolean hasReceiver,
+      ScenarioParser.NameContext nameCtx, ScenarioParser.WithClausesContext withClausesCtx)
+   {
+      final Name actor = name(actorCtx.name()); // null if actor is "we"
+      final Name name = name(nameCtx);
       final List<NamedExpr> args = this.pop(NamedExpr.class,
-                                            ctx.withClauses() != null ? ctx.withClauses().withClause().size() : 0);
-      final Expr receiver = ctx.ON() != null ? this.pop() : null;
+                                            withClausesCtx != null ? withClausesCtx.withClause().size() : 0);
+      final Expr receiver = hasReceiver ? this.pop() : null;
+
       final SentenceList body = SentenceList.of(new ArrayList<>());
       final CallExpr callExpr = CallExpr.of(name, receiver, args, body);
-      callExpr.setPosition(position(ctx.name()));
+      callExpr.setPosition(position(nameCtx));
       final CallSentence callSentence = CallSentence.of(actor, callExpr);
-      callSentence.setPosition(position(ctx.verb));
+      callSentence.setPosition(position(verb));
       this.stack.push(callSentence);
    }
 
