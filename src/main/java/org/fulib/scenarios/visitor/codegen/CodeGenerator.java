@@ -43,6 +43,11 @@ public enum CodeGenerator
    @Override
    public Object visit(CompilationContext compilationContext, Object par)
    {
+      if (compilationContext.getConfig().isDryRun())
+      {
+         return null;
+      }
+
       compilationContext.getGroups().values().parallelStream().forEach(it -> {
          final CodeGenDTO dto = new CodeGenDTO();
          dto.config = compilationContext.getConfig();

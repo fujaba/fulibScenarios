@@ -29,6 +29,8 @@ public class Config
    private boolean objectDiagram;
    private boolean objectDiagramSVG;
 
+   private boolean dryRun;
+
    // =============== Properties ===============
 
    public String getModelDir()
@@ -106,6 +108,16 @@ public class Config
       this.objectDiagramSVG = objectDiagramSVG;
    }
 
+   public boolean isDryRun()
+   {
+      return this.dryRun;
+   }
+
+   public void setDryRun(boolean dryRun)
+   {
+      this.dryRun = dryRun;
+   }
+
    // =============== Methods ===============
 
    public Options createOptions()
@@ -138,6 +150,8 @@ public class Config
       options.addOption(new Option(null, "object-diagram-svg", false,
                                    "append a statement to each test that generates an object diagram as .svg"));
 
+      options.addOption(new Option(null, "dry-run", false, "only check the input files and do not run code generator"));
+
       return options;
    }
 
@@ -150,6 +164,7 @@ public class Config
       this.setClassDiagramSVG(cmd.hasOption("class-diagram-svg"));
       this.setObjectDiagram(cmd.hasOption("object-diagram"));
       this.setObjectDiagramSVG(cmd.hasOption("object-diagram-svg"));
+      this.setDryRun(cmd.hasOption("dry-run"));
 
       final String[] classpath = cmd.getOptionValues("classpath");
       if (classpath != null)
