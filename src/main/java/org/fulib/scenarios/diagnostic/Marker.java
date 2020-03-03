@@ -205,6 +205,20 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
    }
 
    @Override
+   public String toString()
+   {
+      StringBuilder builder = new StringBuilder();
+      try
+      {
+         this.appendTo(builder);
+      }
+      catch (IOException ignored)
+      {
+      }
+      return builder.toString();
+   }
+
+   @Override
    public int compareTo(Marker o)
    {
       return Long.compare(this.getPosition(), o.getPosition());
