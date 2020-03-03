@@ -51,6 +51,8 @@ REMOVES:  'removes';
 SAME:     'same';
 TAKE:     'take';
 TAKES:    'takes';
+TELL:     'tell';
+TELLS:    'tells';
 THAN:     'than';
 THAT:     'that';
 THE:      'The' | 'the';
