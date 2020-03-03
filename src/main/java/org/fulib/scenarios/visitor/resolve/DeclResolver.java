@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
@@ -30,6 +31,7 @@ public class DeclResolver
    // =============== Constants ===============
 
    protected static final String ENCLOSING_CLASS = "<enclosing:class>";
+   private static final int UNRESOLVED_HINT_DISTANCE_THRESHOLD = 3;
 
    // =============== Static Methods ===============
 
@@ -158,7 +160,14 @@ public class DeclResolver
          return ResolvedName.of(decl);
       }
 
-      scope.report(error(name.getPosition(), "property.unresolved", owner.getName(), nameValue));
+      final Position position = name.getPosition();
+      final Marker error = error(position, "property.unresolved", owner.getName(), nameValue);
+      Stream.concat(owner.getAttributes().keySet().stream(), owner.getAssociations().keySet().stream())
+            .filter(SentenceResolver.caseInsensitiveLevenshteinDistance(nameValue, UNRESOLVED_HINT_DISTANCE_THRESHOLD))
+            .forEach(suggestion -> {
+               error.note(note(position, "property.typo", nameValue, suggestion));
+            });
+      scope.report(error);
       return name; // unresolved
    }
 

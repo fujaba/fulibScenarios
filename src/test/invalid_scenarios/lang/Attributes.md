@@ -16,6 +16,8 @@ We write Alice, Charlie, Bob into students.
 We write names of students into names.
 <!--     ^
 error: unresolved attribute or association 'Student.names' [property.unresolved]
+         ^
+note: perhaps you meant to access 'name' instead of 'names'? [property.typo]
 -->
 
 We write names of studens into invalidNames.
