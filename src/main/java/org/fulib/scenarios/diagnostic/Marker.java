@@ -1,6 +1,7 @@
 package org.fulib.scenarios.diagnostic;
 
 import javax.tools.Diagnostic;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -146,19 +147,31 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
       return localize(locale, this.code, this.args);
    }
 
+   // TODO remove in v2
    public void print(PrintWriter out)
+   {
+      try
+      {
+         this.appendTo((Appendable) out);
+      }
+      catch (IOException ignored)
+      {
+      }
+   }
+
+   public void appendTo(Appendable out) throws IOException
    {
       // src/dir/package/name/file_name.md:10:20: error: info... [code]
       // (more info...)
 
-      out.print(this.getSource());
-      out.print(':');
-      out.print(this.getLineNumber());
-      out.print(':');
-      out.print(this.getColumnNumber());
-      out.print(": ");
-      out.print(this.getKind().name().toLowerCase());
-      out.print(": ");
+      out.append(this.getSource());
+      out.append(':');
+      out.append(Long.toString(this.getLineNumber()));
+      out.append(':');
+      out.append(Long.toString(this.getColumnNumber()));
+      out.append(": ");
+      out.append(this.getKind().name().toLowerCase());
+      out.append(": ");
 
       // insert the code after the first line of the message
 
@@ -166,27 +179,27 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
       final int newlineIndex = message.indexOf('\n');
       if (newlineIndex >= 0)
       {
-         out.print(message.substring(0, newlineIndex));
+         out.append(message, 0, newlineIndex);
       }
       else
       {
-         out.print(message);
+         out.append(message);
       }
 
-      out.print(" [");
-      out.print(this.code);
-      out.println(']');
+      out.append(" [");
+      out.append(this.code);
+      out.append(']');
 
       if (newlineIndex >= 0)
       {
-         out.println(message.substring(newlineIndex + 1));
+         out.append(message, newlineIndex + 1, message.length());
       }
 
       if (this.notes != null)
       {
          for (final Marker note : this.notes)
          {
-            note.print(out);
+            note.appendTo(out);
          }
       }
    }
