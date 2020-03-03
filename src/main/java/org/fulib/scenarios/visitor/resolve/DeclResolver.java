@@ -181,28 +181,28 @@ public class DeclResolver
          if (otherType instanceof ClassType)
          {
             return resolveAssociation(scope, classDecl, attributeName, ClassModelBuilder.MANY,
-                                      ((ClassType) otherType).getClassDecl(), position);
+                                      ((ClassType) otherType).getClassDecl(), position, rhs);
          }
          else
          {
             // was element type that we have no control over, e.g. List<String>
-            return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
+            return resolveAttribute(scope, classDecl, attributeName, attributeType, position, rhs);
          }
       }
       else if (attributeType instanceof ClassType)
       {
          return resolveAssociation(scope, classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl(),
-                                   position);
+                                   position, rhs);
       }
       else
       {
-         return resolveAttribute(scope, classDecl, attributeName, attributeType, position);
+         return resolveAttribute(scope, classDecl, attributeName, attributeType, position, rhs);
       }
    }
 
    // --------------- Attributes ---------------
 
-   static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position)
+   static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position, Expr rhs)
    {
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
@@ -212,7 +212,9 @@ public class DeclResolver
              && !TypeConversion.isConvertible(type, existingType))
          {
             final String newDesc = DeclDescriber.describeAttribute(type);
-            scope.report(conflict(position, owner, name, existingAttribute, newDesc));
+            final Marker conflict = conflict(position, owner, name, existingAttribute, newDesc);
+            SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+            scope.report(conflict);
          }
 
          return existingAttribute;
@@ -221,7 +223,9 @@ public class DeclResolver
       if (existingAssociation != null)
       {
          final String newDesc = DeclDescriber.describeAttribute(type);
-         scope.report(conflict(position, owner, name, existingAssociation, newDesc));
+         final Marker conflict = conflict(position, owner, name, existingAssociation, newDesc);
+         SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+         scope.report(conflict);
 
          return existingAssociation;
       }
@@ -257,19 +261,21 @@ public class DeclResolver
    // --------------- Associations ---------------
 
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
-      ClassDecl otherClass, Position position)
+      ClassDecl otherClass, Position position, Expr rhs)
    {
-      return resolveAssociation(scope, owner, name, cardinality, otherClass, null, 0, position, null);
+      return resolveAssociation(scope, owner, name, cardinality, otherClass, null, 0, position, null, rhs);
    }
 
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
-      ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition)
+      ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition, Expr rhs)
    {
       final AttributeDecl existingAttribute = owner.getAttributes().get(name);
       if (existingAttribute != null)
       {
          final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
-         scope.report(conflict(position, owner, name, existingAttribute, newDesc));
+         final Marker conflict = conflict(position, owner, name, existingAttribute, newDesc);
+         SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+         scope.report(conflict);
 
          return null;
       }
@@ -283,7 +289,9 @@ public class DeclResolver
          if (existing.getTarget() != otherClass || existing.getCardinality() < cardinality)
          {
             final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
-            scope.report(conflict(position, owner, name, existing, newDesc));
+            final Marker conflict = conflict(position, owner, name, existing, newDesc);
+            SentenceResolver.addStringLiteralTypoNotes(scope, rhs, conflict);
+            scope.report(conflict);
          }
          else if (otherName != null)
          {

@@ -337,7 +337,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       final AssociationDecl assoc = resolveAssociation(scope, objectClass, assocName, cardinality, otherClass,
                                                        otherAssocName, otherCardinality, name.getPosition(),
-                                                       otherName.getPosition());
+                                                       otherName.getPosition(), expr);
       if (assoc != null)
       {
          final AssociationDecl other = assoc.getOther();
