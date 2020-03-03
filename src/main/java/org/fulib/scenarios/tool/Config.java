@@ -23,11 +23,15 @@ public class Config
       this.imports.add("org.fulib.mockups");
    }
 
+   private boolean generateTables;
+
    private boolean classDiagram;
    private boolean classDiagramSVG;
 
    private boolean objectDiagram;
    private boolean objectDiagramSVG;
+
+   private boolean dryRun;
 
    // =============== Properties ===============
 
@@ -64,6 +68,16 @@ public class Config
    public Set<String> getImports()
    {
       return this.imports;
+   }
+
+   public boolean isGenerateTables()
+   {
+      return this.generateTables;
+   }
+
+   public void setGenerateTables(boolean generateTables)
+   {
+      this.generateTables = generateTables;
    }
 
    public boolean isClassDiagram()
@@ -106,6 +120,16 @@ public class Config
       this.objectDiagramSVG = objectDiagramSVG;
    }
 
+   public boolean isDryRun()
+   {
+      return this.dryRun;
+   }
+
+   public void setDryRun(boolean dryRun)
+   {
+      this.dryRun = dryRun;
+   }
+
    // =============== Methods ===============
 
    public Options createOptions()
@@ -129,6 +153,8 @@ public class Config
       imports.setValueSeparator(',');
       options.addOption(imports);
 
+      options.addOption(new Option(null, "tables", false, "generate table classes for the model"));
+
       options.addOption(new Option(null, "class-diagram", false, "generate class diagram as .png into model folder"));
       options.addOption(
          new Option(null, "class-diagram-svg", false, "generate class diagram as .svg into model folder"));
@@ -138,6 +164,8 @@ public class Config
       options.addOption(new Option(null, "object-diagram-svg", false,
                                    "append a statement to each test that generates an object diagram as .svg"));
 
+      options.addOption(new Option(null, "dry-run", false, "only check the input files and do not run code generator"));
+
       return options;
    }
 
@@ -146,10 +174,12 @@ public class Config
       this.setModelDir(cmd.getOptionValue("modelDir", "src/main/java"));
       this.setTestDir(cmd.getOptionValue("testDir", "src/test/java"));
       this.getInputDirs().addAll(cmd.getArgList());
+      this.setGenerateTables(cmd.hasOption("tables"));
       this.setClassDiagram(cmd.hasOption("class-diagram"));
       this.setClassDiagramSVG(cmd.hasOption("class-diagram-svg"));
       this.setObjectDiagram(cmd.hasOption("object-diagram"));
       this.setObjectDiagramSVG(cmd.hasOption("object-diagram-svg"));
+      this.setDryRun(cmd.hasOption("dry-run"));
 
       final String[] classpath = cmd.getOptionValues("classpath");
       if (classpath != null)
