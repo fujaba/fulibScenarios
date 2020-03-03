@@ -27,9 +27,9 @@ import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.TypeConversion;
-import org.fulib.scenarios.visitor.describe.TypeDescriber;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
@@ -285,22 +285,24 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       final StringLiteral stringLiteral = (StringLiteral) expr;
       final String stringValue = stringLiteral.getValue();
-      final String identifier = stringValue.replaceAll("\\s+", "").toLowerCase();
+      final String identifier = stringValue.replaceAll("\\s+", "");
 
       final Map<String, Decl> decls = new LinkedHashMap<>();
       scope.list(decls::putIfAbsent);
 
-      final LevenshteinDistance levenshteinDistance = new LevenshteinDistance(2);
-      decls.entrySet().removeIf(entry -> {
-         final String lowerCaseDeclName = entry.getKey().toLowerCase();
-         final int distance = levenshteinDistance.apply(identifier, lowerCaseDeclName);
-         return distance < 0; // i.e., threshold exceeded
+      decls.keySet().stream().filter(caseInsensitiveLevenshteinDistance(identifier, 2)).forEach(key -> {
+         parent.note(note(expr.getPosition(), "stringliteral.typo", stringValue, key));
       });
+   }
 
-      for (final Map.Entry<String, Decl> entry : decls.entrySet())
-      {
-         parent.note(note(expr.getPosition(), "stringliteral.typo", stringValue, entry.getKey()));
-      }
+   static Predicate<String> caseInsensitiveLevenshteinDistance(String base, int threshold)
+   {
+      final String lowerBase = base.toLowerCase();
+      final LevenshteinDistance levenshteinDistance = new LevenshteinDistance(2);
+      return s -> {
+         final int result = levenshteinDistance.apply(lowerBase, s);
+         return 0 <= result && result <= threshold;
+      };
    }
 
    static void resolveHasNamedExpr(NamedExpr namedExpr, ClassDecl objectClass, Scope scope)
