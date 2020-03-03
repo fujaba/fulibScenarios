@@ -188,11 +188,12 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
 
       out.append(" [");
       out.append(this.code);
-      out.append(']');
+      out.append("]\n");
 
       if (newlineIndex >= 0)
       {
          out.append(message, newlineIndex + 1, message.length());
+         out.append('\n');
       }
 
       if (this.notes != null)
