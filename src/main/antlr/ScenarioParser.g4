@@ -78,7 +78,7 @@ createSentence: actor verb=(CREATE | CREATES) (simpleDescriptor | multiDescripto
 callSentence: actor verb=(CALL | CALLS) name (ON expr)? withClauses?;
 tellSentence: actor verb=(TELL | TELLS) expr TO name withClauses?;
 
-answerSentence: actor verb=(ANSWER | ANSWERS) WITH expr (INTO THE? name)?;
+answerSentence: actor verb=(ANSWER | ANSWERS | RESPONDS) WITH expr (INTO THE? name)?;
 
 writeSentence: actor verb=(WRITE | WRITES) expr INTO expr;
 addSentence: actor verb=(ADD | ADDS) expr TO expr;
@@ -116,7 +116,7 @@ primaryExpr: primary;
 number: DECIMAL | INTEGER;
 stringLiteral: STRING_LITERAL;
 it: IT;
-answer: THE? ANSWER;
+answer: THE? (ANSWER | RESPONSE);
 
 simpleName: WORD;
 name: WORD+;
