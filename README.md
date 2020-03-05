@@ -34,10 +34,10 @@ Install the [fulibGradle plugin](https://github.com/fujaba/fulibGradle):
 
 ```groovy
 plugins {
-	id 'java'
-	id 'org.fulib.fulibGradle' version '0.2.0'
+    id 'java'
+    id 'org.fulib.fulibGradle' version '0.2.0'
 
-	// ...
+    // ...
 }
 ```
 
@@ -58,8 +58,8 @@ dependencies {
     // ...
 
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '0.9.1'
-    
+    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.1.0'
+
     // https://mvnrepository.com/artifact/org.fulib/fulibMockups
     testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.2.0'
 }
