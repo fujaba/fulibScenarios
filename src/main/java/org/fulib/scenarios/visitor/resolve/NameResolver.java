@@ -10,6 +10,7 @@ import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.diagnostic.Marker;
+import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.parser.Identifiers;
 
 import java.util.*;
@@ -115,9 +116,11 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final String methodName = Identifiers.toLowerCamelCase(scenario.getName());
       final SentenceList body = scenario.getBody();
       final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, PrimitiveType.VOID, body);
-      methodDecl.setPosition(scenario.getPosition());
+      final Position position = scenario.getPosition();
+      methodDecl.setPosition(position);
 
       final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
+      thisParam.setPosition(position);
       methodDecl.setParameters(Collections.singletonList(thisParam));
 
       classDecl.getMethods().add(methodDecl);

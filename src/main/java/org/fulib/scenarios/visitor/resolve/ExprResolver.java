@@ -195,6 +195,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
       {
          // create this parameter
          thisParameter = ParameterDecl.of(method, "this", receiverClass.getType());
+         thisParameter.setPosition(position);
          parameters.add(thisParameter);
 
          // create parameters based on arguments
@@ -204,6 +205,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
             final Expr expr = argument.getExpr();
             final Type type = expr.getType();
             final ParameterDecl param = ParameterDecl.of(method, name, type);
+            param.setPosition(expr.getPosition());
 
             parameters.add(param);
             argument.setName(ResolvedName.of(param));
