@@ -114,11 +114,18 @@ abstract org.fulib.scenarios.ast.Node {
 				FilterExpr(source: Expr, predicate: Expr)
 			}
 		}
+
+		abstract pattern.Constraint {
+			LinkConstraint(target: Name)
+			AttributeEqualityConstraint(name: Name, expr: Expr)
+			AttributeConditionalConstraint(name: Name?, operator: ConditionalOperator, rhs: Expr)
+			AttributePredicateConstraint(name: Name?, predicate: PredicateOperator)
+		}
 	}
 
 	// Helpers
 
 	MultiDescriptor(type: Type, names: [Name], attributes: [NamedExpr])
 	NamedExpr(name: Name, expr: Expr, noconstruct otherName: Name?, noconstruct otherMany: boolean)
-	Pattern(type: Type, name: Name, predicates: [Expr])
+	pattern.Pattern(type: Type, name: Name, constraints: [Constraint])
 }
