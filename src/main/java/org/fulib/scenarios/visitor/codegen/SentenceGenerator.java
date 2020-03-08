@@ -65,8 +65,18 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.addImport("org.fulib.patterns.model.PatternObject");
       par.addImport("org.fulib.yaml.ReflectorMap");
 
+      // variable declarations
+      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      {
+         final Decl decl = pattern.getName().getDecl();
+         par.emitLine("final " + decl.getType().accept(TypeGenerator.INSTANCE, par) + " " + decl.getName() + ";");
+      }
+
+      par.emitLine("{");
+      par.indentLevel++;
       par.emitLine("final PatternBuilder builder = FulibTables.patternBuilder();");
 
+      // POs and constraints
       for (final Pattern pattern : patternExpectSentence.getPatterns())
       {
          final String name = pattern.getName().getValue();
@@ -81,6 +91,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       par.emitLine("final PatternMatcher matcher = FulibTables.matcher(builder.getPattern());");
 
+      // root POs
       for (final Pattern pattern : patternExpectSentence.getPatterns())
       {
          par.emitLine("matcher.withRootPatternObjects(" + pattern.getName().getValue() + "PO);");
@@ -99,13 +110,15 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       par.emitLine("matcher.match();");
 
+      // result extraction
       for (final Pattern pattern : patternExpectSentence.getPatterns())
       {
-         final Name name = pattern.getName();
-         final Decl decl = name.getDecl();
-         par.emitLine("final " + decl.getType().accept(TypeGenerator.INSTANCE, par) + " " + name.getValue()
-                      + " = matcher.findOne(" + name.getValue() + "PO);");
+         final String name = pattern.getName().getValue();
+         par.emitLine(name + " = matcher.findOne(" + name + "PO);");
       }
+
+      par.indentLevel--;
+      par.emitLine("}");
 
       return null;
    }

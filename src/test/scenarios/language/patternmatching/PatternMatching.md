@@ -9,7 +9,6 @@ StudyRight has students and is uni of Alice and Bob.
 
 ## Verification
 
-
 // Known Attribute
 We expect that there is some object c20 that has 20 credits.
 
