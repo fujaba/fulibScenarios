@@ -12,7 +12,7 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    {
       // TODO error
       linkConstraint.setTarget(linkConstraint.getTarget().accept(NameResolver.INSTANCE, par));
-      return null;
+      return linkConstraint;
    }
 
    @Override
