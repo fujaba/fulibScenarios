@@ -113,7 +113,7 @@ patternClause: patternLinkClause
              ;
 
 patternLinkClause: WITH SOME LINK TO name;
-patternAttributeEquality: WITH name expr;
+patternAttributeEquality: WITH (name expr | number name);
 patternAttributeConditional: WHERE (SOME ATTRIBUTE | name) condOp rhs=expr;
 patternAttributePredicate: WHERE (SOME ATTRIBUTE | name) predOp;
 
