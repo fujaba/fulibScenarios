@@ -4,6 +4,7 @@ import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.pattern.AttributeEqualityConstraint;
 import org.fulib.scenarios.ast.pattern.Constraint;
+import org.fulib.scenarios.ast.pattern.LinkConstraint;
 
 public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 {
@@ -13,6 +14,14 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    public ConstraintGenerator(String receiverName)
    {
       this.receiverName = receiverName;
+   }
+
+   @Override
+   public Void visit(LinkConstraint linkConstraint, CodeGenDTO par)
+   {
+      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"*\", %sPO);", this.receiverName,
+                                 linkConstraint.getTarget().getValue()));
+      return null;
    }
 
    @Override
