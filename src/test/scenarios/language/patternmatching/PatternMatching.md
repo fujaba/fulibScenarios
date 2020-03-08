@@ -10,7 +10,5 @@ StudyRight has students and is uni of Alice and Bob.
 ## Verification
 
 // Known Attribute
-We expect that there is some object c20 that has 20 credits.
-
-// Unknown Attribute
-We expect that there is some object c20 that has some attribute 20.
+We expect that there is some object c20 with 20 credits.
+We expect that there is some object c10 where credits is 10.
