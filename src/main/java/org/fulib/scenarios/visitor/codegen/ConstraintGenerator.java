@@ -29,21 +29,31 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeEqualityConstraint attributeEqualityConstraint, CodeGenDTO par)
    {
-      final Name attribute = attributeEqualityConstraint.getName();
-      final String attributeValue = attribute.getValue();
-      final String name = "*".equals(attributeValue) ?
-         this.generateUnknownAttributeName() :
-         this.receiverName + StrUtil.cap(attributeValue);
+      final Name attributeName = attributeEqualityConstraint.getName();
+      final String attributeNameValue;
+      final String patteronObjectName;
 
-      par.emitLine("final PatternObject " + name + " = builder.buildPatternObject(\"" + name + "\");");
+      if (attributeName == null)
+      {
+         attributeNameValue = "*";
+         patteronObjectName = this.generateUnknownAttributeName();
+      }
+      else
+      {
+         attributeNameValue = attributeName.getValue();
+         patteronObjectName = this.receiverName + StrUtil.cap(attributeNameValue);
+      }
+
+      par.emitLine("final PatternObject " + patteronObjectName + " = builder.buildPatternObject(\"" + patteronObjectName
+                   + "\");");
 
       par.emitIndent();
-      par.emit("builder.buildEqualityConstraint(" + name + ", ");
+      par.emit("builder.buildEqualityConstraint(" + patteronObjectName + ", ");
       attributeEqualityConstraint.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.emit(");\n");
 
-      par.emitLine(
-         String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName, attributeValue, name));
+      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName, attributeNameValue,
+                                 patteronObjectName));
 
       return null;
    }
