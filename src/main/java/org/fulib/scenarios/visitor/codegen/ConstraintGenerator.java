@@ -19,7 +19,9 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(LinkConstraint linkConstraint, CodeGenDTO par)
    {
-      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"*\", %sPO);", this.receiverName,
+      final Name name = linkConstraint.getName();
+      final String nameValue = name != null ? name.getValue() : "*";
+      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", this.receiverName, nameValue,
                                  linkConstraint.getTarget().getValue()));
       return null;
    }

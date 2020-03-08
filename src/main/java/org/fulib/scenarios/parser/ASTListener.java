@@ -202,7 +202,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitPatternLinkClause(ScenarioParser.PatternLinkClauseContext ctx)
    {
-      this.stack.push(LinkConstraint.of(name(ctx.name())));
+      this.stack.push(LinkConstraint.of(null, name(ctx.name())));
    }
 
    @Override
