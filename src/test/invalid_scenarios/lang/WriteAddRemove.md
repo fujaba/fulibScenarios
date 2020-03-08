@@ -89,3 +89,5 @@ We remove o1, o2 from 1,2,3.
 <!--      ^
 error: cannot remove expression of type 'list of Object' from 'list of int' [remove.source.type]
 -->
+
+// TODO hint examples

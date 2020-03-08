@@ -3,6 +3,7 @@ package org.fulib.scenarios.visitor.codegen;
 import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.FulibTools;
 import org.fulib.Generator;
+import org.fulib.TablesGenerator;
 import org.fulib.builder.ClassModelManager;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
@@ -34,6 +35,11 @@ public enum CodeGenerator
    @Override
    public Object visit(CompilationContext compilationContext, Object par)
    {
+      if (compilationContext.getConfig().isDryRun())
+      {
+         return null;
+      }
+
       compilationContext.getGroups().values().parallelStream().forEach(it -> {
          final CodeGenDTO dto = new CodeGenDTO();
          dto.config = compilationContext.getConfig();
@@ -74,6 +80,12 @@ public enum CodeGenerator
          if (modelClassesToGenerate)
          {
             this.generateModel(scenarioGroup, par, modelDir, packageDir);
+
+            if (par.config.isGenerateTables())
+            {
+               // generate tables before tests because we don't want table classes for test classes
+               new TablesGenerator().generate(par.modelManager.getClassModel());
+            }
          }
          if (testClassesToGenerate)
          {
@@ -92,6 +104,11 @@ public enum CodeGenerator
          par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
          this.generateModel(scenarioGroup, par, modelDir, packageDir);
+
+         if (par.config.isGenerateTables())
+         {
+            new TablesGenerator().generate(par.modelManager.getClassModel());
+         }
 
          new Generator().generate(par.modelManager.getClassModel());
       }

@@ -10,9 +10,11 @@ import org.fulib.scenarios.ast.sentence.SentenceList;
 import org.fulib.scenarios.ast.type.ClassType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.diagnostic.Marker;
+import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.parser.Identifiers;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
                                        ScenarioFile.Visitor<Scope, Object>, Scenario.Visitor<Scope, Object>,
@@ -85,6 +87,14 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
          }
 
          @Override
+         public void list(BiConsumer<? super String, ? super Decl> consumer)
+         {
+            consumer.accept(className, classDecl);
+            consumer.accept(DeclResolver.ENCLOSING_CLASS, classDecl);
+            super.list(consumer);
+         }
+
+         @Override
          public void report(Marker marker)
          {
             scenarioFile.getMarkers().add(marker);
@@ -106,31 +116,17 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
       final String methodName = Identifiers.toLowerCamelCase(scenario.getName());
       final SentenceList body = scenario.getBody();
       final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, PrimitiveType.VOID, body);
-      methodDecl.setPosition(scenario.getPosition());
+      final Position position = scenario.getPosition();
+      methodDecl.setPosition(position);
 
       final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
+      thisParam.setPosition(position);
       methodDecl.setParameters(Collections.singletonList(thisParam));
 
       classDecl.getMethods().add(methodDecl);
       scenario.setMethodDecl(methodDecl);
 
-      final DelegatingScope scope = new DelegatingScope(par)
-      {
-
-         @Override
-         public Decl resolve(String name)
-         {
-            if ("this".equals(name))
-            {
-               return thisParam;
-            }
-            if (methodName.equals(name))
-            {
-               return methodDecl;
-            }
-            return super.resolve(name);
-         }
-      };
+      final Scope scope = new ExtendingScope(new Decl[] { thisParam, methodDecl }, par);
 
       body.accept(SentenceResolver.INSTANCE, scope);
       return null;

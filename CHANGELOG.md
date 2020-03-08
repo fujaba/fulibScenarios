@@ -232,3 +232,17 @@
 * Fixed an issue that caused method decompilation to fail in some cases.
 * Fixed creation of a duplicate variable when writing to a parameter name. #154
 * Has Sentences with erroneous receivers no longer produce a second error marker.
+
+# Fulib Scenarios v1.1.0
+
+## New Features
+
++ Added fix suggestions to many error messages. #165
++ Added the `--dry-run` command-line option for skipping code generation. #166
++ Added the `--tables` option for generating [table classes](https://github.com/fujaba/fulib/blob/master/doc/FulibTables.md). #167
+
+## Bugfixes
+
+* Fixed parameters not being assigned a position, which can cause a compiler exception. #168
+* Fixed some deprecation translation keys incorrectly declaring removal in v0.9.0.
+* Fixed typo in output if >1 warnings and 0 errors are generated.

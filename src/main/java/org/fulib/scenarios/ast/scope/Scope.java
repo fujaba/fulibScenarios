@@ -3,11 +3,14 @@ package org.fulib.scenarios.ast.scope;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.diagnostic.Marker;
 
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public interface Scope
 {
    Decl resolve(String name);
+
+   void list(BiConsumer<? super String, ? super Decl> consumer);
 
    default <T extends Decl> T resolve(String name, Class<T> type, Function<? super String, ? extends T> create)
    {

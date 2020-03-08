@@ -148,7 +148,6 @@ public class ASTListener extends ScenarioParserBaseListener
       final ScenarioParser.NameContext nameCtx = ctx.name();
       final List<Name> names = nameCtx == null ? Collections.emptyList() : Collections.singletonList(name(nameCtx));
 
-      // TODO deprecation, remove in v0.9.0
       if (nameCtx != null && ctx.THE() == null)
       {
          this.report(warning(position(ctx), "descriptor.indefinite.deprecated", inputText(ctx.typeName()),
@@ -163,7 +162,6 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final List<Name> names = ctx.name().stream().map(Identifiers::name).collect(Collectors.toList());
 
-      // TODO deprecation, remove in v0.9.0
       if (!names.isEmpty() && ctx.THE() == null)
       {
          this.report(warning(position(ctx), "descriptor.multi.indefinite.deprecated", inputText(ctx.typesName()),
@@ -336,7 +334,6 @@ public class ASTListener extends ScenarioParserBaseListener
       if (ctx.simpleVarName != null)
       {
          varName = name(ctx.simpleVarName);
-         // TODO deprecation, remove in v0.9.0
          this.report(warning(position(ctx.simpleVarName), "take.syntax.deprecated", inputText(ctx.simpleVarName),
                              inputText(ctx.example)));
       }
@@ -471,8 +468,6 @@ public class ASTListener extends ScenarioParserBaseListener
       stringLiteral.setPosition(position(ctx.STRING_LITERAL()));
       this.stack.push(stringLiteral);
    }
-
-   // TODO <it>
 
    @Override
    public void exitAnswer(ScenarioParser.AnswerContext ctx)

@@ -18,6 +18,16 @@ We call foo on bar of moo.
 error: unresolved attribute or association 'String.bar' - 'String' is a primitive type [property.unresolved.primitive]
 -->
 
+## Hints
+
+There is the PrimitiveReceiver primrec.
+We call foo on primrc.
+<!--           ^
+error: cannot call method 'foo' on receiver of primitive type 'String' [call.receiver.primitive]
+               ^
+note: perhaps you meant to refer to 'primrec' instead of the string literal 'primrc'? [stringliteral.typo]
+-->
+
 # Mismatching Parameters and Arguments
 
 We call foo with bar 1 and with baz "2".
