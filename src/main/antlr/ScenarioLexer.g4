@@ -38,6 +38,7 @@ IS:       'is';
 IT:       'it';
 LESS:     'less';
 LIKE:     'like';
+LINK:     'link';
 MANY:     'many';
 NOT:      'not';
 OF:       'of';
