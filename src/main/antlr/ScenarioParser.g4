@@ -67,7 +67,7 @@ withClause: WITH namedExpr;
 
 namedExpr: THE? simpleName expr # NamedSimple
          | number name          # NamedNumber
-         | SOME (ATTRIBUTE | LINK TO) expr  # NamedWildcardAttribute;
+         ;
 bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF expr;
 
 hasSentence: nameAccess hasClauses;
@@ -104,7 +104,18 @@ thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
 patternExpectSentence: WE EXPECT THAT THERE IS patternExpectClause (sep patternExpectClause)*;
-patternExpectClause: SOME typeName name thatClauses;
+patternExpectClause: SOME typeName name patternClauses;
+patternClauses: patternClause (sep patternClause)*;
+patternClause: patternLinkClause
+             | patternAttributeEquality
+             | patternAttributeConditional
+             | patternAttributePredicate
+             ;
+
+patternLinkClause: WITH SOME LINK TO name;
+patternAttributeEquality: WITH name expr;
+patternAttributeConditional: WHERE (SOME ATTRIBUTE | name) condOp rhs=expr;
+patternAttributePredicate: WHERE (SOME ATTRIBUTE | name) predOp;
 
 diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 

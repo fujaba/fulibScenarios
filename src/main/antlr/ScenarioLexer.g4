@@ -63,6 +63,7 @@ THROUGH:  'through';
 TO:       'to';
 WE:       'We' | 'we';
 WITH:     'with';
+WHERE:    'where';
 WHICH:    'which';
 WRITE:    'write';
 WRITES:   'writes';
