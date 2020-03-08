@@ -241,16 +241,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          varDecl = (VarDecl) oldDecl;
       }
 
-      final Scope scope = new DelegatingScope(par)
-      {
-         @Override
-         public Decl resolve(String name)
-         {
-            return NameResolver.PREDICATE_RECEIVER.equals(name) ? varDecl : super.resolve(name);
-         }
-      };
-
       // TODO re-enable resolution and implement codegen for ConditionalOperatorExprs and PredicateOperatorExprs
+      // final Scope scope = new DelegatingScope(par)
+      // {
+      //    @Override
+      //    public Decl resolve(String name)
+      //    {
+      //       return NameResolver.PREDICATE_RECEIVER.equals(name) ? varDecl : super.resolve(name);
+      //    }
+      // };
       // patternExpectSentence.getPredicates().replaceAll(predicate -> {
       //    final Expr resolved = predicate.accept(ExprResolver.INSTANCE, scope);
       //    return ExprResolver.checkConditional(resolved, scope);
