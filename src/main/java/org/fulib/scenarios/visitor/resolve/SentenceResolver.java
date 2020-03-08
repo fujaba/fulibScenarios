@@ -5,7 +5,6 @@ import org.fulib.StrUtil;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.MultiDescriptor;
 import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.Pattern;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -16,6 +15,7 @@ import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.pattern.Pattern;
 import org.fulib.scenarios.ast.scope.ExtendingScope;
 import org.fulib.scenarios.ast.scope.HidingScope;
 import org.fulib.scenarios.ast.scope.Scope;
@@ -228,6 +228,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(PatternExpectSentence patternExpectSentence, Scope par)
    {
+      final Map<String, Decl> decls = new HashMap<>();
       for (final Pattern pattern : patternExpectSentence.getPatterns())
       {
          pattern.setType(pattern.getType().accept(TypeResolver.INSTANCE, par));
@@ -238,22 +239,15 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          {
             varDecl = VarDecl.of(pattern.getName().getValue(), pattern.getType(), null);
             pattern.setName(ResolvedName.of(varDecl));
+            decls.put(varDecl.getName(), varDecl);
          }
       }
 
-      // TODO re-enable resolution and implement codegen for ConditionalOperatorExprs and PredicateOperatorExprs
-      // final Scope scope = new DelegatingScope(par)
-      // {
-      //    @Override
-      //    public Decl resolve(String name)
-      //    {
-      //       return NameResolver.PREDICATE_RECEIVER.equals(name) ? varDecl : super.resolve(name);
-      //    }
-      // };
-      // patternExpectSentence.getPredicates().replaceAll(predicate -> {
-      //    final Expr resolved = predicate.accept(ExprResolver.INSTANCE, scope);
-      //    return ExprResolver.checkConditional(resolved, scope);
-      // });
+      final Scope scope = new ExtendingScope(decls, par);
+      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      {
+         pattern.getConstraints().replaceAll(c -> c.accept(ConstraintResolver.INSTANCE, scope));
+      }
 
       return patternExpectSentence;
    }

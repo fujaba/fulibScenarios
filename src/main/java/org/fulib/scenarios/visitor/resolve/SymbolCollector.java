@@ -1,6 +1,5 @@
 package org.fulib.scenarios.visitor.resolve;
 
-import org.fulib.scenarios.ast.Pattern;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.decl.Decl;
@@ -10,6 +9,7 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
+import org.fulib.scenarios.ast.pattern.Pattern;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.Namer;
