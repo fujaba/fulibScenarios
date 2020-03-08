@@ -33,6 +33,8 @@ public enum ConditionalOperator
                 "assertThat(<lhs>, not(hasItem(<rhs>)))", "assertThat(<lhs>, not(hasItem(<rhs>)))"),
    // IS_IN("is in", "<rhs>.contains(<lhs>)"),
    // IS_NOT_IN("is not in", "!<rhs>.contains(<lhs>)"),
+   // string
+   MATCHES("matches", null, null, "<lhs>.matches(<rhs>)"),
    ;
 
    // =============== Static Fields ===============
@@ -46,7 +48,11 @@ public enum ConditionalOperator
       for (ConditionalOperator operator : values)
       {
          map.put(operator.getSingular(), operator);
-         map.put(operator.getPlural(), operator);
+         final String plural = operator.getPlural();
+         if (plural != null)
+         {
+            map.put(plural, operator);
+         }
       }
 
       opMap = Collections.unmodifiableMap(map);

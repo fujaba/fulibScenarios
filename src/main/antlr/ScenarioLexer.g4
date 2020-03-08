@@ -38,6 +38,7 @@ IT:       'it';
 LESS:     'less';
 LIKE:     'like';
 MANY:     'many';
+MATCHES:  'matches';
 NOT:      'not';
 OF:       'of';
 OR:       'or';
