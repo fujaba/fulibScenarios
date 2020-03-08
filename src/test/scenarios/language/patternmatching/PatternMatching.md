@@ -12,3 +12,6 @@ StudyRight has students and is uni of Alice and Bob.
 // Known Attribute
 We expect that there is some object c20 with 20 credits.
 We expect that there is some object c10 where credits is 10.
+
+// Unknown Attribute
+We expect that there is some object sr where some attribute is 'StudyRight'.
