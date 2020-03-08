@@ -191,7 +191,8 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitPatternExpectClause(ScenarioParser.PatternExpectClauseContext ctx)
    {
-      final List<Constraint> exprs = this.pop(Constraint.class, ctx.patternClauses().patternClause().size());
+      final ScenarioParser.PatternClausesContext patternClauses = ctx.patternClauses();
+      final List<Constraint> exprs = this.pop(Constraint.class, patternClauses != null ? patternClauses.patternClause().size() : 0);
       final Name name = name(ctx.name());
       final Type type = this.pop();
       final Pattern pattern = Pattern.of(type, name, exprs);
