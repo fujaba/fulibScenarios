@@ -10,7 +10,6 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.VarDecl;
-import org.fulib.scenarios.ast.decl.WildcardName;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
@@ -21,6 +20,7 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
 import org.fulib.scenarios.ast.expr.conditional.*;
 import org.fulib.scenarios.ast.expr.primary.*;
+import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
@@ -191,11 +191,45 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitPatternExpectClause(ScenarioParser.PatternExpectClauseContext ctx)
    {
-      final List<Expr> exprs = this.pop(Expr.class, ctx.thatClauses().thatClause().size());
+      final List<Constraint> exprs = this.pop(Constraint.class, ctx.patternClauses().patternClause().size());
       final Name name = name(ctx.name());
       final Type type = this.pop();
       final Pattern pattern = Pattern.of(type, name, exprs);
       this.stack.push(pattern);
+   }
+
+   @Override
+   public void exitPatternLinkClause(ScenarioParser.PatternLinkClauseContext ctx)
+   {
+      this.stack.push(LinkConstraint.of(name(ctx.name())));
+   }
+
+   @Override
+   public void exitPatternAttributeEquality(ScenarioParser.PatternAttributeEqualityContext ctx)
+   {
+      final Expr rhs = this.pop();
+      final Name name = name(ctx.name());
+      final AttributeEqualityConstraint equality = AttributeEqualityConstraint.of(name, rhs);
+      this.stack.push(equality);
+   }
+
+   @Override
+   public void exitPatternAttributePredicate(ScenarioParser.PatternAttributePredicateContext ctx)
+   {
+      final Name name = name(ctx.name());
+      final PredicateOperator predOp = predicateOperator(ctx.predOp());
+      final AttributePredicateConstraint predicate = AttributePredicateConstraint.of(name, predOp);
+      this.stack.push(predicate);
+   }
+
+   @Override
+   public void exitPatternAttributeConditional(ScenarioParser.PatternAttributeConditionalContext ctx)
+   {
+      final Expr rhs = this.pop();
+      final Name name = name(ctx.name());
+      final ConditionalOperator condOp = conditionalOperator(ctx.condOp());
+      final AttributeConditionalConstraint conditional = AttributeConditionalConstraint.of(name, condOp, rhs);
+      this.stack.push(conditional);
    }
 
    @Override
@@ -371,15 +405,6 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Name name = name(ctx.name());
       final Expr expr = this.pop();
-      this.stack.push(NamedExpr.of(name, expr));
-   }
-
-   @Override
-   public void exitNamedWildcardAttribute(ScenarioParser.NamedWildcardAttributeContext ctx)
-   {
-      final Expr expr = this.pop();
-      final WildcardName name = WildcardName.of();
-      name.setPosition(position(ctx.SOME()));
       this.stack.push(NamedExpr.of(name, expr));
    }
 
@@ -569,12 +594,7 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Expr rhs = this.pop();
       final Expr lhs = ctx.lhs != null ? this.pop() : null;
-      final String opText = inputText(ctx.condOp());
-      final ConditionalOperator op = ConditionalOperator.getByOp(opText);
-      if (op == null)
-      {
-         throw new UnsupportedOperationException("no ConditionalOperator constant for '" + opText + "'");
-      }
+      final ConditionalOperator op = conditionalOperator(ctx.condOp());
 
       final ConditionalOperatorExpr operatorExpr = ConditionalOperatorExpr.of(lhs, op, rhs);
       operatorExpr.setPosition(position(ctx.condOp()));
@@ -582,21 +602,38 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(operatorExpr);
    }
 
+   private static ConditionalOperator conditionalOperator(ScenarioParser.CondOpContext condOp)
+   {
+      final String opText = inputText(condOp);
+      final ConditionalOperator op = ConditionalOperator.getByOp(opText);
+      if (op == null)
+      {
+         throw new UnsupportedOperationException("no ConditionalOperator constant for '" + opText + "'");
+      }
+      return op;
+   }
+
    @Override
    public void exitPredOpExpr(ScenarioParser.PredOpExprContext ctx)
    {
       final Expr lhs = ctx.lhs != null ? this.pop() : null;
-      final String opText = inputText(ctx.predOp());
-      final PredicateOperator op = PredicateOperator.nameMap.get(opText);
-      if (op == null)
-      {
-         throw new UnsupportedOperationException("no PredicateOperator constant for '" + opText + "'");
-      }
+      final PredicateOperator op = predicateOperator(ctx.predOp());
 
       final PredicateOperatorExpr expr = PredicateOperatorExpr.of(lhs, op);
       expr.setPosition(position(ctx.predOp()));
 
       this.stack.push(expr);
+   }
+
+   private static PredicateOperator predicateOperator(ScenarioParser.PredOpContext predOp)
+   {
+      final String opText = inputText(predOp);
+      final PredicateOperator op = PredicateOperator.nameMap.get(opText);
+      if (op == null)
+      {
+         throw new UnsupportedOperationException("no PredicateOperator constant for '" + opText + "'");
+      }
+      return op;
    }
 
    @Override
