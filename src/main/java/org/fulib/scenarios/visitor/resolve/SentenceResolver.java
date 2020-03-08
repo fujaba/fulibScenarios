@@ -5,6 +5,7 @@ import org.fulib.StrUtil;
 import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.MultiDescriptor;
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.Pattern;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -227,18 +228,17 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(PatternExpectSentence patternExpectSentence, Scope par)
    {
-      patternExpectSentence.setType(patternExpectSentence.getType().accept(TypeResolver.INSTANCE, par));
-
-      final Decl oldDecl = patternExpectSentence.getName().getDecl();
-      final VarDecl varDecl;
-      if (oldDecl == null)
+      for (final Pattern pattern : patternExpectSentence.getPatterns())
       {
-         varDecl = VarDecl.of(patternExpectSentence.getName().getValue(), patternExpectSentence.getType(), null);
-         patternExpectSentence.setName(ResolvedName.of(varDecl));
-      }
-      else
-      {
-         varDecl = (VarDecl) oldDecl;
+         pattern.setType(pattern.getType().accept(TypeResolver.INSTANCE, par));
+   
+         final Decl oldDecl = pattern.getName().getDecl();
+         final VarDecl varDecl;
+         if (oldDecl == null)
+         {
+            varDecl = VarDecl.of(pattern.getName().getValue(), pattern.getType(), null);
+            pattern.setName(ResolvedName.of(varDecl));
+         }
       }
 
       // TODO re-enable resolution and implement codegen for ConditionalOperatorExprs and PredicateOperatorExprs

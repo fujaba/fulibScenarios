@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.scenarios.ast.Pattern;
 import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.decl.Decl;
@@ -103,8 +104,11 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    @Override
    public Object visit(PatternExpectSentence patternExpectSentence, Map<String, Decl> par)
    {
-      final Decl decl = patternExpectSentence.getName().getDecl();
-      par.put(decl.getName(), decl);
+      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      {
+         final Decl decl = pattern.getName().getDecl();
+         par.put(decl.getName(), decl);
+      }
       return null;
    }
 

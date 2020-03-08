@@ -2,7 +2,9 @@ package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
+import org.fulib.scenarios.ast.Pattern;
 import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -64,17 +66,24 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       par.emitLine("final PatternBuilder builder = FulibTables.patternBuilder();");
 
-      final String name = patternExpectSentence.getName().getValue();
-      par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
-
-      final PatternPredicateGenerator gen = new PatternPredicateGenerator(name);
-      for (final Expr predicate : patternExpectSentence.getPredicates())
+      for (final Pattern pattern : patternExpectSentence.getPatterns())
       {
-         predicate.accept(gen, par);
+         final String name = pattern.getName().getValue();
+         par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
+
+         final PatternPredicateGenerator gen = new PatternPredicateGenerator(name);
+         for (final Expr predicate : pattern.getPredicates())
+         {
+            predicate.accept(gen, par);
+         }
       }
 
       par.emitLine("final PatternMatcher matcher = FulibTables.matcher(builder.getPattern());");
-      par.emitLine("matcher.withRootPatternObjects(" + name + "PO);");
+
+      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      {
+         par.emitLine("matcher.withRootPatternObjects(" + pattern.getName().getValue() + "PO);");
+      }
 
       final String packageName = par.modelManager.getClassModel().getPackageName();
       final ListExpr roots = SymbolCollector.getRoots(par.scenario);
@@ -89,10 +98,13 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       par.emitLine("matcher.match();");
 
-      final Decl decl = patternExpectSentence.getName().getDecl();
-      par.emitLine(
-         "final " + decl.getType().accept(TypeGenerator.INSTANCE, par) + " " + name + " = matcher.findOne(" + name
-         + "PO);");
+      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      {
+         final Name name = pattern.getName();
+         final Decl decl = name.getDecl();
+         par.emitLine("final " + decl.getType().accept(TypeGenerator.INSTANCE, par) + " " + name.getValue()
+                      + " = matcher.findOne(" + name.getValue() + "PO);");
+      }
 
       return null;
    }
