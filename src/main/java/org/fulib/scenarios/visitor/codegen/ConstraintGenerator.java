@@ -2,23 +2,23 @@ package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.Name;
-import org.fulib.scenarios.ast.expr.Expr;
-import org.fulib.scenarios.ast.expr.conditional.AttributeCheckExpr;
+import org.fulib.scenarios.ast.pattern.AttributeEqualityConstraint;
+import org.fulib.scenarios.ast.pattern.Constraint;
 
-public class PatternPredicateGenerator implements Expr.Visitor<CodeGenDTO, Void>
+public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 {
    private final String receiverName;
    private int unknownAttributeNumber;
 
-   public PatternPredicateGenerator(String receiverName)
+   public ConstraintGenerator(String receiverName)
    {
       this.receiverName = receiverName;
    }
 
    @Override
-   public Void visit(AttributeCheckExpr attributeCheckExpr, CodeGenDTO par)
+   public Void visit(AttributeEqualityConstraint attributeEqualityConstraint, CodeGenDTO par)
    {
-      final Name attribute = attributeCheckExpr.getAttribute();
+      final Name attribute = attributeEqualityConstraint.getName();
       final String attributeValue = attribute.getValue();
       final String name = "*".equals(attributeValue) ?
          this.generateUnknownAttributeName() :
@@ -28,7 +28,7 @@ public class PatternPredicateGenerator implements Expr.Visitor<CodeGenDTO, Void>
 
       par.emitIndent();
       par.emit("builder.buildEqualityConstraint(" + name + ", ");
-      attributeCheckExpr.getValue().accept(ExprGenerator.INSTANCE, par);
+      attributeEqualityConstraint.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.emit(");\n");
 
       par.emitLine(

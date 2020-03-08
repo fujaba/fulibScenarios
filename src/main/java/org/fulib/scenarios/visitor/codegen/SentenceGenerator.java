@@ -2,13 +2,14 @@ package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
-import org.fulib.scenarios.ast.Pattern;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
+import org.fulib.scenarios.ast.pattern.Constraint;
+import org.fulib.scenarios.ast.pattern.Pattern;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
@@ -71,10 +72,10 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          final String name = pattern.getName().getValue();
          par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
 
-         final PatternPredicateGenerator gen = new PatternPredicateGenerator(name);
-         for (final Expr predicate : pattern.getPredicates())
+         final ConstraintGenerator gen = new ConstraintGenerator(name);
+         for (final Constraint constraint : pattern.getConstraints())
          {
-            predicate.accept(gen, par);
+            constraint.accept(gen, par);
          }
       }
 
