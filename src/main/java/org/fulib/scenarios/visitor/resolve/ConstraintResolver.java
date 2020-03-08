@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.scope.Scope;
 
@@ -25,13 +26,21 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    @Override
    public Constraint visit(AttributePredicateConstraint attributePredicateConstraint, Scope par)
    {
+      // TODO
       return attributePredicateConstraint;
    }
 
    @Override
    public Constraint visit(AttributeConditionalConstraint attributeConditionalConstraint, Scope par)
    {
+      if (attributeConditionalConstraint.getOperator() == ConditionalOperator.IS)
+      {
+         return AttributeEqualityConstraint
+            .of(attributeConditionalConstraint.getName(), attributeConditionalConstraint.getRhs())
+            .accept(this, par);
+      }
       attributeConditionalConstraint.setRhs(attributeConditionalConstraint.getRhs().accept(ExprResolver.INSTANCE, par));
+      // TODO
       return attributeConditionalConstraint;
    }
 }
