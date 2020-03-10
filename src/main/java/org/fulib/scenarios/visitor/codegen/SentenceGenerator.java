@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.pattern.Constraint;
 import org.fulib.scenarios.ast.pattern.Pattern;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.resolve.SymbolCollector;
 
@@ -84,6 +85,13 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       {
          final String name = pattern.getName().getValue();
          par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
+
+         if (pattern.getType() != PrimitiveType.OBJECT)
+         {
+            par.emitLine("builder.buildInstanceOfConstraint(" + name + "PO, " + pattern
+               .getType()
+               .accept(TypeGenerator.INSTANCE, par) + ".class);");
+         }
 
          final ConstraintGenerator gen = new ConstraintGenerator(name);
          for (final Constraint constraint : pattern.getConstraints())
