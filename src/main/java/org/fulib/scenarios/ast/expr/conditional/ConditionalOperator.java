@@ -1,5 +1,8 @@
 package org.fulib.scenarios.ast.expr.conditional;
 
+import org.fulib.scenarios.ast.type.PrimitiveType;
+import org.fulib.scenarios.ast.type.Type;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +59,15 @@ public enum ConditionalOperator
       }
 
       opMap = Collections.unmodifiableMap(map);
+
+      LT.lhsType = PrimitiveType.NUMBER;
+      LE.lhsType = PrimitiveType.NUMBER;
+      NOT_LT.lhsType = PrimitiveType.NUMBER;
+      GT.lhsType = PrimitiveType.NUMBER;
+      GE.lhsType = PrimitiveType.NUMBER;
+      NOT_GT.lhsType = PrimitiveType.NUMBER;
+
+      MATCHES.lhsType = PrimitiveType.STRING;
    }
 
    // =============== Fields ===============
@@ -66,6 +78,8 @@ public enum ConditionalOperator
    private final String objectOperator;
    private final String numberAssertion;
    private final String objectAssertion;
+
+   private Type lhsType;
 
    // =============== Constructors ===============
 
@@ -133,5 +147,10 @@ public enum ConditionalOperator
    public String getObjectAssertion()
    {
       return this.objectAssertion;
+   }
+
+   public Type getLhsType()
+   {
+      return this.lhsType;
    }
 }
