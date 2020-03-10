@@ -6,6 +6,8 @@ import org.fulib.scenarios.ast.pattern.AttributeEqualityConstraint;
 import org.fulib.scenarios.ast.pattern.Constraint;
 import org.fulib.scenarios.ast.pattern.LinkConstraint;
 
+import java.util.function.Consumer;
+
 public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 {
    private final String receiverName;
@@ -29,33 +31,39 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeEqualityConstraint attributeEqualityConstraint, CodeGenDTO par)
    {
-      final Name attributeName = attributeEqualityConstraint.getName();
+      this.generateAttributeConstraint(attributeEqualityConstraint.getName(), par, patternObjectName -> {
+         par.emitIndent();
+         par.emit("builder.buildEqualityConstraint(" + patternObjectName + ", ");
+         attributeEqualityConstraint.getExpr().accept(ExprGenerator.INSTANCE, par);
+         par.emit(");\n");
+      });
+
+      return null;
+   }
+
+   private void generateAttributeConstraint(Name attributeName, CodeGenDTO gen, Consumer<? super String> poName)
+   {
       final String attributeNameValue;
-      final String patteronObjectName;
+      final String patternObjectName;
 
       if (attributeName == null)
       {
          attributeNameValue = "*";
-         patteronObjectName = this.generateUnknownAttributeName();
+         patternObjectName = this.generateUnknownAttributeName();
       }
       else
       {
          attributeNameValue = attributeName.getValue();
-         patteronObjectName = this.receiverName + StrUtil.cap(attributeNameValue);
+         patternObjectName = this.receiverName + StrUtil.cap(attributeNameValue);
       }
 
-      par.emitLine("final PatternObject " + patteronObjectName + " = builder.buildPatternObject(\"" + patteronObjectName
-                   + "\");");
+      gen.emitLine(
+         "final PatternObject " + patternObjectName + " = builder.buildPatternObject(\"" + patternObjectName + "\");");
 
-      par.emitIndent();
-      par.emit("builder.buildEqualityConstraint(" + patteronObjectName + ", ");
-      attributeEqualityConstraint.getExpr().accept(ExprGenerator.INSTANCE, par);
-      par.emit(");\n");
+      poName.accept(patternObjectName);
 
-      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName, attributeNameValue,
-                                 patteronObjectName));
-
-      return null;
+      gen.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName, attributeNameValue,
+                                 patternObjectName));
    }
 
    private String generateUnknownAttributeName()
