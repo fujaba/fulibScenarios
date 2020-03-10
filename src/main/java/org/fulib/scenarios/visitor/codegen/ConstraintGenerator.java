@@ -5,6 +5,7 @@ import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -49,11 +50,17 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    public Void visit(AttributeConditionalConstraint acc, CodeGenDTO par)
    {
       this.generateAttributeConstraint(acc.getName(), par, patternObjectName -> {
+         final ConditionalOperator operator = acc.getOperator();
+
          par.emitIndent();
-         par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
+         par.emit("builder.buildAttributeConstraint(");
+         par.emit(patternObjectName);
+         par.emit(", ");
+         par.emit(operator.getLhsType().accept(TypeGenerator.INSTANCE, par));
+         par.emit(".class, it -> ");
 
          final Expr it = makeItExpr();
-         final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, acc.getOperator(), acc.getRhs());
+         final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, operator, acc.getRhs());
          condOpExpr.accept(ExprGenerator.INSTANCE, par);
 
          par.emit(");\n");

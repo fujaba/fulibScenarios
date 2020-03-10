@@ -23,6 +23,7 @@ public enum PrimitiveType implements Type
    // reference types
    OBJECT("Object"),
    STRING("String"),
+   NUMBER("Number"),
    // wrapper types
    VOID_WRAPPER("Void"),
    BOOLEAN_WRAPPER("Boolean"),
