@@ -172,13 +172,14 @@ primaryCondExpr : attrCheck | condOpExpr | predOpExpr;
 attrCheck: access? (HAS | HAVE) namedExpr;
 
 condOpExpr: lhs=access? condOp rhs=access;
-condOp: eqOp | cmpOp | collOp;
+condOp: eqOp | cmpOp | collOp | strOp;
 
 eqOp: IS | ARE | (IS | ARE) NOT
     | (IS | ARE) THE SAME AS | (IS | ARE) NOT THE SAME AS;
 cmpOp: (IS | ARE) LESS THAN | (IS | ARE) NOT LESS THAN | (IS | ARE) LESS EQUAL
      | (IS | ARE) GREATER THAN | (IS | ARE) GREATER EQUAL | (IS | ARE) NOT GREATER THAN;
 collOp: CONTAIN | CONTAINS | (DO | DOES) NOT CONTAIN /* | (IS | ARE) IN | (IS | ARE) NOT IN */;
+strOp: MATCHES;
 
 predOpExpr: lhs=access? predOp;
 

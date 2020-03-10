@@ -21,3 +21,5 @@ We expect that numbers do not contain 4.
 We remove 1,2,3 from numbers.
 We expect that numbers are empty.
 We expect that numbers do not contain 2.
+
+We expect that "hello world" matches '[\\w ]+'.
