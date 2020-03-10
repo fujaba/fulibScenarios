@@ -11,8 +11,9 @@ import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.Pattern;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.visitor.Namer;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,11 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
 
    public static ListExpr getRoots(Scenario scenario)
    {
+      return getRoots(scenario, null);
+   }
+
+   public static ListExpr getRoots(Scenario scenario, Sentence before)
+   {
       final List<Sentence> sentences = scenario.getBody().getItems();
       if (sentences.isEmpty())
       {
@@ -35,6 +41,10 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
       final Map<String, Decl> symbolTable = new TreeMap<>();
       for (final Sentence item : sentences)
       {
+         if (item == before)
+         {
+            break;
+         }
          item.accept(SymbolCollector.INSTANCE, symbolTable);
       }
 
