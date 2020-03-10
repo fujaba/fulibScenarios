@@ -57,10 +57,8 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
       final List<Expr> exprs = new ArrayList<>();
       for (Decl it : symbolTable.values())
       {
-         // only add variables with types from the data model (i.e. exclude String, double, ... variables)
          final Type type = it.getType();
-         final String typeName = type.accept(Namer.INSTANCE, null);
-         if (classes.get(typeName) != null)
+         if (type == PrimitiveType.OBJECT || classes.containsValue(type.accept(ExtractClassDecl.INSTANCE, null)))
          {
             exprs.add(NameAccess.of(ResolvedName.of(it)));
          }
