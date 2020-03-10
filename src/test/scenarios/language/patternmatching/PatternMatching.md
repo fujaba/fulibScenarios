@@ -23,3 +23,9 @@ We expect that there is some object sr where some attribute is 'StudyRight'.
 // Non-Root Object
 We expect that there is some object r3 with roomNo 3.
 We expect that there is some object r5 where some attribute is 5.
+
+// Links
+We expect that there is some object alice1 with name 'Alice'
+and some object sr2 with some link to alice1.
+
+We expect that sr2 is studyRight.
