@@ -29,3 +29,7 @@ We expect that there is some object alice1 with name 'Alice'
 and some object sr2 with some link to alice1.
 
 We expect that sr2 is studyRight.
+
+// Instance
+We expect that there is some university sr3.
+We expect that sr3 is studyRight.
