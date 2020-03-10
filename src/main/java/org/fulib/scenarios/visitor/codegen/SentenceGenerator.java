@@ -3,7 +3,6 @@ package org.fulib.scenarios.visitor.codegen;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
-import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -14,6 +13,9 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.resolve.SymbolCollector;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 {
@@ -66,7 +68,8 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.addImport("org.fulib.yaml.ReflectorMap");
 
       // variable declarations
-      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      final List<Pattern> patterns = patternExpectSentence.getPatterns();
+      for (final Pattern pattern : patterns)
       {
          final Decl decl = pattern.getName().getDecl();
          par.emitLine("final " + decl.getType().accept(TypeGenerator.INSTANCE, par) + " " + decl.getName() + ";");
@@ -77,7 +80,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.emitLine("final PatternBuilder builder = FulibTables.patternBuilder();");
 
       // POs and constraints
-      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      for (final Pattern pattern : patterns)
       {
          final String name = pattern.getName().getValue();
          par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
@@ -89,10 +92,19 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          }
       }
 
+      if (patterns.size() > 1)
+      {
+         final String commaSeparatedPOs = patterns
+            .stream()
+            .map(p -> p.getName().getValue() + "PO")
+            .collect(Collectors.joining(", "));
+         par.emitLine("builder.buildInequalityConstraint(" + commaSeparatedPOs + ");");
+      }
+
       par.emitLine("final PatternMatcher matcher = FulibTables.matcher(builder.getPattern());");
 
       // root POs
-      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      for (final Pattern pattern : patterns)
       {
          par.emitLine("matcher.withRootPatternObjects(" + pattern.getName().getValue() + "PO);");
       }
@@ -111,7 +123,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.emitLine("matcher.match();");
 
       // result extraction
-      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      for (final Pattern pattern : patterns)
       {
          final String name = pattern.getName().getValue();
          par.emitLine(name + " = matcher.findOne(" + name + "PO);");
