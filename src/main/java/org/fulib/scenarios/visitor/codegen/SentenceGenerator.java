@@ -86,11 +86,15 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          final String name = pattern.getName().getValue();
          par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
 
-         if (pattern.getType() != PrimitiveType.OBJECT)
+         Type type = pattern.getType();
+         if (type instanceof ListType)
          {
-            par.emitLine("builder.buildInstanceOfConstraint(" + name + "PO, " + pattern
-               .getType()
-               .accept(TypeGenerator.INSTANCE, par) + ".class);");
+            type = ((ListType) type).getElementType();
+         }
+         if (type != PrimitiveType.OBJECT)
+         {
+            par.emitLine("builder.buildInstanceOfConstraint(" + name + "PO, " + type.accept(TypeGenerator.INSTANCE, par)
+                         + ".class);");
          }
 
          final ConstraintGenerator gen = new ConstraintGenerator(name);
@@ -134,7 +138,14 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       for (final Pattern pattern : patterns)
       {
          final String name = pattern.getName().getValue();
-         par.emitLine(name + " = matcher.findOne(" + name + "PO);");
+         if (pattern.getType() instanceof ListType)
+         {
+            par.emitLine(name + " = matcher.findAll(" + name + "PO);");
+         }
+         else
+         {
+            par.emitLine(name + " = matcher.findOne(" + name + "PO);");
+         }
       }
 
       par.indentLevel--;

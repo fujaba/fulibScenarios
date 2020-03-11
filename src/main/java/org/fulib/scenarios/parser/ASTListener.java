@@ -22,6 +22,7 @@ import org.fulib.scenarios.ast.expr.conditional.*;
 import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.sentence.*;
+import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
 import org.fulib.scenarios.diagnostic.Marker;
@@ -202,7 +203,11 @@ public class ASTListener extends ScenarioParserBaseListener
       final ScenarioParser.PatternClausesContext patternClauses = ctx.patternClauses();
       final List<Constraint> exprs = this.pop(Constraint.class, patternClauses != null ? patternClauses.patternClause().size() : 0);
       final Name name = name(ctx.name());
-      final Type type = this.pop();
+      Type type = this.pop();
+      if (ctx.ALL() != null)
+      {
+         type = ListType.of(type);
+      }
       final Pattern pattern = Pattern.of(type, name, exprs);
       this.stack.push(pattern);
    }

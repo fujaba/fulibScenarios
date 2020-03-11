@@ -107,7 +107,7 @@ thatClause: THAT condExpr;
 patternSentence: WE MATCH patternExpectClause (sep patternExpectClause)*;
 
 patternExpectSentence: WE EXPECT THAT THERE IS patternExpectClause (sep patternExpectClause)*;
-patternExpectClause: SOME typeName name patternClauses?;
+patternExpectClause: (SOME typeName | ALL typesName) name patternClauses?;
 patternClauses: patternClause (sep patternClause)*;
 patternClause: patternLinkClause
              | patternAttributeEquality
