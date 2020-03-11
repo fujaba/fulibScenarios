@@ -33,3 +33,6 @@ We expect that sr2 is studyRight.
 // Instance
 We expect that there is some university sr3.
 We expect that sr3 is studyRight.
+
+// Fuzzy matching
+We expect that there is some object alice2 where name matches '(?i)alice'.
