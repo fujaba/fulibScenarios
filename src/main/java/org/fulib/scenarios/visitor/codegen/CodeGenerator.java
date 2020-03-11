@@ -192,6 +192,7 @@ public enum CodeGenerator
          this.addDiagramSentences(scenario, par);
       }
 
+      par.scenario = null;
       scenarioFile.getClassDecl().accept(DeclGenerator.INSTANCE, par);
 
       // after class gen: add @Test and import to scenario methods
