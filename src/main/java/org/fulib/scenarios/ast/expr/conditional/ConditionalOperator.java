@@ -32,7 +32,7 @@ public enum ConditionalOperator
    // IS_IN("is in", "<rhs>.contains(<lhs>)"),
    // IS_NOT_IN("is not in", "!<rhs>.contains(<lhs>)"),
    // string
-   MATCHES("matches", null),
+   MATCHES("matches", "match"),
    ;
 
    // =============== Static Fields ===============

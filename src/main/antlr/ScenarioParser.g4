@@ -182,7 +182,7 @@ eqOp: IS | ARE | (IS | ARE) NOT
 cmpOp: (IS | ARE) LESS THAN | (IS | ARE) NOT LESS THAN | (IS | ARE) LESS EQUAL
      | (IS | ARE) GREATER THAN | (IS | ARE) GREATER EQUAL | (IS | ARE) NOT GREATER THAN;
 collOp: CONTAIN | CONTAINS | (DO | DOES) NOT CONTAIN /* | (IS | ARE) IN | (IS | ARE) NOT IN */;
-strOp: MATCHES;
+strOp: MATCH | MATCHES;
 
 predOpExpr: lhs=access? predOp;
 
