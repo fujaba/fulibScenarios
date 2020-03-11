@@ -12,32 +12,27 @@ public enum ConditionalOperator
    // =============== Enum Constants ===============
 
    // boolean
-   OR("or", "or", "<lhs> || <rhs>"),
-   AND("and", "and", "<lhs> && <rhs>"),
+   OR("or", "or"),
+   AND("and", "and"),
    // equality
-   IS("is", "are", "<lhs> == <rhs>", "<lhs>.equals(<rhs>)", "assertEquals(<lhs>, <rhs>, 0)",
-      "assertEquals(<lhs>, <rhs>)"),
-   IS_NOT("is not", "are not", "<lhs> != <rhs>", "!<lhs>.equals(<rhs>)", "assertNotEquals(<lhs>, <rhs>, 0)",
-          "assertNotEquals(<lhs>, <rhs>)"),
-   IS_SAME("is the same as", "are the same as", null, "<lhs> == <rhs>", null, "assertSame(<lhs>, <rhs>)"),
-   IS_NOT_SAME("is not the same as", "are not the same as", null, "<lhs> != <rhs>", null,
-               "assertNotSame(<lhs>, <rhs>)"),
+   IS("is", "are"),
+   IS_NOT("is not", "are not"),
+   IS_SAME("is the same as", "are the same as"),
+   IS_NOT_SAME("is not the same as", "are not the same as"),
    // comparison
-   LT("is less than", "are less than", "<lhs> < <rhs>", "<lhs>.compareTo(<rhs>) < 0"),
-   NOT_LT("is not less than", "are not less than", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
-   LE("is less equal", "are less equal", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
-   GT("is greater than", "are greater than", "<lhs> > <rhs>", "<lhs>.compareTo(<rhs>)  > 0"),
-   GE("is greater equal", "are greater equal", "<lhs> >= <rhs>", "<lhs>.compareTo(<rhs>) >= 0"),
-   NOT_GT("is not greater than", "are not greater than", "<lhs> <= <rhs>", "<lhs>.compareTo(<rhs>) <= 0"),
+   LT("is less than", "are less than"),
+   LE("is less equal", "are less equal"),
+   NOT_LT("is not less than", "are not less than"),
+   GT("is greater than", "are greater than"),
+   GE("is greater equal", "are greater equal"),
+   NOT_GT("is not greater than", "are not greater than"),
    // collection
-   CONTAINS("contains", "contain", "<lhs>.contains(<rhs>)", "<lhs>.contains(<rhs>)",
-            "assertThat(<lhs>, hasItem(<rhs>))", "assertThat(<lhs>, hasItem(<rhs>))"),
-   NOT_CONTAINS("does not contain", "do not contain", "!<lhs>.contains(<rhs>)", "!<lhs>.contains(<rhs>)",
-                "assertThat(<lhs>, not(hasItem(<rhs>)))", "assertThat(<lhs>, not(hasItem(<rhs>)))"),
+   CONTAINS("contains", "contain"),
+   NOT_CONTAINS("does not contain", "do not contain"),
    // IS_IN("is in", "<rhs>.contains(<lhs>)"),
    // IS_NOT_IN("is not in", "!<rhs>.contains(<lhs>)"),
    // string
-   MATCHES("matches", null, null, "<lhs>.matches(<rhs>)"),
+   MATCHES("matches", null),
    ;
 
    // =============== Static Fields ===============
@@ -74,35 +69,15 @@ public enum ConditionalOperator
 
    private final String singular;
    private final String plural;
-   private final String numberOperator;
-   private final String objectOperator;
-   private final String numberAssertion;
-   private final String objectAssertion;
 
    private Type lhsType;
 
    // =============== Constructors ===============
 
-   ConditionalOperator(String singular, String plural, String javaOperator)
-   {
-      this(singular, plural, javaOperator, javaOperator);
-   }
-
-   ConditionalOperator(String singular, String plural, String javaNumberOperator, String javaObjectOperator)
-   {
-      this(singular, plural, javaNumberOperator, javaObjectOperator, wrapAssert(javaNumberOperator),
-           wrapAssert(javaObjectOperator));
-   }
-
-   ConditionalOperator(String singular, String plural, String numberOperator, String objectOperator,
-      String numberAssertion, String objectAssertion)
+   ConditionalOperator(String singular, String plural)
    {
       this.singular = singular;
       this.plural = plural;
-      this.numberOperator = numberOperator;
-      this.objectOperator = objectOperator;
-      this.numberAssertion = numberAssertion;
-      this.objectAssertion = objectAssertion;
    }
 
    // =============== Static Methods ===============
@@ -127,26 +102,6 @@ public enum ConditionalOperator
    public String getPlural()
    {
       return this.plural;
-   }
-
-   public String getNumberOperator()
-   {
-      return this.numberOperator;
-   }
-
-   public String getObjectOperator()
-   {
-      return this.objectOperator;
-   }
-
-   public String getNumberAssertion()
-   {
-      return this.numberAssertion;
-   }
-
-   public String getObjectAssertion()
-   {
-      return this.objectAssertion;
    }
 
    public Type getLhsType()
