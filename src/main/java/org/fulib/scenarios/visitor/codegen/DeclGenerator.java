@@ -4,6 +4,7 @@ import org.fulib.MultiAttributes;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.decl.*;
+import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
@@ -50,8 +51,8 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       {
          final Type elementType = ((ListType) type).getElementType();
          final Type wrappedType = PrimitiveType.primitiveToWrapper(elementType);
-         MultiAttributes
-            .buildMultiAttribute(clazz, attributeDecl.getName(), wrappedType.accept(TypeGenerator.INSTANCE, par));
+         MultiAttributes.buildMultiAttribute(clazz, attributeDecl.getName(),
+                                             wrappedType.accept(TypeGenerator.INSTANCE, par));
       }
       else
       {
@@ -126,9 +127,18 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
    {
       par.emitIndent();
 
-      par.bodyBuilder.append(varDecl.getType().accept(TypeGenerator.INSTANCE, par)).append(' ')
-                     .append(varDecl.getName()).append(" = ");
-      varDecl.getExpr().accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder
+         .append(varDecl.getType().accept(TypeGenerator.INSTANCE, par))
+         .append(' ')
+         .append(varDecl.getName());
+
+      final Expr expr = varDecl.getExpr();
+      if (expr != null)
+      {
+         par.bodyBuilder.append(" = ");
+         expr.accept(ExprGenerator.INSTANCE, par);
+      }
+
       par.bodyBuilder.append(";\n");
       return null;
    }
