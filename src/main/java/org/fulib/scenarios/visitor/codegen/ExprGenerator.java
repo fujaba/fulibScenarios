@@ -157,13 +157,71 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    }
 
    @Override
-   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par)
+   public Object visit(ConditionalOperatorExpr coe, CodeGenDTO par)
    {
-      final boolean numeric = AssertionGenerator.isNumeric(conditionalOperatorExpr);
-      final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
-      final String format = numeric ? operator.getNumberOperator() : operator.getObjectOperator();
-      AssertionGenerator.generateCondOp(conditionalOperatorExpr, par, format);
+      generateOperator(coe.getLhs(), coe.getOperator(), coe.getRhs(), par);
       return null;
+   }
+
+   private static void generateOperator(Expr lhs, ConditionalOperator op, Expr rhs, CodeGenDTO par)
+   {
+      switch (op)
+      {
+      // @formatter:off
+      case OR: generateOperator(lhs, " || ", rhs, par); break;
+      case AND: generateOperator(lhs, " && ", rhs, par); break;
+
+      case IS:
+         if (PrimitiveType.isJavaPrimitive(lhs.getType())) { generateOperator(lhs, " == ", rhs, par); }
+         else { generateOperator("", lhs, ".equals(", rhs, ")", par); }
+         break;
+      case IS_NOT:
+         if (PrimitiveType.isJavaPrimitive(lhs.getType())) { generateOperator(lhs, " != ", rhs, par); }
+         else { generateOperator("!", lhs, ".equals(", rhs, ")", par); }
+         break;
+
+      case IS_SAME: generateOperator(lhs, " == ", rhs, par); break;
+      case IS_NOT_SAME: generateOperator(lhs, " != ", rhs, par); break;
+
+      case LT: generateComparisonOperator(lhs, " < ", rhs, par); break;
+      case NOT_GT:
+      case LE: generateComparisonOperator(lhs, " <= ", rhs, par); break;
+      case GT: generateComparisonOperator(lhs, " > ", rhs, par); break;
+      case NOT_LT:
+      case GE: generateComparisonOperator(lhs, " >= ", rhs, par); break;
+
+      case CONTAINS: generateOperator("", lhs, ".contains(", rhs, ")", par); break;
+      case NOT_CONTAINS: generateOperator("!", lhs, ".contains(", rhs, ")", par); break;
+
+      case MATCHES:
+         if (lhs.getType() != PrimitiveType.STRING) { generateOperator("String.valueOf(", lhs, ").matches(", rhs, ")", par); }
+         else { generateOperator("", lhs, ".matches(", rhs, ")", par); }
+         break;
+      // @formatter:on
+      }
+   }
+
+   private static void generateComparisonOperator(Expr lhs, String operator, Expr rhs, CodeGenDTO par)
+   {
+      if (lhs.getType() == PrimitiveType.NUMBER)
+      {
+         operator = ".doubleValue()" + operator;
+      }
+      generateOperator(lhs, operator, rhs, par);
+   }
+
+   static void generateOperator(Expr lhs, String operator, Expr rhs, CodeGenDTO par)
+   {
+      generateOperator("", lhs, operator, rhs, "", par);
+   }
+
+   static void generateOperator(String prefix, Expr lhs, String operator, Expr rhs, String postfix, CodeGenDTO par)
+   {
+      par.bodyBuilder.append(prefix);
+      lhs.accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(operator);
+      rhs.accept(ExprGenerator.INSTANCE, par);
+      par.bodyBuilder.append(postfix);
    }
 
    @Override
