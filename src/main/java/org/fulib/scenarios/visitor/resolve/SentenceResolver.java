@@ -238,6 +238,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          if (oldDecl == null)
          {
             varDecl = VarDecl.of(pattern.getName().getValue(), pattern.getType(), null);
+            varDecl.setPattern(pattern);
             pattern.setName(ResolvedName.of(varDecl));
             decls.put(varDecl.getName(), varDecl);
          }

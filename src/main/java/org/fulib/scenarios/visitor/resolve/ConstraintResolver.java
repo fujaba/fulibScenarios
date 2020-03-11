@@ -1,6 +1,11 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.scenarios.ast.decl.Decl;
+import org.fulib.scenarios.ast.decl.Name;
+import org.fulib.scenarios.ast.decl.VarDecl;
+import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
+import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.scope.Scope;
 
@@ -17,10 +22,27 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    }
 
    @Override
-   public Constraint visit(AttributeEqualityConstraint attributeEqualityConstraint, Scope par)
+   public Constraint visit(AttributeEqualityConstraint aec, Scope par)
    {
-      attributeEqualityConstraint.setExpr(attributeEqualityConstraint.getExpr().accept(ExprResolver.INSTANCE, par));
-      return attributeEqualityConstraint;
+      final Expr expr = aec.getExpr().accept(ExprResolver.INSTANCE, par);
+      aec.setExpr(expr);
+
+      if (expr instanceof NameAccess)
+      {
+         final NameAccess access = (NameAccess) expr;
+         final Name targetName = access.getName();
+         final Decl decl = targetName.getDecl();
+         if (decl instanceof VarDecl)
+         {
+            final VarDecl varDecl = (VarDecl) decl;
+            if (varDecl.getPattern() != null)
+            {
+               return LinkConstraint.of(aec.getName(), targetName).accept(this, par);
+            }
+         }
+      }
+
+      return aec;
    }
 
    @Override

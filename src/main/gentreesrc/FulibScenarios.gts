@@ -29,7 +29,7 @@ abstract org.fulib.scenarios.ast.Node {
 			MethodDecl(owner: ClassDecl, name: String, parameters: [ParameterDecl], type: Type, body: SentenceList)
 			ParameterDecl(owner: MethodDecl, name: String, type: Type)
 
-			VarDecl(name: String, type: Type, expr: Expr)
+			VarDecl(name: String, type: Type, expr: Expr, noconstruct pattern: Pattern)
 		}
 
 		abstract decl.Name(readonly value: String, readonly decl: Decl) {
