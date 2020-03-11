@@ -10,6 +10,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
+import org.fulib.scenarios.ast.type.Type;
 
 import java.util.function.Consumer;
 
@@ -51,15 +52,16 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    {
       this.generateAttributeConstraint(acc.getName(), par, patternObjectName -> {
          final ConditionalOperator operator = acc.getOperator();
+         final Type lhsType = operator.getLhsType();
 
          par.emitIndent();
          par.emit("builder.buildAttributeConstraint(");
          par.emit(patternObjectName);
          par.emit(", ");
-         par.emit(operator.getLhsType().accept(TypeGenerator.INSTANCE, par));
+         par.emit(lhsType.accept(TypeGenerator.INSTANCE, par));
          par.emit(".class, it -> ");
 
-         final Expr it = makeItExpr();
+         final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", lhsType, null)));
          final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, operator, acc.getRhs());
          condOpExpr.accept(ExprGenerator.INSTANCE, par);
 
@@ -76,7 +78,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
          par.emitIndent();
          par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
 
-         final Expr it = makeItExpr();
+         final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", null, null)));
          final PredicateOperatorExpr predOpExpr = PredicateOperatorExpr.of(it, apc.getPredicate());
          predOpExpr.accept(ExprGenerator.INSTANCE, par);
 
@@ -84,11 +86,6 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       });
 
       return null;
-   }
-
-   private static Expr makeItExpr()
-   {
-      return NameAccess.of(ResolvedName.of(VarDecl.of("it", null, null)));
    }
 
    private void generateAttributeConstraint(Name attributeName, CodeGenDTO gen, Consumer<? super String> poName)
