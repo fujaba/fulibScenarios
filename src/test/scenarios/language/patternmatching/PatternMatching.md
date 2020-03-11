@@ -70,3 +70,4 @@ We expect that sr4 is studyRight.
 We call init and we write the answer into studyRight.
 
 We expect that there is some object alice2 where name matches '(?i)alice'.
+We expect that there is some object bob2 where credits is less than 15.
