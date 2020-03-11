@@ -26,7 +26,7 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
 
    public static ListExpr getRoots(Scenario scenario)
    {
-      return getRoots(scenario, null);
+      return getRoots(scenario, (Sentence) null);
    }
 
    public static ListExpr getRoots(Scenario scenario, Sentence before)
@@ -48,17 +48,22 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
          item.accept(SymbolCollector.INSTANCE, symbolTable);
       }
 
+      return getRoots(symbolTable, scenario.getFile().getGroup().getClasses());
+   }
+
+   public static ListExpr getRoots(Map<String, Decl> symbolTable, Map<String, ClassDecl> classes)
+   {
       if (symbolTable.isEmpty())
       {
          return null;
       }
 
-      final Map<String, ClassDecl> classes = scenario.getFile().getGroup().getClasses();
       final List<Expr> exprs = new ArrayList<>();
       for (Decl it : symbolTable.values())
       {
          final Type type = it.getType();
-         if (type == PrimitiveType.OBJECT || classes.containsValue(type.accept(ExtractClassDecl.INSTANCE, null)))
+         final ClassDecl classDecl = type.accept(ExtractClassDecl.INSTANCE, null);
+         if (type == PrimitiveType.OBJECT || classDecl != null && classes.containsValue(classDecl))
          {
             exprs.add(NameAccess.of(ResolvedName.of(it)));
          }

@@ -118,7 +118,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       }
 
       final String packageName = par.modelManager.getClassModel().getPackageName();
-      final ListExpr roots = SymbolCollector.getRoots(par.scenario, patternExpectSentence);
+      final ListExpr roots = SymbolCollector.getRoots(patternExpectSentence.getScopeDecls(), par.group.getClasses());
       if (roots != null)
       {
          par.emitIndent();
