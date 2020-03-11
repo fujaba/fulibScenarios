@@ -14,14 +14,14 @@ Init answers with StudyRight.
 
 # Known Attribute
 
-We call init and we write the result into studyRight.
+We call init and we write the answer into studyRight.
 
 We expect that there is some object c20 with 20 credits.
 We expect that there is some object c10 where credits is 10.
 
 # Unknown Attribute
 
-We call init and we write the result into studyRight.
+We call init and we write the answer into studyRight.
 
 We expect that there is some object sr1 where some attribute is 'StudyRight'.
 
@@ -35,14 +35,14 @@ We take a student from students of studyRight and we expect that studis contains
 
 # Non-Root Object
 
-We call init and we write the result into studyRight.
+We call init and we write the answer into studyRight.
 
 We expect that there is some object r3 with roomNo 3.
 We expect that there is some object r5 where some attribute is 5.
 
 # Unknown Links
 
-We call init and we write the result into studyRight.
+We call init and we write the answer into studyRight.
 
 We expect that there is some object alice1 with name 'Alice'
 and some object sr2 with some link to alice1.
@@ -51,7 +51,7 @@ We expect that sr2 is studyRight.
 
 # Known Links
 
-We call init and we write the result into studyRight.
+We call init and we write the answer into studyRight.
 
 We expect that there is some object bob1 with name 'Bob'
 and some object sr3 with students bob1.
@@ -60,13 +60,13 @@ We expect that sr3 is studyRight.
 
 # Instance
 
-We call init and we write the result into studyRight.
+We call init and we write the answer into studyRight.
 
 We expect that there is some university sr4.
 We expect that sr4 is studyRight.
 
 # Fuzzy matching
 
-We call init and we write the result into studyRight.
+We call init and we write the answer into studyRight.
 
 We expect that there is some object alice2 where name matches '(?i)alice'.
