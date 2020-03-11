@@ -25,7 +25,7 @@ simpleSentence: thereSentence
               | areSentence
               | hasSentence
               | expectSentence
-              | patternSentence
+              | matchSentence
               | patternExpectSentence
               | createSentence
               | callSentence
@@ -104,7 +104,7 @@ expectSentence: WE EXPECT thatClauses;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
-patternSentence: WE MATCH patternExpectClause (sep patternExpectClause)*;
+matchSentence: WE MATCH patternExpectClause (sep patternExpectClause)*;
 
 patternExpectSentence: WE EXPECT THAT THERE IS patternExpectClause (sep patternExpectClause)*;
 patternExpectClause: (SOME typeName | ALL typesName) name patternClauses?;

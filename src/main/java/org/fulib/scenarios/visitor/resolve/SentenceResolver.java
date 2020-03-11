@@ -226,7 +226,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    }
 
    @Override
-   public Sentence visit(PatternExpectSentence patternExpectSentence, Scope par)
+   public Sentence visit(MatchSentence matchSentence, Scope par)
    {
       final Map<String, Decl> oldDecls = new HashMap<>();
       par.list((name, decl) -> {
@@ -235,10 +235,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             oldDecls.put(name, decl);
          }
       });
-      patternExpectSentence.setScopeDecls(oldDecls);
+      matchSentence.setScopeDecls(oldDecls);
 
       final Map<String, Decl> newDecls = new HashMap<>();
-      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      for (final Pattern pattern : matchSentence.getPatterns())
       {
          pattern.setType(pattern.getType().accept(TypeResolver.INSTANCE, par));
    
@@ -254,12 +254,12 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       }
 
       final Scope scope = new ExtendingScope(newDecls, par);
-      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      for (final Pattern pattern : matchSentence.getPatterns())
       {
          pattern.getConstraints().replaceAll(c -> c.accept(ConstraintResolver.INSTANCE, scope));
       }
 
-      return patternExpectSentence;
+      return matchSentence;
    }
 
    @Override

@@ -60,7 +60,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    }
 
    @Override
-   public Object visit(PatternExpectSentence patternExpectSentence, CodeGenDTO par)
+   public Object visit(MatchSentence matchSentence, CodeGenDTO par)
    {
       par.addImport("org.fulib.FulibTables");
       par.addImport("org.fulib.patterns.PatternMatcher");
@@ -69,7 +69,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.addImport("org.fulib.yaml.ReflectorMap");
 
       // variable declarations
-      final List<Pattern> patterns = patternExpectSentence.getPatterns();
+      final List<Pattern> patterns = matchSentence.getPatterns();
       for (final Pattern pattern : patterns)
       {
          final Decl decl = pattern.getName().getDecl();
@@ -105,7 +105,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          par.emitLine("matcher.withRootPatternObjects(" + pattern.getName().getValue() + "PO);");
       }
 
-      this.generateRootObjects(patternExpectSentence, par);
+      this.generateRootObjects(matchSentence, par);
 
       par.emitLine("matcher.match();");
 
@@ -149,10 +149,10 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       }
    }
 
-   private void generateRootObjects(PatternExpectSentence patternExpectSentence, CodeGenDTO par)
+   private void generateRootObjects(MatchSentence matchSentence, CodeGenDTO par)
    {
       final String packageName = par.modelManager.getClassModel().getPackageName();
-      final ListExpr roots = SymbolCollector.getRoots(patternExpectSentence.getScopeDecls(), par.group.getClasses());
+      final ListExpr roots = SymbolCollector.getRoots(matchSentence.getScopeDecls(), par.group.getClasses());
       if (roots != null)
       {
          par.emitIndent();

@@ -115,9 +115,9 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
    }
 
    @Override
-   public Object visit(PatternExpectSentence patternExpectSentence, Map<String, Decl> par)
+   public Object visit(MatchSentence matchSentence, Map<String, Decl> par)
    {
-      for (final Pattern pattern : patternExpectSentence.getPatterns())
+      for (final Pattern pattern : matchSentence.getPatterns())
       {
          final Decl decl = pattern.getName().getDecl();
          par.put(decl.getName(), decl);
