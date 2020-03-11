@@ -28,15 +28,19 @@ public enum AssertionGenerator implements Expr.Visitor<CodeGenDTO, Object>
    }
 
    @Override
-   public Object visit(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par)
+   public Object visit(ConditionalOperatorExpr coe, CodeGenDTO par)
    {
-      final boolean numeric = isNumeric(conditionalOperatorExpr);
-      final ConditionalOperator operator = conditionalOperatorExpr.getOperator();
-      final String assertionFormat = numeric ? operator.getNumberAssertion() : operator.getObjectAssertion();
-      generateCondOp(conditionalOperatorExpr, par, assertionFormat);
+      final String template = getTemplate(coe.getOperator(), coe.getLhs(), coe.getRhs());
+
+      if (template == null)
+      {
+         return this.visit((Expr) coe, par);
+      }
+
+      generateCondOp(coe, par, template);
 
       // imports
-      final Matcher matcher = METHOD_PATTERN.matcher(assertionFormat);
+      final Matcher matcher = METHOD_PATTERN.matcher(template);
       while (matcher.find())
       {
          final String methodName = matcher.group(1);
@@ -57,7 +61,25 @@ public enum AssertionGenerator implements Expr.Visitor<CodeGenDTO, Object>
       return null;
    }
 
-   static void generateCondOp(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par, String format)
+   private static String getTemplate(ConditionalOperator op, Expr lhs, Expr rhs)
+   {
+      switch (op)
+      {
+      // @formatter:off
+      case IS: return PrimitiveType.isNumeric(lhs.getType()) ? "assertEquals(<lhs>, <rhs>, 0)" : "assertEquals(<lhs>, <rhs>)";
+      case IS_NOT: return PrimitiveType.isNumeric(lhs.getType()) ? "assertNotEquals(<lhs>, <rhs>, 0)" : "assertNotEquals(<lhs>, <rhs>)";
+      case IS_SAME: return "assertSame(<lhs>, <rhs>)";
+      case IS_NOT_SAME: return "assertNotSame(<lhs>, <rhs>)";
+
+      case CONTAINS: return "assertThat(<lhs>, hasItem(<rhs>))";
+      case NOT_CONTAINS: return "assertThat(<lhs>, not(hasItem(<rhs>)))";
+      // @formatter:on
+      default:
+         return null;
+      }
+   }
+
+   private static void generateCondOp(ConditionalOperatorExpr conditionalOperatorExpr, CodeGenDTO par, String format)
    {
       final int lhsIndex = format.indexOf("<lhs>");
       final int rhsIndex = format.indexOf("<rhs>");
