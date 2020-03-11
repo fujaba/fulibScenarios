@@ -25,6 +25,14 @@ We call init and we write the result into studyRight.
 
 We expect that there is some object sr1 where some attribute is 'StudyRight'.
 
+# Multiple Results
+
+We call init and we write the answer into studyRight.
+
+We match all objects studis where name matches '.*'.
+
+We take a student from students of studyRight and we expect that studis contains student.
+
 # Non-Root Object
 
 We call init and we write the result into studyRight.
