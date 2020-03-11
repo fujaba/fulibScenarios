@@ -37,24 +37,10 @@ public enum ConditionalOperator
 
    // =============== Static Fields ===============
 
-   public static final Map<String, ConditionalOperator> opMap;
+   public static final Map<String, ConditionalOperator> opMap = buildOpMap();
 
    static
    {
-      final ConditionalOperator[] values = values();
-      final Map<String, ConditionalOperator> map = new HashMap<>(values.length);
-      for (ConditionalOperator operator : values)
-      {
-         map.put(operator.getSingular(), operator);
-         final String plural = operator.getPlural();
-         if (plural != null)
-         {
-            map.put(plural, operator);
-         }
-      }
-
-      opMap = Collections.unmodifiableMap(map);
-
       LT.lhsType = PrimitiveType.NUMBER;
       LE.lhsType = PrimitiveType.NUMBER;
       NOT_LT.lhsType = PrimitiveType.NUMBER;
@@ -81,6 +67,22 @@ public enum ConditionalOperator
    }
 
    // =============== Static Methods ===============
+
+   private static Map<String, ConditionalOperator> buildOpMap()
+   {
+      final ConditionalOperator[] values = values();
+      final Map<String, ConditionalOperator> map = new HashMap<>(values.length);
+      for (ConditionalOperator operator : values)
+      {
+         map.put(operator.getSingular(), operator);
+         final String plural = operator.getPlural();
+         if (plural != null)
+         {
+            map.put(plural, operator);
+         }
+      }
+      return Collections.unmodifiableMap(map);
+   }
 
    private static String wrapAssert(String javaObjectOperator)
    {
