@@ -86,16 +86,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          final String name = pattern.getName().getValue();
          par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
 
-         Type type = pattern.getType();
-         if (type instanceof ListType)
-         {
-            type = ((ListType) type).getElementType();
-         }
-         if (type != PrimitiveType.OBJECT)
-         {
-            par.emitLine("builder.buildInstanceOfConstraint(" + name + "PO, " + type.accept(TypeGenerator.INSTANCE, par)
-                         + ".class);");
-         }
+         this.generateInstanceOfConstraint(pattern, par);
 
          final ConstraintGenerator gen = new ConstraintGenerator(name);
          for (final Constraint constraint : pattern.getConstraints())
@@ -104,14 +95,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          }
       }
 
-      if (patterns.size() > 1)
-      {
-         final String commaSeparatedPOs = patterns
-            .stream()
-            .map(p -> p.getName().getValue() + "PO")
-            .collect(Collectors.joining(", "));
-         par.emitLine("builder.buildInequalityConstraint(" + commaSeparatedPOs + ");");
-      }
+      this.generateDistinctConstraint(patterns, par);
 
       par.emitLine("final PatternMatcher matcher = FulibTables.matcher(builder.getPattern());");
 
@@ -121,6 +105,52 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          par.emitLine("matcher.withRootPatternObjects(" + pattern.getName().getValue() + "PO);");
       }
 
+      this.generateRootObjects(patternExpectSentence, par);
+
+      par.emitLine("matcher.match();");
+
+      for (final Pattern pattern : patterns)
+      {
+         this.generateResultExtractor(pattern, par);
+      }
+
+      par.indentLevel--;
+      par.emitLine("}");
+
+      return null;
+   }
+
+   private void generateInstanceOfConstraint(Pattern pattern, CodeGenDTO par)
+   {
+      final String name = pattern.getName().getValue();
+      Type type = pattern.getType();
+
+      if (type instanceof ListType)
+      {
+         type = ((ListType) type).getElementType();
+      }
+
+      if (type != PrimitiveType.OBJECT)
+      {
+         par.emitLine("builder.buildInstanceOfConstraint(" + name + "PO, " + type.accept(TypeGenerator.INSTANCE, par)
+                      + ".class);");
+      }
+   }
+
+   private void generateDistinctConstraint(List<Pattern> patterns, CodeGenDTO par)
+   {
+      if (patterns.size() > 1)
+      {
+         final String commaSeparatedPOs = patterns
+            .stream()
+            .map(p -> p.getName().getValue() + "PO")
+            .collect(Collectors.joining(", "));
+         par.emitLine("builder.buildInequalityConstraint(" + commaSeparatedPOs + ");");
+      }
+   }
+
+   private void generateRootObjects(PatternExpectSentence patternExpectSentence, CodeGenDTO par)
+   {
       final String packageName = par.modelManager.getClassModel().getPackageName();
       final ListExpr roots = SymbolCollector.getRoots(patternExpectSentence.getScopeDecls(), par.group.getClasses());
       if (roots != null)
@@ -131,27 +161,19 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          par.emit("));\n");
       }
       // TODO if roots == null, i.e. there are no root objects, the match will always fail.
+   }
 
-      par.emitLine("matcher.match();");
-
-      // result extraction
-      for (final Pattern pattern : patterns)
+   private void generateResultExtractor(Pattern pattern, CodeGenDTO par)
+   {
+      final String name = pattern.getName().getValue();
+      if (pattern.getType() instanceof ListType)
       {
-         final String name = pattern.getName().getValue();
-         if (pattern.getType() instanceof ListType)
-         {
-            par.emitLine(name + " = matcher.findAll(" + name + "PO);");
-         }
-         else
-         {
-            par.emitLine(name + " = matcher.findOne(" + name + "PO);");
-         }
+         par.emitLine(name + " = matcher.findAll(" + name + "PO);");
       }
-
-      par.indentLevel--;
-      par.emitLine("}");
-
-      return null;
+      else
+      {
+         par.emitLine(name + " = matcher.findOne(" + name + "PO);");
+      }
    }
 
    @Override
