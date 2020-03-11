@@ -84,11 +84,6 @@ public enum ConditionalOperator
       return Collections.unmodifiableMap(map);
    }
 
-   private static String wrapAssert(String javaObjectOperator)
-   {
-      return "assertTrue(" + javaObjectOperator + ")";
-   }
-
    public static ConditionalOperator getByOp(String op)
    {
       return opMap.get(op);
