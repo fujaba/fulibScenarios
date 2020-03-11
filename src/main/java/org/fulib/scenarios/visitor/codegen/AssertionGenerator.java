@@ -72,8 +72,7 @@ public enum AssertionGenerator implements Expr.Visitor<CodeGenDTO, Object>
    static boolean isNumeric(ConditionalOperatorExpr conditionalOperatorExpr)
    {
       final Type lhsType = conditionalOperatorExpr.getLhs().getType();
-      final Type rhsType = conditionalOperatorExpr.getRhs().getType();
-      return PrimitiveType.isNumeric(lhsType) || PrimitiveType.isNumeric(rhsType);
+      return PrimitiveType.isNumeric(lhsType);
    }
 
    @Override
