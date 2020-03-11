@@ -1,44 +1,64 @@
-# Pattern Matching
+# Model
 
-## Solution
-
-There is a university with name StudyRight.
-There is a student with name Alice and with 20 credits.
-There is a student with name Bob and with 10 credits.
+We call init.
+Init creates a university with name StudyRight.
+Init creates a student with name Alice and with 20 credits.
+Init creates a student with name Bob and with 10 credits.
 StudyRight has students and is uni of Alice and Bob.
 
-We take an roomNo from 1 to 5
-and we create the room r with roomNo roomNo
-and r has university and is one of the rooms of studyRight. 
+Init takes an roomNo from 1 to 5
+and init creates the room r with roomNo roomNo
+and r has university and is one of the rooms of studyRight.
 
-## Verification
+Init answers with StudyRight.
 
-// Known Attribute
+# Known Attribute
+
+We call init and we write the result into studyRight.
+
 We expect that there is some object c20 with 20 credits.
 We expect that there is some object c10 where credits is 10.
 
-// Unknown Attribute
-We expect that there is some object sr where some attribute is 'StudyRight'.
+# Unknown Attribute
 
-// Non-Root Object
+We call init and we write the result into studyRight.
+
+We expect that there is some object sr1 where some attribute is 'StudyRight'.
+
+# Non-Root Object
+
+We call init and we write the result into studyRight.
+
 We expect that there is some object r3 with roomNo 3.
 We expect that there is some object r5 where some attribute is 5.
 
-// Unknown Links
+# Unknown Links
+
+We call init and we write the result into studyRight.
+
 We expect that there is some object alice1 with name 'Alice'
 and some object sr2 with some link to alice1.
 
 We expect that sr2 is studyRight.
 
-// Known Links
+# Known Links
+
+We call init and we write the result into studyRight.
+
 We expect that there is some object bob1 with name 'Bob'
 and some object sr3 with students bob1.
 
 We expect that sr3 is studyRight.
 
-// Instance
+# Instance
+
+We call init and we write the result into studyRight.
+
 We expect that there is some university sr4.
 We expect that sr4 is studyRight.
 
-// Fuzzy matching
+# Fuzzy matching
+
+We call init and we write the result into studyRight.
+
 We expect that there is some object alice2 where name matches '(?i)alice'.
