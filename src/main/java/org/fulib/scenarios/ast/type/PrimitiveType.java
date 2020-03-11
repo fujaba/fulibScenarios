@@ -167,6 +167,17 @@ public enum PrimitiveType implements Type
       }
    }
 
+   public static boolean isJavaPrimitive(Type type)
+   {
+      return type instanceof PrimitiveType && isJavaPrimitive((PrimitiveType) type);
+   }
+
+   public static boolean isJavaPrimitive(PrimitiveType type)
+   {
+      final int ordinal = type.ordinal();
+      return ordinal >= VOID.ordinal() && ordinal <= DOUBLE.ordinal();
+   }
+
    public static boolean isPrimitiveOrWrapperValue(Type type)
    {
       return type instanceof PrimitiveType && isPrimitiveOrWrapperValue((PrimitiveType) type);
