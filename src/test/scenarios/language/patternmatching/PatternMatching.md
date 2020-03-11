@@ -24,15 +24,21 @@ We expect that there is some object sr where some attribute is 'StudyRight'.
 We expect that there is some object r3 with roomNo 3.
 We expect that there is some object r5 where some attribute is 5.
 
-// Links
+// Unknown Links
 We expect that there is some object alice1 with name 'Alice'
 and some object sr2 with some link to alice1.
 
 We expect that sr2 is studyRight.
 
-// Instance
-We expect that there is some university sr3.
+// Known Links
+We expect that there is some object bob1 with name 'Bob'
+and some object sr3 with students bob1.
+
 We expect that sr3 is studyRight.
+
+// Instance
+We expect that there is some university sr4.
+We expect that sr4 is studyRight.
 
 // Fuzzy matching
 We expect that there is some object alice2 where name matches '(?i)alice'.
