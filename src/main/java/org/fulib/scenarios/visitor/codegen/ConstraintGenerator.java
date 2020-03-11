@@ -10,6 +10,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
+import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 
 import java.util.function.Consumer;
@@ -53,12 +54,13 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       this.generateAttributeConstraint(acc.getName(), par, patternObjectName -> {
          final ConditionalOperator operator = acc.getOperator();
          final Type lhsType = operator.getLhsType();
+         final Type wrappedLhsType = PrimitiveType.primitiveToWrapper(lhsType);
 
          par.emitIndent();
          par.emit("builder.buildAttributeConstraint(");
          par.emit(patternObjectName);
          par.emit(", ");
-         par.emit(lhsType.accept(TypeGenerator.INSTANCE, par));
+         par.emit(wrappedLhsType.accept(TypeGenerator.INSTANCE, par));
          par.emit(".class, it -> ");
 
          final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", lhsType, null)));
