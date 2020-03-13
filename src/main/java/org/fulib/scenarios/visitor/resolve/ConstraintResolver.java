@@ -24,7 +24,7 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    @Override
    public Constraint visit(LinkConstraint linkConstraint, Scope par)
    {
-      // TODO error
+      // TODO error if the name does not refer to a pattern object
       linkConstraint.setTarget(linkConstraint.getTarget().accept(NameResolver.INSTANCE, par));
       return linkConstraint;
    }
@@ -59,7 +59,8 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    @Override
    public Constraint visit(AttributePredicateConstraint attributePredicateConstraint, Scope par)
    {
-      // TODO
+      // TODO disabled in parser, because the only predicates that exist are for lists or null,
+      //      both of which never appear in tables
       return attributePredicateConstraint;
    }
 
@@ -87,6 +88,7 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
       // the rhs references a pattern object
       // -> convert to match constraint
       final Pattern owner = acc.getOwner();
+      // TODO error if acc.name == null
       final Expr lhs = AttributeAccess.of(acc.getName(), NameAccess.of(owner.getName()));
       final Expr condExpr = ConditionalOperatorExpr.of(lhs, acc.getOperator(), resolvedRhs);
       final Expr resolvedExpr = condExpr.accept(ExprResolver.INSTANCE, par);
