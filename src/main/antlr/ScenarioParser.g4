@@ -113,12 +113,14 @@ patternClause: patternLinkClause
              | patternAttributeEquality
              | patternAttributeConditional
              // | patternAttributePredicate
+             | patternMatchConstraint
              ;
 
 patternLinkClause: WITH SOME LINK TO name;
 patternAttributeEquality: WITH (name expr | number name);
 patternAttributeConditional: WHERE (SOME ATTRIBUTE | name) condOp rhs=expr;
 patternAttributePredicate: WHERE (SOME ATTRIBUTE | name) predOp;
+patternMatchConstraint: WHERE condExpr;
 
 diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 

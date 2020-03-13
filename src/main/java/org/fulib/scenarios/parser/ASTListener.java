@@ -250,6 +250,15 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
+   public void exitPatternMatchConstraint(ScenarioParser.PatternMatchConstraintContext ctx)
+   {
+      final Expr condExpr = this.pop();
+      final MatchConstraint matchConstraint = MatchConstraint.of(condExpr, new ArrayList<>());
+      matchConstraint.setPosition(position(ctx.WHERE()));
+      this.stack.push(matchConstraint);
+   }
+
+   @Override
    public void exitDiagramSentence(ScenarioParser.DiagramSentenceContext ctx)
    {
       final Expr object = this.pop();
