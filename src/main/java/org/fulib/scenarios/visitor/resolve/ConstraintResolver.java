@@ -4,7 +4,9 @@ import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
+import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.scope.PatternReferenceCollectingScope;
@@ -71,9 +73,32 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
          aec.setPosition(acc.getPosition());
          return aec.accept(this, par);
       }
-      acc.setRhs(acc.getRhs().accept(ExprResolver.INSTANCE, par));
-      // TODO
-      return acc;
+
+      final Set<Pattern> patterns = new HashSet<>();
+      final Scope scope = new PatternReferenceCollectingScope(par, patterns);
+      final Expr resolvedRhs = acc.getRhs().accept(ExprResolver.INSTANCE, scope);
+
+      if (patterns.isEmpty())
+      {
+         acc.setRhs(resolvedRhs);
+         return acc;
+      }
+
+      // the rhs references a pattern object
+      // -> convert to match constraint
+      final Pattern owner = acc.getOwner();
+      final Expr lhs = AttributeAccess.of(acc.getName(), NameAccess.of(owner.getName()));
+      final Expr condExpr = ConditionalOperatorExpr.of(lhs, acc.getOperator(), resolvedRhs);
+      final Expr resolvedExpr = condExpr.accept(ExprResolver.INSTANCE, par);
+
+      final List<Pattern> patternList = new ArrayList<>();
+      patternList.add(owner);
+      patternList.addAll(patterns);
+
+      final MatchConstraint matchConstraint = MatchConstraint.of(resolvedExpr, patternList);
+      matchConstraint.setOwner(owner);
+      matchConstraint.setPosition(acc.getPosition());
+      return matchConstraint;
    }
 
    @Override
