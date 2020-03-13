@@ -43,7 +43,10 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
             final VarDecl varDecl = (VarDecl) decl;
             if (varDecl.getPattern() != null)
             {
-               return LinkConstraint.of(aec.getName(), targetName).accept(this, par);
+               final LinkConstraint lc = LinkConstraint.of(aec.getName(), targetName);
+               lc.setOwner(aec.getOwner());
+               lc.setPosition(aec.getPosition());
+               return lc.accept(this, par);
             }
          }
       }
@@ -59,17 +62,18 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    }
 
    @Override
-   public Constraint visit(AttributeConditionalConstraint attributeConditionalConstraint, Scope par)
+   public Constraint visit(AttributeConditionalConstraint acc, Scope par)
    {
-      if (attributeConditionalConstraint.getOperator() == ConditionalOperator.IS)
+      if (acc.getOperator() == ConditionalOperator.IS)
       {
-         return AttributeEqualityConstraint
-            .of(attributeConditionalConstraint.getName(), attributeConditionalConstraint.getRhs())
-            .accept(this, par);
+         final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(acc.getName(), acc.getRhs());
+         aec.setOwner(acc.getOwner());
+         aec.setPosition(acc.getPosition());
+         return aec.accept(this, par);
       }
-      attributeConditionalConstraint.setRhs(attributeConditionalConstraint.getRhs().accept(ExprResolver.INSTANCE, par));
+      acc.setRhs(acc.getRhs().accept(ExprResolver.INSTANCE, par));
       // TODO
-      return attributeConditionalConstraint;
+      return acc;
    }
 
    @Override
