@@ -19,31 +19,26 @@ import java.util.stream.Collectors;
 
 public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 {
-   private final String receiverName;
    private int unknownAttributeNumber;
-
-   public ConstraintGenerator(String receiverName)
-   {
-      this.receiverName = receiverName;
-   }
 
    @Override
    public Void visit(LinkConstraint linkConstraint, CodeGenDTO par)
    {
-      final Name name = linkConstraint.getName();
-      final String nameValue = name != null ? name.getValue() : "*";
-      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", this.receiverName, nameValue,
-                                 linkConstraint.getTarget().getValue()));
+      final String ownerName = linkConstraint.getOwner().getName().getValue();
+      final String linkName = linkConstraint.getName() != null ? linkConstraint.getName().getValue() : "*";
+      final String targetName = linkConstraint.getTarget().getValue();
+
+      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, linkName, targetName));
       return null;
    }
 
    @Override
-   public Void visit(AttributeEqualityConstraint attributeEqualityConstraint, CodeGenDTO par)
+   public Void visit(AttributeEqualityConstraint aec, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(attributeEqualityConstraint.getName(), par, patternObjectName -> {
+      this.generateAttributeConstraint(aec.getOwner(), aec.getName(), par, patternObjectName -> {
          par.emitIndent();
          par.emit("builder.buildEqualityConstraint(" + patternObjectName + ", ");
-         attributeEqualityConstraint.getExpr().accept(ExprGenerator.INSTANCE, par);
+         aec.getExpr().accept(ExprGenerator.INSTANCE, par);
          par.emit(");\n");
       });
 
@@ -53,7 +48,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConditionalConstraint acc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(acc.getName(), par, patternObjectName -> {
+      this.generateAttributeConstraint(acc.getOwner(), acc.getName(), par, patternObjectName -> {
          final ConditionalOperator operator = acc.getOperator();
          final Type lhsType = operator.getLhsType();
          final Type wrappedLhsType = PrimitiveType.primitiveToWrapper(lhsType);
@@ -78,7 +73,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributePredicateConstraint apc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(apc.getName(), par, patternObjectName -> {
+      this.generateAttributeConstraint(apc.getOwner(), apc.getName(), par, patternObjectName -> {
          par.emitIndent();
          par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
 
@@ -92,20 +87,22 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       return null;
    }
 
-   private void generateAttributeConstraint(Name attributeName, CodeGenDTO gen, Consumer<? super String> poName)
+   private void generateAttributeConstraint(Pattern owner, Name attributeName, CodeGenDTO gen,
+      Consumer<? super String> poName)
    {
+      final String ownerName = owner.getName().getValue();
       final String attributeNameValue;
       final String patternObjectName;
 
       if (attributeName == null)
       {
          attributeNameValue = "*";
-         patternObjectName = this.generateUnknownAttributeName();
+         patternObjectName = ownerName + "Attr" + ++this.unknownAttributeNumber;
       }
       else
       {
          attributeNameValue = attributeName.getValue();
-         patternObjectName = this.receiverName + StrUtil.cap(attributeNameValue);
+         patternObjectName = ownerName + StrUtil.cap(attributeNameValue);
       }
 
       gen.emitLine(
@@ -113,13 +110,8 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 
       poName.accept(patternObjectName);
 
-      gen.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", this.receiverName, attributeNameValue,
+      gen.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", ownerName, attributeNameValue,
                                  patternObjectName));
-   }
-
-   private String generateUnknownAttributeName()
-   {
-      return this.receiverName + "Attr" + ++this.unknownAttributeNumber;
    }
 
    @Override

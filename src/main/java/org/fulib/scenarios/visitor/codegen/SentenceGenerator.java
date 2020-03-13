@@ -88,7 +88,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
          this.generateInstanceOfConstraint(pattern, par);
 
-         final ConstraintGenerator gen = new ConstraintGenerator(name);
+         final ConstraintGenerator gen = new ConstraintGenerator();
          for (final Constraint constraint : pattern.getConstraints())
          {
             constraint.accept(gen, par);
