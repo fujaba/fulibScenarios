@@ -219,7 +219,9 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitLinkConstraint(ScenarioParser.LinkConstraintContext ctx)
    {
-      this.stack.push(LinkConstraint.of(null, name(ctx.name())));
+      final LinkConstraint linkConstraint = LinkConstraint.of(null, name(ctx.name()));
+      linkConstraint.setPosition(position(ctx.WITH()));
+      this.stack.push(linkConstraint);
    }
 
    @Override
@@ -227,8 +229,9 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Expr rhs = this.pop();
       final Name name = name(ctx.name());
-      final AttributeEqualityConstraint equality = AttributeEqualityConstraint.of(name, rhs);
-      this.stack.push(equality);
+      final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(name, rhs);
+      aec.setPosition(position(ctx.WITH()));
+      this.stack.push(aec);
    }
 
    @Override
@@ -236,8 +239,9 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final Name name = name(ctx.name());
       final PredicateOperator predOp = predicateOperator(ctx.predOp());
-      final AttributePredicateConstraint predicate = AttributePredicateConstraint.of(name, predOp);
-      this.stack.push(predicate);
+      final AttributePredicateConstraint apc = AttributePredicateConstraint.of(name, predOp);
+      apc.setPosition(position(ctx.WHERE()));
+      this.stack.push(apc);
    }
 
    @Override
@@ -246,8 +250,9 @@ public class ASTListener extends ScenarioParserBaseListener
       final Expr rhs = this.pop();
       final Name name = name(ctx.name());
       final ConditionalOperator condOp = conditionalOperator(ctx.condOp());
-      final AttributeConditionalConstraint conditional = AttributeConditionalConstraint.of(name, condOp, rhs);
-      this.stack.push(conditional);
+      final AttributeConditionalConstraint acc = AttributeConditionalConstraint.of(name, condOp, rhs);
+      acc.setPosition(position(ctx.WHERE()));
+      this.stack.push(acc);
    }
 
    @Override
