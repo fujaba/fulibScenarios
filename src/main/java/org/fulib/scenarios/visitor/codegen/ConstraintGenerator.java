@@ -117,7 +117,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(MatchConstraint matchConstraint, CodeGenDTO par)
    {
-      par.emit("builder.buildMatchConstraint(row -> {");
+      par.emitLine("builder.buildMatchConstraint(row -> {");
 
       par.indentLevel++;
       for (final Pattern pattern : matchConstraint.getPatterns())
@@ -126,7 +126,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
          final Name name = pattern.getName();
          final Decl decl = name.getDecl();
          final String type = decl.getType().accept(TypeGenerator.INSTANCE, par);
-         par.emit(String.format("%s %s = (%s) row.get(\"%s\");", type, decl.getName(), type, name.getValue()));
+         par.emitLine(String.format("final %s %s = (%s) row.get(\"%s\");", type, decl.getName(), type, name.getValue()));
       }
 
       // return <expr>;
@@ -142,7 +142,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
          .stream()
          .map(p -> p.getName().getValue() + "PO")
          .collect(Collectors.joining(", "));
-      par.emit("}, " + commaSeparatedPONames + ");");
+      par.emitLine("}, " + commaSeparatedPONames + ");");
       return null;
    }
 }
