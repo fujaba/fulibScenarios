@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.scope.PatternReferenceCollectingScope;
 import org.fulib.scenarios.ast.scope.Scope;
+import org.fulib.scenarios.diagnostic.Marker;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,8 +25,20 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    @Override
    public Constraint visit(LinkConstraint linkConstraint, Scope par)
    {
-      // TODO error if the name does not refer to a pattern object
-      linkConstraint.setTarget(linkConstraint.getTarget().accept(NameResolver.INSTANCE, par));
+      final Name target = linkConstraint.getTarget();
+      final Name resolvedTarget = target.accept(NameResolver.INSTANCE, par);
+      linkConstraint.setTarget(resolvedTarget);
+
+      final Decl decl = resolvedTarget.getDecl();
+      if (decl == null)
+      {
+         par.report(Marker.error(target.getPosition(), "link-constraint.target.unresolved", target.getValue()));
+      }
+      else if (!(decl instanceof VarDecl) || ((VarDecl) decl).getPattern() == null)
+      {
+         par.report(Marker.error(target.getPosition(), "link-constraint.target.not.pattern-object", target.getValue()));
+      }
+
       return linkConstraint;
    }
 
