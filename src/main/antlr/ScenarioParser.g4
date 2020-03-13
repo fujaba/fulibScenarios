@@ -112,7 +112,7 @@ patternClauses: patternClause (sep patternClause)*;
 patternClause: patternLinkClause
              | patternAttributeEquality
              | patternAttributeConditional
-             | patternAttributePredicate
+             // | patternAttributePredicate
              ;
 
 patternLinkClause: WITH SOME LINK TO name;
