@@ -76,3 +76,9 @@ We expect that there is some object bob2 where credits is less than 15.
 
 We call init and we write the answer into studyRight.
 We match some university uni and some student alice where credits is greater than min-credits of uni.
+
+# Match Constraint
+
+We call init and we write the answer into studyRight.
+We match some university uni and some student alice
+where credits of alice is greater than min-credits of uni and min-credits of uni is greater than 0.
