@@ -122,10 +122,14 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       par.indentLevel++;
       for (final Pattern pattern : matchConstraint.getPatterns())
       {
-         // <type> <name> = (<type>) row.get("<name>");
+         // <type> _<name> = (<type>) row.get("<name>");
          final Decl decl = pattern.getName().getDecl();
+         final String poName = decl.getName();
+         final String varName = "_" + poName;
+         decl.setName(varName);
+
          final String type = decl.getType().accept(TypeGenerator.INSTANCE, par);
-         par.emitLine(String.format("final %s %s = (%s) row.get(\"%s\");", type, decl.getName(), type, decl.getName()));
+         par.emitLine(String.format("final %s %s = (%s) row.get(\"%s\");", type, varName, type, poName));
       }
 
       // return <expr>;
@@ -133,6 +137,13 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       par.emit("return ");
       matchConstraint.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.emit(";\n");
+
+      // remove leading _
+      for (final Pattern pattern : matchConstraint.getPatterns())
+      {
+         final Decl decl = pattern.getName().getDecl();
+         decl.setName(decl.getName().substring(1));
+      }
 
       par.indentLevel--;
 
