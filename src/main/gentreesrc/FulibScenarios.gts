@@ -120,6 +120,7 @@ abstract org.fulib.scenarios.ast.Node {
 			AttributeEqualityConstraint(name: Name?, expr: Expr)
 			AttributeConditionalConstraint(name: Name?, operator: ConditionalOperator, rhs: Expr)
 			AttributePredicateConstraint(name: Name?, predicate: PredicateOperator)
+			MatchConstraint(expr: Expr, patterns: [Pattern])
 		}
 	}
 

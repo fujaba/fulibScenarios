@@ -1,6 +1,7 @@
 package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.StrUtil;
+import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
@@ -14,6 +15,7 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 {
@@ -118,5 +120,37 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    private String generateUnknownAttributeName()
    {
       return this.receiverName + "Attr" + ++this.unknownAttributeNumber;
+   }
+
+   @Override
+   public Void visit(MatchConstraint matchConstraint, CodeGenDTO par)
+   {
+      par.emit("builder.buildMatchConstraint(row -> {");
+
+      par.indentLevel++;
+      for (final Pattern pattern : matchConstraint.getPatterns())
+      {
+         // <type> <name> = (<type>) row.get("<name>");
+         final Name name = pattern.getName();
+         final Decl decl = name.getDecl();
+         final String type = decl.getType().accept(TypeGenerator.INSTANCE, par);
+         par.emit(String.format("%s %s = (%s) row.get(\"%s\");", type, decl.getName(), type, name.getValue()));
+      }
+
+      // return <expr>;
+      par.emitIndent();
+      par.emit("return ");
+      matchConstraint.getExpr().accept(ExprGenerator.INSTANCE, par);
+      par.emit(";\n");
+
+      par.indentLevel--;
+
+      final String commaSeparatedPONames = matchConstraint
+         .getPatterns()
+         .stream()
+         .map(p -> p.getName().getValue() + "PO")
+         .collect(Collectors.joining(", "));
+      par.emit("}, " + commaSeparatedPONames + ");");
+      return null;
    }
 }
