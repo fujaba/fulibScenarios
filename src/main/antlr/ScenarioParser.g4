@@ -104,7 +104,7 @@ expectSentence: WE EXPECT thatClauses;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
-matchSentence: WE MATCH patternExpectClause (sep patternExpectClause)*;
+matchSentence: actor verb=(MATCH | MATCHES) patternExpectClause (sep patternExpectClause)*;
 
 patternExpectSentence: WE EXPECT THAT THERE IS patternExpectClause (sep patternExpectClause)*;
 patternExpectClause: (SOME typeName | ALL typesName) name patternClauses?;

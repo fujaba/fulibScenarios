@@ -58,8 +58,6 @@ abstract org.fulib.scenarios.ast.Node {
 			IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 			AreSentence(descriptor: MultiDescriptor)
 
-			MatchSentence(patterns: [Pattern], noconstruct scopeDecls: [String:Decl])
-
 			abstract ActorSentence(actor: Name) {
 				CreateSentence(actor: Name, descriptor: MultiDescriptor)
 
@@ -73,6 +71,8 @@ abstract org.fulib.scenarios.ast.Node {
 				}
 
 				TakeSentence(actor: Name, varName: Name?, example: Expr, collection: Expr, body: Sentence)
+
+				MatchSentence(actor: Name, patterns: [Pattern], noconstruct scopeDecls: [String:Decl])
 			}
 
 			ConditionalSentence(condition: Expr, body: Sentence)
