@@ -71,3 +71,8 @@ We call init and we write the answer into studyRight.
 
 We expect that there is some object alice2 where name matches '(?i)alice'.
 We expect that there is some object bob2 where credits is less than 15.
+
+# Simple Match Constraint
+
+We call init and we write the answer into studyRight.
+We match some university uni and some student alice where credits is greater than min-credits of uni.
