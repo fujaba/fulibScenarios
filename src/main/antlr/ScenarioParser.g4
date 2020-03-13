@@ -104,25 +104,29 @@ expectSentence: WE EXPECT thatClauses;
 thatClauses: thatClause (sep thatClause)*;
 thatClause: THAT condExpr;
 
-matchSentence: actor verb=(MATCH | MATCHES) patternExpectClause (sep patternExpectClause)*;
+diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 
-patternExpectSentence: WE EXPECT THAT THERE IS patternExpectClause (sep patternExpectClause)*;
-patternExpectClause: (SOME typeName | ALL typesName) name patternClauses?;
-patternClauses: patternClause (sep patternClause)*;
-patternClause: patternLinkClause
-             | patternAttributeEquality
-             | patternAttributeConditional
-             // | patternAttributePredicate
-             | patternMatchConstraint
+// Matching
+
+matchSentence: actor verb=(MATCH | MATCHES) patternObject (sep patternObject)*;
+patternExpectSentence: WE EXPECT THAT THERE IS patternObject (sep patternObject)*;
+
+// --------------- Patterns & Constraints ---------------
+
+patternObject: (SOME typeName | ALL typesName) name constraints?;
+constraints: constraint (sep constraint)*;
+constraint: linkConstraint
+             | attributeEqualityConstraint
+             | attributeConditionalConstraint
+             // | attributePredicateConstraint
+             | matchConstraint
              ;
 
-patternLinkClause: WITH SOME LINK TO name;
-patternAttributeEquality: WITH (name expr | number name);
-patternAttributeConditional: WHERE (SOME ATTRIBUTE | name) condOp rhs=expr;
-patternAttributePredicate: WHERE (SOME ATTRIBUTE | name) predOp;
-patternMatchConstraint: WHERE condExpr;
-
-diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
+linkConstraint: WITH SOME LINK TO name;
+attributeEqualityConstraint: WITH (name expr | number name);
+attributeConditionalConstraint: WHERE (SOME ATTRIBUTE | name) condOp rhs=expr;
+attributePredicateConstraint: WHERE (SOME ATTRIBUTE | name) predOp;
+matchConstraint: WHERE condExpr;
 
 // --------------- Expressions ---------------
 

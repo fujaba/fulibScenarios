@@ -185,7 +185,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitMatchSentence(ScenarioParser.MatchSentenceContext ctx)
    {
       final Name actor = name(ctx.actor().name());
-      final List<Pattern> patterns = this.pop(Pattern.class, ctx.patternExpectClause().size());
+      final List<Pattern> patterns = this.pop(Pattern.class, ctx.patternObject().size());
       final MatchSentence matchSentence = MatchSentence.of(actor, patterns);
       matchSentence.setPosition(position(ctx.verb));
       this.stack.push(matchSentence);
@@ -194,35 +194,36 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitPatternExpectSentence(ScenarioParser.PatternExpectSentenceContext ctx)
    {
-      final List<Pattern> patterns = this.pop(Pattern.class, ctx.patternExpectClause().size());
+      final List<Pattern> patterns = this.pop(Pattern.class, ctx.patternObject().size());
       final MatchSentence matchSentence = MatchSentence.of(null, patterns);
       matchSentence.setPosition(position(ctx.EXPECT()));
       this.stack.push(matchSentence);
    }
 
    @Override
-   public void exitPatternExpectClause(ScenarioParser.PatternExpectClauseContext ctx)
+   public void exitPatternObject(ScenarioParser.PatternObjectContext ctx)
    {
-      final ScenarioParser.PatternClausesContext patternClauses = ctx.patternClauses();
-      final List<Constraint> exprs = this.pop(Constraint.class, patternClauses != null ? patternClauses.patternClause().size() : 0);
+      final ScenarioParser.ConstraintsContext constraintsCtx = ctx.constraints();
+      final List<Constraint> constraints = this.pop(Constraint.class,
+                                                    constraintsCtx != null ? constraintsCtx.constraint().size() : 0);
       final Name name = name(ctx.name());
       Type type = this.pop();
       if (ctx.ALL() != null)
       {
          type = ListType.of(type);
       }
-      final Pattern pattern = Pattern.of(type, name, exprs);
+      final Pattern pattern = Pattern.of(type, name, constraints);
       this.stack.push(pattern);
    }
 
    @Override
-   public void exitPatternLinkClause(ScenarioParser.PatternLinkClauseContext ctx)
+   public void exitLinkConstraint(ScenarioParser.LinkConstraintContext ctx)
    {
       this.stack.push(LinkConstraint.of(null, name(ctx.name())));
    }
 
    @Override
-   public void exitPatternAttributeEquality(ScenarioParser.PatternAttributeEqualityContext ctx)
+   public void exitAttributeEqualityConstraint(ScenarioParser.AttributeEqualityConstraintContext ctx)
    {
       final Expr rhs = this.pop();
       final Name name = name(ctx.name());
@@ -231,7 +232,7 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitPatternAttributePredicate(ScenarioParser.PatternAttributePredicateContext ctx)
+   public void exitAttributePredicateConstraint(ScenarioParser.AttributePredicateConstraintContext ctx)
    {
       final Name name = name(ctx.name());
       final PredicateOperator predOp = predicateOperator(ctx.predOp());
@@ -240,7 +241,7 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitPatternAttributeConditional(ScenarioParser.PatternAttributeConditionalContext ctx)
+   public void exitAttributeConditionalConstraint(ScenarioParser.AttributeConditionalConstraintContext ctx)
    {
       final Expr rhs = this.pop();
       final Name name = name(ctx.name());
@@ -250,7 +251,7 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitPatternMatchConstraint(ScenarioParser.PatternMatchConstraintContext ctx)
+   public void exitMatchConstraint(ScenarioParser.MatchConstraintContext ctx)
    {
       final Expr condExpr = this.pop();
       final MatchConstraint matchConstraint = MatchConstraint.of(condExpr, new ArrayList<>());
