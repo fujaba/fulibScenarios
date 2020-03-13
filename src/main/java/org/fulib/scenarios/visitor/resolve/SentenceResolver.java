@@ -256,7 +256,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Scope scope = new ExtendingScope(newDecls, par);
       for (final Pattern pattern : matchSentence.getPatterns())
       {
-         pattern.getConstraints().replaceAll(c -> c.accept(ConstraintResolver.INSTANCE, scope));
+         pattern.getConstraints().replaceAll(c -> {
+            c.setOwner(pattern);
+            return c.accept(ConstraintResolver.INSTANCE, scope);
+         });
       }
 
       return matchSentence;

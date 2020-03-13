@@ -115,7 +115,7 @@ abstract org.fulib.scenarios.ast.Node {
 			}
 		}
 
-		abstract pattern.Constraint {
+		pattern.Constraint(noconstruct owner: Pattern?) {
 			LinkConstraint(name: Name?, target: Name)
 			AttributeEqualityConstraint(name: Name?, expr: Expr)
 			AttributeConditionalConstraint(name: Name?, operator: ConditionalOperator, rhs: Expr)
