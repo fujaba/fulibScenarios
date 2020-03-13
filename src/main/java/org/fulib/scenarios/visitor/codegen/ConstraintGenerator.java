@@ -123,10 +123,9 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       for (final Pattern pattern : matchConstraint.getPatterns())
       {
          // <type> <name> = (<type>) row.get("<name>");
-         final Name name = pattern.getName();
-         final Decl decl = name.getDecl();
+         final Decl decl = pattern.getName().getDecl();
          final String type = decl.getType().accept(TypeGenerator.INSTANCE, par);
-         par.emitLine(String.format("final %s %s = (%s) row.get(\"%s\");", type, decl.getName(), type, name.getValue()));
+         par.emitLine(String.format("final %s %s = (%s) row.get(\"%s\");", type, decl.getName(), type, decl.getName()));
       }
 
       // return <expr>;
