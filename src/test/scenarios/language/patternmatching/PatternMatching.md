@@ -1,7 +1,7 @@
 # Model
 
 We call init.
-Init creates a university with name StudyRight.
+Init creates a university with name StudyRight and with 15 min-credits.
 Init creates a student with name Alice and with 20 credits.
 Init creates a student with name Bob and with 10 credits.
 StudyRight has students and is uni of Alice and Bob.
@@ -72,7 +72,7 @@ We call init and we write the answer into studyRight.
 We expect that there is some object alice2 where name matches '(?i)alice'.
 We expect that there is some object bob2 where credits is less than 15.
 
-# Simple Match Constraint
+# Match Constraint from Attribute
 
 We call init and we write the answer into studyRight.
 We match some university uni and some student alice where credits is greater than min-credits of uni.
