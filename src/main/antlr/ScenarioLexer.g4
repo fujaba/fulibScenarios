@@ -76,12 +76,14 @@ H1:           '#' -> mode(HEADLINE);
 H2:           '##' -> mode(HEADLINE);
 LINE_COMMENT: '//' -> mode(HEADLINE);
 
+fragment INDENT: {getCharPositionInLine() == 0}? [ \t\u000C]*;
+BULLET: INDENT [+*-];
+NUMBERED: INDENT [0-9]+ [.];
+
 COMMA:     [,];
 FULL_STOP: [.];
 PLUS:      [+];
 COLON:     [:];
-
-BULLET: {getCharPositionInLine() == 0}? [ \t\u000C]* '-';
 
 // --------------- Literals ---------------
 
