@@ -79,6 +79,7 @@ LINE_COMMENT: '//' -> mode(HEADLINE);
 COMMA:     [,];
 FULL_STOP: [.];
 PLUS:      [+];
+COLON:     [:];
 
 BULLET: [ \t\u000C]* '-' {getCharPositionInLine() == 0}?;
 
