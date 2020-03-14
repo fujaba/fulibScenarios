@@ -67,6 +67,7 @@ WE:       'We' | 'we';
 WITH:     'with';
 WHERE:    'where';
 WHICH:    'which';
+WHOSE:    'whose';
 WRITE:    'write';
 WRITES:   'writes';
 
