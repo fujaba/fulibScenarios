@@ -25,7 +25,10 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    @Override
    public Constraint visit(AndConstraint andConstraint, Scope par)
    {
-      andConstraint.getConstraints().replaceAll(c -> c.accept(this, par));
+      andConstraint.getConstraints().replaceAll(c -> {
+         c.setOwner(andConstraint.getOwner());
+         return c.accept(this, par);
+      });
 
       if (andConstraint.getConstraints().size() == 1)
       {
