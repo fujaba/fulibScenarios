@@ -81,7 +81,7 @@ FULL_STOP: [.];
 PLUS:      [+];
 COLON:     [:];
 
-BULLET: [ \t\u000C]* '-' {getCharPositionInLine() == 0}?;
+BULLET: {getCharPositionInLine() == 0}? [ \t\u000C]* '-';
 
 // --------------- Literals ---------------
 
