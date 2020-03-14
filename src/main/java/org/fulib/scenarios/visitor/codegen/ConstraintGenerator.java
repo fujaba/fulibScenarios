@@ -33,6 +33,13 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    }
 
    @Override
+   public Void visit(AttributeConstraint ac, CodeGenDTO par)
+   {
+      this.generateAttributeConstraint(ac.getOwner(), ac.getName(), par, s -> {});
+      return null;
+   }
+
+   @Override
    public Void visit(AttributeEqualityConstraint aec, CodeGenDTO par)
    {
       this.generateAttributeConstraint(aec.getOwner(), aec.getName(), par, patternObjectName -> {
