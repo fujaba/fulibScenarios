@@ -72,7 +72,7 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
             final VarDecl varDecl = (VarDecl) decl;
             if (varDecl.getPattern() != null)
             {
-               final LinkConstraint lc = LinkConstraint.of(aec.getName(), targetName);
+               final LinkConstraint lc = LinkConstraint.of(aec.getAttribute(), targetName);
                lc.setOwner(aec.getOwner());
                lc.setPosition(aec.getPosition());
                return lc.accept(this, par);
@@ -96,7 +96,7 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    {
       if (acc.getOperator() == ConditionalOperator.IS)
       {
-         final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(acc.getName(), acc.getRhs());
+         final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(acc.getAttribute(), acc.getRhs());
          aec.setOwner(acc.getOwner());
          aec.setPosition(acc.getPosition());
          return aec.accept(this, par);
@@ -116,7 +116,7 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
       // -> convert to match constraint
       final Pattern owner = acc.getOwner();
       // TODO error if acc.name == null
-      final Expr lhs = AttributeAccess.of(acc.getName(), NameAccess.of(owner.getName()));
+      final Expr lhs = AttributeAccess.of(acc.getAttribute(), NameAccess.of(owner.getName()));
       final Expr condExpr = ConditionalOperatorExpr.of(lhs, acc.getOperator(), resolvedRhs);
       final Expr resolvedExpr = condExpr.accept(ExprResolver.INSTANCE, par);
 

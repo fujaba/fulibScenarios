@@ -45,14 +45,14 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConstraint ac, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(ac.getOwner(), ac.getName(), par, s -> {});
+      this.generateAttributeConstraint(ac.getOwner(), ac.getAttribute(), par, s -> {});
       return null;
    }
 
    @Override
    public Void visit(AttributeEqualityConstraint aec, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(aec.getOwner(), aec.getName(), par, patternObjectName -> {
+      this.generateAttributeConstraint(aec.getOwner(), aec.getAttribute(), par, patternObjectName -> {
          par.emitIndent();
          par.emit("builder.buildEqualityConstraint(" + patternObjectName + ", ");
          aec.getExpr().accept(ExprGenerator.INSTANCE, par);
@@ -65,7 +65,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConditionalConstraint acc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(acc.getOwner(), acc.getName(), par, patternObjectName -> {
+      this.generateAttributeConstraint(acc.getOwner(), acc.getAttribute(), par, patternObjectName -> {
          final ConditionalOperator operator = acc.getOperator();
          final Type lhsType = operator.getLhsType();
          final Type wrappedLhsType = PrimitiveType.primitiveToWrapper(lhsType);
@@ -90,7 +90,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributePredicateConstraint apc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(apc.getOwner(), apc.getName(), par, patternObjectName -> {
+      this.generateAttributeConstraint(apc.getOwner(), apc.getAttribute(), par, patternObjectName -> {
          par.emitIndent();
          par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
 
