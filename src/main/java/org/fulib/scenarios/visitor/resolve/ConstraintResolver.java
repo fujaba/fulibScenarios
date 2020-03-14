@@ -23,6 +23,18 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    INSTANCE;
 
    @Override
+   public Constraint visit(AndConstraint andConstraint, Scope par)
+   {
+      andConstraint.getConstraints().replaceAll(c -> c.accept(this, par));
+
+      if (andConstraint.getConstraints().size() == 1)
+      {
+         return andConstraint.getConstraints().get(0);
+      }
+      return andConstraint;
+   }
+
+   @Override
    public Constraint visit(LinkConstraint linkConstraint, Scope par)
    {
       final Name target = linkConstraint.getTarget();
@@ -48,6 +60,8 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
       final Expr expr = aec.getExpr().accept(ExprResolver.INSTANCE, par);
       aec.setExpr(expr);
 
+      // We match some object foo and some object bar
+      // where attr of foo is bar.
       if (expr instanceof NameAccess)
       {
          final NameAccess access = (NameAccess) expr;

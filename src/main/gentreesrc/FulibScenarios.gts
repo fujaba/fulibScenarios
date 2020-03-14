@@ -116,6 +116,8 @@ abstract org.fulib.scenarios.ast.Node {
 		}
 
 		pattern.Constraint(noconstruct owner: Pattern?) {
+		   AndConstraint(constraints: [Constraint])
+
 			LinkConstraint(name: Name?, target: Name)
 			AttributeConstraint(name: Name?) {
             AttributeEqualityConstraint(name: Name?, expr: Expr)

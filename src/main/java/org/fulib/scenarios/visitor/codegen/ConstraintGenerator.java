@@ -22,6 +22,16 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    private int unknownAttributeNumber;
 
    @Override
+   public Void visit(AndConstraint andConstraint, CodeGenDTO par)
+   {
+      for (final Constraint constraint : andConstraint.getConstraints())
+      {
+         constraint.accept(this, par);
+      }
+      return null;
+   }
+
+   @Override
    public Void visit(LinkConstraint linkConstraint, CodeGenDTO par)
    {
       final String ownerName = linkConstraint.getOwner().getName().getValue();
