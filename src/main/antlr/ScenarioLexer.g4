@@ -80,6 +80,8 @@ COMMA:     [,];
 FULL_STOP: [.];
 PLUS:      [+];
 
+BULLET: [ \t\u000C]* '-' {getCharPositionInLine() == 0}?;
+
 // --------------- Literals ---------------
 
 INTEGER:        [-]? [0-9]+;
