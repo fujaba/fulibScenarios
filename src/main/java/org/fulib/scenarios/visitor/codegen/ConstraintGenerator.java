@@ -66,9 +66,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       final Type lhsType = operator.getLhsType();
 
       par.emitIndent();
-      par.emit("builder.buildAttributeConstraint(");
-      par.emit(patternObjectName);
-      par.emit(", it -> ");
+      par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
 
       final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", lhsType, null)));
       final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, operator, acc.getRhs());
