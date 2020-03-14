@@ -2,6 +2,7 @@ package org.fulib.scenarios.visitor.resolve;
 
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
+import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
@@ -11,16 +12,15 @@ import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.scope.PatternReferenceCollectingScope;
 import org.fulib.scenarios.ast.scope.Scope;
+import org.fulib.scenarios.ast.type.PrimitiveType;
+import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
+public class ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
 {
-   INSTANCE;
+   private int uniqueIndex;
 
    @Override
    public Constraint visit(AndConstraint andConstraint, Scope par)
@@ -58,10 +58,26 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    }
 
    @Override
+   public Constraint visit(AttributeConstraint attributeConstraint, Scope par)
+   {
+      this.makePattern(attributeConstraint, PrimitiveType.OBJECT);
+      return attributeConstraint;
+   }
+
+   private void makePattern(AttributeConstraint ac, Type type)
+   {
+      final Pattern owner = ac.getOwner();
+      final Name attribute = ac.getAttribute();
+      final String attributeName = attribute == null ? "Attr" + ++this.uniqueIndex : attribute.getValue();
+      final VarDecl varDecl = VarDecl.of(owner.getName().getValue() + attributeName, type, null);
+      final Pattern pattern = Pattern.of(type, ResolvedName.of(varDecl), Collections.emptyList());
+      ac.setPattern(pattern);
+   }
+
+   @Override
    public Constraint visit(AttributeEqualityConstraint aec, Scope par)
    {
       final Expr expr = aec.getExpr().accept(ExprResolver.INSTANCE, par);
-      aec.setExpr(expr);
 
       // We match some object foo and some object bar
       // where attr of foo is bar.
@@ -82,6 +98,10 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
             }
          }
       }
+
+      aec.setExpr(expr);
+
+      this.makePattern(aec, expr.getType());
 
       return aec;
    }
@@ -112,6 +132,8 @@ public enum ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
       if (patterns.isEmpty())
       {
          acc.setRhs(resolvedRhs);
+         final Type lhsType = acc.getOperator().getLhsType();
+         this.makePattern(acc, lhsType != null ? lhsType : PrimitiveType.OBJECT);
          return acc;
       }
 

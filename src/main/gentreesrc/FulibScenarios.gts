@@ -119,7 +119,7 @@ abstract org.fulib.scenarios.ast.Node {
 		   AndConstraint(constraints: [Constraint])
 
 			LinkConstraint(name: Name?, target: Name)
-			AttributeConstraint(attribute: Name?) {
+			AttributeConstraint(attribute: Name?, noconstruct pattern: Pattern) {
             AttributeEqualityConstraint(attribute: Name?, expr: Expr)
             AttributeConditionalConstraint(attribute: Name?, operator: ConditionalOperator, rhs: Expr)
             AttributePredicateConstraint(attribute: Name?, predicate: PredicateOperator)

@@ -1,6 +1,5 @@
 package org.fulib.scenarios.visitor.codegen;
 
-import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
 
 public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 {
-   private int unknownAttributeNumber;
-
    @Override
    public Void visit(AndConstraint andConstraint, CodeGenDTO par)
    {
@@ -45,14 +42,14 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConstraint ac, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(ac.getOwner(), ac.getAttribute(), par, s -> {});
+      this.generateAttributeConstraint(ac, par, s -> {});
       return null;
    }
 
    @Override
    public Void visit(AttributeEqualityConstraint aec, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(aec.getOwner(), aec.getAttribute(), par, patternObjectName -> {
+      this.generateAttributeConstraint(aec, par, patternObjectName -> {
          par.emitIndent();
          par.emit("builder.buildEqualityConstraint(" + patternObjectName + ", ");
          aec.getExpr().accept(ExprGenerator.INSTANCE, par);
@@ -65,7 +62,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConditionalConstraint acc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(acc.getOwner(), acc.getAttribute(), par, patternObjectName -> {
+      this.generateAttributeConstraint(acc, par, patternObjectName -> {
          final ConditionalOperator operator = acc.getOperator();
          final Type lhsType = operator.getLhsType();
          final Type wrappedLhsType = PrimitiveType.primitiveToWrapper(lhsType);
@@ -90,7 +87,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributePredicateConstraint apc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(apc.getOwner(), apc.getAttribute(), par, patternObjectName -> {
+      this.generateAttributeConstraint(apc, par, patternObjectName -> {
          par.emitIndent();
          par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
 
@@ -104,23 +101,13 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       return null;
    }
 
-   private void generateAttributeConstraint(Pattern owner, Name attributeName, CodeGenDTO gen,
-      Consumer<? super String> poName)
+   private void generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen, Consumer<? super String> poName)
    {
-      final String ownerName = owner.getName().getValue();
-      final String attributeNameValue;
-      final String patternObjectName;
+      final String ownerName = ac.getOwner().getName().getValue();
+      final Name attribute = ac.getAttribute();
+      final String attributeNameValue = attribute == null ? "*" : attribute.getValue();
 
-      if (attributeName == null)
-      {
-         attributeNameValue = "*";
-         patternObjectName = ownerName + "Attr" + ++this.unknownAttributeNumber;
-      }
-      else
-      {
-         attributeNameValue = attributeName.getValue();
-         patternObjectName = ownerName + StrUtil.cap(attributeNameValue);
-      }
+      final String patternObjectName = ac.getPattern().getName().getValue();
 
       gen.emitLine(
          "final PatternObject " + patternObjectName + " = builder.buildPatternObject(\"" + patternObjectName + "\");");
