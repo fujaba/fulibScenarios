@@ -2,10 +2,7 @@ package org.fulib.scenarios.visitor.codegen;
 
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
-import org.fulib.scenarios.ast.decl.ResolvedName;
-import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
-import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -60,19 +57,10 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConditionalConstraint acc, CodeGenDTO par)
    {
-      final String patternObjectName = this.generateAttributeConstraint(acc, par);
-
-      final Type lhsType = acc.getPattern().getType();
-      final String lhsTypeStr = lhsType.accept(TypeGenerator.INSTANCE, par);
-
-      par.emitIndent();
-      par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", (" + lhsTypeStr + " it) -> ");
-
-      final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", lhsType, null)));
+      final Expr it = NameAccess.of(acc.getPattern().getName());
       final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, acc.getOperator(), acc.getRhs());
-      condOpExpr.accept(ExprGenerator.INSTANCE, par);
 
-      par.emit(");\n");
+      this.generateAttributeConstraint(acc, condOpExpr, par);
 
       return null;
    }
@@ -80,19 +68,25 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributePredicateConstraint apc, CodeGenDTO par)
    {
-      final String patternObjectName = this.generateAttributeConstraint(apc, par);
-      final String typeStr = apc.getPattern().getType().accept(TypeGenerator.INSTANCE, par);
-
-      par.emitIndent();
-      par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", (" + typeStr + " it) -> ");
-
-      final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", null, null)));
+      final Expr it = NameAccess.of(apc.getPattern().getName());
       final PredicateOperatorExpr predOpExpr = PredicateOperatorExpr.of(it, apc.getPredicate());
-      predOpExpr.accept(ExprGenerator.INSTANCE, par);
 
-      par.emit(");\n");
+      this.generateAttributeConstraint(apc, predOpExpr, par);
 
       return null;
+   }
+
+   private void generateAttributeConstraint(AttributeConstraint ac, Expr expr, CodeGenDTO gen)
+   {
+      final String patternObjectName = this.generateAttributeConstraint(ac, gen);
+      final Pattern pattern = ac.getPattern();
+      final String name = pattern.getName().getValue();
+      final String typeStr = pattern.getType().accept(TypeGenerator.INSTANCE, gen);
+
+      gen.emitIndent();
+      gen.emit("builder.buildAttributeConstraint(" + patternObjectName + ", (" + typeStr + " " + name + ") -> ");
+      expr.accept(ExprGenerator.INSTANCE, gen);
+      gen.emit(");\n");
    }
 
    private String generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen)
