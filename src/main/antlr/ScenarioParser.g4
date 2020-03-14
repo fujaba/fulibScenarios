@@ -108,7 +108,7 @@ diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 
 // Matching
 
-matchSentence: actor verb=(MATCH | MATCHES) patternObject (sep patternObject)*;
+matchSentence: actor verb=(MATCH | MATCHES) (patternObject (sep patternObject)* | COLON (BULLET patternObject)*);
 patternExpectSentence: WE EXPECT THAT THERE IS patternObject (sep patternObject)*;
 
 // --------------- Patterns & Constraints ---------------
