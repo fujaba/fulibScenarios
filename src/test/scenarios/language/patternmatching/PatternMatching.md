@@ -75,7 +75,8 @@ We expect that there is some object bob2 where credits is less than 15.
 # Match Constraint from Attribute
 
 We call init and we write the answer into studyRight.
-We match some university uni and some student alice where credits is greater than min-credits of uni.
+We match some university uni1 and some student alice1 where credits is greater than min-credits of uni1.
+We match some university uni2 and some student alice2 where some attribute is greater than min-credits of uni2.
 
 # Match Constraint
 
