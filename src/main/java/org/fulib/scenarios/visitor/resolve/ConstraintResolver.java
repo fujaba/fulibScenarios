@@ -15,6 +15,7 @@ import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
+import org.fulib.scenarios.diagnostic.Position;
 
 import java.util.*;
 
@@ -60,7 +61,10 @@ public class ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    @Override
    public Constraint visit(AttributeConstraint attributeConstraint, Scope par)
    {
-      this.makePattern(attributeConstraint, PrimitiveType.OBJECT);
+      if (attributeConstraint.getPattern() == null)
+      {
+         this.makePattern(attributeConstraint, PrimitiveType.OBJECT);
+      }
       return attributeConstraint;
    }
 
@@ -117,42 +121,64 @@ public class ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
    @Override
    public Constraint visit(AttributeConditionalConstraint acc, Scope par)
    {
-      if (acc.getOperator() == ConditionalOperator.IS)
+      final Pattern owner = acc.getOwner();
+      final Position position = acc.getPosition();
+      final Name attribute = acc.getAttribute();
+      final Expr rhs = acc.getRhs();
+      final ConditionalOperator operator = acc.getOperator();
+
+      if (operator == ConditionalOperator.IS)
       {
-         final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(acc.getAttribute(), acc.getRhs());
-         aec.setOwner(acc.getOwner());
-         aec.setPosition(acc.getPosition());
+         final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(attribute, rhs);
+         aec.setOwner(owner);
+         aec.setPosition(position);
          return aec.accept(this, par);
       }
 
       final Set<Pattern> patterns = new HashSet<>();
       final Scope scope = new PatternReferenceCollectingScope(par, patterns);
-      final Expr resolvedRhs = acc.getRhs().accept(ExprResolver.INSTANCE, scope);
+      final Expr resolvedRhs = rhs.accept(ExprResolver.INSTANCE, scope);
+      final Type nullableLhsType = operator.getLhsType();
+      final Type lhsType = nullableLhsType != null ? nullableLhsType : PrimitiveType.OBJECT;
 
       if (patterns.isEmpty())
       {
          acc.setRhs(resolvedRhs);
-         final Type lhsType = acc.getOperator().getLhsType();
-         this.makePattern(acc, lhsType != null ? lhsType : PrimitiveType.OBJECT);
+
+         this.makePattern(acc, lhsType);
          return acc;
       }
 
       // the rhs references a pattern object
-      // -> convert to match constraint
-      final Pattern owner = acc.getOwner();
-      // TODO error if acc.name == null
-      final Expr lhs = AttributeAccess.of(acc.getAttribute(), NameAccess.of(owner.getName()));
-      final Expr condExpr = ConditionalOperatorExpr.of(lhs, acc.getOperator(), resolvedRhs);
-      final Expr resolvedExpr = condExpr.accept(ExprResolver.INSTANCE, par);
+      // -> convert to a generic attribute constraint followed by a match constraint
 
-      final List<Pattern> patternList = new ArrayList<>();
-      patternList.add(owner);
-      patternList.addAll(patterns);
+      final AttributeConstraint ac = AttributeConstraint.of(attribute);
+      ac.setOwner(owner);
+      ac.setPosition(position);
+      this.makePattern(ac, lhsType);
 
-      final MatchConstraint matchConstraint = MatchConstraint.of(resolvedExpr, patternList);
+      final Expr lhs = NameAccess.of(ac.getPattern().getName());
+      lhs.setPosition(position);
+
+      final Expr condExpr = ConditionalOperatorExpr.of(lhs, operator, resolvedRhs).accept(ExprResolver.INSTANCE, par);
+      condExpr.setPosition(position);
+
+      final MatchConstraint matchConstraint = MatchConstraint.of(condExpr, prepend(ac.getPattern(), patterns));
       matchConstraint.setOwner(owner);
-      matchConstraint.setPosition(acc.getPosition());
-      return matchConstraint;
+      matchConstraint.setPosition(position);
+
+      final AndConstraint andConstraint = AndConstraint.of(Arrays.asList(ac, matchConstraint));
+      andConstraint.setOwner(owner);
+      andConstraint.setPosition(position);
+      return andConstraint;
+   }
+
+   private static List<Pattern> prepend(Pattern pattern, Collection<Pattern> patterns)
+   {
+      final List<Pattern> result = new ArrayList<>(1 + patterns.size());
+      result.add(pattern);
+      result.addAll(patterns);
+      return result;
    }
 
    @Override
