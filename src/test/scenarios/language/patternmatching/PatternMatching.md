@@ -83,3 +83,13 @@ We match some university uni2 and some student alice2 where some attribute is gr
 We call init and we write the answer into studyRight.
 We match some university uni and some student alice
 where credits of alice is greater than min-credits of uni and min-credits of uni is greater than 0.
+
+# Bullet List
+
+We call init and we write the answer into studyRight.
+
+We match:
+- some object uni
+- some object alice with some link to uni
+- some object bob with some link to uni
+.
