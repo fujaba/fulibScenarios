@@ -7,6 +7,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
+import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 
 import java.util.stream.Collectors;
@@ -117,8 +118,14 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
          final String varName = "_" + poName;
          decl.setName(varName);
 
-         final String type = decl.getType().accept(TypeGenerator.INSTANCE, par);
-         par.emitLine(String.format("final %s %s = (%s) row.get(\"%s\");", type, varName, type, poName));
+         Type type = decl.getType();
+         if (type instanceof ListType)
+         {
+            type = ((ListType) type).getElementType();
+         }
+
+         final String typeStr = type.accept(TypeGenerator.INSTANCE, par);
+         par.emitLine(String.format("final %s %s = (%s) row.get(\"%s\");", typeStr, varName, typeStr, poName));
       }
 
       // return <expr>;
