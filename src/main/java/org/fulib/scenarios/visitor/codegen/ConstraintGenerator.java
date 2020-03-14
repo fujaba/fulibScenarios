@@ -10,10 +10,8 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.*;
-import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
@@ -42,19 +40,19 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConstraint ac, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(ac, par, s -> {});
+      this.generateAttributeConstraint(ac, par);
       return null;
    }
 
    @Override
    public Void visit(AttributeEqualityConstraint aec, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(aec, par, patternObjectName -> {
-         par.emitIndent();
-         par.emit("builder.buildEqualityConstraint(" + patternObjectName + ", ");
-         aec.getExpr().accept(ExprGenerator.INSTANCE, par);
-         par.emit(");\n");
-      });
+      final String patternObjectName = this.generateAttributeConstraint(aec, par);
+
+      par.emitIndent();
+      par.emit("builder.buildEqualityConstraint(" + patternObjectName + ", ");
+      aec.getExpr().accept(ExprGenerator.INSTANCE, par);
+      par.emit(");\n");
 
       return null;
    }
@@ -62,21 +60,21 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConditionalConstraint acc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(acc, par, patternObjectName -> {
-         final ConditionalOperator operator = acc.getOperator();
-         final Type lhsType = operator.getLhsType();
+      final String patternObjectName = this.generateAttributeConstraint(acc, par);
 
-         par.emitIndent();
-         par.emit("builder.buildAttributeConstraint(");
-         par.emit(patternObjectName);
-         par.emit(", it -> ");
+      final ConditionalOperator operator = acc.getOperator();
+      final Type lhsType = operator.getLhsType();
 
-         final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", lhsType, null)));
-         final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, operator, acc.getRhs());
-         condOpExpr.accept(ExprGenerator.INSTANCE, par);
+      par.emitIndent();
+      par.emit("builder.buildAttributeConstraint(");
+      par.emit(patternObjectName);
+      par.emit(", it -> ");
 
-         par.emit(");\n");
-      });
+      final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", lhsType, null)));
+      final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, operator, acc.getRhs());
+      condOpExpr.accept(ExprGenerator.INSTANCE, par);
+
+      par.emit(");\n");
 
       return null;
    }
@@ -84,21 +82,21 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributePredicateConstraint apc, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(apc, par, patternObjectName -> {
-         par.emitIndent();
-         par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
+      final String patternObjectName = this.generateAttributeConstraint(apc, par);
 
-         final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", null, null)));
-         final PredicateOperatorExpr predOpExpr = PredicateOperatorExpr.of(it, apc.getPredicate());
-         predOpExpr.accept(ExprGenerator.INSTANCE, par);
+      par.emitIndent();
+      par.emit("builder.buildAttributeConstraint(" + patternObjectName + ", it -> ");
 
-         par.emit(");\n");
-      });
+      final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", null, null)));
+      final PredicateOperatorExpr predOpExpr = PredicateOperatorExpr.of(it, apc.getPredicate());
+      predOpExpr.accept(ExprGenerator.INSTANCE, par);
+
+      par.emit(");\n");
 
       return null;
    }
 
-   private void generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen, Consumer<? super String> poName)
+   private String generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen)
    {
       final String ownerName = ac.getOwner().getName().getValue();
       final Name attribute = ac.getAttribute();
@@ -106,10 +104,10 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 
       final String patternObjectName = SentenceGenerator.generatePO(ac.getPattern(), gen);
 
-      poName.accept(patternObjectName + "PO");
-
       gen.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, attributeNameValue,
                                  patternObjectName));
+
+      return patternObjectName + "PO";
    }
 
    @Override
