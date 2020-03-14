@@ -185,7 +185,7 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitMatchSentence(ScenarioParser.MatchSentenceContext ctx)
    {
       final Name actor = name(ctx.actor().name());
-      final List<Pattern> patterns = this.pop(Pattern.class, ctx.patternObject().size());
+      final List<Pattern> patterns = this.pop(Pattern.class, ctx.patternObjects().patternObject().size());
       final MatchSentence matchSentence = MatchSentence.of(actor, patterns);
       matchSentence.setPosition(position(ctx.verb));
       this.stack.push(matchSentence);
