@@ -240,7 +240,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name name = name(ctx.name());
       final PredicateOperator predOp = predicateOperator(ctx.predOp());
       final AttributePredicateConstraint apc = AttributePredicateConstraint.of(name, predOp);
-      apc.setPosition(position(ctx.WHERE()));
+      apc.setPosition(position(ctx.pos));
       this.stack.push(apc);
    }
 
@@ -251,7 +251,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name name = name(ctx.name());
       final ConditionalOperator condOp = conditionalOperator(ctx.condOp());
       final AttributeConditionalConstraint acc = AttributeConditionalConstraint.of(name, condOp, rhs);
-      acc.setPosition(position(ctx.WHERE()));
+      acc.setPosition(position(ctx.pos));
       this.stack.push(acc);
    }
 

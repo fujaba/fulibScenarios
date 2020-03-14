@@ -17,7 +17,7 @@ Init answers with StudyRight.
 We call init and we write the answer into studyRight.
 
 We expect that there is some object c20 with 20 credits.
-We expect that there is some object c10 where credits is 10.
+We expect that there is some object c10 whose credits is 10.
 
 # Unknown Attribute
 
@@ -29,7 +29,7 @@ We expect that there is some object sr1 where some attribute is 'StudyRight'.
 
 We call init and we write the answer into studyRight.
 
-We match all objects studis where name matches '.*'.
+We match all objects studis whose name matches '.*'.
 
 We take a student from students of studyRight and we expect that studis contains student.
 
@@ -69,13 +69,13 @@ We expect that sr4 is studyRight.
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some object alice2 where name matches '(?i)alice'.
-We expect that there is some object bob2 where credits is less than 15.
+We expect that there is some object alice2 whose name matches '(?i)alice'.
+We expect that there is some object bob2 whose credits is less than 15.
 
 # Match Constraint from Attribute
 
 We call init and we write the answer into studyRight.
-We match some university uni1 and some student alice1 where credits is greater than min-credits of uni1.
+We match some university uni1 and some student alice1 whose credits is greater than min-credits of uni1.
 We match some university uni2 and some student alice2 where some attribute is greater than min-credits of uni2.
 
 # Match Constraint
