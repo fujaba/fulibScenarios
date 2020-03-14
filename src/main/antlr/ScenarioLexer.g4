@@ -76,9 +76,8 @@ H1:           '#' -> mode(HEADLINE);
 H2:           '##' -> mode(HEADLINE);
 LINE_COMMENT: '//' -> mode(HEADLINE);
 
-fragment INDENT: {getCharPositionInLine() == 0}? [ \t\u000C]*;
-BULLET: INDENT [+*-];
-NUMBERED: INDENT [0-9]+ [.];
+BULLET: [ \t\u000C]* [+*-] {getCharPositionInLine() == getText().length()}?;
+NUMBERED: [ \t\u000C]* [0-9]+ [.] {getCharPositionInLine() == getText().length()}?;
 
 COMMA:     [,];
 FULL_STOP: [.];
