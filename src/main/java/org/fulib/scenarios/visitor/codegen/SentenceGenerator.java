@@ -139,6 +139,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       if (type != PrimitiveType.OBJECT)
       {
+         type = PrimitiveType.primitiveToWrapper(type);
          par.emitLine("builder.buildInstanceOfConstraint(" + name + "PO, " + type.accept(TypeGenerator.INSTANCE, par)
                       + ".class);");
       }
