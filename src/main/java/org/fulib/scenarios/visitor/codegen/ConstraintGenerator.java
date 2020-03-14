@@ -107,10 +107,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       final Name attribute = ac.getAttribute();
       final String attributeNameValue = attribute == null ? "*" : attribute.getValue();
 
-      final String patternObjectName = ac.getPattern().getName().getValue();
-
-      gen.emitLine(
-         "final PatternObject " + patternObjectName + "PO = builder.buildPatternObject(\"" + patternObjectName + "\");");
+      final String patternObjectName = SentenceGenerator.generatePO(ac.getPattern(), gen);
 
       poName.accept(patternObjectName + "PO");
 

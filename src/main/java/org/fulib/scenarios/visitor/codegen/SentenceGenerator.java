@@ -83,10 +83,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       // POs and constraints
       for (final Pattern pattern : patterns)
       {
-         final String name = pattern.getName().getValue();
-         par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
-
-         this.generateInstanceOfConstraint(pattern, par);
+         generatePO(pattern, par);
 
          final ConstraintGenerator gen = new ConstraintGenerator();
          for (final Constraint constraint : pattern.getConstraints())
@@ -120,7 +117,17 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       return null;
    }
 
-   private void generateInstanceOfConstraint(Pattern pattern, CodeGenDTO par)
+   static String generatePO(Pattern pattern, CodeGenDTO par)
+   {
+      final String name = pattern.getName().getValue();
+      par.emitLine("final PatternObject " + name + "PO = builder.buildPatternObject(\"" + name + "\");");
+
+      generateInstanceOfConstraint(pattern, par);
+
+      return name;
+   }
+
+   private static void generateInstanceOfConstraint(Pattern pattern, CodeGenDTO par)
    {
       final String name = pattern.getName().getValue();
       Type type = pattern.getType();
