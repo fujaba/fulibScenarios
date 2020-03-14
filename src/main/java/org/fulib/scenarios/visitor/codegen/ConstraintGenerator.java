@@ -65,14 +65,11 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       this.generateAttributeConstraint(acc, par, patternObjectName -> {
          final ConditionalOperator operator = acc.getOperator();
          final Type lhsType = operator.getLhsType();
-         final Type wrappedLhsType = PrimitiveType.primitiveToWrapper(lhsType);
 
          par.emitIndent();
          par.emit("builder.buildAttributeConstraint(");
          par.emit(patternObjectName);
-         par.emit(", ");
-         par.emit(wrappedLhsType.accept(TypeGenerator.INSTANCE, par));
-         par.emit(".class, it -> ");
+         par.emit(", it -> ");
 
          final Expr it = NameAccess.of(ResolvedName.of(VarDecl.of("it", lhsType, null)));
          final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, operator, acc.getRhs());
