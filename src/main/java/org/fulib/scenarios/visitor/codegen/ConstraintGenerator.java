@@ -110,11 +110,11 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       final String patternObjectName = ac.getPattern().getName().getValue();
 
       gen.emitLine(
-         "final PatternObject " + patternObjectName + " = builder.buildPatternObject(\"" + patternObjectName + "\");");
+         "final PatternObject " + patternObjectName + "PO = builder.buildPatternObject(\"" + patternObjectName + "\");");
 
-      poName.accept(patternObjectName);
+      poName.accept(patternObjectName + "PO");
 
-      gen.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %s);", ownerName, attributeNameValue,
+      gen.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, attributeNameValue,
                                  patternObjectName));
    }
 
