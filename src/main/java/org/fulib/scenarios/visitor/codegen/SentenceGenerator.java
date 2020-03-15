@@ -107,7 +107,9 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       this.generateRootObjects(matchSentence, par);
 
+      // par.emitLine("matcher.setDebugLogging(true);");
       par.emitLine("matcher.match();");
+      // par.emitLine("matcher.getDebugEvents().forEach(System.out::println);");
 
       for (final Pattern pattern : patterns)
       {
