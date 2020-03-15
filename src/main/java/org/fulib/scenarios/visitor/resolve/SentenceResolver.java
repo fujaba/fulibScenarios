@@ -228,7 +228,14 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(MatchSentence matchSentence, Scope par)
    {
-      matchSentence.setRoots(SymbolCollector.getRoots(par));
+      if (matchSentence.getRoots() == null)
+      {
+         matchSentence.setRoots(SymbolCollector.getRoots(par));
+      }
+      else
+      {
+         matchSentence.setRoots(matchSentence.getRoots().accept(ExprResolver.INSTANCE, par));
+      }
 
       final Map<String, Decl> newDecls = new HashMap<>();
       for (final Pattern pattern : matchSentence.getPatterns())
