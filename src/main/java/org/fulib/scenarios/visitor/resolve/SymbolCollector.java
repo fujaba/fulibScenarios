@@ -10,15 +10,13 @@ import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.pattern.Pattern;
+import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Object>
 {
@@ -51,7 +49,24 @@ public enum SymbolCollector implements Sentence.Visitor<Map<String, Decl>, Objec
       return getRoots(symbolTable, scenario.getFile().getGroup().getClasses());
    }
 
-   public static ListExpr getRoots(Map<String, Decl> symbolTable, Map<String, ClassDecl> classes)
+   public static Expr getRoots(Scope par)
+   {
+      final Map<String, ClassDecl> classes = new HashMap<>();
+      final Map<String, Decl> variables = new HashMap<>();
+      par.list((name, decl) -> {
+         if (decl instanceof VarDecl)
+         {
+            variables.put(name, decl);
+         }
+         else if (decl instanceof ClassDecl)
+         {
+            classes.put(name, (ClassDecl) decl);
+         }
+      });
+      return getRoots(variables, classes);
+   }
+
+   private static ListExpr getRoots(Map<String, Decl> symbolTable, Map<String, ClassDecl> classes)
    {
       if (symbolTable.isEmpty())
       {
