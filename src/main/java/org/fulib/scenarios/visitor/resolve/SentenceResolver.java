@@ -243,10 +243,14 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          pattern.setType(pattern.getType().accept(TypeResolver.INSTANCE, par));
    
          final Decl oldDecl = pattern.getName().getDecl();
-         final VarDecl varDecl;
          if (oldDecl == null)
          {
-            varDecl = VarDecl.of(pattern.getName().getValue(), pattern.getType(), null);
+            final String name = pattern.getName().getValue();
+            final Position position = pattern.getName().getPosition();
+            this.checkForExisting(par, name, position);
+
+            final VarDecl varDecl = VarDecl.of(name, pattern.getType(), null);
+            varDecl.setPosition(position);
             varDecl.setPattern(pattern);
             pattern.setName(ResolvedName.of(varDecl));
             newDecls.put(varDecl.getName(), varDecl);
@@ -444,12 +448,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          name = findUnique(name, par);
       }
 
-      final Decl existing = par.resolve(name);
-      if (existing != null)
-      {
-         par.report(error(varDecl.getPosition(), "variable.redeclaration", name)
-                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
-      }
+      final Position position = varDecl.getPosition();
+      this.checkForExisting(par, name, position);
 
       varDecl.setName(name);
 
@@ -463,6 +463,16 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          varDecl.setExpr(checkAssignment(expr, varDecl, true, par));
       }
       return isSentence;
+   }
+
+   private void checkForExisting(Scope par, String name, Position position)
+   {
+      final Decl existing = par.resolve(name);
+      if (existing != null)
+      {
+         par.report(error(position, "variable.redeclaration", name)
+                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
+      }
    }
 
    private static String findUnique(String name, Scope par)
