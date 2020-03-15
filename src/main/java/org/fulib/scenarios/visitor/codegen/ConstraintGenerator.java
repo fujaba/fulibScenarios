@@ -28,10 +28,18 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    public Void visit(LinkConstraint linkConstraint, CodeGenDTO par)
    {
       final String ownerName = linkConstraint.getOwner().getName().getValue();
-      final String linkName = linkConstraint.getName() != null ? linkConstraint.getName().getValue() : "*";
       final String targetName = linkConstraint.getTarget().getValue();
 
-      par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, linkName, targetName));
+      if (linkConstraint.getName() == null)
+      {
+         par.emitLine(String.format("builder.buildPatternLink(%sPO, %sPO);", ownerName, targetName));
+      }
+      else
+      {
+         final String linkName = linkConstraint.getName().getValue();
+         par.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, linkName, targetName));
+      }
+
       return null;
    }
 
