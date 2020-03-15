@@ -89,8 +89,8 @@ where credits of alice is greater than min-credits of uni and min-credits of uni
 We call init and we write the answer into studyRight.
 
 We match:
-+ some object uni
-* some object alice with some link to uni
-- some object bob with some link to uni
-4. some object r with some link to uni
++ some university uni
+* some student alice with some link to uni and with name 'Alice'
+- some student bob with some link to uni and with name 'Bob'
+4. some room r1 with some link to uni and with roomNo 1
 .
