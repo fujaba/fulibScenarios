@@ -80,11 +80,14 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.indentLevel++;
       par.emitLine("final PatternBuilder builder = FulibTables.patternBuilder();");
 
-      // POs and constraints
       for (final Pattern pattern : patterns)
       {
          generatePO(pattern, par);
+      }
 
+      // generate constraints after all POs to allow cross references
+      for (final Pattern pattern : patterns)
+      {
          final ConstraintGenerator gen = new ConstraintGenerator();
          for (final Constraint constraint : pattern.getConstraints())
          {
