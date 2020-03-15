@@ -175,7 +175,9 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       final String name = pattern.getName().getValue();
       if (pattern.getType() instanceof ListType)
       {
-         par.emitLine(name + " = matcher.findAll(" + name + "PO);");
+         par.addImport("java.util.ArrayList");
+
+         par.emitLine(name + " = new ArrayList<>(matcher.findAll(" + name + "PO));");
       }
       else
       {
