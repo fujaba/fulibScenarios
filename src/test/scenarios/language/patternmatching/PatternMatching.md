@@ -94,3 +94,12 @@ We match:
 - some student bob with some link to uni and with name 'Bob'
 4. some room r1 with some link to uni and with roomNo 1
 .
+
+# Explicit Roots
+
+There is a University with name Kassel.
+There is a University with name Frankfurt.
+
+// explicitly exclude Frankfurt from the match
+We match on kassel some university k.
+We expect that k is kassel.
