@@ -152,7 +152,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
             .stream()
             .map(p -> p.getName().getValue() + "PO")
             .collect(Collectors.joining(", "));
-         par.emitLine("builder.buildInequalityConstraint(" + commaSeparatedPOs + ");");
+         par.emitLine("builder.buildDistinctConstraint(" + commaSeparatedPOs + ");");
       }
    }
 
