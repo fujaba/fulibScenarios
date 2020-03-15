@@ -5,7 +5,6 @@ import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.ResolvedName;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
-import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperator;
 import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
@@ -78,6 +77,26 @@ public class ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
       ac.setPattern(pattern);
    }
 
+   static Pattern getPatternIfRef(Expr expr)
+   {
+      if (!(expr instanceof NameAccess))
+      {
+         return null;
+      }
+
+      final NameAccess access = (NameAccess) expr;
+      final Name targetName = access.getName();
+      final Decl decl = targetName.getDecl();
+
+      if (!(decl instanceof VarDecl))
+      {
+         return null;
+      }
+
+      final VarDecl varDecl = (VarDecl) decl;
+      return varDecl.getPattern();
+   }
+
    @Override
    public Constraint visit(AttributeEqualityConstraint aec, Scope par)
    {
@@ -85,22 +104,14 @@ public class ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
 
       // We match some object foo and some object bar
       // where attr of foo is bar.
-      if (expr instanceof NameAccess)
+
+      final Pattern target = getPatternIfRef(expr);
+      if (target != null)
       {
-         final NameAccess access = (NameAccess) expr;
-         final Name targetName = access.getName();
-         final Decl decl = targetName.getDecl();
-         if (decl instanceof VarDecl)
-         {
-            final VarDecl varDecl = (VarDecl) decl;
-            if (varDecl.getPattern() != null)
-            {
-               final LinkConstraint lc = LinkConstraint.of(aec.getAttribute(), targetName);
-               lc.setOwner(aec.getOwner());
-               lc.setPosition(aec.getPosition());
-               return lc.accept(this, par);
-            }
-         }
+         final LinkConstraint lc = LinkConstraint.of(aec.getAttribute(), target.getName());
+         lc.setOwner(aec.getOwner());
+         lc.setPosition(aec.getPosition());
+         return lc.accept(this, par);
       }
 
       aec.setExpr(expr);
