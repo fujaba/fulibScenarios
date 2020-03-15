@@ -249,6 +249,14 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             final Position position = pattern.getName().getPosition();
             this.checkForExisting(par, name, position);
 
+            final Decl existing = newDecls.get(name);
+            if (existing != null)
+            {
+               final Marker error = error(position, "pattern.object.duplicate", name);
+               error.note(note(existing.getPosition(), "pattern.object.first", name));
+               par.report(error);
+            }
+
             final VarDecl varDecl = VarDecl.of(name, pattern.getType(), null);
             varDecl.setPosition(position);
             varDecl.setPattern(pattern);

@@ -23,3 +23,15 @@ We match some object test2.
 error: invalid redeclaration of 'test2' [variable.redeclaration]
 perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
 -->
+
+# Duplicate Pattern Object Name
+
+We match:
+- some object test3
+<!--          ^
+note: 'test3' was first declared here [pattern.object.first]
+-->
+- some object test3.
+<!--          ^
+error: duplicate pattern object name 'test3' [pattern.object.duplicate]
+-->
