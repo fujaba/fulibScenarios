@@ -72,7 +72,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 				TakeSentence(actor: Name, varName: Name?, example: Expr, collection: Expr, body: Sentence)
 
-				MatchSentence(actor: Name, patterns: [Pattern], noconstruct scopeDecls: [String:Decl])
+				MatchSentence(actor: Name, patterns: [Pattern], roots: Expr)
 			}
 
 			ConditionalSentence(condition: Expr, body: Sentence)
