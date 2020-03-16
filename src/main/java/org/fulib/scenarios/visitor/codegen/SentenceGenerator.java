@@ -5,7 +5,6 @@ import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
-import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.pattern.Constraint;
 import org.fulib.scenarios.ast.pattern.Pattern;
@@ -13,7 +12,6 @@ import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
-import org.fulib.scenarios.visitor.resolve.SymbolCollector;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -95,15 +93,19 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          }
       }
 
-      this.generateDistinctConstraint(patterns, par);
+      final String commaSeparatedPOs = patterns
+         .stream()
+         .map(p -> p.getName().getValue() + "PO")
+         .collect(Collectors.joining(", "));
+
+      if (patterns.size() > 1)
+      {
+         par.emitLine("builder.buildDistinctConstraint(" + commaSeparatedPOs + ");");
+      }
 
       par.emitLine("final PatternMatcher matcher = FulibTables.matcher(builder.getPattern());");
 
-      // root POs
-      for (final Pattern pattern : patterns)
-      {
-         par.emitLine("matcher.withRootPatternObjects(" + pattern.getName().getValue() + "PO);");
-      }
+      par.emitLine("matcher.withRootPatternObjects(" + commaSeparatedPOs + ");");
 
       this.generateRootObjects(matchSentence, par);
 
@@ -147,18 +149,6 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          String.format("final PatternObject %sPO = builder.buildPatternObject(\"%s\"%s);", name, name, typeParam));
 
       return name;
-   }
-
-   private void generateDistinctConstraint(List<Pattern> patterns, CodeGenDTO par)
-   {
-      if (patterns.size() > 1)
-      {
-         final String commaSeparatedPOs = patterns
-            .stream()
-            .map(p -> p.getName().getValue() + "PO")
-            .collect(Collectors.joining(", "));
-         par.emitLine("builder.buildDistinctConstraint(" + commaSeparatedPOs + ");");
-      }
    }
 
    private void generateRootObjects(MatchSentence matchSentence, CodeGenDTO par)
