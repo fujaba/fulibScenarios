@@ -44,3 +44,16 @@ note: 'test3' was first declared here [pattern.object.first]
 <!--          ^
 error: duplicate pattern object name 'test3' [pattern.object.duplicate]
 -->
+
+# Illegal 'do/does not contain'
+
+There is a Game.
+There is a Player with name Alice.
+Alice has game and is one of the players of game.
+
+We match:
+- some object g whose players does not contain p1
+<!--            ^
+error: 'do/does not contain' cannot be used in pattern matching due to the way lists are handled [attribute-constraint.conditional.not-contains]
+-->
+- some object p1 where some attribute matches '[Aa]lice'.

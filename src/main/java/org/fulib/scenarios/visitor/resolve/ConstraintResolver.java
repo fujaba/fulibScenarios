@@ -136,10 +136,14 @@ public class ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
       final Position position = acc.getPosition();
       final Name attribute = acc.getAttribute();
       final Expr rhs = acc.getRhs();
-      final ConditionalOperator operator = acc.getOperator();
+      ConditionalOperator operator = acc.getOperator();
 
       switch (operator)
       {
+      case NOT_CONTAINS:
+         par.report(Marker.error(acc.getPosition(), "attribute-constraint.conditional.not-contains"));
+         break;
+      // pattern matching always flattens lists, so contains is never useful and can be replaced with is.
       case CONTAINS:
       case IS:
          final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(attribute, rhs);
