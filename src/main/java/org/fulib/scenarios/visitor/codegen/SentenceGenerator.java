@@ -153,10 +153,16 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
    private void generateRootObjects(MatchSentence matchSentence, CodeGenDTO par)
    {
+      final Expr roots = matchSentence.getRoots();
+      if (roots == null)
+      {
+         return;
+      }
+
       final String packageName = par.modelManager.getClassModel().getPackageName();
       par.emitIndent();
       par.emit("matcher.withRootObjects(new ReflectorMap(\"" + packageName + "\").discoverObjects(");
-      matchSentence.getRoots().accept(ExprGenerator.NO_LIST, par);
+      roots.accept(ExprGenerator.NO_LIST, par);
       par.emit("));\n");
    }
 
