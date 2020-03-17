@@ -138,8 +138,10 @@ public class ConstraintResolver implements Constraint.Visitor<Scope, Constraint>
       final Expr rhs = acc.getRhs();
       final ConditionalOperator operator = acc.getOperator();
 
-      if (operator == ConditionalOperator.IS)
+      switch (operator)
       {
+      case CONTAINS:
+      case IS:
          final AttributeEqualityConstraint aec = AttributeEqualityConstraint.of(attribute, rhs);
          aec.setOwner(owner);
          aec.setPosition(position);
