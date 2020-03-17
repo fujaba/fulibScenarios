@@ -1,3 +1,10 @@
+# No Roots in Scope
+
+We   match some object test1.
+<!-- ^
+error: match has no root objects - no objects are in scope or declared with 'on ...' [match.no.roots]
+-->
+
 # Link Constraint
 
 There is a LinkConstraintObj with name Test.
@@ -25,6 +32,8 @@ perhaps this name was inferred from the first attribute and you need to give thi
 -->
 
 # Duplicate Pattern Object Name
+
+There is a LinkConstraintObj.
 
 We match:
 - some object test3

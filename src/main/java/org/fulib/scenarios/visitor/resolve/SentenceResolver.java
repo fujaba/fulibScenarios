@@ -231,6 +231,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       if (matchSentence.getRoots() == null)
       {
          matchSentence.setRoots(SymbolCollector.getRoots(par));
+         if (matchSentence.getRoots() == null)
+         {
+            par.report(error(matchSentence.getPosition(), "match.no.roots"));
+         }
       }
       else
       {
@@ -241,7 +245,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       for (final Pattern pattern : matchSentence.getPatterns())
       {
          pattern.setType(pattern.getType().accept(TypeResolver.INSTANCE, par));
-   
+
          final Decl oldDecl = pattern.getName().getDecl();
          if (oldDecl == null)
          {
@@ -478,8 +482,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Decl existing = par.resolve(name);
       if (existing != null)
       {
-         par.report(error(position, "variable.redeclaration", name)
-                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
+         par.report(error(position, "variable.redeclaration", name).note(
+            note(existing.getPosition(), "variable.declaration.first", name)));
       }
    }
 
@@ -637,8 +641,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return source;
    }
 
-   private static Sentence compoundAssignment(Expr lhs, BinaryOperator operator, Expr rhs, Scope par,
-      Position position)
+   private static Sentence compoundAssignment(Expr lhs, BinaryOperator operator, Expr rhs, Scope par, Position position)
    {
       if (lhs instanceof AttributeAccess)
       {
