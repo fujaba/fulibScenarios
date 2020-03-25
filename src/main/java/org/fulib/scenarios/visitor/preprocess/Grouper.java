@@ -127,12 +127,6 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    }
 
    @Override
-   public Frame visit(MatchSentence matchSentence, Frame par)
-   {
-      return par.add(null, ACTOR_TEST, matchSentence);
-   }
-
-   @Override
    public Frame visit(DiagramSentence diagramSentence, Frame par)
    {
       return par.add(null, ACTOR_TEST, diagramSentence);
