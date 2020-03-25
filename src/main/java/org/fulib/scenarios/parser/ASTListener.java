@@ -193,15 +193,6 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitPatternExpectSentence(ScenarioParser.PatternExpectSentenceContext ctx)
-   {
-      final List<Pattern> patterns = this.pop(Pattern.class, ctx.patternObject().size());
-      final MatchSentence matchSentence = MatchSentence.of(null, patterns, null);
-      matchSentence.setPosition(position(ctx.EXPECT()));
-      this.stack.push(matchSentence);
-   }
-
-   @Override
    public void exitPatternObject(ScenarioParser.PatternObjectContext ctx)
    {
       final ScenarioParser.ConstraintsContext constraintsCtx = ctx.constraints();

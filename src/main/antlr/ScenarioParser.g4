@@ -26,7 +26,6 @@ simpleSentence: thereSentence
               | hasSentence
               | expectSentence
               | matchSentence
-              | patternExpectSentence
               | createSentence
               | callSentence
               | answerSentence
@@ -111,7 +110,6 @@ diagramSentence: IMG_START expr IMG_SEP fileName=FILE_NAME IMG_END;
 matchSentence: actor verb=(MATCH | MATCHES) (ON expr)? patternObjects;
 patternObjects: patternObject (sep patternObject)*
               | COLON ((BULLET | NUMBERED) patternObject)+;
-patternExpectSentence: WE EXPECT THAT THERE IS patternObject (sep patternObject)*;
 
 // --------------- Patterns & Constraints ---------------
 
