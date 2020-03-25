@@ -61,7 +61,8 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       final Expr it = NameAccess.of(acc.getPattern().getName());
       final ConditionalOperatorExpr condOpExpr = ConditionalOperatorExpr.of(it, acc.getOperator(), acc.getRhs());
 
-      this.generateAttributeConstraint(acc, condOpExpr, par);
+      this.generateAttributePOAndLink(acc, par);
+      this.generateAttributeConstraint(acc.getPattern(), condOpExpr, par);
 
       return null;
    }
@@ -72,15 +73,10 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       final Expr it = NameAccess.of(apc.getPattern().getName());
       final PredicateOperatorExpr predOpExpr = PredicateOperatorExpr.of(it, apc.getPredicate());
 
-      this.generateAttributeConstraint(apc, predOpExpr, par);
+      this.generateAttributePOAndLink(apc, par);
+      this.generateAttributeConstraint(apc.getPattern(), predOpExpr, par);
 
       return null;
-   }
-
-   private void generateAttributeConstraint(AttributeConstraint ac, Expr expr, CodeGenDTO gen)
-   {
-      this.generateAttributePOAndLink(ac, gen);
-      this.generateAttributeConstraint(ac.getPattern(), expr, gen);
    }
 
    private void generateAttributePOAndLink(AttributeConstraint ac, CodeGenDTO gen)
