@@ -189,10 +189,4 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    {
       return resolvedName.getDecl().getType();
    }
-
-   @Override
-   public Type visit(WildcardName wildcardName, Object par)
-   {
-      return PrimitiveType.ERROR;
-   }
 }
