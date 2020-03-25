@@ -2,7 +2,6 @@ package org.fulib.scenarios.visitor;
 
 import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.type.ClassType;
-import org.fulib.scenarios.ast.type.DynamicType;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 
@@ -28,11 +27,5 @@ public enum ExtractClassDecl implements Type.Visitor<Void, ClassDecl>
    public ClassDecl visit(ListType listType, Void par)
    {
       return listType.getElementType().accept(this, par);
-   }
-
-   @Override
-   public ClassDecl visit(DynamicType dynamicType, Void par)
-   {
-      return dynamicType.getBound().accept(this, par);
    }
 }

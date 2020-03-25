@@ -42,7 +42,6 @@ abstract org.fulib.scenarios.ast.Node {
 			ClassType(classDecl: ClassDecl)
 			ListType(elementType: Type)
 			import PrimitiveType
-			DynamicType(bound: Type)
 		}
 
 		abstract sentence.Sentence {

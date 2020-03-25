@@ -37,12 +37,6 @@ public enum TypeGenerator implements Type.Visitor<CodeGenDTO, String>, ClassDecl
       return primitiveType.getJavaName();
    }
 
-   @Override
-   public String visit(DynamicType dynamicType, CodeGenDTO par)
-   {
-      return dynamicType.getBound().accept(this, par);
-   }
-
    // --------------- ClassDecl.Visitor ---------------
 
    @Override

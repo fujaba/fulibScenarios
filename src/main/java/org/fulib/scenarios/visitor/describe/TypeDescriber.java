@@ -29,10 +29,4 @@ public enum TypeDescriber implements Type.Visitor<Void, String>
    {
       return "list of " + listType.getElementType().accept(this, par);
    }
-
-   @Override
-   public String visit(DynamicType dynamicType, Void par)
-   {
-      return "dynamic " + dynamicType.getBound().accept(this, par);
-   }
 }

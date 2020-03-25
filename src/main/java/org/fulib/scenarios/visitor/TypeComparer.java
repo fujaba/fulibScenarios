@@ -80,10 +80,4 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
       final Type elementTypeB = ((ListType) par).getElementType();
       return elementTypeA.accept(this, elementTypeB);
    }
-
-   @Override
-   public Result visit(DynamicType dynamicType, Type par)
-   {
-      return dynamicType.getBound().accept(this, par);
-   }
 }
