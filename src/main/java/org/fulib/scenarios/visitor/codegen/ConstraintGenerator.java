@@ -45,10 +45,10 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeEqualityConstraint aec, CodeGenDTO par)
    {
-      final String patternObjectName = this.generateAttributeConstraint(aec, par);
+      this.generateAttributeConstraint(aec, par);
 
       par.emitIndent();
-      par.emit("builder.buildEqualityConstraint(" + patternObjectName + ", ");
+      par.emit("builder.buildEqualityConstraint(" + aec.getPattern().getName().getValue() + "PO, ");
       aec.getExpr().accept(ExprGenerator.INSTANCE, par);
       par.emit(");\n");
 
@@ -79,31 +79,30 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 
    private void generateAttributeConstraint(AttributeConstraint ac, Expr expr, CodeGenDTO gen)
    {
-      final String patternObjectName = this.generateAttributeConstraint(ac, gen);
+      this.generateAttributeConstraint(ac, gen);
+
       final Pattern pattern = ac.getPattern();
-      final String name = pattern.getName().getValue();
+      final String patternName = pattern.getName().getValue();
       final String typeStr = pattern.getType().accept(TypeGenerator.INSTANCE, gen);
 
       gen.emitIndent();
-      gen.emit("builder.buildAttributeConstraint(" + patternObjectName + ", (" + typeStr + " " + name + ") -> ");
+      gen.emit("builder.buildAttributeConstraint(" + patternName + "PO, (" + typeStr + " " + patternName + ") -> ");
       expr.accept(ExprGenerator.INSTANCE, gen);
       gen.emit(");\n");
    }
 
-   private String generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen)
+   private void generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen)
    {
       final String ownerName = ac.getOwner().getName().getValue();
       final Name attribute = ac.getAttribute();
       final String attributeNameValue = attribute == null ? "*" : attribute.getValue();
       final Pattern pattern = ac.getPattern();
-      final String patternObjectName = pattern.getName().getValue();
+      final String patternName = pattern.getName().getValue();
 
       SentenceGenerator.generatePO(pattern, gen);
 
-      gen.emitLine(String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, attributeNameValue,
-                                 patternObjectName));
-
-      return patternObjectName + "PO";
+      gen.emitLine(
+         String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, attributeNameValue, patternName));
    }
 
    @Override
