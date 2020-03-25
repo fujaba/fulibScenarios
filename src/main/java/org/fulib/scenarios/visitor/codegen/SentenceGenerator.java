@@ -124,7 +124,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       return null;
    }
 
-   static String generatePO(Pattern pattern, CodeGenDTO par)
+   static void generatePO(Pattern pattern, CodeGenDTO par)
    {
       final String name = pattern.getName().getValue();
       Type type = pattern.getType();
@@ -147,8 +147,6 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       par.emitLine(
          String.format("final PatternObject %sPO = builder.buildPatternObject(\"%s\"%s);", name, name, typeParam));
-
-      return name;
    }
 
    private void generateRootObjects(MatchSentence matchSentence, CodeGenDTO par)
