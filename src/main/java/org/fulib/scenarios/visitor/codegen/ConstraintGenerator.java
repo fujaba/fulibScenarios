@@ -38,14 +38,14 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(AttributeConstraint ac, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(ac, par);
+      this.generateAttributePOAndLink(ac, par);
       return null;
    }
 
    @Override
    public Void visit(AttributeEqualityConstraint aec, CodeGenDTO par)
    {
-      this.generateAttributeConstraint(aec, par);
+      this.generateAttributePOAndLink(aec, par);
 
       par.emitIndent();
       par.emit("builder.buildEqualityConstraint(" + aec.getPattern().getName().getValue() + "PO, ");
@@ -79,11 +79,11 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 
    private void generateAttributeConstraint(AttributeConstraint ac, Expr expr, CodeGenDTO gen)
    {
-      this.generateAttributeConstraint(ac, gen);
+      this.generateAttributePOAndLink(ac, gen);
       this.generateAttributeConstraint(ac.getPattern(), expr, gen);
    }
 
-   private void generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen)
+   private void generateAttributePOAndLink(AttributeConstraint ac, CodeGenDTO gen)
    {
       final String ownerName = ac.getOwner().getName().getValue();
       final Name attribute = ac.getAttribute();
