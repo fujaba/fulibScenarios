@@ -246,3 +246,14 @@
 * Fixed parameters not being assigned a position, which can cause a compiler exception. #168
 * Fixed some deprecation translation keys incorrectly declaring removal in v0.9.0.
 * Fixed typo in output if >1 warnings and 0 errors are generated.
+
+# Fulib Scenarios v1.2.0
+
+## New Features
+
++ Added the `matches`/`match` conditional operators for testing strings against regular expressions. #169
++ Added Match Sentences for advanced pattern matching. #170
+
+## Bugfixes
+
+* Fixed the `is` and `is not` operators with operands of boxed primitive type generating `==` instead of `equals`. #171
