@@ -10,6 +10,7 @@ import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.Type;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
@@ -107,10 +108,12 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    @Override
    public Void visit(MatchConstraint matchConstraint, CodeGenDTO par)
    {
+      final List<Pattern> patterns = matchConstraint.getPatterns();
+
       par.emitLine("builder.buildMatchConstraint(row -> {");
 
       par.indentLevel++;
-      for (final Pattern pattern : matchConstraint.getPatterns())
+      for (final Pattern pattern : patterns)
       {
          // <type> _<name> = (<type>) row.get("<name>");
          final Decl decl = pattern.getName().getDecl();
@@ -135,7 +138,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
       par.emit(";\n");
 
       // remove leading _
-      for (final Pattern pattern : matchConstraint.getPatterns())
+      for (final Pattern pattern : patterns)
       {
          final Decl decl = pattern.getName().getDecl();
          decl.setName(decl.getName().substring(1));
@@ -143,8 +146,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 
       par.indentLevel--;
 
-      final String commaSeparatedPONames = matchConstraint
-         .getPatterns()
+      final String commaSeparatedPONames = patterns
          .stream()
          .map(p -> p.getName().getValue() + "PO")
          .collect(Collectors.joining(", "));
