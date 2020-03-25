@@ -16,14 +16,14 @@ Init answers with StudyRight.
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some object c20 with 20 credits.
-We expect that there is some object c10 whose credits is 10.
+We match some object c20 with 20 credits.
+We match some object c10 whose credits is 10.
 
 # Unknown Attribute
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some object sr1 where some attribute is 'StudyRight'.
+We match some object sr1 where some attribute is 'StudyRight'.
 
 # Multiple Results
 
@@ -37,14 +37,14 @@ We take a student from students of studyRight and we expect that studis contains
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some object r3 with roomNo 3.
-We expect that there is some object r5 where some attribute is 5.
+We match some object r3 with roomNo 3.
+We match some object r5 where some attribute is 5.
 
 # Unknown Links
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some object alice1 with name 'Alice'
+We match some object alice1 with name 'Alice'
 and some object sr2 with some link to alice1.
 
 We expect that sr2 is studyRight.
@@ -53,7 +53,7 @@ We expect that sr2 is studyRight.
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some object bob1 with name 'Bob'
+We match some object bob1 with name 'Bob'
 and some object sr3 with students bob1.
 
 We expect that sr3 is studyRight.
@@ -62,15 +62,15 @@ We expect that sr3 is studyRight.
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some university sr4.
+We match some university sr4.
 We expect that sr4 is studyRight.
 
 # Fuzzy matching
 
 We call init and we write the answer into studyRight.
 
-We expect that there is some object alice2 whose name matches '(?i)alice'.
-We expect that there is some object bob2 whose credits is less than 15.
+We match some object alice2 whose name matches '(?i)alice'.
+We match some object bob2 whose credits is less than 15.
 
 # Match Constraint from Attribute
 
