@@ -80,15 +80,7 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
    private void generateAttributeConstraint(AttributeConstraint ac, Expr expr, CodeGenDTO gen)
    {
       this.generateAttributeConstraint(ac, gen);
-
-      final Pattern pattern = ac.getPattern();
-      final String patternName = pattern.getName().getValue();
-      final String typeStr = pattern.getType().accept(TypeGenerator.INSTANCE, gen);
-
-      gen.emitIndent();
-      gen.emit("builder.buildAttributeConstraint(" + patternName + "PO, (" + typeStr + " " + patternName + ") -> ");
-      expr.accept(ExprGenerator.INSTANCE, gen);
-      gen.emit(");\n");
+      this.generateAttributeConstraint(ac.getPattern(), expr, gen);
    }
 
    private void generateAttributeConstraint(AttributeConstraint ac, CodeGenDTO gen)
@@ -103,6 +95,17 @@ public class ConstraintGenerator implements Constraint.Visitor<CodeGenDTO, Void>
 
       gen.emitLine(
          String.format("builder.buildPatternLink(%sPO, \"%s\", %sPO);", ownerName, attributeNameValue, patternName));
+   }
+
+   private void generateAttributeConstraint(Pattern pattern, Expr expr, CodeGenDTO gen)
+   {
+      final String patternName = pattern.getName().getValue();
+      final String typeStr = pattern.getType().accept(TypeGenerator.INSTANCE, gen);
+
+      gen.emitIndent();
+      gen.emit("builder.buildAttributeConstraint(" + patternName + "PO, (" + typeStr + " " + patternName + ") -> ");
+      expr.accept(ExprGenerator.INSTANCE, gen);
+      gen.emit(");\n");
    }
 
    @Override
