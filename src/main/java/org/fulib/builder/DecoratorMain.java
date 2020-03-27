@@ -10,9 +10,14 @@ public class DecoratorMain
 {
    public static void decorate(ClassModelManager manager, Set<String> decoratorClassNames)
    {
+      decorate(manager, getDecoratorClasses(decoratorClassNames));
+   }
+
+   public static void decorate(ClassModelManager manager, List<Class<? extends ClassModelDecorator>> decoratorClasses)
+   {
       final String packageName = manager.getClassModel().getPackageName();
-      final List<Class<? extends ClassModelDecorator>> decoratorClasses = getDecoratorClasses(packageName,
-                                                                                              decoratorClassNames);
+      final List<Class<? extends ClassModelDecorator>> filteredDecoratorClasses = getDecoratorClasses(packageName,
+                                                                                                      decoratorClasses);
 
       RuntimeException failure = null;
 
