@@ -5,6 +5,7 @@ import org.fulib.FulibTools;
 import org.fulib.Generator;
 import org.fulib.TablesGenerator;
 import org.fulib.builder.ClassModelManager;
+import org.fulib.builder.DecoratorMain;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.CompilationContext;
@@ -139,6 +140,8 @@ public enum CodeGenerator
       {
          classDecl.accept(DeclGenerator.INSTANCE, par);
       }
+
+      DecoratorMain.decorate(par.modelManager, par.config.getDecoratorClasses());
 
       if (par.config.isClassDiagram())
       {
