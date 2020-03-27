@@ -102,7 +102,8 @@ public enum CodeGenerator
 
       par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
-      this.generateModel(scenarioGroup, par, modelDir, packageDir);
+      this.generateModel(scenarioGroup, par);
+      this.dumpClassDiagrams(par, modelDir, testDir);
 
       if (par.config.isGenerateTables())
       {
@@ -142,7 +143,7 @@ public enum CodeGenerator
       }
    }
 
-   private void generateModel(ScenarioGroup scenarioGroup, CodeGenDTO par, String modelDir, String packageDir)
+   private void generateModel(ScenarioGroup scenarioGroup, CodeGenDTO par)
    {
       for (ClassDecl classDecl : scenarioGroup.getClasses().values())
       {
@@ -150,7 +151,10 @@ public enum CodeGenerator
       }
 
       DecoratorMain.decorate(par.modelManager, par.decoratorClasses);
+   }
 
+   private void dumpClassDiagrams(CodeGenDTO par, String modelDir, String packageDir)
+   {
       if (par.config.isClassDiagram())
       {
          FulibTools.classDiagrams()
