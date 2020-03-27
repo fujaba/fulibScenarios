@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DecoratorMain
 {
@@ -41,6 +42,12 @@ public class DecoratorMain
    private static List<Class<? extends ClassModelDecorator>> getDecoratorClasses(String packageName,
       Set<String> decoratorClassNames)
    {
+      return getDecoratorClasses(packageName, getDecoratorClasses(decoratorClassNames));
+   }
+
+   private static List<Class<? extends ClassModelDecorator>> getDecoratorClasses(String packageName,
+      List<Class<? extends ClassModelDecorator>> decoratorClasses)
+   {
       final Package thePackage = Package.getPackage(packageName);
       final ClassModelDecorators decorators = thePackage.getAnnotation(ClassModelDecorators.class);
       if (decorators != null)
@@ -48,6 +55,11 @@ public class DecoratorMain
          return Arrays.asList(decorators.value());
       }
 
+      return decoratorClasses.stream().filter(c -> c.getPackage().equals(thePackage)).collect(Collectors.toList());
+   }
+
+   public static List<Class<? extends ClassModelDecorator>> getDecoratorClasses(Set<String> decoratorClassNames)
+   {
       final List<Class<? extends ClassModelDecorator>> result = new ArrayList<>();
       for (String decoratorClassName : decoratorClassNames)
       {
@@ -61,9 +73,7 @@ public class DecoratorMain
             continue;
          }
 
-         final boolean isSamePackage = thePackage.equals(decoratorClass.getPackage());
-         final boolean isDecoratorSubclass = ClassModelDecorator.class.isAssignableFrom(decoratorClass);
-         if (isSamePackage && isDecoratorSubclass)
+         if (ClassModelDecorator.class.isAssignableFrom(decoratorClass))
          {
             result.add((Class<? extends ClassModelDecorator>) decoratorClass);
          }
