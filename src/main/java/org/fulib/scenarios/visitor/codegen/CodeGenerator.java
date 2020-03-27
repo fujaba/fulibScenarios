@@ -111,7 +111,7 @@ public enum CodeGenerator
 
       par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
-      this.generateModel(scenarioGroup, par);
+      this.populateModel(scenarioGroup, par);
       this.dumpClassDiagrams(par.modelManager, par.config);
 
       if (par.config.isGenerateTables())
@@ -124,7 +124,7 @@ public enum CodeGenerator
       {
          // model and test share the same output directory, so they have to share a class model.
 
-         this.generateTests(scenarioGroup, par);
+         this.populateTests(scenarioGroup, par);
 
          new Generator().generate(par.modelManager.getClassModel());
 
@@ -137,14 +137,14 @@ public enum CodeGenerator
 
       par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
 
-      this.generateTests(scenarioGroup, par);
+      this.populateTests(scenarioGroup, par);
 
       new Generator().generate(par.modelManager.getClassModel());
 
       return null;
    }
 
-   private void generateTests(ScenarioGroup scenarioGroup, CodeGenDTO par)
+   private void populateTests(ScenarioGroup scenarioGroup, CodeGenDTO par)
    {
       for (final ScenarioFile file : scenarioGroup.getFiles().values())
       {
@@ -152,7 +152,7 @@ public enum CodeGenerator
       }
    }
 
-   private void generateModel(ScenarioGroup scenarioGroup, CodeGenDTO par)
+   private void populateModel(ScenarioGroup scenarioGroup, CodeGenDTO par)
    {
       for (ClassDecl classDecl : scenarioGroup.getClasses().values())
       {
