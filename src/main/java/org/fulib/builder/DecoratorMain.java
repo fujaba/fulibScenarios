@@ -49,13 +49,19 @@ public class DecoratorMain
       List<Class<? extends ClassModelDecorator>> decoratorClasses)
    {
       final Package thePackage = Package.getPackage(packageName);
-      final ClassModelDecorators decorators = thePackage.getAnnotation(ClassModelDecorators.class);
-      if (decorators != null)
+      if (thePackage != null)
       {
-         return Arrays.asList(decorators.value());
+         final ClassModelDecorators decorators = thePackage.getAnnotation(ClassModelDecorators.class);
+         if (decorators != null)
+         {
+            return Arrays.asList(decorators.value());
+         }
       }
 
-      return decoratorClasses.stream().filter(c -> c.getPackage().equals(thePackage)).collect(Collectors.toList());
+      return decoratorClasses
+         .stream()
+         .filter(c -> packageName.equals(c.getPackage().getName()))
+         .collect(Collectors.toList());
    }
 
    public static List<Class<? extends ClassModelDecorator>> getDecoratorClasses(Set<String> decoratorClassNames)
