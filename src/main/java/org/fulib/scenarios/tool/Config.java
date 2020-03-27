@@ -23,6 +23,8 @@ public class Config
       this.imports.add("org.fulib.mockups");
    }
 
+   private Set<String> decoratorClasses = new TreeSet<>();
+
    private boolean generateTables;
 
    private boolean classDiagram;
@@ -68,6 +70,11 @@ public class Config
    public Set<String> getImports()
    {
       return this.imports;
+   }
+
+   public Set<String> getDecoratorClasses()
+   {
+      return this.decoratorClasses;
    }
 
    public boolean isGenerateTables()
@@ -153,6 +160,12 @@ public class Config
       imports.setValueSeparator(',');
       options.addOption(imports);
 
+      final Option decoratorClasses = new Option(null, "decorator-classes", true,
+                                        "a list of decorator classes, separated by ','.");
+      decoratorClasses.setArgs(Option.UNLIMITED_VALUES);
+      decoratorClasses.setValueSeparator(',');
+      options.addOption(decoratorClasses);
+
       options.addOption(new Option(null, "tables", false, "generate table classes for the model"));
 
       options.addOption(new Option(null, "class-diagram", false, "generate class diagram as .png into model folder"));
@@ -191,6 +204,12 @@ public class Config
       if (imports != null)
       {
          Collections.addAll(this.imports, imports);
+      }
+
+      final String[] decoratorClasses = cmd.getOptionValues("decorator-classes");
+      if (decoratorClasses != null)
+      {
+         Collections.addAll(this.decoratorClasses, decoratorClasses);
       }
    }
 }
