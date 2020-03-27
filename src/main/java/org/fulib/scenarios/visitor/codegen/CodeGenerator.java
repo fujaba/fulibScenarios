@@ -38,36 +38,37 @@ public enum CodeGenerator
    // --------------- CompilationContext.Visitor ---------------
 
    @Override
-   public Object visit(CompilationContext compilationContext, Object par)
+   public Object visit(CompilationContext context, Object par)
    {
-      if (compilationContext.getConfig().isDryRun())
+      final Config config = context.getConfig();
+      if (config.isDryRun())
       {
          return null;
       }
 
       final List<Class<? extends ClassModelDecorator>> decoratorClasses = DecoratorMain.getDecoratorClasses(
-         compilationContext.getConfig().getDecoratorClasses());
+         config.getDecoratorClasses());
 
-      compilationContext.getGroups().values().parallelStream().forEach(it -> {
+      context.getGroups().values().parallelStream().forEach(it -> {
          final CodeGenDTO dto = new CodeGenDTO();
-         dto.config = compilationContext.getConfig();
+         dto.config = config;
          dto.decoratorClasses = decoratorClasses;
          it.accept(this, dto);
       });
 
-      final Set<String> otherPackageNames = this.getOtherPackageNames(compilationContext, decoratorClasses);
+      final Set<String> otherPackageNames = this.getOtherPackageNames(context, decoratorClasses);
 
       for (final String packageName : otherPackageNames)
       {
          final ClassModelManager manager = new ClassModelManager();
-         manager.haveMainJavaDir(compilationContext.getConfig().getModelDir());
+         manager.haveMainJavaDir(config.getModelDir());
          manager.havePackageName(packageName);
 
          DecoratorMain.decorate(manager, decoratorClasses);
 
-         this.dumpClassDiagrams(manager, compilationContext.getConfig());
+         this.dumpClassDiagrams(manager, config);
 
-         if (compilationContext.getConfig().isGenerateTables())
+         if (config.isGenerateTables())
          {
             new TablesGenerator().generate(manager.getClassModel());
          }
