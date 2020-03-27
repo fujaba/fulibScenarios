@@ -4,6 +4,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.FulibTools;
 import org.fulib.Generator;
 import org.fulib.TablesGenerator;
+import org.fulib.builder.ClassModelDecorator;
 import org.fulib.builder.ClassModelManager;
 import org.fulib.builder.DecoratorMain;
 import org.fulib.classmodel.Clazz;
@@ -41,9 +42,13 @@ public enum CodeGenerator
          return null;
       }
 
+      final List<Class<? extends ClassModelDecorator>> decoratorClasses = DecoratorMain.getDecoratorClasses(
+         compilationContext.getConfig().getDecoratorClasses());
+
       compilationContext.getGroups().values().parallelStream().forEach(it -> {
          final CodeGenDTO dto = new CodeGenDTO();
          dto.config = compilationContext.getConfig();
+         dto.decoratorClasses = decoratorClasses;
          it.accept(this, dto);
       });
       return null;
@@ -141,7 +146,7 @@ public enum CodeGenerator
          classDecl.accept(DeclGenerator.INSTANCE, par);
       }
 
-      DecoratorMain.decorate(par.modelManager, par.config.getDecoratorClasses());
+      DecoratorMain.decorate(par.modelManager, par.decoratorClasses);
 
       if (par.config.isClassDiagram())
       {
@@ -260,6 +265,7 @@ class CodeGenDTO
 
    // set or null depending on the level we are generating
    Config            config;
+   List<Class<? extends ClassModelDecorator>> decoratorClasses;
    ScenarioGroup     group;
    Scenario scenario;
    ClassModelManager modelManager;
