@@ -51,7 +51,9 @@ repositories {
 }
 ```
 
-Add the `fulibScenarios` and `fulibMockups` dependencies:
+Specify the version by adding the `fulibScenarios` dependency.
+If you want to use mockup functionality, add the `fulibMockups` test dependency.
+Pattern matching requires `fulibTables`.
 
 ```groovy
 dependencies {
@@ -60,8 +62,13 @@ dependencies {
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
     fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.1.0'
 
+    // optional (required for mockups):
     // https://mvnrepository.com/artifact/org.fulib/fulibMockups
     testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.2.0'
+
+    // optional (required for pattern matching):
+    // https://mvnrepository.com/artifact/org.fulib/fulibTables
+    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.3.0'
 }
 ```
 
