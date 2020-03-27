@@ -65,6 +65,13 @@ public enum CodeGenerator
 
          DecoratorMain.decorate(manager, decoratorClasses);
 
+         this.dumpClassDiagrams(manager, compilationContext.getConfig());
+
+         if (compilationContext.getConfig().isGenerateTables())
+         {
+            new TablesGenerator().generate(manager.getClassModel());
+         }
+
          new Generator().generate(manager.getClassModel());
       }
 
