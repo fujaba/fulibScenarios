@@ -100,37 +100,21 @@ public enum CodeGenerator
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
-      final boolean modelClassesToGenerate = !scenarioGroup.getClasses().values().stream()
-                                                           .allMatch(ClassDecl::getExternal);
-      final boolean testClassesToGenerate = !scenarioGroup.getFiles().values().stream()
-                                                          .allMatch(ScenarioFile::getExternal);
-
-      if (!modelClassesToGenerate && !testClassesToGenerate)
-      {
-         // nothing to do.
-         return null;
-      }
-
       if (sameFile(modelDir, testDir))
       {
          // model and test share the same output directory, so they have to share a class model.
 
          par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
-         if (modelClassesToGenerate)
-         {
-            this.generateModel(scenarioGroup, par, modelDir, packageDir);
+         this.generateModel(scenarioGroup, par, modelDir, packageDir);
 
-            if (par.config.isGenerateTables())
-            {
-               // generate tables before tests because we don't want table classes for test classes
-               new TablesGenerator().generate(par.modelManager.getClassModel());
-            }
-         }
-         if (testClassesToGenerate)
+         if (par.config.isGenerateTables())
          {
-            this.generateTests(scenarioGroup, par);
+            // generate tables before tests because we don't want table classes for test classes
+            new TablesGenerator().generate(par.modelManager.getClassModel());
          }
+
+         this.generateTests(scenarioGroup, par);
 
          new Generator().generate(par.modelManager.getClassModel());
 
@@ -139,28 +123,22 @@ public enum CodeGenerator
 
       // model and test use different output directories, and thus different class models.
 
-      if (modelClassesToGenerate)
+      par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+
+      this.generateModel(scenarioGroup, par, modelDir, packageDir);
+
+      if (par.config.isGenerateTables())
       {
-         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
-
-         this.generateModel(scenarioGroup, par, modelDir, packageDir);
-
-         if (par.config.isGenerateTables())
-         {
-            new TablesGenerator().generate(par.modelManager.getClassModel());
-         }
-
-         new Generator().generate(par.modelManager.getClassModel());
+         new TablesGenerator().generate(par.modelManager.getClassModel());
       }
 
-      if (testClassesToGenerate)
-      {
-         par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
+      new Generator().generate(par.modelManager.getClassModel());
 
-         this.generateTests(scenarioGroup, par);
+      par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
 
-         new Generator().generate(par.modelManager.getClassModel());
-      }
+      this.generateTests(scenarioGroup, par);
+
+      new Generator().generate(par.modelManager.getClassModel());
 
       return null;
    }
