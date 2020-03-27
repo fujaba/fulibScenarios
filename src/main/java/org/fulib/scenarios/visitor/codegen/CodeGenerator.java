@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public enum CodeGenerator
    implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<CodeGenDTO, Object>,
@@ -51,7 +53,39 @@ public enum CodeGenerator
          dto.decoratorClasses = decoratorClasses;
          it.accept(this, dto);
       });
+
+      final Set<String> otherPackageNames = this.getOtherPackageNames(compilationContext, decoratorClasses);
+
+      for (final String packageName : otherPackageNames)
+      {
+         final ClassModelManager manager = new ClassModelManager();
+         manager.haveMainJavaDir(compilationContext.getConfig().getModelDir());
+         manager.havePackageName(packageName);
+
+         DecoratorMain.decorate(manager, decoratorClasses);
+
+         new Generator().generate(manager.getClassModel());
+      }
+
       return null;
+   }
+
+   private Set<String> getOtherPackageNames(CompilationContext context,
+      List<Class<? extends ClassModelDecorator>> decoratorClasses)
+   {
+      final Set<String> result = new LinkedHashSet<>();
+      for (final Class<? extends ClassModelDecorator> decoratorClass : decoratorClasses)
+      {
+         final String packageName = decoratorClass.getPackage().getName();
+         final String packageDir = packageName.replace('.', '/');
+         if (context.getGroups().containsKey(packageDir))
+         {
+            continue;
+         }
+
+         result.add(packageName);
+      }
+      return result;
    }
 
    // --------------- ScenarioGroup.Visitor ---------------
