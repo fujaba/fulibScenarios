@@ -7,6 +7,7 @@ import org.fulib.TablesGenerator;
 import org.fulib.builder.ClassModelDecorator;
 import org.fulib.builder.ClassModelManager;
 import org.fulib.builder.DecoratorMain;
+import org.fulib.classmodel.ClassModel;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.CompilationContext;
@@ -103,7 +104,7 @@ public enum CodeGenerator
       par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
       this.generateModel(scenarioGroup, par);
-      this.dumpClassDiagrams(par, modelDir, testDir);
+      this.dumpClassDiagrams(par.modelManager, par.config);
 
       if (par.config.isGenerateTables())
       {
@@ -153,17 +154,16 @@ public enum CodeGenerator
       DecoratorMain.decorate(par.modelManager, par.decoratorClasses);
    }
 
-   private void dumpClassDiagrams(CodeGenDTO par, String modelDir, String packageDir)
+   private void dumpClassDiagrams(ClassModelManager modelManager, Config config)
    {
-      if (par.config.isClassDiagram())
+      final ClassModel classModel = modelManager.getClassModel();
+      if (config.isClassDiagram())
       {
-         FulibTools.classDiagrams()
-                   .dumpPng(par.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.png");
+         FulibTools.classDiagrams().dumpPng(classModel, classModel.getPackageSrcFolder() + "/classDiagram.png");
       }
-      if (par.config.isClassDiagramSVG())
+      if (config.isClassDiagramSVG())
       {
-         FulibTools.classDiagrams()
-                   .dumpSVG(par.modelManager.getClassModel(), modelDir + "/" + packageDir + "/classDiagram.svg");
+         FulibTools.classDiagrams().dumpSVG(classModel, classModel.getPackageSrcFolder() + "/classDiagram.svg");
       }
    }
 
