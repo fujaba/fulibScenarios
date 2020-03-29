@@ -1,10 +1,10 @@
-/.idea/
-/.gradle/
+.idea/
+.gradle/
 
-/build/
-/out/
-/temp/
-/data/
+build/
+out/
+temp/
+data/
 
 hs_err_pid*
 
@@ -14,7 +14,6 @@ src/*/scenarios/**/*.png
 src/*/scenarios/**/*.svg
 src/*/scenarios/**/*.yaml
 src/*/scenarios/**/*.html
-libs/fulib*[Oo]rg*.jar
 *.pdf
 *.tokens
 *.txt
