@@ -21,7 +21,7 @@ public class DecoratorMain
 
       RuntimeException failure = null;
 
-      for (final Class<? extends ClassModelDecorator> decoratorClass : decoratorClasses)
+      for (final Class<? extends ClassModelDecorator> decoratorClass : filteredDecoratorClasses)
       {
          try
          {
