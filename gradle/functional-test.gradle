@@ -5,7 +5,10 @@ def modelOutputDir = "$buildDir/generated-src/scenarios/main/"
 def testOutputDir = "$buildDir/generated-src/scenarios/test/"
 
 tasks.register(taskName, JavaExec) {
-   configureTestCompile(it, modelOutputDir, testOutputDir, imports, sourceDirs)
+   configureTestCompile(it,
+      modelOutputDir, testOutputDir, sourceDirs,
+      '-i', imports.join(','),
+   )
 }
 
 compileTestJava.dependsOn taskName
@@ -15,9 +18,12 @@ sourceSets.test.java.srcDir(files(testOutputDir).builtBy(taskName))
 
 tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
    def sourceDir = 'src/test/invalid_scenarios'
-   configureTestCompile(j, "$buildDir/generated-src/invalid_scenarios/main/",
+   configureTestCompile(j,
+      "$buildDir/generated-src/invalid_scenarios/main/",
       "$buildDir/generated-src/invalid_scenarios/test/",
-      [ 'org.fulib.mockups' ], [ sourceDir ])
+      [ sourceDir ],
+      '-i', imports.join(','),
+   )
 
    def writer = new ByteArrayOutputStream()
    j.standardOutput = writer
@@ -107,14 +113,13 @@ private List<String> getMarkerLines(File rootDir, String sourceDir) {
    return markerLines
 }
 
-private void configureTestCompile(JavaExec j, String modelOutputDir, String testOutputDir, Iterable<?> imports,
-                                  Iterable<?> sourceDirs) {
+private void configureTestCompile(JavaExec j, String modelOutputDir, String testOutputDir, Iterable<?> sourceDirs, Object... otherArgs) {
    j.classpath = sourceSets.main.runtimeClasspath
    j.main = 'org.fulib.scenarios.Main'
 
+   j.args otherArgs
    j.args '-m', modelOutputDir
    j.args '-t', testOutputDir
-   j.args '-i', imports.join(',')
    j.args '-cp', sourceSets.test.compileClasspath.asPath
    j.args '--'
    j.args sourceDirs
