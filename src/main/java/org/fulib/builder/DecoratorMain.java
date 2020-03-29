@@ -10,14 +10,14 @@ public class DecoratorMain
 {
    public static void decorate(ClassModelManager manager, Set<String> decoratorClassNames)
    {
-      decorate(manager, getDecoratorClasses(decoratorClassNames));
+      decorate(manager, resolveDecoratorClasses(decoratorClassNames));
    }
 
    public static void decorate(ClassModelManager manager, List<Class<? extends ClassModelDecorator>> decoratorClasses)
    {
       final String packageName = manager.getClassModel().getPackageName();
-      final List<Class<? extends ClassModelDecorator>> filteredDecoratorClasses = getDecoratorClasses(packageName,
-                                                                                                      decoratorClasses);
+      final List<Class<? extends ClassModelDecorator>> filteredDecoratorClasses = getDecoratorClassesForPackage(
+         packageName, decoratorClasses);
 
       RuntimeException failure = null;
 
@@ -44,13 +44,7 @@ public class DecoratorMain
       }
    }
 
-   private static List<Class<? extends ClassModelDecorator>> getDecoratorClasses(String packageName,
-      Set<String> decoratorClassNames)
-   {
-      return getDecoratorClasses(packageName, getDecoratorClasses(decoratorClassNames));
-   }
-
-   private static List<Class<? extends ClassModelDecorator>> getDecoratorClasses(String packageName,
+   private static List<Class<? extends ClassModelDecorator>> getDecoratorClassesForPackage(String packageName,
       List<Class<? extends ClassModelDecorator>> decoratorClasses)
    {
       final Package thePackage = Package.getPackage(packageName);
@@ -69,7 +63,7 @@ public class DecoratorMain
          .collect(Collectors.toList());
    }
 
-   public static List<Class<? extends ClassModelDecorator>> getDecoratorClasses(Set<String> decoratorClassNames)
+   public static List<Class<? extends ClassModelDecorator>> resolveDecoratorClasses(Set<String> decoratorClassNames)
    {
       final List<Class<? extends ClassModelDecorator>> result = new ArrayList<>();
       for (String decoratorClassName : decoratorClassNames)

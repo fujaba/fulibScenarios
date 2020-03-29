@@ -46,7 +46,7 @@ public enum CodeGenerator
          return null;
       }
 
-      final List<Class<? extends ClassModelDecorator>> decoratorClasses = DecoratorMain.getDecoratorClasses(
+      final List<Class<? extends ClassModelDecorator>> decoratorClasses = DecoratorMain.resolveDecoratorClasses(
          config.getDecoratorClasses());
 
       context.getGroups().values().parallelStream().forEach(it -> {
