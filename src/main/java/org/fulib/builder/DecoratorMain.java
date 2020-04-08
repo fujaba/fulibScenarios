@@ -13,11 +13,16 @@ public class DecoratorMain
       decorate(manager, resolveDecoratorClasses(decoratorClassNames));
    }
 
-   public static void decorate(ClassModelManager manager, List<Class<? extends ClassModelDecorator>> decoratorClasses)
+   public static boolean decorate(ClassModelManager manager, List<Class<? extends ClassModelDecorator>> decoratorClasses)
    {
       final String packageName = manager.getClassModel().getPackageName();
       final List<Class<? extends ClassModelDecorator>> filteredDecoratorClasses = getDecoratorClassesForPackage(
          packageName, decoratorClasses);
+
+      if (filteredDecoratorClasses.isEmpty())
+      {
+         return false;
+      }
 
       RuntimeException failure = null;
 
@@ -42,6 +47,8 @@ public class DecoratorMain
       {
          throw failure;
       }
+
+      return true;
    }
 
    private static List<Class<? extends ClassModelDecorator>> getDecoratorClassesForPackage(String packageName,

@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public enum CodeGenerator
@@ -111,55 +112,72 @@ public enum CodeGenerator
 
       par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
 
-      this.populateModel(scenarioGroup, par);
-      this.dumpClassDiagrams(par.modelManager, par.config);
-
-      if (par.config.isGenerateTables())
+      final boolean modelClasses = this.populateModel(scenarioGroup, par);
+      if (modelClasses)
       {
-         // generate tables before tests because we don't want table classes for test classes
-         new TablesGenerator().generate(par.modelManager.getClassModel());
+         this.dumpClassDiagrams(par.modelManager, par.config);
+
+         if (par.config.isGenerateTables())
+         {
+            // generate tables before tests because we don't want table classes for test classes
+            new TablesGenerator().generate(par.modelManager.getClassModel());
+         }
       }
 
       if (sameFile(modelDir, testDir))
       {
          // model and test share the same output directory, so they have to share a class model.
 
-         this.populateTests(scenarioGroup, par);
+         final boolean testClasses = this.populateTests(scenarioGroup, par);
 
-         new Generator().generate(par.modelManager.getClassModel());
+         if (modelClasses || testClasses)
+         {
+            new Generator().generate(par.modelManager.getClassModel());
+         }
 
          return null;
       }
 
       // model and test use different output directories, and thus different class models.
 
-      new Generator().generate(par.modelManager.getClassModel());
+      if (modelClasses)
+      {
+         new Generator().generate(par.modelManager.getClassModel());
+      }
 
       par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
 
-      this.populateTests(scenarioGroup, par);
+      final boolean testClasses = this.populateTests(scenarioGroup, par);
 
-      new Generator().generate(par.modelManager.getClassModel());
+      if (testClasses)
+      {
+         new Generator().generate(par.modelManager.getClassModel());
+      }
 
       return null;
    }
 
-   private void populateTests(ScenarioGroup scenarioGroup, CodeGenDTO par)
+   private boolean populateTests(ScenarioGroup scenarioGroup, CodeGenDTO par)
    {
-      for (final ScenarioFile file : scenarioGroup.getFiles().values())
+      final Map<String, ScenarioFile> files = scenarioGroup.getFiles();
+      for (final ScenarioFile file : files.values())
       {
          file.accept(this, par);
       }
+
+      return files.values().stream().anyMatch(f -> !f.getExternal());
    }
 
-   private void populateModel(ScenarioGroup scenarioGroup, CodeGenDTO par)
+   private boolean populateModel(ScenarioGroup scenarioGroup, CodeGenDTO par)
    {
-      for (ClassDecl classDecl : scenarioGroup.getClasses().values())
+      final Map<String, ClassDecl> classes = scenarioGroup.getClasses();
+      for (ClassDecl classDecl : classes.values())
       {
          classDecl.accept(DeclGenerator.INSTANCE, par);
       }
 
-      DecoratorMain.decorate(par.modelManager, par.decoratorClasses);
+      boolean decorators = DecoratorMain.decorate(par.modelManager, par.decoratorClasses);
+      return decorators || classes.values().stream().anyMatch(c -> !c.getExternal());
    }
 
    private void dumpClassDiagrams(ClassModelManager modelManager, Config config)
