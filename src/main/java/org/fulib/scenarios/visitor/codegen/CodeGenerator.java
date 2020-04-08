@@ -5,8 +5,8 @@ import org.fulib.FulibTools;
 import org.fulib.Generator;
 import org.fulib.TablesGenerator;
 import org.fulib.builder.ClassModelDecorator;
+import org.fulib.builder.ClassModelDecorators;
 import org.fulib.builder.ClassModelManager;
-import org.fulib.builder.DecoratorMain;
 import org.fulib.classmodel.ClassModel;
 import org.fulib.classmodel.Clazz;
 import org.fulib.classmodel.FMethod;
@@ -25,10 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public enum CodeGenerator
    implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<CodeGenDTO, Object>,
@@ -47,7 +45,7 @@ public enum CodeGenerator
          return null;
       }
 
-      final List<Class<? extends ClassModelDecorator>> decoratorClasses = DecoratorMain.resolveDecoratorClasses(
+      final List<Class<? extends ClassModelDecorator>> decoratorClasses = resolveDecoratorClasses(
          config.getDecoratorClasses());
 
       context.getGroups().values().parallelStream().forEach(it -> {
@@ -65,7 +63,7 @@ public enum CodeGenerator
          manager.haveMainJavaDir(config.getModelDir());
          manager.havePackageName(packageName);
 
-         DecoratorMain.decorate(manager, decoratorClasses);
+         decorate(manager, decoratorClasses);
 
          this.dumpClassDiagrams(manager, config);
 
@@ -176,7 +174,7 @@ public enum CodeGenerator
          classDecl.accept(DeclGenerator.INSTANCE, par);
       }
 
-      boolean decorators = DecoratorMain.decorate(par.modelManager, par.decoratorClasses);
+      boolean decorators = decorate(par.modelManager, par.decoratorClasses);
       return decorators || classes.values().stream().anyMatch(c -> !c.getExternal());
    }
 
@@ -212,6 +210,88 @@ public enum CodeGenerator
             return modelFile.getAbsolutePath().equals(testFile.getAbsolutePath());
          }
       }
+   }
+
+   private static boolean decorate(ClassModelManager manager,
+      List<Class<? extends ClassModelDecorator>> decoratorClasses)
+   {
+      final String packageName = manager.getClassModel().getPackageName();
+      final List<Class<? extends ClassModelDecorator>> filteredDecoratorClasses = getDecoratorClassesForPackage(
+         packageName, decoratorClasses);
+
+      if (filteredDecoratorClasses.isEmpty())
+      {
+         return false;
+      }
+
+      RuntimeException failure = null;
+
+      for (final Class<? extends ClassModelDecorator> decoratorClass : filteredDecoratorClasses)
+      {
+         try
+         {
+            final ClassModelDecorator decorator = decoratorClass.newInstance();
+            decorator.decorate(manager);
+         }
+         catch (Exception e)
+         {
+            if (failure == null)
+            {
+               failure = new RuntimeException("class model decoration failed");
+            }
+            failure.addSuppressed(e);
+         }
+      }
+
+      if (failure != null)
+      {
+         throw failure;
+      }
+
+      return true;
+   }
+
+   private static List<Class<? extends ClassModelDecorator>> getDecoratorClassesForPackage(String packageName,
+      List<Class<? extends ClassModelDecorator>> decoratorClasses)
+   {
+      final Package thePackage = Package.getPackage(packageName);
+      if (thePackage != null)
+      {
+         final ClassModelDecorators decorators = thePackage.getAnnotation(ClassModelDecorators.class);
+         if (decorators != null)
+         {
+            return Arrays.asList(decorators.value());
+         }
+      }
+
+      return decoratorClasses
+         .stream()
+         .filter(c -> packageName.equals(c.getPackage().getName()))
+         .collect(Collectors.toList());
+   }
+
+   public static List<Class<? extends ClassModelDecorator>> resolveDecoratorClasses(Set<String> decoratorClassNames)
+   {
+      final List<Class<? extends ClassModelDecorator>> result = new ArrayList<>();
+      for (String decoratorClassName : decoratorClassNames)
+      {
+         final Class<?> decoratorClass;
+         try
+         {
+            decoratorClass = Class.forName(decoratorClassName);
+         }
+         catch (ClassNotFoundException ignored)
+         {
+            continue;
+         }
+
+         if (ClassModelDecorator.class.isAssignableFrom(decoratorClass))
+         {
+            result.add((Class<? extends ClassModelDecorator>) decoratorClass);
+         }
+      }
+
+      return result;
    }
 
    // --------------- ScenarioFile.Visitor ---------------
