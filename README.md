@@ -60,7 +60,7 @@ dependencies {
     // ...
 
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.2.0'
+    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.3.0'
 
     // optional (required for mockups):
     // https://mvnrepository.com/artifact/org.fulib/fulibMockups

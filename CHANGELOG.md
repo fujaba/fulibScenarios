@@ -257,3 +257,13 @@
 ## Bugfixes
 
 * Fixed the `is` and `is not` operators with operands of boxed primitive type generating `==` instead of `equals`. #171
+
+# Fulib Scenarios v1.3.0
+
+## New Features
+
++ Added support for Decorators with the `--decorator-classes` option. #161
+
+## Enhancements
+
+* Take Sentences now allow an oxford comma before `and`.
