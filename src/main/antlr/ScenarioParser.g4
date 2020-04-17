@@ -93,7 +93,7 @@ removeSentence: actor verb=(REMOVE | REMOVES) expr FROM expr;
 conditionalSentence: AS condExpr COMMA compoundSentenceBody;
 
 takeSentence: actor verb=(TAKE | TAKES) ((A | AN) name (LIKE example=expr)? | (THE? simpleVarName=simpleName)? example=expr)
-              FROM source=expr AND compoundSentenceBody;
+              FROM source=expr COMMA? AND compoundSentenceBody;
 
 compoundSentenceBody: compoundSentence | simpleSentences;
 
