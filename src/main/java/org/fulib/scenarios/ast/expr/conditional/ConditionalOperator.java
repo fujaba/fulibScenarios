@@ -47,8 +47,6 @@ public enum ConditionalOperator
       GT.lhsType = PrimitiveType.NUMBER;
       GE.lhsType = PrimitiveType.NUMBER;
       NOT_GT.lhsType = PrimitiveType.NUMBER;
-
-      MATCHES.lhsType = PrimitiveType.STRING;
    }
 
    // =============== Fields ===============
