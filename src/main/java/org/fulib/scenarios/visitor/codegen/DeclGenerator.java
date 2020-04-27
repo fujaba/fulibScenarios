@@ -1,7 +1,7 @@
 package org.fulib.scenarios.visitor.codegen;
 
-import org.fulib.MultiAttributes;
 import org.fulib.classmodel.Clazz;
+import org.fulib.classmodel.CollectionType;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
@@ -51,8 +51,9 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       {
          final Type elementType = ((ListType) type).getElementType();
          final Type wrappedType = PrimitiveType.primitiveToWrapper(elementType);
-         MultiAttributes.buildMultiAttribute(clazz, attributeDecl.getName(),
-                                             wrappedType.accept(TypeGenerator.INSTANCE, par));
+         par.modelManager
+            .attribute(clazz, attributeDecl.getName(), wrappedType.accept(TypeGenerator.INSTANCE, par))
+            .setCollectionType(CollectionType.ArrayList);
       }
       else
       {
@@ -83,7 +84,9 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       }
       else // unidirectional many
       {
-         MultiAttributes.buildMultiAttribute(clazz, associationDecl.getName(), targetType);
+         par.modelManager
+            .attribute(clazz, associationDecl.getName(), targetType)
+            .setCollectionType(CollectionType.LinkedHashSet);
       }
 
       return null;
