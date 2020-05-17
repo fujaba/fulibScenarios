@@ -59,9 +59,9 @@ public enum CodeGenerator
 
       for (final String packageName : otherPackageNames)
       {
-         final ClassModelManager manager = new ClassModelManager();
-         manager.haveMainJavaDir(config.getModelDir());
-         manager.havePackageName(packageName);
+         final ClassModelManager manager = new ClassModelManager()
+            .setPackageName(packageName)
+            .setSourceFolder(config.getModelDir());
 
          decorate(manager, decoratorClasses);
 
@@ -108,7 +108,7 @@ public enum CodeGenerator
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
-      par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(modelDir);
+      par.modelManager = new ClassModelManager().setPackageName(packageName).setSourceFolder(modelDir);
 
       final boolean modelClasses = this.populateModel(scenarioGroup, par);
       if (modelClasses)
@@ -143,7 +143,7 @@ public enum CodeGenerator
          new Generator().generate(par.modelManager.getClassModel());
       }
 
-      par.modelManager = new ClassModelManager().havePackageName(packageName).haveMainJavaDir(testDir);
+      par.modelManager = new ClassModelManager().setPackageName(packageName).setSourceFolder(testDir);
 
       final boolean testClasses = this.populateTests(scenarioGroup, par);
 
@@ -359,7 +359,7 @@ public enum CodeGenerator
    {
       for (final FMethod fMethod : clazz.getMethods())
       {
-         if (name.equals(fMethod.readName()))
+         if (name.equals(fMethod.getName()))
          {
             return fMethod;
          }
