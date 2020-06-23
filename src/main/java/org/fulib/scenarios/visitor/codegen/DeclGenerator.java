@@ -52,7 +52,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
          final Type elementType = ((ListType) type).getElementType();
          final Type wrappedType = PrimitiveType.primitiveToWrapper(elementType);
          par.modelManager
-            .attribute(clazz, attributeDecl.getName(), wrappedType.accept(TypeGenerator.INSTANCE, par))
+            .haveAttribute(clazz, attributeDecl.getName(), wrappedType.accept(TypeGenerator.INSTANCE, par))
             .setCollectionType(CollectionType.ArrayList);
       }
       else
@@ -85,7 +85,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       else // unidirectional many
       {
          par.modelManager
-            .attribute(clazz, associationDecl.getName(), targetType)
+            .haveAttribute(clazz, associationDecl.getName(), targetType)
             .setCollectionType(CollectionType.LinkedHashSet);
       }
 

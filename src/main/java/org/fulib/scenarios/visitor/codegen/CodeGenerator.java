@@ -61,7 +61,7 @@ public enum CodeGenerator
       {
          final ClassModelManager manager = new ClassModelManager()
             .setPackageName(packageName)
-            .setSourceFolder(config.getModelDir());
+            .setMainJavaDir(config.getModelDir());
 
          decorate(manager, decoratorClasses);
 
@@ -108,7 +108,7 @@ public enum CodeGenerator
       final String packageDir = scenarioGroup.getPackageDir();
       final String packageName = packageDir.replace('/', '.');
 
-      par.modelManager = new ClassModelManager().setPackageName(packageName).setSourceFolder(modelDir);
+      par.modelManager = new ClassModelManager().setPackageName(packageName).setMainJavaDir(modelDir);
 
       final boolean modelClasses = this.populateModel(scenarioGroup, par);
       if (modelClasses)
@@ -143,7 +143,7 @@ public enum CodeGenerator
          new Generator().generate(par.modelManager.getClassModel());
       }
 
-      par.modelManager = new ClassModelManager().setPackageName(packageName).setSourceFolder(testDir);
+      par.modelManager = new ClassModelManager().setPackageName(packageName).setMainJavaDir(testDir);
 
       final boolean testClasses = this.populateTests(scenarioGroup, par);
 
