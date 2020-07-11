@@ -104,7 +104,7 @@ private List<String> getMarkerLines(File rootDir, String sourceDir) {
                startLine = -1
             }
             else {
-               text += line + '\n'
+               text += line + System.lineSeparator()
             }
          }
       }
