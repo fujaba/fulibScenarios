@@ -2,6 +2,7 @@
 
 [![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg)](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion "Download")
 [![Build Status](https://travis-ci.org/fujaba/fulibScenarios.svg?branch=master)](https://travis-ci.org/fujaba/fulibScenarios "Build Status")
+[![Java CI](https://github.com/fujaba/fulibScenarios/workflows/Java%20CI/badge.svg)](https://github.com/fujaba/fulibScenarios/actions)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/fujaba/fulibScenarios.svg)](http://isitmaintained.com/project/fujaba/fulibScenarios "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/fujaba/fulibScenarios.svg)](http://isitmaintained.com/project/fujaba/fulibScenarios "Percentage of issues still open")
 
