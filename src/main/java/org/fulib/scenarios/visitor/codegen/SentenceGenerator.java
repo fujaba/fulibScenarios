@@ -160,7 +160,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       final String packageName = par.modelManager.getClassModel().getPackageName();
       par.emitIndent();
       par.emit("matcher.withRootObjects(new ReflectorMap(\"" + packageName + "\").discoverObjects(");
-      roots.accept(ExprGenerator.NO_LIST, par);
+      roots.accept(ExprGenerator.FLAT, par);
       par.emit("));\n");
    }
 
@@ -231,7 +231,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       par.bodyBuilder.append(toolMethod).append('(');
       par.emitStringLiteral(target);
       par.bodyBuilder.append(", ");
-      diagramSentence.getObject().accept(ExprGenerator.NO_LIST, par);
+      diagramSentence.getObject().accept(ExprGenerator.FLAT, par);
       par.bodyBuilder.append(");\n");
 
       return null;
@@ -299,7 +299,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
          attributeAccess.getReceiver().accept(ExprGenerator.INSTANCE, par);
          par.bodyBuilder.append(".with").append(StrUtil.cap(attributeAccess.getName().getValue())).append('(');
-         source.accept(ExprGenerator.NO_LIST, par);
+         source.accept(ExprGenerator.WITHER, par);
          par.bodyBuilder.append(");\n");
          return null;
       }
@@ -335,7 +335,7 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
          attributeAccess.getReceiver().accept(ExprGenerator.INSTANCE, par);
          par.bodyBuilder.append(".without").append(StrUtil.cap(attributeAccess.getName().getValue())).append('(');
-         source.accept(ExprGenerator.NO_LIST, par);
+         source.accept(ExprGenerator.WITHER, par);
          par.bodyBuilder.append(");\n");
          return null;
       }
