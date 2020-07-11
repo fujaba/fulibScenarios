@@ -35,7 +35,8 @@ Install the [fulibGradle plugin](https://github.com/fujaba/fulibGradle):
 ```groovy
 plugins {
     id 'java'
-    id 'org.fulib.fulibGradle' version '0.2.0'
+    // https://plugins.gradle.org/plugin/org.fulib.fulibGradle
+    id 'org.fulib.fulibGradle' version '0.4.0'
 
     // ...
 }
