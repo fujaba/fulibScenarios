@@ -36,8 +36,8 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
 
       for (line in markerLines) {
          if (!output.contains(line)) {
-            j.state.addFailure(new TaskExecutionException(j, new Exception('error line not in compiler ' +
-               'output:\n' + line)))
+            def message = 'error line not in compiler output:\n' + line
+            j.state.addFailure(new TaskExecutionException(j, new Exception(message)))
             errored = true
          }
       }
