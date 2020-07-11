@@ -57,7 +57,7 @@ dependencies {
    gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.10.1'
 
    // https://mvnrepository.com/artifact/org.antlr/antlr4
-   antlr group: 'org.antlr', name: 'antlr4', version: '4.7.2'
+   antlr group: 'org.antlr', name: 'antlr4', version: '4.8'
 
    // --------------- Fulib Libraries ---------------
 
@@ -73,7 +73,7 @@ dependencies {
    implementation group: 'org.apache.commons', name: 'commons-text', version: '1.8'
 
    // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
-   implementation group: 'org.antlr', name: 'antlr4-runtime', version: '4.7.2'
+   implementation group: 'org.antlr', name: 'antlr4-runtime', version: '4.8'
 
    // https://mvnrepository.com/artifact/commons-cli/commons-cli
    implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
