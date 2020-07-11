@@ -75,8 +75,8 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       {
          final Clazz otherClazz = par.modelManager.haveClass(targetType);
 
-         par.modelManager.haveRole(clazz, associationDecl.getName(), otherClazz, associationDecl.getCardinality(),
-                                   other.getName(), other.getCardinality());
+         par.modelManager.associate(clazz, associationDecl.getName(), associationDecl.getCardinality(), otherClazz,
+                                    other.getName(), other.getCardinality());
       }
       else if (associationDecl.getCardinality() == 1) // unidirectional one
       {
@@ -99,15 +99,15 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
 
       final FMethod method = new FMethod();
       method.setClazz(clazz);
-      method.writeName(methodDecl.getName());
-      method.writeReturnType(methodDecl.getType().accept(TypeGenerator.INSTANCE, par));
+      method.setName(methodDecl.getName());
+      method.setReturnType(methodDecl.getType().accept(TypeGenerator.INSTANCE, par));
 
       for (final ParameterDecl parameter : methodDecl.getParameters())
       {
          final String name = parameter.getName();
          if (!"this".equals(name))
          {
-            method.readParams().put(name, parameter.getType().accept(TypeGenerator.INSTANCE, par));
+            method.getParams().put(name, parameter.getType().accept(TypeGenerator.INSTANCE, par));
          }
       }
 

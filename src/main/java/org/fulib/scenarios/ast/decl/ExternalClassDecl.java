@@ -70,7 +70,7 @@ public class ExternalClassDecl extends ClassDecl.Impl
          }
 
          // convert to association
-         final int cardinality = type instanceof ListType ? ClassModelBuilder.MANY : 1;
+         final int cardinality = type instanceof ListType ? org.fulib.builder.Type.MANY : 1;
          final String name = attribute.getName();
          final AssociationDecl assoc = AssociationDecl.of(this, name, cardinality, otherClass, type, null);
 

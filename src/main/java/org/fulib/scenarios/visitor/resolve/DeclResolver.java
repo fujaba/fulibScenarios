@@ -189,7 +189,7 @@ public class DeclResolver
          final Type otherType = ((ListType) attributeType).getElementType();
          if (otherType instanceof ClassType)
          {
-            return resolveAssociation(scope, classDecl, attributeName, ClassModelBuilder.MANY,
+            return resolveAssociation(scope, classDecl, attributeName, org.fulib.builder.Type.MANY,
                                       ((ClassType) otherType).getClassDecl(), position, rhs);
          }
          else

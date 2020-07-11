@@ -416,6 +416,6 @@ class CodeGenDTO
 
    void addImport(String s)
    {
-      this.clazz.getImportList().add("import " + s + ";");
+      this.clazz.withImports(s);
    }
 }
