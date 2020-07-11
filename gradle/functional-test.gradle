@@ -90,12 +90,12 @@ private List<String> getMarkerLines(File rootDir, String sourceDir) {
          int column
          if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
             startLine = num - 1
-            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
+            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$column: "
          }
          else if (line.trim() == '^') {
             markerLines.add text
             column = line.indexOf('^')
-            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
+            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$column: "
          }
          else if (text) {
             if (line.contains('-->')) {
