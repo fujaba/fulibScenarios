@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.PlaceholderExpr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -270,8 +271,8 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
       final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
-      final Expr object = this.pop();
-      final HasSentence hasSentence = HasSentence.of(object, clauses);
+      final Expr receiver = ctx.ctxEVERY() != null ? PlaceholderExpr.of(this.pop()) : this.pop();
+      final HasSentence hasSentence = HasSentence.of(receiver, clauses);
       hasSentence.setPosition(position(ctx.hasClauses().hasClause(0).verb));
       this.stack.push(hasSentence);
    }
