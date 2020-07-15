@@ -70,9 +70,11 @@ namedExpr: THE? simpleName expr # NamedSimple
          ;
 bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF expr;
 
+placeholderNamedExpr: (A | AN) name (OF {"type".equals(getCurrentToken().getText())}? WORD typeName | LIKE expr);
+
 hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
-hasClause: verb=(HAS | HAVE) (namedExpr | bidiNamedExpr);
+hasClause: verb=(HAS | HAVE) (namedExpr | bidiNamedExpr | placeholderNamedExpr);
 
 createSentence: actor verb=(CREATE | CREATES) (simpleDescriptor | multiDescriptor);
 
