@@ -35,7 +35,3 @@ Alice has uni and is one of the students of a University.
 Every student has a name like "Alice".
 // Every student has an age like 20.
 Every student has a motivation like 12.3.
-
-// Questionable usefulness
-// Every university has students and is uni of many Students like Alice and Bob.
-// Every student has uni and is one of the students of a University like StudyRight.
