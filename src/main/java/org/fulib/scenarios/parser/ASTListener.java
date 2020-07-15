@@ -436,7 +436,19 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitBidiNamedExpr(ScenarioParser.BidiNamedExprContext ctx)
    {
-      final Expr expr = ctx.SOME() != null ? PlaceholderExpr.of(this.pop()) : this.pop();
+      final Expr expr;
+      if (ctx.expr() != null)
+      {
+         expr = this.pop();
+      }
+      else if (ctx.MANY() != null)
+      {
+         expr = PlaceholderExpr.of(ListType.of(this.pop()));
+      }
+      else
+      {
+         expr = PlaceholderExpr.of(this.pop());
+      }
       final Name name = name(ctx.firstName);
       final NamedExpr namedExpr = NamedExpr.of(name, expr);
       namedExpr.setOtherName(name(ctx.otherName));

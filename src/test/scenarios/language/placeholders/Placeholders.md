@@ -8,8 +8,8 @@ Every student has a name of type string.
 Every student has an age of type int.
 Every student has a motivation of type double.
 
-Every university has students and is uni of some Students.
-Every student has uni and is one of the students of some University.
+Every university has students and is uni of many Students.
+Every student has uni and is one of the students of a University.
 
 # Scenario with Objects, but without concrete values
 
@@ -24,8 +24,8 @@ Alice has a name of type string.
 Alice has an age of type int.
 Alice has a motivation of type double.
 
-StudyRight has students and is uni of some Students.
-Alice has uni and is one of the students of some University.
+StudyRight has students and is uni of many Students.
+Alice has uni and is one of the students of a University.
 
 # Scenario without Objects, but with concrete values
 
@@ -37,5 +37,5 @@ Every student has an age like 20.
 Every student has a motivation like 12.3.
 
 // Questionable usefulness
-// Every university has students and is uni of some Students like Alice and Bob.
-// Every student has uni and is one of the students of some University like StudyRight.
+// Every university has students and is uni of many Students like Alice and Bob.
+// Every student has uni and is one of the students of a University like StudyRight.
