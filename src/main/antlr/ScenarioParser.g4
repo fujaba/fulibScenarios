@@ -68,7 +68,7 @@ withClause: WITH namedExpr;
 namedExpr: THE? simpleName expr # NamedSimple
          | number name          # NamedNumber
          ;
-bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF expr;
+bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF (expr | SOME typesName);
 
 placeholderNamedExpr: (A | AN) name (OF {"type".equals(getCurrentToken().getText())}? WORD typeName | LIKE expr);
 
