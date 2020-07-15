@@ -72,7 +72,7 @@ bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simp
 
 placeholderNamedExpr: (A | AN) name (OF ctxTYPE typeName | LIKE expr);
 
-hasSentence: nameAccess hasClauses;
+hasSentence: (ctxEVERY typeName | nameAccess) hasClauses;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: verb=(HAS | HAVE) (namedExpr | bidiNamedExpr | placeholderNamedExpr);
 
