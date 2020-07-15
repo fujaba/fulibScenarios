@@ -199,3 +199,4 @@ predOp: (IS | ARE) EMPTY | (IS | ARE) NOT EMPTY;
 // =============== Contextual Keywords ===============
 
 ctxTYPE: {"type".equals(getCurrentToken().getText())}? WORD;
+ctxEVERY: {"Every".equals(getCurrentToken().getText())}? WORD;
