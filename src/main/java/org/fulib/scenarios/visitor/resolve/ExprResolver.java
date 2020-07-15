@@ -4,6 +4,7 @@ import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.PlaceholderExpr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -50,6 +51,13 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    public Expr visit(Expr expr, Scope par)
    {
       return expr;
+   }
+
+   @Override
+   public Expr visit(PlaceholderExpr placeholderExpr, Scope par)
+   {
+      placeholderExpr.setType(placeholderExpr.getType().accept(TypeResolver.INSTANCE, par));
+      return placeholderExpr;
    }
 
    // --------------- PrimaryExpr.Visitor ---------------
