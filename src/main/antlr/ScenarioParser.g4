@@ -70,7 +70,7 @@ namedExpr: THE? simpleName expr # NamedSimple
          ;
 bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF (expr | SOME typesName);
 
-placeholderNamedExpr: (A | AN) name (OF {"type".equals(getCurrentToken().getText())}? WORD typeName | LIKE expr);
+placeholderNamedExpr: (A | AN) name (OF ctxTYPE typeName | LIKE expr);
 
 hasSentence: nameAccess hasClauses;
 hasClauses: hasClause (sep hasClause)*;
@@ -195,3 +195,7 @@ strOp: MATCH | MATCHES;
 predOpExpr: lhs=access? predOp;
 
 predOp: (IS | ARE) EMPTY | (IS | ARE) NOT EMPTY;
+
+// =============== Contextual Keywords ===============
+
+ctxTYPE: {"type".equals(getCurrentToken().getText())}? WORD;
