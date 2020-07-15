@@ -5,6 +5,7 @@ import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.UnresolvedName;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.PlaceholderExpr;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
@@ -149,6 +150,13 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
    {
       errorExpr.setType(par);
       return errorExpr;
+   }
+
+   @Override
+   public Expr visit(PlaceholderExpr placeholderExpr, Type par)
+   {
+      placeholderExpr.setType(par);
+      return placeholderExpr;
    }
 
    @Override

@@ -6,6 +6,7 @@ import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.PlaceholderExpr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -49,6 +50,12 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
 
       par.bodyBuilder.append("error");
       return null;
+   }
+
+   @Override
+   public Object visit(PlaceholderExpr placeholderExpr, CodeGenDTO par)
+   {
+      throw new IllegalStateException("Placeholder expressions should not appear in generated code!");
    }
 
    @Override
