@@ -444,6 +444,15 @@ public class ASTListener extends ScenarioParserBaseListener
       this.stack.push(namedExpr);
    }
 
+   @Override
+   public void exitPlaceholderNamedExpr(ScenarioParser.PlaceholderNamedExprContext ctx)
+   {
+      final Expr expr = ctx.ctxTYPE() != null ? PlaceholderExpr.of(this.pop()) : this.pop();
+      final Name name = name(ctx.name());
+      final NamedExpr namedExpr = NamedExpr.of(name, expr);
+      this.stack.push(namedExpr);
+   }
+
    // --------------- Types ---------------
 
    @Override
