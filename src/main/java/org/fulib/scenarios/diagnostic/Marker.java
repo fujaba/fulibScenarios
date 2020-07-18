@@ -1,5 +1,7 @@
 package org.fulib.scenarios.diagnostic;
 
+import org.fulib.scenarios.tool.Config;
+
 import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -161,6 +163,11 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
 
    public void appendTo(Appendable out) throws IOException
    {
+      this.appendTo(out, null);
+   }
+
+   public void appendTo(Appendable out, Config config) throws IOException
+   {
       // src/dir/package/name/file_name.md:10:20: error: info... [code]
       // (more info...)
 
@@ -169,6 +176,11 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
       out.append(Long.toString(this.getLineNumber()));
       out.append(':');
       out.append(Long.toString(this.getColumnNumber()));
+      if (config != null && config.isMarkerEndColumns())
+      {
+         final long endColumn = this.getColumnNumber() + (this.getEndPosition() - this.getStartPosition());
+         out.append(Long.toString(endColumn));
+      }
       out.append(": ");
       out.append(this.getKind().name().toLowerCase());
       out.append(": ");
