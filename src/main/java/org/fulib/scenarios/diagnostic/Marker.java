@@ -149,18 +149,6 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
       return localize(locale, this.code, this.args);
    }
 
-   // TODO remove in v2
-   public void print(PrintWriter out)
-   {
-      try
-      {
-         this.appendTo((Appendable) out);
-      }
-      catch (IOException ignored)
-      {
-      }
-   }
-
    public void appendTo(Appendable out) throws IOException
    {
       this.appendTo(out, null);
