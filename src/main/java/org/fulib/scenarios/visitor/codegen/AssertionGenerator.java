@@ -48,7 +48,11 @@ public enum AssertionGenerator implements Expr.Visitor<CodeGenDTO, Object>
          {
             continue;
          }
-         if (methodName.startsWith("assert"))
+         if ("assertThat".equals(methodName))
+         {
+            par.addImport("static org.hamcrest.MatcherAssert.assertThat");
+         }
+         else if (methodName.startsWith("assert"))
          {
             par.addImport("static org.junit.Assert." + methodName);
          }
