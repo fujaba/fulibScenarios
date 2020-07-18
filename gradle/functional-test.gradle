@@ -36,8 +36,8 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
 
       for (line in markerLines) {
          if (!output.contains(line)) {
-            j.state.addFailure(new TaskExecutionException(j, new Exception('error line not in compiler ' +
-               'output:\n' + line)))
+            def message = 'error line not in compiler output:\n' + line
+            j.state.addFailure(new TaskExecutionException(j, new Exception(message)))
             errored = true
          }
       }
@@ -90,12 +90,12 @@ private List<String> getMarkerLines(File rootDir, String sourceDir) {
          int column
          if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
             startLine = num - 1
-            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
+            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$column: "
          }
          else if (line.trim() == '^') {
             markerLines.add text
             column = line.indexOf('^')
-            text = "${ rootDir.relativePath(it) }:$startLine:$column: "
+            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$column: "
          }
          else if (text) {
             if (line.contains('-->')) {
@@ -104,7 +104,7 @@ private List<String> getMarkerLines(File rootDir, String sourceDir) {
                startLine = -1
             }
             else {
-               text += line + '\n'
+               text += line + System.lineSeparator()
             }
          }
       }

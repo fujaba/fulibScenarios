@@ -173,27 +173,16 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
       out.append(this.getKind().name().toLowerCase());
       out.append(": ");
 
-      // insert the code after the first line of the message
+      // insert the code after the first line of the message, and make sure to get line separators right
 
       final String message = this.getLocalizedMessage();
-      final int newlineIndex = message.indexOf('\n');
-      if (newlineIndex >= 0)
-      {
-         out.append(message, 0, newlineIndex);
-      }
-      else
-      {
-         out.append(message);
-      }
+      final String[] lines = message.split("\r?\n");
 
-      out.append(" [");
-      out.append(this.code);
-      out.append("]\n");
+      out.append(lines[0]).append(" [").append(this.code).append(']').append(System.lineSeparator());
 
-      if (newlineIndex >= 0)
+      for (int i = 1; i < lines.length; i++)
       {
-         out.append(message, newlineIndex + 1, message.length());
-         out.append('\n');
+         out.append(lines[i]).append(System.lineSeparator());
       }
 
       if (this.notes != null)
