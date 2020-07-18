@@ -32,7 +32,7 @@ import org.fulib.scenarios.diagnostic.Position;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.fulib.scenarios.diagnostic.Marker.warning;
+import static org.fulib.scenarios.diagnostic.Marker.*;
 import static org.fulib.scenarios.parser.Identifiers.*;
 
 public class ASTListener extends ScenarioParserBaseListener
@@ -271,7 +271,32 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
       final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
-      final Expr receiver = ctx.ctxEVERY() != null ? PlaceholderExpr.of(this.pop()) : this.pop();
+      final Expr receiver;
+      if (ctx.ctxEVERY() != null)
+      {
+         receiver = PlaceholderExpr.of(this.pop());
+         for (final NamedExpr clause : clauses)
+         {
+            final Expr expr = clause.getExpr();
+            if (expr instanceof PlaceholderExpr)
+            {
+               continue;
+            }
+
+            final Position position = expr.getPosition();
+            final Marker error = error(position, "has.placeholder.concrete");
+            final String exprText = ctx
+               .getStart()
+               .getInputStream()
+               .getText(Interval.of((int) position.getStartOffset(), (int) position.getEndOffset()));
+            error.note(note(position, "has.placeholder.concrete.hint", clause.getName().getValue(), exprText));
+            this.report(error);
+         }
+      }
+      else
+      {
+         receiver = this.pop();
+      }
       final HasSentence hasSentence = HasSentence.of(receiver, clauses);
       hasSentence.setPosition(position(ctx.hasClauses().hasClause(0).verb));
       this.stack.push(hasSentence);
