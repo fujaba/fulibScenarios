@@ -11,6 +11,10 @@ Alice has uni and is one of the students of the Uni Kassel.
 
 // Note that "one of" indicates that the reverse association is to-many.
 
+// Combine list and regular item in call to withStudents
+We write Bob, Charlie and Dude into other students.
+The Uni Kassel has students Alice and other students.
+
 # Special Associations
 
 There are Students with name Alice, Bob, Charlie, Dude.

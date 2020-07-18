@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
 {
-   INSTANCE, NO_LIST;
+   INSTANCE, WITHER, FLAT;
 
    @Override
    public Object visit(Expr expr, CodeGenDTO par)
@@ -88,7 +88,7 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
       final boolean wither = (decl != null ? decl.getType() : expr.getType()) instanceof ListType;
 
       par.bodyBuilder.append(wither ? ".with" : ".set").append(StrUtil.cap(name.getValue())).append("(");
-      expr.accept(wither ? NO_LIST : INSTANCE, par);
+      expr.accept(wither ? WITHER : INSTANCE, par);
       par.bodyBuilder.append(")");
    }
 
@@ -276,11 +276,15 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(ListExpr listExpr, CodeGenDTO par)
    {
-      if (this == NO_LIST)
+      // in a flat (Object...) context, anything goes
+      if (this == FLAT)
       {
          this.emitList(par, listExpr.getElements());
+         return null;
       }
-      else if (listExpr.getElements().stream().anyMatch(it -> it.getType() instanceof ListType))
+
+      // a nested list means we have to go through Streams. No wither shortcuts possible.
+      if (listExpr.getElements().stream().anyMatch(it -> it.getType() instanceof ListType))
       {
          // let stream generator handle any necessary flattening
 
@@ -288,16 +292,23 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
 
          listExpr.accept(StreamGenerator.INSTANCE, par);
          par.bodyBuilder.append(".collect(Collectors.toList())");
-      }
-      else
-      {
-         par.addImport("java.util.ArrayList");
-         par.addImport("java.util.Arrays");
 
-         par.bodyBuilder.append("new ArrayList<>(Arrays.asList(");
-         this.emitList(par, listExpr.getElements());
-         par.bodyBuilder.append("))");
+         return null;
       }
+
+      // a wither context allows varargs, so no need to wrap the elements in an ArrayList
+      if (this == WITHER)
+      {
+         this.emitList(par, listExpr.getElements());
+         return null;
+      }
+
+      par.addImport("java.util.ArrayList");
+      par.addImport("java.util.Arrays");
+
+      par.bodyBuilder.append("new ArrayList<>(Arrays.asList(");
+      this.emitList(par, listExpr.getElements());
+      par.bodyBuilder.append("))");
 
       return null;
    }

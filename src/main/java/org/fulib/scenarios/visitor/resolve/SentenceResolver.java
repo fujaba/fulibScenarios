@@ -379,10 +379,10 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
       final String assocName = name.getValue();
       final Type exprType = expr.getType();
-      final int cardinality = exprType instanceof ListType ? ClassModelBuilder.MANY : 1;
+      final int cardinality = exprType instanceof ListType ? org.fulib.builder.Type.MANY : org.fulib.builder.Type.ONE;
       final ClassDecl otherClass = exprType.accept(ExtractClassDecl.INSTANCE, null);
       final String otherAssocName = otherName.getValue();
-      final int otherCardinality = namedExpr.getOtherMany() ? ClassModelBuilder.MANY : ClassModelBuilder.ONE;
+      final int otherCardinality = namedExpr.getOtherMany() ? org.fulib.builder.Type.MANY : org.fulib.builder.Type.ONE;
 
       if (otherClass == null)
       {

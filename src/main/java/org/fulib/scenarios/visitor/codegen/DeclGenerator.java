@@ -1,7 +1,7 @@
 package org.fulib.scenarios.visitor.codegen;
 
-import org.fulib.MultiAttributes;
 import org.fulib.classmodel.Clazz;
+import org.fulib.classmodel.CollectionType;
 import org.fulib.classmodel.FMethod;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.Expr;
@@ -51,8 +51,9 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       {
          final Type elementType = ((ListType) type).getElementType();
          final Type wrappedType = PrimitiveType.primitiveToWrapper(elementType);
-         MultiAttributes.buildMultiAttribute(clazz, attributeDecl.getName(),
-                                             wrappedType.accept(TypeGenerator.INSTANCE, par));
+         par.modelManager
+            .haveAttribute(clazz, attributeDecl.getName(), wrappedType.accept(TypeGenerator.INSTANCE, par))
+            .setCollectionType(CollectionType.ArrayList);
       }
       else
       {
@@ -74,8 +75,8 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       {
          final Clazz otherClazz = par.modelManager.haveClass(targetType);
 
-         par.modelManager.haveRole(clazz, associationDecl.getName(), otherClazz, associationDecl.getCardinality(),
-                                   other.getName(), other.getCardinality());
+         par.modelManager.associate(clazz, associationDecl.getName(), associationDecl.getCardinality(), otherClazz,
+                                    other.getName(), other.getCardinality());
       }
       else if (associationDecl.getCardinality() == 1) // unidirectional one
       {
@@ -83,7 +84,9 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       }
       else // unidirectional many
       {
-         MultiAttributes.buildMultiAttribute(clazz, associationDecl.getName(), targetType);
+         par.modelManager
+            .haveAttribute(clazz, associationDecl.getName(), targetType)
+            .setCollectionType(CollectionType.LinkedHashSet);
       }
 
       return null;
@@ -96,15 +99,15 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
 
       final FMethod method = new FMethod();
       method.setClazz(clazz);
-      method.writeName(methodDecl.getName());
-      method.writeReturnType(methodDecl.getType().accept(TypeGenerator.INSTANCE, par));
+      method.setName(methodDecl.getName());
+      method.setReturnType(methodDecl.getType().accept(TypeGenerator.INSTANCE, par));
 
       for (final ParameterDecl parameter : methodDecl.getParameters())
       {
          final String name = parameter.getName();
          if (!"this".equals(name))
          {
-            method.readParams().put(name, parameter.getType().accept(TypeGenerator.INSTANCE, par));
+            method.getParams().put(name, parameter.getType().accept(TypeGenerator.INSTANCE, par));
          }
       }
 
