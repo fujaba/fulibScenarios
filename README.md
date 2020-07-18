@@ -1,9 +1,8 @@
 # Fulib Scenarios
 
-[![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg)](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion "Download")
 [![Build Status](https://travis-ci.org/fujaba/fulibScenarios.svg?branch=master)](https://travis-ci.org/fujaba/fulibScenarios "Build Status")
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/fujaba/fulibScenarios.svg)](http://isitmaintained.com/project/fujaba/fulibScenarios "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/fujaba/fulibScenarios.svg)](http://isitmaintained.com/project/fujaba/fulibScenarios "Percentage of issues still open")
+[![Java CI](https://github.com/fujaba/fulibScenarios/workflows/Java%20CI/badge.svg)](https://github.com/fujaba/fulibScenarios/actions)
+[![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg)](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion "Download")
 
 A compiler for textual scenarios.
 
@@ -35,7 +34,8 @@ Install the [fulibGradle plugin](https://github.com/fujaba/fulibGradle):
 ```groovy
 plugins {
     id 'java'
-    id 'org.fulib.fulibGradle' version '0.2.0'
+    // https://plugins.gradle.org/plugin/org.fulib.fulibGradle
+    id 'org.fulib.fulibGradle' version '0.4.0'
 
     // ...
 }
