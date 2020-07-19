@@ -167,6 +167,7 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
       if (config != null && config.isMarkerEndColumns())
       {
          final long endColumn = this.getColumnNumber() + (this.getEndPosition() - this.getStartPosition());
+         out.append('-');
          out.append(Long.toString(endColumn));
       }
       out.append(": ");
