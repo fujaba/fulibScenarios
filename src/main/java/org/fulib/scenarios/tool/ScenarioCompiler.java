@@ -161,7 +161,13 @@ public class ScenarioCompiler implements Tool
 
             for (final Marker marker : file.getMarkers())
             {
-               marker.print(this.out);
+               try
+               {
+                  marker.appendTo(this.out, this.config);
+               }
+               catch (IOException ignored)
+               {
+               }
                switch (marker.getKind())
                {
                case ERROR:

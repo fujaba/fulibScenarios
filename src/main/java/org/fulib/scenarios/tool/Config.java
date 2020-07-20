@@ -35,6 +35,8 @@ public class Config
 
    private boolean dryRun;
 
+   private boolean markerEndColumns;
+
    // =============== Properties ===============
 
    public String getModelDir()
@@ -137,6 +139,16 @@ public class Config
       this.dryRun = dryRun;
    }
 
+   public boolean isMarkerEndColumns()
+   {
+      return markerEndColumns;
+   }
+
+   public void setMarkerEndColumns(boolean markerEndColumns)
+   {
+      this.markerEndColumns = markerEndColumns;
+   }
+
    // =============== Methods ===============
 
    public Options createOptions()
@@ -179,6 +191,9 @@ public class Config
 
       options.addOption(new Option(null, "dry-run", false, "only check the input files and do not run code generator"));
 
+      options.addOption(
+         new Option(null, "marker-end-columns", false, "include the column number where a marker ends in the output"));
+
       return options;
    }
 
@@ -193,6 +208,7 @@ public class Config
       this.setObjectDiagram(cmd.hasOption("object-diagram"));
       this.setObjectDiagramSVG(cmd.hasOption("object-diagram-svg"));
       this.setDryRun(cmd.hasOption("dry-run"));
+      this.setMarkerEndColumns(cmd.hasOption("marker-end-columns"));
 
       final String[] classpath = cmd.getOptionValues("classpath");
       if (classpath != null)
