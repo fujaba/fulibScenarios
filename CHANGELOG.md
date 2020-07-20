@@ -267,3 +267,17 @@
 ## Enhancements
 
 * Take Sentences now allow an oxford comma before `and`.
+
+# fulibScenarios v1.4.0
+
+## General
+
+* Updated to fulib v1.2.0 and fulibTools v1.2.0. #177
+* Changed generated calls to `with*` and `without*` methods to be compatible with the fulib v1.2 overloads. #177
+* Updated to JUnit v4.13. #176
+* The `assertThat` method used by Expect Sentences is now imported from `MatcherAssert` instead of `Assert`, where it is deprecated in JUnit v4.13. #176
+* Updated to ASM v8.0.1, which allows importing class files compiled with up to Java 14. #181
+
+## Bugfixes
+
+* Fixed incorrect line separators in marker output on Windows. #178
