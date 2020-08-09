@@ -42,19 +42,24 @@ public class Identifiers
       return StrUtil.cap(token.getText());
    }
 
-   static Stream<String> splitCaps(TerminalNode token)
+   static Stream<String> splitCaps(TerminalNode terminalNode)
+   {
+      return splitCaps(terminalNode.getText());
+   }
+
+   static Stream<String> splitCaps(Token token)
    {
       return splitCaps(token.getText());
    }
 
    static String joinCaps(ScenarioParser.SimpleNameContext context)
    {
-      return joinCaps(splitCaps(context.WORD()));
+      return joinCaps(splitCaps(context.identifier().getStart()));
    }
 
    static String joinCaps(ScenarioParser.NameContext context)
    {
-      return joinCaps(context.WORD().stream().flatMap(Identifiers::splitCaps));
+      return joinCaps(context.identifier().stream().map(ScenarioParser.IdentifierContext::getStart).flatMap(Identifiers::splitCaps));
    }
 
    static String varName(ScenarioParser.NameContext context)

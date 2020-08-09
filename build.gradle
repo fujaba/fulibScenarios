@@ -40,6 +40,8 @@ publishInfo {
    }
 }
 
+bintray.pkg.userOrg = 'clashsoft'
+
 sourceCompatibility = 1.8
 
 // --------------- Dependencies ---------------

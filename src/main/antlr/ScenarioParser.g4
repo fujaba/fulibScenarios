@@ -143,8 +143,19 @@ stringLiteral: STRING_LITERAL;
 it: IT;
 answer: THE? ANSWER;
 
-simpleName: WORD;
-name: WORD+;
+simpleName: identifier;
+name: identifier+;
+
+identifier: WORD
+          // new keywords in v1.1
+          | ATTRIBUTE
+          | LINK
+          | MATCH
+          | MATCHES
+          | SOME
+          | WHERE
+          | WHOSE
+          ;
 
 nameAccess: THE? name;
 
