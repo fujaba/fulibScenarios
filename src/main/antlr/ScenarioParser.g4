@@ -70,9 +70,9 @@ namedExpr: THE? simpleName expr # NamedSimple
          ;
 bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF (expr | (A | AN) typeName | MANY typesName);
 
-placeholderNamedExpr: (A | AN) name (OF ctxTYPE typeName | LIKE expr);
+placeholderNamedExpr: (A | AN) name (OF TYPE typeName | LIKE expr);
 
-hasSentence: (ctxEVERY typeName | nameAccess) hasClauses;
+hasSentence: (EVERY typeName | nameAccess) hasClauses;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: verb=(HAS | HAVE) (namedExpr | bidiNamedExpr | placeholderNamedExpr);
 
@@ -155,6 +155,9 @@ identifier: WORD
           | SOME
           | WHERE
           | WHOSE
+          // new keywords for placeholders (TODO version number)
+          | EVERY
+          | TYPE
           ;
 
 nameAccess: THE? name;
@@ -206,8 +209,3 @@ strOp: MATCH | MATCHES;
 predOpExpr: lhs=access? predOp;
 
 predOp: (IS | ARE) EMPTY | (IS | ARE) NOT EMPTY;
-
-// =============== Contextual Keywords ===============
-
-ctxTYPE: {"type".equals(getCurrentToken().getText())}? WORD;
-ctxEVERY: {"Every".equals(getCurrentToken().getText())}? WORD;

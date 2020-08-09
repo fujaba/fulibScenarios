@@ -272,7 +272,7 @@ public class ASTListener extends ScenarioParserBaseListener
    {
       final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
       final Expr receiver;
-      if (ctx.ctxEVERY() != null)
+      if (ctx.EVERY() != null)
       {
          receiver = PlaceholderExpr.of(this.pop());
          for (final NamedExpr clause : clauses)
@@ -484,7 +484,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitPlaceholderNamedExpr(ScenarioParser.PlaceholderNamedExprContext ctx)
    {
-      final Expr expr = ctx.ctxTYPE() != null ? PlaceholderExpr.of(this.pop()) : this.pop();
+      final Expr expr = ctx.TYPE() != null ? PlaceholderExpr.of(this.pop()) : this.pop();
       final Name name = name(ctx.name());
       final NamedExpr namedExpr = NamedExpr.of(name, expr);
       this.stack.push(namedExpr);
