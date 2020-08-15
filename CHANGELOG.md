@@ -281,3 +281,14 @@
 ## Bugfixes
 
 * Fixed incorrect line separators in marker output on Windows. #178
+
+# fulibScenarios v1.4.1
+
+## General
+
+* Updated to fulib v1.2.1.
+* Updated to fulibTools v1.2.1.
+
+## Bugfixes
+
+* Fixed a backward compatibility issue introduced by new keywords in v1.1. #183 #186
