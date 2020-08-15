@@ -64,10 +64,10 @@ dependencies {
    // --------------- Fulib Libraries ---------------
 
    // https://mvnrepository.com/artifact/org.fulib/fulib
-   api group: 'org.fulib', name: 'fulib', version: '1.2.0'
+   api group: 'org.fulib', name: 'fulib', version: '1.2.1'
 
    // https://mvnrepository.com/artifact/org.fulib/fulibTools
-   api group: 'org.fulib', name: 'fulibTools', version: '1.2.0'
+   api group: 'org.fulib', name: 'fulibTools', version: '1.2.1'
 
    // --------------- Other Libraries ---------------
 
