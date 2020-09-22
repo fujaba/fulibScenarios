@@ -121,12 +121,30 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    @Override
    public Expr visit(CreationExpr creationExpr, Scope par)
    {
-      creationExpr.setType(creationExpr.getType().accept(TypeResolver.INSTANCE, par));
-      final ClassDecl classDecl = creationExpr.getType().accept(ExtractClassDecl.INSTANCE, null);
+      final Type receiverType = creationExpr.getType().accept(TypeResolver.INSTANCE, par);
+      creationExpr.setType(receiverType);
+
+      if (receiverType == PrimitiveType.ERROR)
+      {
+         // recover from previous error
+         return creationExpr;
+      }
+
+      final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
+      if (receiverClass == null)
+      {
+         if (!creationExpr.getAttributes().isEmpty())
+         {
+            par.report(
+               error(creationExpr.getPosition(), "create.subject.primitive.attributes", receiverType.getDescription()));
+         }
+
+         return creationExpr;
+      }
 
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
-         SentenceResolver.resolveHasNamedExpr(namedExpr, classDecl, par);
+         SentenceResolver.resolveHasNamedExpr(namedExpr, receiverClass, par);
       }
       return creationExpr;
    }

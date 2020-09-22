@@ -61,3 +61,8 @@ perhaps this name was inferred from the first attribute and you need to give thi
 error: invalid redeclaration of 'invalidRedeclarations' [variable.redeclaration]
 perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
 -->
+
+(#190) O3 is an Object with name o3.
+<!--            ^
+error: primitive type 'Object' cannot be instantiated with attributes [create.subject.primitive.attributes]
+-->
