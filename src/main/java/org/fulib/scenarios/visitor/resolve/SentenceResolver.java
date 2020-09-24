@@ -495,8 +495,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Decl existing = par.resolve(name);
       if (existing != null)
       {
-         par.report(error(position, "variable.redeclaration", name).note(
-            note(existing.getPosition(), "variable.declaration.first", name)));
+         par.report(error(position, "variable.redeclaration", name)
+                       .note(note(position, "variable.redeclaration.hint"))
+                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
       }
    }
 

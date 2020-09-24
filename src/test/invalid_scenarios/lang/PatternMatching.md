@@ -28,7 +28,8 @@ note: 'test2' was first declared here [variable.declaration.first]
 We match some object test2.
 <!--                 ^
 error: invalid redeclaration of 'test2' [variable.redeclaration]
-perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+                     ^
+note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
 # Duplicate Pattern Object Name

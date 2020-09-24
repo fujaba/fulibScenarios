@@ -34,15 +34,19 @@ note: 'AssocReverseEntity.child' was first declared here [property.declaration.f
 Bob has parent and is kid of Charlie.
 <!--                  ^
 error: conflicting redeclaration of reverse association of 'AssocReverseEntity.parent' [association.reverse.conflict]
-was: AssocReverseEntity.child, association to one 'AssocReverseEntity'
-now: AssocReverseEntity.kid, association to one 'AssocReverseEntity'
+                      ^
+note: was: AssocReverseEntity.child, association to one 'AssocReverseEntity' [conflict.old]
+                      ^
+note: now: AssocReverseEntity.kid, association to one 'AssocReverseEntity' [conflict.new]
 -->
 
 Bob has parent and is one of the child of Charlie.
 <!--                             ^
 error: conflicting redeclaration of reverse association of 'AssocReverseEntity.parent' [association.reverse.conflict]
-was: AssocReverseEntity.child, association to one 'AssocReverseEntity'
-now: AssocReverseEntity.child, association to many 'AssocReverseEntity'
+                                 ^
+note: was: AssocReverseEntity.child, association to one 'AssocReverseEntity' [conflict.old]
+                                 ^
+note: now: AssocReverseEntity.child, association to many 'AssocReverseEntity' [conflict.new]
 -->
 
 # Invalid Redeclaration
@@ -66,21 +70,27 @@ note: 'AssocReEntity.intAttr' was first declared here [property.declaration.firs
 Bob has intAttr Charlie.
 <!--    ^
 error: conflicting redeclaration of 'AssocReEntity.intAttr' [property.redeclaration.conflict]
-was: attribute of one 'int'
-now: association to one 'AssocReEntity'
+        ^
+note: was: attribute of one 'int' [conflict.old]
+        ^
+note: now: association to one 'AssocReEntity' [conflict.new]
 -->
 
 Charlie has related alice, bob.
 <!--        ^
 error: conflicting redeclaration of 'AssocReEntity.related' [property.redeclaration.conflict]
-was: association to one 'AssocReEntity'
-now: association to many 'AssocReEntity'
+            ^
+note: was: association to one 'AssocReEntity' [conflict.old]
+            ^
+note: now: association to many 'AssocReEntity' [conflict.new]
 -->
 
 There is a AssocReEntityOther.
 Charlie has related AssocReEntityOther.
 <!--        ^
 error: conflicting redeclaration of 'AssocReEntity.related' [property.redeclaration.conflict]
-was: association to one 'AssocReEntity'
-now: association to one 'AssocReEntityOther'
+            ^
+note: was: association to one 'AssocReEntity' [conflict.old]
+            ^
+note: now: association to one 'AssocReEntityOther' [conflict.new]
 -->

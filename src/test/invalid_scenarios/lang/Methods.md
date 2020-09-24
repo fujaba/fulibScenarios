@@ -116,7 +116,8 @@ error: invalid answer literal - no preceding call [answer.unresolved]
 (  ) barbaz writes 2 into j.
 <!-- ^
 error: unknown actor 'barbaz' [frame.incompatible.actor]
-perhaps you did not call the method or the call was already closed?
+     ^
+note: perhaps you did not call the method or the call was already closed? [frame.incompatible.actor.hint]
 -->
 
 We call foobar.
@@ -125,13 +126,15 @@ foobar answers with 1.
 (  ) foobar writes 1 into i.
 <!-- ^
 error: unknown actor 'foobar' [frame.incompatible.actor]
-perhaps you did not call the method or the call was already closed?
+     ^
+note: perhaps you did not call the method or the call was already closed? [frame.incompatible.actor.hint]
 -->
 
 (  ) moobaz answers with 1.
 <!-- ^
 error: unknown actor 'moobaz' [frame.incompatible.actor]
-perhaps you did not call the method or the call was already closed?
+     ^
+note: perhaps you did not call the method or the call was already closed? [frame.incompatible.actor.hint]
 -->
 
 We   answer with 1.
@@ -143,5 +146,6 @@ We call foo2.
 We   answer with 2.
 <!-- ^
 error: cannot answer from the test method indicated by actor 'we' [answer.we]
-perhaps you meant to write 'foo2 answers ...' instead of 'we answer ...'?
+     ^
+note: perhaps you meant to write 'foo2 answers ...' instead of 'we answer ...'? [answer.we.hint]
 -->

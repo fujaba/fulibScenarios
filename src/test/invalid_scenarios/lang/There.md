@@ -3,13 +3,15 @@
 There is a Student alice.
 <!--     ^
 warning: the 'a <type> <name>' syntax is deprecated [descriptor.indefinite.deprecated]
-write 'the Student alice' instead
+         ^
+note: write 'the Student alice' instead [descriptor.indefinite.deprecated.hint]
 -->
 
 There are Students bob, charlie, dude.
 <!--      ^
 warning: the '<type>s <names>' syntax is deprecated [descriptor.multi.indefinite.deprecated]
-write 'the Students bob charlie dude' instead
+          ^
+note: write 'the Students bob charlie dude' instead [descriptor.indefinite.deprecated.hint]
 -->
 
    # Invalid Redeclarations
@@ -29,37 +31,43 @@ note: 'dude' was first declared here [variable.declaration.first]
 There is the Student alice.
 <!--                 ^
 error: invalid redeclaration of 'alice' [variable.redeclaration]
-perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+                     ^
+note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
 There is a StudentWrapper with student alice.
 <!--                                   ^
 error: invalid redeclaration of 'alice' [variable.redeclaration]
-perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+                                       ^
+note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
 Finn, Emil and Dude are Students.
 <!--           ^
 error: invalid redeclaration of 'dude' [variable.redeclaration]
-perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+               ^
+note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
 We create the Student Bob.
 <!--                  ^
 error: invalid redeclaration of 'bob' [variable.redeclaration]
-perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+                      ^
+note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
 (#158) Alice is a Student.
 <!--   ^
 error: invalid redeclaration of 'alice' [variable.redeclaration]
-perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+       ^
+note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
 (#159) InvalidRedeclarations is a Student.
 <!--   ^
 error: invalid redeclaration of 'invalidRedeclarations' [variable.redeclaration]
-perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
+       ^
+note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
 (#188) There is an object with name o1.

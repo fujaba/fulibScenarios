@@ -44,8 +44,10 @@ note: 'AttributeEntity.id' was first declared here [property.declaration.first]
 There is the AttributeEntity entity-123 with id o1 and with friend entity-foo.
 <!--                                         ^
 error: conflicting redeclaration of 'AttributeEntity.id' [property.redeclaration.conflict]
-was: attribute of one 'int'
-now: attribute of one 'Object'
+                                             ^
+note: was: attribute of one 'int' [conflict.old]
+                                             ^
+note: now: attribute of one 'Object' [conflict.new]
                                                             ^
 note: 'AttributeEntity.friend' was first declared here [property.declaration.first]
 -->
@@ -53,15 +55,19 @@ note: 'AttributeEntity.friend' was first declared here [property.declaration.fir
 There is an AttributeEntity with id bar and with friend 123.
 <!--                                             ^
 error: conflicting redeclaration of 'AttributeEntity.friend' [property.redeclaration.conflict]
-was: association to one 'AttributeEntity'
-now: attribute of one 'int'
+                                                 ^
+note: was: association to one 'AttributeEntity' [conflict.old]
+                                                 ^
+note: now: attribute of one 'int' [conflict.new]
 -->
 
 There is an AttributeEntity with id baz and with friend enity-123.
 <!--                                             ^
 error: conflicting redeclaration of 'AttributeEntity.friend' [property.redeclaration.conflict]
-was: association to one 'AttributeEntity'
-now: attribute of one 'String'
+                                                 ^
+note: was: association to one 'AttributeEntity' [conflict.old]
+                                                 ^
+note: now: attribute of one 'String' [conflict.new]
                                                         ^
 note: perhaps you meant to refer to 'entity123' instead of the string literal 'enity-123'? [stringliteral.typo]
 -->
