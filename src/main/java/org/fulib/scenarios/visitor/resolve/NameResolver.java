@@ -101,7 +101,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
             scenarioFile.getMarkers().add(marker);
          }
       };
-      for (final Scenario scenario : scenarioFile.getScenarios().values())
+      for (final Scenario scenario : scenarioFile.getScenarios())
       {
          scenario.accept(this, scope);
       }
