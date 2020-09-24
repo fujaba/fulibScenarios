@@ -12,7 +12,7 @@ abstract org.fulib.scenarios.ast.Node {
 	CompilationContext(config: Config, groups: [String:ScenarioGroup], libraries: [Library])
 	ScenarioGroup(context: CompilationContext, sourceDir: String, packageDir: String,
 	              files: [String:ScenarioFile], classes: [String:ClassDecl])
-	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [String:Scenario], classDecl: ClassDecl,
+	ScenarioFile(group: ScenarioGroup, name: String, scenarios: [Scenario], classDecl: ClassDecl,
 	             noconstruct external: boolean, noconstruct markers: [Marker])
 
 	Positioned(noconstruct position: Position) {

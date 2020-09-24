@@ -66,7 +66,7 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
    @Override
    public Object visit(ScenarioFile scenarioFile, Object par)
    {
-      for (final Scenario scenario : scenarioFile.getScenarios().values())
+      for (final Scenario scenario : scenarioFile.getScenarios())
       {
          scenario.accept(this, par);
       }

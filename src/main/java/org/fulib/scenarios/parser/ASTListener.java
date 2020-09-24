@@ -79,13 +79,11 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitFile(ScenarioParser.FileContext ctx)
    {
       final List<Scenario> scenarios = this.pop(Scenario.class, ctx.scenario().size());
-      final LinkedHashMap<String, Scenario> scenarioMap = new LinkedHashMap<>();
-      this.file = ScenarioFile.of(null, null, scenarioMap, null);
+      this.file = ScenarioFile.of(null, null, scenarios, null);
       this.file.setMarkers(this.markers);
 
       for (final Scenario scenario : scenarios)
       {
-         scenarioMap.put(scenario.getName(), scenario);
          scenario.setFile(this.file);
       }
    }
