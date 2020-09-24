@@ -12,6 +12,7 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.parser.Identifiers;
+import org.fulib.util.Validator;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -113,7 +114,13 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    public Object visit(Scenario scenario, Scope par)
    {
       final ClassDecl classDecl = scenario.getFile().getClassDecl();
-      final String methodName = Identifiers.toLowerCamelCase(scenario.getName());
+      String methodName = Identifiers.toLowerCamelCase(scenario.getName());
+
+      if (!Validator.isSimpleName(methodName))
+      {
+         methodName = "_" + methodName;
+      }
+
       final SentenceList body = scenario.getBody();
       final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, PrimitiveType.VOID, body);
       final Position position = scenario.getPosition();
