@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
+import static org.fulib.scenarios.diagnostic.Marker.note;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.firstDeclaration;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.ANSWER_VAR;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.PREDICATE_RECEIVER;
@@ -482,8 +483,9 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       if (!TypeComparer.equals(startType, endType))
       {
-         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch", startType.getDescription(),
-                          endType.getDescription()));
+         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch")
+                       .note(note(start.getPosition(), "range.element.type.lower", startType.getDescription()))
+                       .note(note(end.getPosition(), "range.element.type.upper", endType.getDescription())));
       }
       if (!PrimitiveType.isIntegral(startType))
       {

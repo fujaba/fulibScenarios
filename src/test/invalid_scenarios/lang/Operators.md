@@ -26,13 +26,13 @@ error: invalid range operator - unsupported element type 'String' [range.element
 error: invalid range operator - unsupported element type 'String' [range.element.type.unsupported]
 -->
 
-We write 1 to
+We write 1 to 2.5 into range.
 <!--       ^
 error: mismatching range element types [range.element.type.mismatch]
-lower bound: int
-upper bound: double
--->
-(  ) 2.5 into range.
-<!-- ^
+         ^
+note: lower bound: int [range.element.type.lower]
+              ^
+note: upper bound: double [range.element.type.upper]
+              ^
 error: invalid range operator - unsupported element type 'double' [range.element.type.unsupported]
 -->
