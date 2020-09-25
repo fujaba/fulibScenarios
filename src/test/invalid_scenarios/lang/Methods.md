@@ -37,37 +37,47 @@ note: 'MethodsTest.foo' was first declared here [property.declaration.first]
 
 We call foo with bar 3.
 <!--    ^
-error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
-parameters: bar baz
-arguments:  bar
+error: arguments do not match parameters of method 'MethodsTest.foo' [call.mismatch.params.args]
+        ^
+note: parameters: bar, baz [call.parameters]
+        ^
+note: arguments: bar [call.arguments]
 -->
 
 We call foo with baz "4".
 <!--    ^
-error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
-parameters: bar baz
-arguments:  baz
+error: arguments do not match parameters of method 'MethodsTest.foo' [call.mismatch.params.args]
+        ^
+note: parameters: bar, baz [call.parameters]
+        ^
+note: arguments: baz [call.arguments]
 -->
 
 We call foo.
 <!--    ^
-error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
-parameters: bar baz
-arguments:  
+error: arguments do not match parameters of method 'MethodsTest.foo' [call.mismatch.params.args]
+        ^
+note: parameters: bar, baz [call.parameters]
+        ^
+note: arguments:  [call.arguments]
 -->
 
 We call foo with bar 5 and with baz "6" and with moo 7.
 <!--    ^
-error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
-parameters: bar baz
-arguments:  bar baz moo
+error: arguments do not match parameters of method 'MethodsTest.foo' [call.mismatch.params.args]
+        ^
+note: parameters: bar, baz [call.parameters]
+        ^
+note: arguments: bar, baz, moo [call.arguments]
 -->
 
 We call foo with baz "8" and with bar 9.
 <!--    ^
-error: mismatching parameters and arguments of method 'MethodsTest.foo' [call.mismatch.params.args]
-parameters: bar baz
-arguments:  baz bar
+error: arguments do not match parameters of method 'MethodsTest.foo' [call.mismatch.params.args]
+        ^
+note: parameters: bar, baz [call.parameters]
+        ^
+note: arguments: baz, bar [call.arguments]
 -->
 
 # Mismatching Parameter Types
@@ -75,9 +85,7 @@ arguments:  baz bar
 There are the Objects o1, o2.
 We call foo with bar o1 and with baz o1, o2.
 <!--                 ^
-error: incompatible parameter and argument types [call.mismatch.type]
-parameter type: int
-argument type:  Object
+error: type mismatch for parameter 'bar': cannot convert 'Object' to 'int' [call.mismatch.type]
 -->
 
 # Incompatible Return Type
