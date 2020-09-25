@@ -3,7 +3,7 @@
 There is the WebApp app.
 We call run on app.
 <!--    ^
-error: cannot resolve or add method 'run' in external class 'WebApp' [method.unresolved.external]
+error: cannot resolve method 'run' in external class 'WebApp' [method.unresolved.external]
 -->
 
 # Primitive Receiver
@@ -15,7 +15,7 @@ error: cannot call method 'foo' on receiver of primitive type 'String' [call.rec
 
 We call foo on bar of moo.
 <!--           ^
-error: unresolved attribute or association 'String.bar' - 'String' is a primitive type [property.unresolved.primitive]
+error: cannot resolve attribute or association 'bar' of primitive type 'String' [property.unresolved.primitive]
 -->
 
 ## Hints
@@ -85,7 +85,7 @@ note: arguments: baz, bar [call.arguments]
 There are the Objects o1, o2.
 We call foo with bar o1 and with baz o1, o2.
 <!--                 ^
-error: type mismatch for parameter 'bar': cannot convert 'Object' to 'int' [call.mismatch.type]
+error: cannot assign argument of type 'Object' to parameter 'bar' of type 'int' [call.mismatch.type]
 -->
 
 # Incompatible Return Type
@@ -103,7 +103,7 @@ error: cannot return expression of type 'Object' from method 'bar' with return t
 
 We expect that the answer is 42.
 <!--               ^
-error: invalid answer literal - no preceding call [answer.unresolved]
+error: answer literal cannot be used without a preceding call with a result [answer.unresolved]
 -->
 
 # Invalid Answer Literal after void Call
@@ -116,7 +116,7 @@ We expect that the answer is 1.
 We call voidMethod.
 We write the answer into y.
 <!--         ^
-error: invalid answer literal - no preceding call [answer.unresolved]
+error: answer literal cannot be used without a preceding call with a result [answer.unresolved]
 -->
 
 # Invalid Call Frames

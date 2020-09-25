@@ -8,7 +8,7 @@ error: unresolved attribute or association 'PropertyEntity.invalid' [property.un
 
 We write invalid of 'some string' into y.
 <!--     ^
-error: unresolved attribute or association 'String.invalid' - 'String' is a primitive type [property.unresolved.primitive]
+error: cannot resolve attribute or association 'invalid' of primitive type 'String' [property.unresolved.primitive]
 -->
 
 There are Students with name Alice, Charlie, Bob.
@@ -22,7 +22,7 @@ note: perhaps you meant to access 'name' instead of 'names'? [property.typo]
 
 We write names of studens into invalidNames.
 <!--     ^
-error: unresolved attribute or association 'String.names' - 'String' is a primitive type [property.unresolved.primitive]
+error: cannot resolve attribute or association 'names' of primitive type 'String' [property.unresolved.primitive]
                   ^
 note: perhaps you meant to refer to 'students' instead of the string literal 'studens'? [stringliteral.typo]
 -->
@@ -30,7 +30,7 @@ note: perhaps you meant to refer to 'students' instead of the string literal 'st
 We write 1,2,3 into numbers.
 We write names of numbers into names.
 <!--     ^
-error: unresolved attribute or association 'int.names' - 'int' is a primitive type [property.unresolved.primitive]
+error: cannot resolve attribute or association 'names' of primitive type 'int' [property.unresolved.primitive]
 -->
 
 # Invalid Redeclaration
@@ -78,12 +78,12 @@ There is the ReverseStudent alice.
 
 Alice has uni and is student of Uni Kassel.
 <!--                 ^
-error: invalid reverse association name 'student' - 'ReverseStudent.uni' is an attribute, not an association [attribute.reverse.name]
+error: cannot define reverse association name 'student' for attribute 'ReverseStudent.uni' [attribute.reverse.name]
 -->
 
 Alice has grades and is student of 1, 2, 3.
 <!--                    ^
-error: invalid reverse association name 'student' - 'ReverseStudent.grades' is an attribute, not an association [attribute.reverse.name]
+error: cannot define reverse association name 'student' for attribute 'ReverseStudent.grades' [attribute.reverse.name]
                                    ^
 note: elements of list expression have common type 'int' [list.type]
 -->
@@ -94,7 +94,7 @@ There is the ReverseStudent Bob.
 
 Bob has friend and is friend of Alic and Alce.
 <!--                  ^
-error: invalid reverse association name 'friend' - 'ReverseStudent.friend' is an attribute, not an association [attribute.reverse.name]
+error: cannot define reverse association name 'friend' for attribute 'ReverseStudent.friend' [attribute.reverse.name]
                                 ^
 note: elements of list expression have common type 'String' [list.type]
                                 ^
@@ -107,7 +107,7 @@ note: perhaps you meant to refer to 'alice' instead of the string literal 'Alce'
 
 (   ) Asd has next 2.
 <!--  ^
-error: invalid has sentence - subject has primitive type 'String' [has.subject.primitive]
+error: cannot set attributes for object of primitive type 'String' [has.subject.primitive]
 -->
 
 ## Hints
@@ -121,7 +121,7 @@ There is a HasPrimitiveCar with name Herbie.
 
 (  ) Herbi has speed 100.
 <!-- ^
-error: invalid has sentence - subject has primitive type 'String' [has.subject.primitive]
+error: cannot set attributes for object of primitive type 'String' [has.subject.primitive]
      ^
 note: perhaps you meant to refer to 'herbie' instead of the string literal 'Herbi'? [stringliteral.typo]
      ^

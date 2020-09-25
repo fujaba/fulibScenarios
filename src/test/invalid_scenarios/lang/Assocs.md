@@ -23,7 +23,7 @@ note: 'AssocReverseEntity.related' was first declared here [property.declaration
 
 Bob has related and is reverse-related of Charlie.
 <!--                   ^
-error: invalid reverse association name 'reverseRelated' - 'AssocReverseEntity.related' was already declared as unidirectional [association.reverse.late]
+error: cannot define reverse association name 'reverseRelated' for unidirectional association 'AssocReverseEntity.related' after the first declaration [association.reverse.late]
 -->
 
 Alice has parent and is child of Bob.
@@ -59,7 +59,7 @@ note: 'AssocReEntity.related' was first declared here [property.declaration.firs
 
 Alice has related and is reverse-related of Charlie.
 <!--                     ^
-error: invalid reverse association name 'reverseRelated' - 'AssocReEntity.related' was already declared as unidirectional [association.reverse.late]
+error: cannot define reverse association name 'reverseRelated' for unidirectional association 'AssocReEntity.related' after the first declaration [association.reverse.late]
 -->
 
 Alice has intAttr 123.

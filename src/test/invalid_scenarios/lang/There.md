@@ -72,15 +72,15 @@ note: perhaps this name was inferred from the first attribute and you need to gi
 
 (#188) There is an object with name o1.
 <!--                                ^
-error: invalid has sentence - subject has primitive type 'Object' [has.subject.primitive]
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
 -->
 
 (#188) We create the object o2 with name o2.
 <!--                        ^
-error: invalid has sentence - subject has primitive type 'Object' [has.subject.primitive]
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
 -->
 
 (#190) O3 is an Object with name o3.
 <!--            ^
-error: primitive type 'Object' cannot be instantiated with attributes [create.subject.primitive.attributes]
+error: cannot instantiate primitive type 'Object' with attributes [create.subject.primitive.attributes]
 -->

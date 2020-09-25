@@ -11,5 +11,5 @@ note: write 'take a i like 1 from ...' instead [take.syntax.deprecated.hint]
 
 We take an i from my string and we write i into j.
 <!--              ^
-error: invalid take sentence - cannot iterate over source type 'String' [take.source.type]
+error: cannot iterate over expression of type 'String' [take.source.type]
 -->
