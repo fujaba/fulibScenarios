@@ -94,3 +94,18 @@ note: was: association to one 'AssocReEntity' [conflict.old]
             ^
 note: now: association to one 'AssocReEntityOther' [conflict.new]
 -->
+
+## External Associations
+
+There is a WebApp.
+There is a Page.
+WebApp has foo and is bar of Page.
+<!--       ^
+error: cannot resolve or add association 'foo' in external class 'WebApp' [association.unresolved.external]
+-->
+
+There is a NonExternal.
+NonExternal has webapp and is nonExternal of WebApp.
+<!--                          ^
+error: cannot resolve or add association 'nonExternal' in external class 'WebApp' [association.unresolved.external]
+-->

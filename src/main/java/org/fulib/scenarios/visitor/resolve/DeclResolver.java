@@ -328,6 +328,11 @@ public class DeclResolver
       }
 
       final AssociationDecl association = createAssociation(scope, position, owner, name, cardinality, otherClass);
+      if (association == null)
+      {
+         // class was external or frozen, error already reported
+         return null;
+      }
 
       if (otherClass == owner && name.equals(otherName))
       {
@@ -343,9 +348,11 @@ public class DeclResolver
       {
          final AssociationDecl other = createAssociation(scope, otherPosition, otherClass, otherName,
                                                          otherCardinality, owner);
-
-         association.setOther(other);
-         other.setOther(association);
+         if (other != null)
+         {
+            association.setOther(other);
+            other.setOther(association);
+         }
       }
 
       return association;
