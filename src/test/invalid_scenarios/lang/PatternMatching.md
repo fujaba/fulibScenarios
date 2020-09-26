@@ -54,7 +54,7 @@ Alice has game and is one of the players of game.
 
 We match:
 - some object g whose players does not contain p1
-<!--            ^
-error: 'do/does not contain' cannot be used in pattern matching due to the way lists are handled [attribute-constraint.conditional.not-contains]
+<!--                          ^
+error: conditional operator 'do/does not contain' cannot be used here [attribute-constraint.conditional.not-contains]
 -->
 - some object p1 where some attribute matches '[Aa]lice'.
