@@ -84,3 +84,18 @@ error: conflicting redeclaration of 'AssocReEntity.related' [property.redeclarat
 was: association to one 'AssocReEntity'
 now: association to one 'AssocReEntityOther'
 -->
+
+## External Associations
+
+There is a WebApp.
+There is a Page.
+WebApp has foo and is bar of Page.
+<!--       ^
+error: cannot resolve or add association 'foo' in external class 'WebApp' [association.unresolved.external]
+-->
+
+There is a NonExternal.
+NonExternal has webapp and is nonExternal of WebApp.
+<!--                          ^
+error: cannot resolve or add association 'nonExternal' in external class 'WebApp' [association.unresolved.external]
+-->
