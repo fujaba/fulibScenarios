@@ -137,5 +137,5 @@ note: perhaps you meant to refer to 'herba' instead of the string literal 'Herbi
 There is a WebApp.
 WebApp has 1 foo.
 <!--         ^
-error: cannot resolve or add attribute 'foo' in external class 'WebApp' [attribute.unresolved.external]
+error: cannot resolve attribute 'foo' in external class 'WebApp' [attribute.unresolved.external]
 -->
