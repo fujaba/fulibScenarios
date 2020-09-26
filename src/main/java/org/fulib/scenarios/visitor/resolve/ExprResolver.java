@@ -292,7 +292,7 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
                continue;
             }
 
-            par.report(error(expr.getPosition(), "call.mismatch.type", name, type.getDescription(),
+            par.report(error(expr.getPosition(), "call.mismatch.type", type.getDescription(), name,
                              paramType.getDescription()));
          }
       }

@@ -134,8 +134,8 @@ public class DeclResolver
          return getAttributeOrAssociation(scope, ownerClass, name);
       }
 
-      final Marker error = error(name.getPosition(), "property.unresolved.primitive", owner.getDescription(),
-                                 name.getValue());
+      final Marker error = error(name.getPosition(), "property.unresolved.primitive", name.getValue(),
+                                 owner.getDescription());
       if (receiver != null)
       {
          SentenceResolver.addStringLiteralTypoNotes(scope, receiver, error);
@@ -161,11 +161,10 @@ public class DeclResolver
 
       final Position position = name.getPosition();
       final Marker error = error(position, "property.unresolved", owner.getName(), nameValue);
-      Stream.concat(owner.getAttributes().keySet().stream(), owner.getAssociations().keySet().stream())
-            .filter(SentenceResolver.caseInsensitiveLevenshteinDistance(nameValue, UNRESOLVED_HINT_DISTANCE_THRESHOLD))
-            .forEach(suggestion -> {
-               error.note(note(position, "property.typo", nameValue, suggestion));
-            });
+      Stream
+         .concat(owner.getAttributes().keySet().stream(), owner.getAssociations().keySet().stream())
+         .filter(SentenceResolver.caseInsensitiveLevenshteinDistance(nameValue, UNRESOLVED_HINT_DISTANCE_THRESHOLD))
+         .forEach(suggestion -> error.note(note(position, "property.typo", suggestion, nameValue)));
       scope.report(error);
       return name; // unresolved
    }

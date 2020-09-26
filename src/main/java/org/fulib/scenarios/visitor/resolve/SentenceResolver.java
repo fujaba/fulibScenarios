@@ -361,9 +361,11 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Map<String, Decl> decls = new LinkedHashMap<>();
       scope.list(decls::putIfAbsent);
 
-      decls.keySet().stream().filter(caseInsensitiveLevenshteinDistance(identifier, 2)).forEach(key -> {
-         parent.note(note(expr.getPosition(), "stringliteral.typo", stringValue, key));
-      });
+      decls
+         .keySet()
+         .stream()
+         .filter(caseInsensitiveLevenshteinDistance(identifier, 2))
+         .forEach(key -> parent.note(note(expr.getPosition(), "stringliteral.typo", key, stringValue)));
    }
 
    static Predicate<String> caseInsensitiveLevenshteinDistance(String base, int threshold)
