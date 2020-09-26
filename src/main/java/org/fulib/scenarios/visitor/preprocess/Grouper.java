@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
+import static org.fulib.scenarios.diagnostic.Marker.note;
 
 public enum Grouper implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Object, Object>,
                                   ScenarioFile.Visitor<Object, Object>, Scenario.Visitor<Object, Object>,
@@ -165,15 +166,15 @@ public enum Grouper implements CompilationContext.Visitor<Object, Object>, Scena
       {
          // "we return" - invalid
          final String lastActor = par.getValue(ACTOR_KEY);
+         final Position errorPosition = answerSentence.getPosition();
          if (ACTOR_VALUE_TEST.equals(lastActor))
          {
-            par.report(error(answerSentence.getPosition(), "answer.we", ""));
+            par.report(error(errorPosition, "answer.we"));
             return par.add(answerSentence);
          }
          else
          {
-            final String hint = "\n" + Marker.localize("answer.we.hint", lastActor);
-            par.report(error(answerSentence.getPosition(), "answer.we", hint));
+            par.report(error(errorPosition, "answer.we").note(note(errorPosition, "answer.we.hint", lastActor)));
 
             actorKey = actorKey(lastActor);
             position = null;
@@ -302,7 +303,8 @@ class Frame
       final int endIndex = key.indexOf(',', beginIndex + 1);
       final String type = key.substring(0, beginIndex);
       final String value = key.substring(beginIndex + 1, endIndex);
-      this.report(error(position, "frame.incompatible." + type, value));
+      this.report(error(position, "frame.incompatible." + type, value).note(
+         note(position, "frame.incompatible." + type + ".hint", value)));
    }
 
    void report(Marker marker)

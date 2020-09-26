@@ -2,7 +2,7 @@
 
 We write 1 into 2.
 <!--            ^
-error: invalid write target - cannot write into IntLiteral [write.target.invalid]
+error: cannot write into IntLiteral [write.target.invalid]
 -->
 
 # Write to Multi-Valued
