@@ -17,22 +17,20 @@ error: predicate operator requires a left-hand expression [predicate.lhs.missing
 
 # Invalid Ranges
 
-We write a1
+We write a1 to a4 into range.
 <!--     ^
-error: invalid range operator - unsupported element type 'String' [range.element.type.unsupported]
--->
-  to a4 into range.
-<!-- ^
-error: invalid range operator - unsupported element type 'String' [range.element.type.unsupported]
+error: cannot range over expression of non-integer type 'String' [range.element.type.unsupported]
+               ^
+error: cannot range over expression of non-integer type 'String' [range.element.type.unsupported]
 -->
 
 We write 1 to 2.5 into range.
 <!--       ^
-error: mismatching range element types [range.element.type.mismatch]
+error: cannot range over bounds of different types [range.element.type.mismatch]
          ^
-note: lower bound: int [range.element.type.lower]
+note: lower bound has type 'int' [range.element.type.lower]
               ^
-note: upper bound: double [range.element.type.upper]
+note: upper bound has type 'double' [range.element.type.upper]
               ^
-error: invalid range operator - unsupported element type 'double' [range.element.type.unsupported]
+error: cannot range over expression of non-integer type 'double' [range.element.type.unsupported]
 -->
