@@ -70,8 +70,15 @@ error: invalid redeclaration of 'invalidRedeclarations' [variable.redeclaration]
 note: perhaps this name was inferred from the first attribute and you need to give this object an explicit name? [variable.redeclaration.hint]
 -->
 
+# has.subject.primitive
+
 (#188) There is an object with name o1.
 <!--                                ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+-->
+
+(#188) There is an object with number 1.
+<!--               ^^^^^^
 error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
 -->
 
@@ -80,7 +87,45 @@ error: cannot set attributes for object of primitive type 'Object' [has.subject.
 error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
 -->
 
-(#190) O3 is an Object with name o3.
+(#188) We create the object o3 with number 2.
+<!--                        ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+-->
+
+(#188) O4 and O5 are Objects with name 4 and 5.
+<!--   ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+              ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+-->
+
+(#188) O6 and O7 are Objects with number 6 and 7.
+<!--   ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+              ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+-->
+
+(#188) There are Objects with name o8 and o9.
+<!--                               ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+                                          ^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+-->
+
+(#188) There are Objects with number 8 and 9.
+<!--             ^^^^^^^
+error: cannot set attributes for object of primitive type 'Object' [has.subject.primitive]
+-->
+
+# create.subject.primitive.attributes
+
+(#190) O1 is an Object with name o1.
+<!--            ^^^^^^
+error: cannot instantiate primitive type 'Object' with attributes [create.subject.primitive.attributes]
+-->
+
+(#190) O2 is an Object with number 2.
 <!--            ^^^^^^
 error: cannot instantiate primitive type 'Object' with attributes [create.subject.primitive.attributes]
 -->
