@@ -32,7 +32,6 @@ import org.fulib.scenarios.diagnostic.Position;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.fulib.scenarios.diagnostic.Marker.note;
 import static org.fulib.scenarios.diagnostic.Marker.*;
 import static org.fulib.scenarios.parser.Identifiers.*;
 
@@ -273,10 +272,10 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
       final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
-      final Expr receiver;
-      if (ctx.EVERY() != null)
+      final Expr receiver = this.pop();
+
+      if (receiver instanceof PlaceholderExpr)
       {
-         receiver = PlaceholderExpr.of(this.pop());
          for (final NamedExpr clause : clauses)
          {
             final Expr expr = clause.getExpr();
@@ -295,10 +294,7 @@ public class ASTListener extends ScenarioParserBaseListener
             this.report(error);
          }
       }
-      else
-      {
-         receiver = this.pop();
-      }
+
       final HasSentence hasSentence = HasSentence.of(receiver, clauses);
       hasSentence.setPosition(position(ctx.hasClauses().hasClause(0).verb));
       this.stack.push(hasSentence);
@@ -464,19 +460,7 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitBidiNamedExpr(ScenarioParser.BidiNamedExprContext ctx)
    {
-      final Expr expr;
-      if (ctx.expr() != null)
-      {
-         expr = this.pop();
-      }
-      else if (ctx.MANY() != null)
-      {
-         expr = PlaceholderExpr.of(ListType.of(this.pop()));
-      }
-      else
-      {
-         expr = PlaceholderExpr.of(this.pop());
-      }
+      final Expr expr = this.pop();
       final Name name = name(ctx.firstName);
       final NamedExpr namedExpr = NamedExpr.of(name, expr);
       namedExpr.setOtherName(name(ctx.otherName));
@@ -485,11 +469,54 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
+   public void exitAPlaceholder(ScenarioParser.APlaceholderContext ctx)
+   {
+      this.buildPlaceholderExpr(ctx.LIKE() != null, true);
+   }
+
+   @Override
+   public void exitManyPlaceholder(ScenarioParser.ManyPlaceholderContext ctx)
+   {
+      final Expr example = ctx.LIKE() != null ? this.pop() : null;
+      final Type type = ListType.of(this.pop());
+      final PlaceholderExpr placeholderExpr = PlaceholderExpr.of(type, example);
+      placeholderExpr.setPosition(type.getPosition());
+      this.stack.push(placeholderExpr);
+   }
+
+   @Override
+   public void exitEveryPlaceholder(ScenarioParser.EveryPlaceholderContext ctx)
+   {
+      buildPlaceholderExpr(ctx.LIKE() != null, true);
+   }
+
+   @Override
+   public void exitLikePlaceholder(ScenarioParser.LikePlaceholderContext ctx)
+   {
+      this.buildPlaceholderExpr(true, false);
+   }
+
+   @Override
+   public void exitOfTypePlaceholder(ScenarioParser.OfTypePlaceholderContext ctx)
+   {
+      this.buildPlaceholderExpr(ctx.LIKE() != null, true);
+   }
+
+   private void buildPlaceholderExpr(boolean hasExample, boolean hasType)
+   {
+      final Expr example = hasExample ? this.pop() : null;
+      final Type type = hasType ? this.pop() : null;
+      final PlaceholderExpr placeholderExpr = PlaceholderExpr.of(type, example);
+      placeholderExpr.setPosition(type != null ? type.getPosition() : example != null ? example.getPosition() : null);
+      this.stack.push(placeholderExpr);
+   }
+
+   @Override
    public void exitPlaceholderNamedExpr(ScenarioParser.PlaceholderNamedExprContext ctx)
    {
-      final Expr expr = ctx.TYPE() != null ? PlaceholderExpr.of(this.pop()) : this.pop();
+      final PlaceholderExpr placeholderExpr = this.pop();
       final Name name = name(ctx.name());
-      final NamedExpr namedExpr = NamedExpr.of(name, expr);
+      final NamedExpr namedExpr = NamedExpr.of(name, placeholderExpr);
       this.stack.push(namedExpr);
    }
 

@@ -57,7 +57,35 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    @Override
    public Expr visit(PlaceholderExpr placeholderExpr, Scope par)
    {
-      placeholderExpr.setType(placeholderExpr.getType().accept(TypeResolver.INSTANCE, par));
+      final Type unresolvedType = placeholderExpr.getType();
+      if (unresolvedType != null)
+      {
+         placeholderExpr.setType(unresolvedType.accept(TypeResolver.INSTANCE, par));
+      }
+
+      final Expr unresolvedExample = placeholderExpr.getExample();
+      if (unresolvedExample != null)
+      {
+         final Expr resolvedExample = unresolvedExample.accept(this, par);
+         placeholderExpr.setExample(resolvedExample);
+
+         final Type exampleType = resolvedExample.getType();
+         if (unresolvedType == null)
+         {
+            placeholderExpr.setType(exampleType);
+         }
+         else
+         {
+            final Type resolvedType = placeholderExpr.getType();
+            if (resolvedType != PrimitiveType.ERROR && exampleType != PrimitiveType.ERROR && !TypeComparer.isSuperType(
+               resolvedType, exampleType))
+            {
+               par.report(error(resolvedExample.getPosition(), "placeholder.example.type.mismatch",
+                                exampleType.getDescription(), resolvedType.getDescription()));
+            }
+         }
+      }
+
       return placeholderExpr;
    }
 

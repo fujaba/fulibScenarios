@@ -68,11 +68,17 @@ withClause: WITH namedExpr;
 namedExpr: THE? simpleName expr # NamedSimple
          | number name          # NamedNumber
          ;
-bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF (expr | (A | AN) typeName | MANY typesName);
+bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF (expr | aPlaceholder | manyPlaceholder);
 
-placeholderNamedExpr: (A | AN) name (OF TYPE typeName | LIKE expr);
+placeholderNamedExpr: (A | AN) name (likePlaceholder | ofTypePlaceholder);
 
-hasSentence: (EVERY typeName | nameAccess) hasClauses;
+aPlaceholder: (A | AN) typeName (LIKE expr)?;
+manyPlaceholder: MANY typesName (LIKE expr)?;
+likePlaceholder: LIKE expr;
+ofTypePlaceholder: OF TYPE typeName (LIKE expr)?;
+everyPlaceholder: EVERY typeName (LIKE nameAccess)?;
+
+hasSentence: (everyPlaceholder | nameAccess) hasClauses;
 hasClauses: hasClause (sep hasClause)*;
 hasClause: verb=(HAS | HAVE) (namedExpr | bidiNamedExpr | placeholderNamedExpr);
 
