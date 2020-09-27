@@ -1,6 +1,5 @@
 package org.fulib.scenarios.visitor.resolve;
 
-import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.CompilationContext;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.*;
@@ -135,8 +134,8 @@ public class DeclResolver
          return getAttributeOrAssociation(scope, ownerClass, name);
       }
 
-      final Marker error = error(name.getPosition(), "property.unresolved.primitive", owner.getDescription(),
-                                 name.getValue());
+      final Marker error = error(name.getPosition(), "property.unresolved.primitive", name.getValue(),
+                                 owner.getDescription());
       if (receiver != null)
       {
          SentenceResolver.addStringLiteralTypoNotes(scope, receiver, error);
@@ -162,11 +161,10 @@ public class DeclResolver
 
       final Position position = name.getPosition();
       final Marker error = error(position, "property.unresolved", owner.getName(), nameValue);
-      Stream.concat(owner.getAttributes().keySet().stream(), owner.getAssociations().keySet().stream())
-            .filter(SentenceResolver.caseInsensitiveLevenshteinDistance(nameValue, UNRESOLVED_HINT_DISTANCE_THRESHOLD))
-            .forEach(suggestion -> {
-               error.note(note(position, "property.typo", nameValue, suggestion));
-            });
+      Stream
+         .concat(owner.getAttributes().keySet().stream(), owner.getAssociations().keySet().stream())
+         .filter(SentenceResolver.caseInsensitiveLevenshteinDistance(nameValue, UNRESOLVED_HINT_DISTANCE_THRESHOLD))
+         .forEach(suggestion -> error.note(note(position, "property.typo", suggestion, nameValue)));
       scope.report(error);
       return name; // unresolved
    }
@@ -316,11 +314,12 @@ public class DeclResolver
             {
                final String existingDesc = other.accept(DeclDescriber.INSTANCE, null);
                final String newDesc = DeclDescriber.describeAssociation(otherCardinality, owner);
-               final Marker error = error(otherPosition, "association.reverse.conflict", owner.getName(), name,
-                                          otherClass.getName(), other.getName(), existingDesc,
-                                          otherClass.getName(), otherName, newDesc);
-               final Marker note = firstDeclaration(other.getPosition(), other.getOwner(), other.getName());
-               scope.report(error.note(note));
+               final Marker error = error(otherPosition, "association.reverse.conflict", owner.getName(), name);
+               error.note(note(otherPosition, "conflict.old",
+                               otherClass.getName() + "." + other.getName() + ", " + existingDesc));
+               error.note(note(otherPosition, "conflict.new", otherClass.getName() + "." + otherName + ", " + newDesc));
+               error.note(firstDeclaration(other.getPosition(), other.getOwner(), other.getName()));
+               scope.report(error);
             }
          }
 
@@ -328,6 +327,11 @@ public class DeclResolver
       }
 
       final AssociationDecl association = createAssociation(scope, position, owner, name, cardinality, otherClass);
+      if (association == null)
+      {
+         // class was external or frozen, error already reported
+         return null;
+      }
 
       if (otherClass == owner && name.equals(otherName))
       {
@@ -343,9 +347,11 @@ public class DeclResolver
       {
          final AssociationDecl other = createAssociation(scope, otherPosition, otherClass, otherName,
                                                          otherCardinality, owner);
-
-         association.setOther(other);
-         other.setOther(association);
+         if (other != null)
+         {
+            association.setOther(other);
+            other.setOther(association);
+         }
       }
 
       return association;
@@ -394,8 +400,9 @@ public class DeclResolver
    private static Marker conflict(Position position, ClassDecl owner, String name, Decl existing, String newDesc)
    {
       final String existingDesc = existing.accept(DeclDescriber.INSTANCE, null);
-      final Marker error = error(position, "property.redeclaration.conflict", owner.getName(), name, existingDesc,
-                                 newDesc);
+      final Marker error = error(position, "property.redeclaration.conflict", owner.getName(), name);
+      error.note(note(position, "conflict.old", existingDesc));
+      error.note(note(position, "conflict.new", newDesc));
 
       final Position existingPosition = existing.getPosition();
       if (existingPosition != null)

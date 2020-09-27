@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
+import static org.fulib.scenarios.diagnostic.Marker.note;
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.firstDeclaration;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.ANSWER_VAR;
 import static org.fulib.scenarios.visitor.resolve.NameResolver.PREDICATE_RECEIVER;
@@ -129,12 +130,30 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    @Override
    public Expr visit(CreationExpr creationExpr, Scope par)
    {
-      creationExpr.setType(creationExpr.getType().accept(TypeResolver.INSTANCE, par));
-      final ClassDecl classDecl = creationExpr.getType().accept(ExtractClassDecl.INSTANCE, null);
+      final Type receiverType = creationExpr.getType().accept(TypeResolver.INSTANCE, par);
+      creationExpr.setType(receiverType);
+
+      if (receiverType == PrimitiveType.ERROR)
+      {
+         // recover from previous error
+         return creationExpr;
+      }
+
+      final ClassDecl receiverClass = receiverType.accept(ExtractClassDecl.INSTANCE, null);
+      if (receiverClass == null)
+      {
+         if (!creationExpr.getAttributes().isEmpty())
+         {
+            par.report(
+               error(creationExpr.getPosition(), "create.subject.primitive.attributes", receiverType.getDescription()));
+         }
+
+         return creationExpr;
+      }
 
       for (final NamedExpr namedExpr : creationExpr.getAttributes())
       {
-         SentenceResolver.resolveHasNamedExpr(namedExpr, classDecl, par);
+         SentenceResolver.resolveHasNamedExpr(namedExpr, receiverClass, par);
       }
       return creationExpr;
    }
@@ -233,16 +252,18 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
          // check if arguments and parameters match (by label)
          final String params = parameters.stream().skip(1).map(ParameterDecl::getName)
-                                         .collect(Collectors.joining(" "));
+                                         .collect(Collectors.joining(", "));
          final String args = arguments.stream().map(NamedExpr::getName).map(Name::getValue)
-                                      .collect(Collectors.joining(" "));
+                                      .collect(Collectors.joining(", "));
 
          if (!params.equals(args))
          {
-            final Marker error = error(callExpr.getPosition(), "call.mismatch.params.args", receiverClass.getName(),
-                                       methodName, params, args);
-            final Marker note = firstDeclaration(method.getPosition(), method.getOwner(), method.getName());
-            par.report(error.note(note));
+            final Marker error = error(position, "call.mismatch.params.args", receiverClass.getName(),
+                                       methodName);
+            error.note(note(position, "call.parameters", params));
+            error.note(note(position, "call.arguments", args));
+            error.note(firstDeclaration(method.getPosition(), method.getOwner(), method.getName()));
+            par.report(error);
          }
 
          // match arguments and check types
@@ -279,8 +300,8 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
                continue;
             }
 
-            par.report(
-               error(expr.getPosition(), "call.mismatch.type", paramType.getDescription(), type.getDescription()));
+            par.report(error(expr.getPosition(), "call.mismatch.type", type.getDescription(), name,
+                             paramType.getDescription()));
          }
       }
 
@@ -472,8 +493,9 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
 
       if (!TypeComparer.equals(startType, endType))
       {
-         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch", startType.getDescription(),
-                          endType.getDescription()));
+         par.report(error(rangeExpr.getPosition(), "range.element.type.mismatch")
+                       .note(note(start.getPosition(), "range.element.type.lower", startType.getDescription()))
+                       .note(note(end.getPosition(), "range.element.type.upper", endType.getDescription())));
       }
       if (!PrimitiveType.isIntegral(startType))
       {

@@ -126,8 +126,8 @@ constraint: linkConstraint
 
 linkConstraint: WITH SOME LINK TO name;
 attributeEqualityConstraint: WITH (name expr | number name);
-attributeConditionalConstraint: (pos=WHERE SOME ATTRIBUTE | pos=WHOSE name) condOp rhs=expr;
-attributePredicateConstraint: (pos=WHERE SOME ATTRIBUTE | pos=WHOSE name) predOp;
+attributeConditionalConstraint: (WHERE SOME ATTRIBUTE | WHOSE name) condOp rhs=expr;
+attributePredicateConstraint: (WHERE SOME ATTRIBUTE | WHOSE name) predOp;
 matchConstraint: WHERE condExpr;
 
 // --------------- Expressions ---------------

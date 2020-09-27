@@ -1,38 +1,36 @@
 # Invalid Operators
 
 We expect that has value 4.
-<!--           ^
-error: invalid attribute check - missing receiver [attribute-check.receiver.missing]
+<!--           ^^^
+error: attribute check expression requires a receiver [attribute-check.receiver.missing]
 -->
 
 We expect that is less than 1.
-<!--           ^
-error: invalid conditional operator - missing left-hand expression [conditional.lhs.missing]
+<!--           ^^^^^^^^^^^^
+error: conditional operator requires a left-hand expression [conditional.lhs.missing]
 -->
 
 We expect that is empty.
-<!--           ^
-error: invalid predicate operator - missing left-hand expression [predicate.lhs.missing]
+<!--           ^^^^^^^^
+error: predicate operator requires a left-hand expression [predicate.lhs.missing]
 -->
 
 # Invalid Ranges
 
-We write a1
-<!--     ^
-error: invalid range operator - unsupported element type 'String' [range.element.type.unsupported]
--->
-  to a4 into range.
-<!-- ^
-error: invalid range operator - unsupported element type 'String' [range.element.type.unsupported]
+We write a1 to a4 into range.
+<!--     ^^
+error: cannot range over expression of non-integer type 'String' [range.element.type.unsupported]
+               ^^
+error: cannot range over expression of non-integer type 'String' [range.element.type.unsupported]
 -->
 
-We write 1 to
-<!--       ^
-error: mismatching range element types [range.element.type.mismatch]
-lower bound: int
-upper bound: double
--->
-(  ) 2.5 into range.
-<!-- ^
-error: invalid range operator - unsupported element type 'double' [range.element.type.unsupported]
+We write 1 to 2.5 into range.
+<!--       ^^
+error: cannot range over bounds of different types [range.element.type.mismatch]
+         ^
+note: lower bound has type 'int' [range.element.type.lower]
+              ^^^
+note: upper bound has type 'double' [range.element.type.upper]
+              ^^^
+error: cannot range over expression of non-integer type 'double' [range.element.type.unsupported]
 -->

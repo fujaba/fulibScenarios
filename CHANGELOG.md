@@ -292,3 +292,9 @@
 ## Bugfixes
 
 * Fixed a backward compatibility issue introduced by new keywords in v1.1. #183 #186
+
+# fulibScenarios v1.4.2
+
+## General
+
+* Updated to fulib v1.2.3.

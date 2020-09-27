@@ -118,5 +118,5 @@ IMG_END: ')' -> mode(DEFAULT_MODE);
 FILE_NAME: ~')'+;
 
 mode HEADLINE;
-HEADLINE_TEXT: ~'\n'+;
-HEADLINE_END: '\n' -> mode(DEFAULT_MODE);
+HEADLINE_TEXT: ~[\n\r]+;
+HEADLINE_END: ([\n\r] | '\r\n') -> mode(DEFAULT_MODE);

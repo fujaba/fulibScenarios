@@ -307,7 +307,7 @@ public enum CodeGenerator
       par.clazz = par.modelManager.haveClass(scenarioFile.getClassDecl().getName());
 
       // before class gen: add diagram sentences if necessary
-      for (final Scenario scenario : scenarioFile.getScenarios().values())
+      for (final Scenario scenario : scenarioFile.getScenarios())
       {
          par.scenario = scenario;
          this.addDiagramSentences(scenario, par);
@@ -319,7 +319,7 @@ public enum CodeGenerator
       // after class gen: add @Test and import to scenario methods
       par.addImport("org.junit.Test");
 
-      for (final Scenario scenario : scenarioFile.getScenarios().values())
+      for (final Scenario scenario : scenarioFile.getScenarios())
       {
          final String methodName = scenario.getMethodDecl().getName();
          getFMethod(par.clazz, methodName).setAnnotations("@Test");

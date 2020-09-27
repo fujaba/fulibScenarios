@@ -12,6 +12,7 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.parser.Identifiers;
+import org.fulib.util.Validator;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -100,7 +101,7 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
             scenarioFile.getMarkers().add(marker);
          }
       };
-      for (final Scenario scenario : scenarioFile.getScenarios().values())
+      for (final Scenario scenario : scenarioFile.getScenarios())
       {
          scenario.accept(this, scope);
       }
@@ -113,22 +114,38 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    public Object visit(Scenario scenario, Scope par)
    {
       final ClassDecl classDecl = scenario.getFile().getClassDecl();
-      final String methodName = Identifiers.toLowerCamelCase(scenario.getName());
-      final SentenceList body = scenario.getBody();
-      final MethodDecl methodDecl = MethodDecl.of(classDecl, methodName, null, PrimitiveType.VOID, body);
+      String methodName = Identifiers.toLowerCamelCase(scenario.getName());
+
+      if (!Validator.isSimpleName(methodName))
+      {
+         methodName = "_" + methodName;
+      }
+
       final Position position = scenario.getPosition();
-      methodDecl.setPosition(position);
+      final MethodDecl methodDecl = DeclResolver.resolveMethod(par, position, classDecl, methodName);
+      final ParameterDecl thisParam;
 
-      final ParameterDecl thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
-      thisParam.setPosition(position);
-      methodDecl.setParameters(Collections.singletonList(thisParam));
+      if (methodDecl.getParameters().isEmpty())
+      {
+         thisParam = ParameterDecl.of(methodDecl, "this", classDecl.getType());
+         thisParam.setPosition(position);
+         methodDecl.getParameters().add(thisParam);
 
-      classDecl.getMethods().add(methodDecl);
+         methodDecl.setType(PrimitiveType.VOID);
+      }
+      else
+      {
+         thisParam = methodDecl.getParameters().get(0);
+      }
+
       scenario.setMethodDecl(methodDecl);
 
       final Scope scope = new ExtendingScope(new Decl[] { thisParam, methodDecl }, par);
 
-      body.accept(SentenceResolver.INSTANCE, scope);
+      scenario.getBody().accept(SentenceResolver.INSTANCE, scope);
+
+      methodDecl.getBody().getItems().addAll(scenario.getBody().getItems());
+
       return null;
    }
 
