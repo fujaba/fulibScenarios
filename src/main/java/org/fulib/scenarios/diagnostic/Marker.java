@@ -190,7 +190,7 @@ public class Marker implements Diagnostic<String>, Comparable<Marker>
       {
          for (final Marker note : this.notes)
          {
-            note.appendTo(out);
+            note.appendTo(out, config);
          }
       }
    }

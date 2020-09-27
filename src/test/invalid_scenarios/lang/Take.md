@@ -10,6 +10,6 @@ note: write 'take a i like 1 from ...' instead [take.syntax.deprecated.hint]
 # Type
 
 We take an i from my string and we write i into j.
-<!--              ^
+<!--              ^^^^^^^^^
 error: cannot iterate over expression of type 'String' [take.source.type]
 -->
