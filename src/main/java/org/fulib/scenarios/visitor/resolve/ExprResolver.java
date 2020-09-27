@@ -80,8 +80,10 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
             if (resolvedType != PrimitiveType.ERROR && exampleType != PrimitiveType.ERROR && !TypeComparer.isSuperType(
                resolvedType, exampleType))
             {
-               par.report(error(resolvedExample.getPosition(), "placeholder.example.type.mismatch",
-                                exampleType.getDescription(), resolvedType.getDescription()));
+               final Marker error = error(resolvedExample.getPosition(), "placeholder.example.type.mismatch",
+                                          exampleType.getDescription(), resolvedType.getDescription());
+               SentenceResolver.addStringLiteralTypoNotes(par, resolvedExample, error);
+               par.report(error);
             }
          }
       }
