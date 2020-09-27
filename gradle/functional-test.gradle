@@ -23,6 +23,7 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
       "$buildDir/generated-src/invalid_scenarios/test/",
       [ sourceDir ],
       '-i', imports.join(','),
+      '--marker-end-columns',
    )
 
    def writer = new ByteArrayOutputStream()
@@ -87,15 +88,18 @@ private List<String> getMarkerLines(File rootDir, String sourceDir) {
       String text = null
 
       it.eachLine { line, num ->
-         int column
-         if (line.contains('<!--') && (column = line.indexOf('^')) >= 0) {
+         java.util.regex.Matcher matcher
+         if ((matcher = (line =~ /^\s*<!--\s*(\^+)\s*$/))) {
+            int start = matcher.start(1)
+            int end = matcher.end(1) - 1
             startLine = num - 1
-            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$column: "
+            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$start-$end: "
          }
-         else if (line.trim() == '^') {
+         else if ((matcher = (line =~ /^\s*(\^+)\s*$/))) {
             markerLines.add text
-            column = line.indexOf('^')
-            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$column: "
+            int start = matcher.start(1)
+            int end = matcher.end(1) - 1
+            text = "${ rootDir.relativePath(it).replace((char) '/', File.separatorChar) }:$startLine:$start-$end: "
          }
          else if (text) {
             if (line.contains('-->')) {
