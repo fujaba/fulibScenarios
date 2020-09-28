@@ -69,20 +69,15 @@ public class DeclResolver
 
    private static MethodDecl getMethod(ClassDecl owner, String name)
    {
-      while (true)
+      for (final ClassDecl superClass : owner.getSuperClasses())
       {
-         final MethodDecl decl = getOwnMethod(owner, name);
+         final MethodDecl decl = getOwnMethod(superClass, name);
          if (decl != null)
          {
             return decl;
          }
-
-         final Type superType = owner.getSuperType();
-         if (superType == null || (owner = superType.accept(ExtractClassDecl.INSTANCE, null)) == null)
-         {
-            return null;
-         }
       }
+      return null;
    }
 
    private static MethodDecl getOwnMethod(ClassDecl owner, String name)
@@ -230,20 +225,15 @@ public class DeclResolver
 
    static AttributeDecl getAttribute(ClassDecl owner, String name)
    {
-      while (true)
+      for (final ClassDecl superClass : owner.getSuperClasses())
       {
-         final AttributeDecl decl = getOwnAttribute(owner, name);
+         final AttributeDecl decl = getOwnAttribute(superClass, name);
          if (decl != null)
          {
             return decl;
          }
-
-         final Type superType = owner.getSuperType();
-         if (superType == null || (owner = superType.accept(ExtractClassDecl.INSTANCE, null)) == null)
-         {
-            return null;
-         }
       }
+      return null;
    }
 
    static AttributeDecl getOwnAttribute(ClassDecl owner, String name)
