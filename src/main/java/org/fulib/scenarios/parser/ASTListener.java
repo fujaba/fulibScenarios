@@ -525,16 +525,16 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitTypeName(ScenarioParser.TypeNameContext ctx)
    {
-      final UnresolvedType type;
+      final Type type;
       if (ctx.CARD() != null)
       {
          final ScenarioParser.NameContext name = ctx.name();
-         type = unresolvedType(position(name), joinCaps(name));
+         type = unresolvedType(position(name), joinCaps(name), inputText(name), false);
       }
       else
       {
-         final ScenarioParser.SimpleNameContext simpleName = ctx.simpleName();
-         type = unresolvedType(position(simpleName), joinCaps(simpleName));
+         final ScenarioParser.SimpleNameContext simpleNameCtx = ctx.simpleName();
+         type = unresolvedType(position(simpleNameCtx), joinCaps(simpleNameCtx), inputText(simpleNameCtx), false);
       }
       this.stack.push(type);
    }
@@ -542,29 +542,23 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitTypesName(ScenarioParser.TypesNameContext ctx)
    {
-      final UnresolvedType type;
+      final Type type;
       if (ctx.CARDS() != null)
       {
          final ScenarioParser.NameContext name = ctx.name();
-         type = unresolvedType(position(name), joinCaps(name));
+         type = unresolvedType(position(name), joinCaps(name), inputText(name), true);
       }
       else
       {
-         final ScenarioParser.SimpleNameContext simpleName = ctx.simpleName();
-         type = unresolvedTypePlural(position(simpleName), joinCaps(simpleName));
+         final ScenarioParser.SimpleNameContext simpleNameCtx = ctx.simpleName();
+         type = unresolvedType(position(simpleNameCtx), joinCaps(simpleNameCtx), inputText(simpleNameCtx), true);
       }
       this.stack.push(type);
    }
 
-   private static UnresolvedType unresolvedTypePlural(Position position, String caps)
+   private static UnresolvedType unresolvedType(Position position, String typeName, String text, boolean plural)
    {
-      final String typeName = caps.endsWith("s") ? caps.substring(0, caps.length() - 1) : caps;
-      return unresolvedType(position, typeName);
-   }
-
-   private static UnresolvedType unresolvedType(Position position, String typeName)
-   {
-      final UnresolvedType type = UnresolvedType.of(typeName);
+      final UnresolvedType type = UnresolvedType.of(typeName, text, plural);
       type.setPosition(position);
       return type;
    }
