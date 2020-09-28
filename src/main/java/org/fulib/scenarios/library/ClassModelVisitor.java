@@ -202,10 +202,13 @@ public class ClassModelVisitor extends ClassVisitor
             throw new UnsupportedOperationException("generic type arguments");
          }
 
-         final int end = descriptor.indexOf(';', index + 1);
+         final int semi = descriptor.indexOf(';', index + 1);
+         final int slash = descriptor.lastIndexOf('/', semi - 1);
+         final String text = descriptor.substring(index + 1, semi);
+         final String name = descriptor.substring(Math.max(slash, index) + 1, semi);
 
-         consumer.accept(UnresolvedType.of(descriptor.substring(index + 1, end)));
-         return end + 1;
+         consumer.accept(UnresolvedType.of(name, text, false));
+         return semi + 1;
       default:
          consumer.accept(parsePrimitiveType(c));
          return index + 1;

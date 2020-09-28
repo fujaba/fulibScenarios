@@ -14,17 +14,48 @@ public enum TypeResolver implements Type.Visitor<Scope, Type>
    @Override
    public Type visit(UnresolvedType unresolvedType, Scope par)
    {
-      final String name = unresolvedType.getName();
+      final String primitiveName = this.getPrimitiveNameFromText(unresolvedType);
 
-      // potential primitive or wrapper type
-      final String primitiveName = name.startsWith("java/lang/") ? name.substring(10) : name;
       final PrimitiveType primitive = PrimitiveType.fromJavaName(primitiveName);
       if (primitive != null)
       {
          return primitive;
       }
 
-      return resolveClass(par, name, unresolvedType.getPosition()).getType();
+      final String name = unresolvedType.getName();
+      final String singularName = unresolvedType.getPlural() ? depluralize(name) : name;
+
+      final PrimitiveType primitive2 = PrimitiveType.fromJavaName(singularName);
+      if (primitive2 != null)
+      {
+         return primitive2;
+      }
+
+      return resolveClass(par, singularName, unresolvedType.getPosition()).getType();
+   }
+
+   private String getPrimitiveNameFromText(UnresolvedType unresolvedType)
+   {
+      final String primitiveName;
+      final String text = unresolvedType.getText();
+      if (text.startsWith("java/lang/"))
+      {
+         primitiveName = text.substring(10);
+      }
+      else if (unresolvedType.getPlural())
+      {
+         primitiveName = depluralize(text);
+      }
+      else
+      {
+         primitiveName = text;
+      }
+      return primitiveName;
+   }
+
+   private static String depluralize(String caps)
+   {
+      return caps.endsWith("s") ? caps.substring(0, caps.length() - 1) : caps;
    }
 
    @Override

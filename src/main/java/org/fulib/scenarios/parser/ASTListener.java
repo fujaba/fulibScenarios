@@ -23,7 +23,6 @@ import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.pattern.*;
 import org.fulib.scenarios.ast.sentence.*;
 import org.fulib.scenarios.ast.type.ListType;
-import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
 import org.fulib.scenarios.diagnostic.Marker;
@@ -456,21 +455,12 @@ public class ASTListener extends ScenarioParserBaseListener
       if (ctx.CARD() != null)
       {
          final ScenarioParser.NameContext name = ctx.name();
-         type = unresolvedType(position(name), joinCaps(name));
+         type = unresolvedType(position(name), joinCaps(name), inputText(name), false);
       }
       else
       {
          final ScenarioParser.SimpleNameContext simpleNameCtx = ctx.simpleName();
-         final String simpleName = simpleNameCtx.getText();
-         final PrimitiveType primitiveType = PrimitiveType.fromJavaName(simpleName);
-         if (primitiveType != null)
-         {
-            type = primitiveType;
-         }
-         else
-         {
-            type = unresolvedType(position(simpleNameCtx), joinCaps(simpleNameCtx));
-         }
+         type = unresolvedType(position(simpleNameCtx), joinCaps(simpleNameCtx), inputText(simpleNameCtx), false);
       }
       this.stack.push(type);
    }
@@ -482,33 +472,19 @@ public class ASTListener extends ScenarioParserBaseListener
       if (ctx.CARDS() != null)
       {
          final ScenarioParser.NameContext name = ctx.name();
-         type = unresolvedType(position(name), joinCaps(name));
+         type = unresolvedType(position(name), joinCaps(name), inputText(name), true);
       }
       else
       {
          final ScenarioParser.SimpleNameContext simpleNameCtx = ctx.simpleName();
-         final String simpleName = depluralize(simpleNameCtx.getText());
-         final PrimitiveType primitiveType = PrimitiveType.fromJavaName(simpleName);
-         if (primitiveType != null)
-         {
-            type = primitiveType;
-         }
-         else
-         {
-            type = unresolvedType(position(simpleNameCtx), depluralize(joinCaps(simpleNameCtx)));
-         }
+         type = unresolvedType(position(simpleNameCtx), joinCaps(simpleNameCtx), inputText(simpleNameCtx), true);
       }
       this.stack.push(type);
    }
 
-   private static String depluralize(String caps)
+   private static UnresolvedType unresolvedType(Position position, String typeName, String text, boolean plural)
    {
-      return caps.endsWith("s") ? caps.substring(0, caps.length() - 1) : caps;
-   }
-
-   private static UnresolvedType unresolvedType(Position position, String typeName)
-   {
-      final UnresolvedType type = UnresolvedType.of(typeName);
+      final UnresolvedType type = UnresolvedType.of(typeName, text, plural);
       type.setPosition(position);
       return type;
    }
