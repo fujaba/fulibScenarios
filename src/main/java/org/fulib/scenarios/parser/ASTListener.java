@@ -31,6 +31,7 @@ import org.fulib.scenarios.diagnostic.Position;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.fulib.scenarios.diagnostic.Marker.note;
 import static org.fulib.scenarios.diagnostic.Marker.warning;
 import static org.fulib.scenarios.parser.Identifiers.*;
 
@@ -79,13 +80,11 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitFile(ScenarioParser.FileContext ctx)
    {
       final List<Scenario> scenarios = this.pop(Scenario.class, ctx.scenario().size());
-      final LinkedHashMap<String, Scenario> scenarioMap = new LinkedHashMap<>();
-      this.file = ScenarioFile.of(null, null, scenarioMap, null);
+      this.file = ScenarioFile.of(null, null, scenarios, null);
       this.file.setMarkers(this.markers);
 
       for (final Scenario scenario : scenarios)
       {
-         scenarioMap.put(scenario.getName(), scenario);
          scenario.setFile(this.file);
       }
    }
@@ -151,8 +150,9 @@ public class ASTListener extends ScenarioParserBaseListener
 
       if (nameCtx != null && ctx.THE() == null)
       {
-         this.report(warning(position(ctx), "descriptor.indefinite.deprecated", inputText(ctx.typeName()),
-                             inputText(nameCtx)));
+         final Position position = position(ctx);
+         this.report(warning(position, "descriptor.indefinite.deprecated").note(
+            note(position, "descriptor.indefinite.deprecated.hint", inputText(ctx.typeName()), inputText(nameCtx))));
       }
 
       this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
@@ -165,8 +165,10 @@ public class ASTListener extends ScenarioParserBaseListener
 
       if (!names.isEmpty() && ctx.THE() == null)
       {
-         this.report(warning(position(ctx), "descriptor.multi.indefinite.deprecated", inputText(ctx.typesName()),
-                             inputText(ctx.name())));
+         final Position position = position(ctx);
+         this.report(warning(position, "descriptor.multi.indefinite.deprecated").note(
+            note(position, "descriptor.indefinite.deprecated.hint", inputText(ctx.typesName()),
+                 inputText(ctx.name()))));
       }
 
       this.stack.push(this.multiDescriptor(names, ctx.withClauses()));
@@ -232,7 +234,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name name = name(ctx.name());
       final PredicateOperator predOp = predicateOperator(ctx.predOp());
       final AttributePredicateConstraint apc = AttributePredicateConstraint.of(name, predOp);
-      apc.setPosition(position(ctx.pos));
+      apc.setPosition(position(ctx.predOp()));
       this.stack.push(apc);
    }
 
@@ -243,7 +245,7 @@ public class ASTListener extends ScenarioParserBaseListener
       final Name name = name(ctx.name());
       final ConditionalOperator condOp = conditionalOperator(ctx.condOp());
       final AttributeConditionalConstraint acc = AttributeConditionalConstraint.of(name, condOp, rhs);
-      acc.setPosition(position(ctx.pos));
+      acc.setPosition(position(ctx.condOp()));
       this.stack.push(acc);
    }
 
@@ -400,8 +402,9 @@ public class ASTListener extends ScenarioParserBaseListener
       if (ctx.simpleVarName != null)
       {
          varName = name(ctx.simpleVarName);
-         this.report(warning(position(ctx.simpleVarName), "take.syntax.deprecated", inputText(ctx.simpleVarName),
-                             inputText(ctx.example)));
+         final Position position = position(ctx.simpleVarName);
+         this.report(warning(position, "take.syntax.deprecated").note(
+            note(position, "take.syntax.deprecated.hint", inputText(ctx.simpleVarName), inputText(ctx.example))));
       }
       else
       {
@@ -448,16 +451,16 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitTypeName(ScenarioParser.TypeNameContext ctx)
    {
-      final UnresolvedType type;
+      final Type type;
       if (ctx.CARD() != null)
       {
          final ScenarioParser.NameContext name = ctx.name();
-         type = unresolvedType(position(name), joinCaps(name));
+         type = unresolvedType(position(name), joinCaps(name), inputText(name), false);
       }
       else
       {
-         final ScenarioParser.SimpleNameContext simpleName = ctx.simpleName();
-         type = unresolvedType(position(simpleName), joinCaps(simpleName));
+         final ScenarioParser.SimpleNameContext simpleNameCtx = ctx.simpleName();
+         type = unresolvedType(position(simpleNameCtx), joinCaps(simpleNameCtx), inputText(simpleNameCtx), false);
       }
       this.stack.push(type);
    }
@@ -465,29 +468,23 @@ public class ASTListener extends ScenarioParserBaseListener
    @Override
    public void exitTypesName(ScenarioParser.TypesNameContext ctx)
    {
-      final UnresolvedType type;
+      final Type type;
       if (ctx.CARDS() != null)
       {
          final ScenarioParser.NameContext name = ctx.name();
-         type = unresolvedType(position(name), joinCaps(name));
+         type = unresolvedType(position(name), joinCaps(name), inputText(name), true);
       }
       else
       {
-         final ScenarioParser.SimpleNameContext simpleName = ctx.simpleName();
-         type = unresolvedTypePlural(position(simpleName), joinCaps(simpleName));
+         final ScenarioParser.SimpleNameContext simpleNameCtx = ctx.simpleName();
+         type = unresolvedType(position(simpleNameCtx), joinCaps(simpleNameCtx), inputText(simpleNameCtx), true);
       }
       this.stack.push(type);
    }
 
-   private static UnresolvedType unresolvedTypePlural(Position position, String caps)
+   private static UnresolvedType unresolvedType(Position position, String typeName, String text, boolean plural)
    {
-      final String typeName = caps.endsWith("s") ? caps.substring(0, caps.length() - 1) : caps;
-      return unresolvedType(position, typeName);
-   }
-
-   private static UnresolvedType unresolvedType(Position position, String typeName)
-   {
-      final UnresolvedType type = UnresolvedType.of(typeName);
+      final UnresolvedType type = UnresolvedType.of(typeName, text, plural);
       type.setPosition(position);
       return type;
    }

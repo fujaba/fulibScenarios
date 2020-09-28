@@ -60,7 +60,7 @@ dependencies {
     // ...
 
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.4.1'
+    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.4.2'
 
     // optional (required for mockups):
     // https://mvnrepository.com/artifact/org.fulib/fulibMockups
@@ -89,3 +89,7 @@ In both cases, the package name depends on the directory the scenario file was i
 For example, if you have the file `src/main/java/org/example/MyScenario.md`, generated classes and tests will use the package `org.example`.
 
 > ⚠︎ If you have scenarios in both `src/main/java` and `src/test/java`, make sure to place them in distinct packages, e.g. `org.example.model` and `org.example.testmodel`.
+
+## License
+
+[MIT](LICENSE.md)

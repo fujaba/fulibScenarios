@@ -38,7 +38,7 @@ public enum PrimitiveType implements Type
 
    // =============== Constants ===============
 
-   public static final Map<String, PrimitiveType> javaNameMap;
+   private static final Map<String, PrimitiveType> javaNameMap;
 
    static
    {
@@ -105,6 +105,11 @@ public enum PrimitiveType implements Type
    }
 
    // =============== Static Methods ===============
+
+   public static PrimitiveType fromJavaName(String javaName)
+   {
+      return javaNameMap.get(javaName);
+   }
 
    public static Type primitiveToWrapper(Type type)
    {

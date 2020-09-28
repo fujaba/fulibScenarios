@@ -2,7 +2,6 @@ package org.fulib.scenarios.visitor.resolve;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.fulib.StrUtil;
-import org.fulib.builder.ClassModelBuilder;
 import org.fulib.scenarios.ast.MultiDescriptor;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.*;
@@ -113,8 +112,7 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
          {
             // only one name anyway, easy
 
-            final NameAccess object = NameAccess.of(ResolvedName.of(varDecls.get(0)));
-            final HasSentence hasSentence = HasSentence.of(object, Collections.singletonList(attribute));
+            final HasSentence hasSentence = buildHasSentence(varDecls.get(0), attribute);
             result.add(hasSentence);
             continue;
          }
@@ -131,9 +129,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
 
             for (int i = 0; i < names.size(); i++)
             {
-               final Expr object = NameAccess.of(ResolvedName.of(varDecls.get(i)));
                final NamedExpr partialAttribute = NamedExpr.of(attributeName, elements.get(i));
-               final HasSentence hasSentence = HasSentence.of(object, Collections.singletonList(partialAttribute));
+               final HasSentence hasSentence = buildHasSentence(varDecls.get(i), partialAttribute);
                result.add(hasSentence);
             }
          }
@@ -147,18 +144,34 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
             // bob.setCredits(_t0);
 
             final VarDecl temp = VarDecl.of("temp++", null, attributeExpr);
+            final ResolvedName tempName = ResolvedName.of(temp);
+            final Expr tempAccess = NameAccess.of(tempName);
             result.add(IsSentence.of(temp));
 
             for (int i = 0; i < names.size(); i++)
             {
-               final Expr object = NameAccess.of(ResolvedName.of(varDecls.get(i)));
-               final Expr tempAccess = NameAccess.of(ResolvedName.of(temp));
                final NamedExpr partialAttribute = NamedExpr.of(attributeName, tempAccess);
-               final HasSentence hasSentence = HasSentence.of(object, Collections.singletonList(partialAttribute));
+               final HasSentence hasSentence = buildHasSentence(varDecls.get(i), partialAttribute);
                result.add(hasSentence);
             }
          }
       }
+   }
+
+   private static HasSentence buildHasSentence(Decl varDecl, NamedExpr attribute)
+   {
+      final Position position = varDecl.getPosition();
+
+      final ResolvedName receiverName = ResolvedName.of(varDecl);
+      receiverName.setPosition(position);
+
+      final NameAccess receiver = NameAccess.of(receiverName);
+      receiver.setPosition(position);
+
+      final HasSentence hasSentence = HasSentence.of(receiver, Collections.singletonList(attribute));
+      hasSentence.setPosition(position);
+
+      return hasSentence;
    }
 
    private static List<Name> getNames(MultiDescriptor multiDesc)
@@ -348,9 +361,11 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Map<String, Decl> decls = new LinkedHashMap<>();
       scope.list(decls::putIfAbsent);
 
-      decls.keySet().stream().filter(caseInsensitiveLevenshteinDistance(identifier, 2)).forEach(key -> {
-         parent.note(note(expr.getPosition(), "stringliteral.typo", stringValue, key));
-      });
+      decls
+         .keySet()
+         .stream()
+         .filter(caseInsensitiveLevenshteinDistance(identifier, 2))
+         .forEach(key -> parent.note(note(expr.getPosition(), "stringliteral.typo", key, stringValue)));
    }
 
    static Predicate<String> caseInsensitiveLevenshteinDistance(String base, int threshold)
@@ -482,8 +497,9 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       final Decl existing = par.resolve(name);
       if (existing != null)
       {
-         par.report(error(position, "variable.redeclaration", name).note(
-            note(existing.getPosition(), "variable.declaration.first", name)));
+         par.report(error(position, "variable.redeclaration", name)
+                       .note(note(position, "variable.redeclaration.hint"))
+                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
       }
    }
 
