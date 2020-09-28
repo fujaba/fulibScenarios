@@ -15,3 +15,8 @@ error: placeholder example of type 'String' is not a subtype of explicit type 'S
                    ^^^^
 note: perhaps you meant to refer to 'alice' instead of the string literal 'Alic'? [stringliteral.typo]
 -->
+
+Every Student has friends and is one of the friends of many Students like Alice.
+<!--                                                                      ^^^^^
+error: placeholder example of type 'Student' is not a subtype of explicit type 'list of Student' [placeholder.example.type.mismatch]
+-->
