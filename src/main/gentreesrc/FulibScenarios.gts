@@ -38,7 +38,7 @@ abstract org.fulib.scenarios.ast.Node {
 		}
 
 		abstract type.Type(readonly delegate description: String) {
-			UnresolvedType(name: String)
+			UnresolvedType(name: String, text: String, plural: boolean)
 			ClassType(classDecl: ClassDecl)
 			ListType(elementType: Type)
 			import PrimitiveType
