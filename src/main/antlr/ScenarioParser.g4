@@ -153,7 +153,7 @@ simpleName: identifier;
 name: identifier+;
 
 identifier: WORD
-          // new keywords in v1.1
+          // new keywords for pattern matching since v1.1
           | ATTRIBUTE
           | LINK
           | MATCH
@@ -161,7 +161,7 @@ identifier: WORD
           | SOME
           | WHERE
           | WHOSE
-          // new keywords for placeholders (TODO version number)
+          // new keywords for placeholders since v1.4
           | EVERY
           | TYPE
           ;
