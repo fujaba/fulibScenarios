@@ -298,3 +298,31 @@
 ## General
 
 * Updated to fulib v1.2.3.
+
+# fulibScenarios v1.5.0
+
+## General
+
+* Updated to fulib v1.3.0.
+* Updated to fulibTools v1.3.0.
+* Updated to fulibTables v1.4.0.
+
+## New Features
+
++ Added placeholders, new syntax that allows defining attributes and associations without using concrete objects. #182
++ Multiple scenarios with the same name are now merged into one test method. #192 #194
+
+## Improvements
+
+* Improved the wording, formatting and placement of many diagnostic messages. #172 #197
+* Primitive type names in scenario code are now case-sensitive. #199
+  > This means `long` in a scenario now becomes `long` instead of `Long` in the generated Java code. The old resolution is still in place, so `integer`, `character`, `object`, `number` and `string` are still valid ways to refer to the respective class.
+
+## Bugfixes
+
+* Fixed an exception caused by primitive object creation with `There` sentences. #188 #189
+* The compiler now produces a diagnostic error instead of an exception when attempting to create a primitive object with attributes. #190 #191
+* Test method names are now sanitized by prepending an underscore if necessary. #187 #193
+* Fixed an exception when attempting to define associations for external classes. #195 #196
+* Note markers now respect the `--marker-end-column` option. #198
+* The lexer now correctly handles `\r` and `\r\n` as line terminators. #198
