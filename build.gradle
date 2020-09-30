@@ -72,7 +72,7 @@ dependencies {
    // --------------- Other Libraries ---------------
 
    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
-   implementation group: 'org.apache.commons', name: 'commons-text', version: '1.8'
+   implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9'
 
    // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
    implementation group: 'org.antlr', name: 'antlr4-runtime', version: '4.8'
