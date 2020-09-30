@@ -17,5 +17,6 @@
     * [Loop Sentences \[WIP\]](language/sentences/loop-sentences.md)
     * [Call Sentences \[WIP\]](language/sentences/call-sentences.md)
 * [Web App \[WIP\]](web-app/README.md)
+  * [Getting Started](web-app/getting-started.md)
   * [API](web-app/api.md)
 
