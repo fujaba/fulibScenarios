@@ -4,6 +4,7 @@ import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.expr.ErrorExpr;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.PlaceholderExpr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -51,6 +52,43 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
    public Expr visit(Expr expr, Scope par)
    {
       return expr;
+   }
+
+   @Override
+   public Expr visit(PlaceholderExpr placeholderExpr, Scope par)
+   {
+      final Type unresolvedType = placeholderExpr.getType();
+      if (unresolvedType != null)
+      {
+         placeholderExpr.setType(unresolvedType.accept(TypeResolver.INSTANCE, par));
+      }
+
+      final Expr unresolvedExample = placeholderExpr.getExample();
+      if (unresolvedExample != null)
+      {
+         final Expr resolvedExample = unresolvedExample.accept(this, par);
+         placeholderExpr.setExample(resolvedExample);
+
+         final Type exampleType = resolvedExample.getType();
+         if (unresolvedType == null)
+         {
+            placeholderExpr.setType(exampleType);
+         }
+         else
+         {
+            final Type resolvedType = placeholderExpr.getType();
+            if (resolvedType != PrimitiveType.ERROR && exampleType != PrimitiveType.ERROR && !TypeComparer.isSuperType(
+               resolvedType, exampleType))
+            {
+               final Marker error = error(resolvedExample.getPosition(), "placeholder.example.type.mismatch",
+                                          exampleType.getDescription(), resolvedType.getDescription());
+               SentenceResolver.addStringLiteralTypoNotes(par, resolvedExample, error);
+               par.report(error);
+            }
+         }
+      }
+
+      return placeholderExpr;
    }
 
    // --------------- PrimaryExpr.Visitor ---------------
