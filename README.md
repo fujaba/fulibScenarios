@@ -68,7 +68,7 @@ dependencies {
 
     // optional (required for pattern matching):
     // https://mvnrepository.com/artifact/org.fulib/fulibTables
-    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.3.0'
+    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.4.0'
 }
 ```
 
