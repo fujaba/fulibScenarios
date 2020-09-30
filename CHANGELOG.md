@@ -326,3 +326,9 @@
 * Fixed an exception when attempting to define associations for external classes. #195 #196
 * Note markers now respect the `--marker-end-column` option. #198
 * The lexer now correctly handles `\r` and `\r\n` as line terminators. #198
+
+# fulibScenarios v1.5.1
+
+## Bugfixes
+
+* Fixed the --object-diagram and --object-diagram-svg options not doing anything. #200
