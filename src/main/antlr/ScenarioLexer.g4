@@ -79,8 +79,10 @@ H1:           '#' -> mode(HEADLINE);
 H2:           '##' -> mode(HEADLINE);
 LINE_COMMENT: '//' -> mode(HEADLINE);
 
-BULLET: [ \t\u000C]* [+*-] {getCharPositionInLine() == getText().length()}?;
-NUMBERED: [ \t\u000C]* [0-9]+ [.] {getCharPositionInLine() == getText().length()}?;
+BULLET: LEADING_WHITESPACE [+*-] SEMPRED_SOL;
+NUMBERED: LEADING_WHITESPACE [0-9]+ [.] SEMPRED_SOL;
+
+fragment SEMPRED_SOL: {getCharPositionInLine() == getText().length()}?;
 
 COMMA:     [,];
 FULL_STOP: [.];
@@ -102,7 +104,9 @@ WORD: [a-zA-Z_][a-zA-Z0-9'_-]*;
 
 // --------------- Whitespace ---------------
 
-WS:           [ \t\r\n\u000C]+ -> skip;
+fragment LEADING_WHITESPACE: [ \t\u000C]*;
+WHITESPACE: [ \t\u000C]+ -> skip;
+LINEBREAK: [\r\n]+ -> skip;
 
 // --------------- Comments ---------------
 
@@ -118,5 +122,5 @@ IMG_END: ')' -> mode(DEFAULT_MODE);
 FILE_NAME: ~')'+;
 
 mode HEADLINE;
-HEADLINE_TEXT: ~[\n\r]+;
 HEADLINE_END: ([\n\r] | '\r\n') -> mode(DEFAULT_MODE);
+HEADLINE_TEXT: ~[\n\r]+;
