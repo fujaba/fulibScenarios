@@ -86,7 +86,7 @@ abstract org.fulib.scenarios.ast.Node {
 			abstract primary.PrimaryExpr {
 				IntLiteral(value: int)
 				DoubleLiteral(value: double)
-				StringLiteral(value: String)
+				StringLiteral(value: String, noconstruct language: String)
 				NameAccess(name: Name)
 				AnswerLiteral()
 			}
