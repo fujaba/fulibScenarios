@@ -600,7 +600,8 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       sentence.setTarget(target);
 
       final Type targetType = target.getType();
-      if (allowLists && !PrimitiveType.isNumeric(targetType))
+      if (allowLists && !PrimitiveType.isNumeric(targetType) //
+          && (targetType != PrimitiveType.STRING || operator != BinaryOperator.PLUS))
       {
          sentence.setSource(convertAsList(resolvedSource, target, sourceTypeCode, targetTypeCode, par));
          return sentence;
