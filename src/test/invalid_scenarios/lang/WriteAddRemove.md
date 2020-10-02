@@ -53,10 +53,16 @@ error: cannot add to 'IntLiteral' - must be a name or attribute access [add.targ
 
 We add "a" to "b".
 <!--          ^^^
-error: cannot add to expression of type 'String' [add.target.type]
+error: cannot add to 'StringLiteral' - must be a name or attribute access [add.target.not.name]
 -->
 
 There are the Objects o1,o2.
+
+We add o1 to o2.
+<!--         ^^
+error: cannot add to expression of type 'Object' [add.target.type]
+-->
+
 We add o1 to 1,2,3.
 <!--   ^^
 error: cannot add expression of type 'Object' to 'list of int' [add.source.type]
@@ -79,7 +85,19 @@ We remove "a" from "b".
 error: cannot remove from expression of type 'String' [remove.target.type]
 -->
 
+We write "foo" into str.
+We remove "o" from str.
+<!--               ^^^
+error: cannot remove from expression of type 'String' [remove.target.type]
+-->
+
 There are the Objects o1,o2.
+
+We remove o1 from o2.
+<!--              ^^
+error: cannot remove from expression of type 'Object' [remove.target.type]
+-->
+
 We remove o1 from 1,2,3.
 <!--      ^^
 error: cannot remove expression of type 'Object' from 'list of int' [remove.source.type]
