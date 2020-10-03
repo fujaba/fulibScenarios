@@ -59,6 +59,7 @@ abstract org.fulib.scenarios.ast.Node {
 			HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
 			IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 			AreSentence(descriptor: MultiDescriptor)
+			InheritanceSentence(subType: Type, superType: Type)
 
 			abstract ActorSentence(actor: Name) {
 				CreateSentence(actor: Name, descriptor: MultiDescriptor)

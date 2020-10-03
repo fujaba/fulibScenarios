@@ -525,6 +525,29 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return expand(areSentence.getDescriptor(), par).accept(this, par);
    }
 
+   @Override
+   public Sentence visit(InheritanceSentence inheritanceSentence, Scope par)
+   {
+      final Type resolvedSubType = inheritanceSentence.getSubType().accept(TypeResolver.INSTANCE, par);
+      inheritanceSentence.setSubType(resolvedSubType);
+      final Type resolvedSuperType = inheritanceSentence.getSuperType().accept(TypeResolver.INSTANCE, par);
+      inheritanceSentence.setSuperType(resolvedSuperType);
+
+      final ClassDecl subClassDecl = resolvedSubType.accept(ExtractClassDecl.INSTANCE, null);
+      // final ClassDecl superClassDecl = resolvedSuperType.accept(ExtractClassDecl.INSTANCE, null);
+
+      // TODO error if subClassDecl == null: cannot make type '...' inherit from another type
+      // TODO error if superClassDecl == null: cannot inherit from type '...'
+      // TODO error if subClassDecl.external: cannot make external type '...' inherit from another type
+      // TODO error if superClassDecl.external: cannot inherit from external type '...'
+      // TODO error if subClassDecl.superType != null && subClassDecl.superType.classDecl != superClassDecl: conflicting redeclaration of inheritance, '...' already inherits from '...'
+
+      subClassDecl.setSuperType(resolvedSuperType);
+      subClassDecl.setStoredSuperClasses(null);
+
+      return inheritanceSentence;
+   }
+
    // --------------- ActorSentence.Visitor ---------------
 
    @Override

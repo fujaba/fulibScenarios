@@ -59,7 +59,9 @@ multiDescriptor: typesName (name (sep name)+)? withClauses? // indefinite form
 typeName: simpleName | name CARD;
 typesName: simpleName | name CARDS;
 
-isSentence: THE? name IS (A | AN) typeName withClauses?;
+isSentence: EVERY typeName IS (A | AN) typeName # InheritanceIsSentence
+          | THE? name IS (A | AN) typeName withClauses? # SimpleIsSentence
+          ;
 areSentence: name (sep name)+ ARE typesName withClauses?;
 
 withClauses: withClause (sep withClause)*;
