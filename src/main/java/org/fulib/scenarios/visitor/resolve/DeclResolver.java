@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
+import static org.fulib.scenarios.visitor.TypeComparer.isSuperClass;
 
 public class DeclResolver
 {
@@ -301,6 +302,19 @@ public class DeclResolver
 
    static AssociationDecl getAssociation(ClassDecl owner, String name)
    {
+      for (final ClassDecl superClass : owner.getSuperClasses())
+      {
+         final AssociationDecl decl = getOwnAssociation(superClass, name);
+         if (decl != null)
+         {
+            return decl;
+         }
+      }
+      return null;
+   }
+
+   static AssociationDecl getOwnAssociation(ClassDecl owner, String name)
+   {
       return owner.getAssociations().get(name);
    }
 
@@ -330,7 +344,7 @@ public class DeclResolver
          // uses < because redeclaration as to-one when it was to-many is ok.
          // TODO investigate this claim
 
-         if (existing.getTarget() != otherClass || existing.getCardinality() < cardinality)
+         if (!isSuperClass(existing.getTarget(), otherClass) || existing.getCardinality() < cardinality)
          {
             final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
             final Marker conflict = conflict(position, owner, name, existing, newDesc);
