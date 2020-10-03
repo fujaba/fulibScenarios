@@ -15,6 +15,7 @@ import org.fulib.scenarios.ast.Scenario;
 import org.fulib.scenarios.ast.ScenarioFile;
 import org.fulib.scenarios.ast.ScenarioGroup;
 import org.fulib.scenarios.ast.decl.ClassDecl;
+import org.fulib.scenarios.ast.decl.MethodDecl;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.sentence.DiagramSentence;
 import org.fulib.scenarios.ast.sentence.Sentence;
@@ -341,8 +342,9 @@ public enum CodeGenerator
          return;
       }
 
-      final List<Sentence> sentences = scenario.getBody().getItems();
-      final String methodName = scenario.getMethodDecl().getName();
+      final MethodDecl methodDecl = scenario.getMethodDecl();
+      final List<Sentence> sentences = methodDecl.getBody().getItems();
+      final String methodName = methodDecl.getName();
       if (par.config.isObjectDiagram())
       {
          final DiagramSentence diagramSentence = DiagramSentence.of(listExpr, methodName + ".png");

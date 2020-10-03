@@ -60,7 +60,7 @@ dependencies {
     // ...
 
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.4.2'
+    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.5.1'
 
     // optional (required for mockups):
     // https://mvnrepository.com/artifact/org.fulib/fulibMockups
@@ -68,7 +68,7 @@ dependencies {
 
     // optional (required for pattern matching):
     // https://mvnrepository.com/artifact/org.fulib/fulibTables
-    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.3.0'
+    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.4.0'
 }
 ```
 

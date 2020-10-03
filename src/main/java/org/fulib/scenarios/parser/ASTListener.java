@@ -11,6 +11,7 @@ import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
 import org.fulib.scenarios.ast.decl.VarDecl;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.PlaceholderExpr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
@@ -31,8 +32,7 @@ import org.fulib.scenarios.diagnostic.Position;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.fulib.scenarios.diagnostic.Marker.note;
-import static org.fulib.scenarios.diagnostic.Marker.warning;
+import static org.fulib.scenarios.diagnostic.Marker.*;
 import static org.fulib.scenarios.parser.Identifiers.*;
 
 public class ASTListener extends ScenarioParserBaseListener
@@ -272,8 +272,30 @@ public class ASTListener extends ScenarioParserBaseListener
    public void exitHasSentence(ScenarioParser.HasSentenceContext ctx)
    {
       final List<NamedExpr> clauses = this.pop(NamedExpr.class, ctx.hasClauses().hasClause().size());
-      final Expr object = this.pop();
-      final HasSentence hasSentence = HasSentence.of(object, clauses);
+      final Expr receiver = this.pop();
+
+      if (receiver instanceof PlaceholderExpr)
+      {
+         for (final NamedExpr clause : clauses)
+         {
+            final Expr expr = clause.getExpr();
+            if (expr instanceof PlaceholderExpr)
+            {
+               continue;
+            }
+
+            final Position position = expr.getPosition();
+            final Marker error = error(position, "has.placeholder.concrete");
+            final String exprText = ctx
+               .getStart()
+               .getInputStream()
+               .getText(Interval.of((int) position.getStartOffset(), (int) position.getEndOffset()));
+            error.note(note(position, "has.placeholder.concrete.hint", clause.getName().getValue(), exprText));
+            this.report(error);
+         }
+      }
+
+      final HasSentence hasSentence = HasSentence.of(receiver, clauses);
       hasSentence.setPosition(position(ctx.hasClauses().hasClause(0).verb));
       this.stack.push(hasSentence);
    }
@@ -443,6 +465,58 @@ public class ASTListener extends ScenarioParserBaseListener
       final NamedExpr namedExpr = NamedExpr.of(name, expr);
       namedExpr.setOtherName(name(ctx.otherName));
       namedExpr.setOtherMany(ctx.ONE() != null);
+      this.stack.push(namedExpr);
+   }
+
+   @Override
+   public void exitAPlaceholder(ScenarioParser.APlaceholderContext ctx)
+   {
+      this.buildPlaceholderExpr(ctx.LIKE() != null, true);
+   }
+
+   @Override
+   public void exitManyPlaceholder(ScenarioParser.ManyPlaceholderContext ctx)
+   {
+      final Expr example = ctx.LIKE() != null ? this.pop() : null;
+      final Type type = ListType.of(this.pop());
+      final PlaceholderExpr placeholderExpr = PlaceholderExpr.of(type, example);
+      placeholderExpr.setPosition(type.getPosition());
+      this.stack.push(placeholderExpr);
+   }
+
+   @Override
+   public void exitEveryPlaceholder(ScenarioParser.EveryPlaceholderContext ctx)
+   {
+      buildPlaceholderExpr(ctx.LIKE() != null, true);
+   }
+
+   @Override
+   public void exitLikePlaceholder(ScenarioParser.LikePlaceholderContext ctx)
+   {
+      this.buildPlaceholderExpr(true, false);
+   }
+
+   @Override
+   public void exitOfTypePlaceholder(ScenarioParser.OfTypePlaceholderContext ctx)
+   {
+      this.buildPlaceholderExpr(ctx.LIKE() != null, true);
+   }
+
+   private void buildPlaceholderExpr(boolean hasExample, boolean hasType)
+   {
+      final Expr example = hasExample ? this.pop() : null;
+      final Type type = hasType ? this.pop() : null;
+      final PlaceholderExpr placeholderExpr = PlaceholderExpr.of(type, example);
+      placeholderExpr.setPosition(type != null ? type.getPosition() : example != null ? example.getPosition() : null);
+      this.stack.push(placeholderExpr);
+   }
+
+   @Override
+   public void exitPlaceholderNamedExpr(ScenarioParser.PlaceholderNamedExprContext ctx)
+   {
+      final PlaceholderExpr placeholderExpr = this.pop();
+      final Name name = name(ctx.name());
+      final NamedExpr namedExpr = NamedExpr.of(name, placeholderExpr);
       this.stack.push(namedExpr);
    }
 

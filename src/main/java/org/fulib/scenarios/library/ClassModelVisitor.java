@@ -6,6 +6,7 @@ import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
+import org.fulib.scenarios.parser.Identifiers;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -55,9 +56,10 @@ public class ClassModelVisitor extends ClassVisitor
    @Override
    public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value)
    {
-      if (name.startsWith("PROPERTY_"))
+      if (value != null && name.startsWith("PROPERTY_"))
       {
-         final String attributeName = name.substring("PROPERTY_".length());
+         // since fulib 1.3, the property constants use UPPER_SNAKE_CASE in the field name.
+         final String attributeName = Identifiers.toLowerCamelCase(name.substring("PROPERTY_".length()));
          if (attributeName.equals(value))
          {
             this.properties.add(attributeName);

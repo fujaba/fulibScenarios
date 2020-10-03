@@ -4,6 +4,7 @@ import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
 import org.fulib.scenarios.ast.expr.Expr;
+import org.fulib.scenarios.ast.expr.PlaceholderExpr;
 import org.fulib.scenarios.ast.expr.access.AttributeAccess;
 import org.fulib.scenarios.ast.expr.operator.BinaryOperator;
 import org.fulib.scenarios.ast.pattern.Constraint;
@@ -240,13 +241,19 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(HasSentence hasSentence, CodeGenDTO par)
    {
-      par.emitIndent();
-
       final Expr receiver = hasSentence.getObject();
-      final Type receiverType = receiver.getType();
+      if (receiver instanceof PlaceholderExpr || hasSentence
+         .getClauses()
+         .stream()
+         .allMatch(c -> c.getExpr() instanceof PlaceholderExpr))
+      {
+         return null;
+      }
 
+      par.emitIndent();
       receiver.accept(ExprGenerator.INSTANCE, par);
 
+      final Type receiverType = receiver.getType();
       if (receiverType instanceof ListType)
       {
          par.bodyBuilder.append(".forEach(it -> it");
@@ -254,7 +261,10 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
 
       for (NamedExpr attribute : hasSentence.getClauses())
       {
-         ExprGenerator.generateSetterCall(par, attribute);
+         if (!(attribute.getExpr() instanceof PlaceholderExpr))
+         {
+            ExprGenerator.generateSetterCall(par, attribute);
+         }
       }
 
       if (receiverType instanceof ListType)

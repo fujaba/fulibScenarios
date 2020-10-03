@@ -85,6 +85,7 @@ abstract org.fulib.scenarios.ast.Node {
 
 		abstract expr.Expr(readonly delegate type: Type) {
 			ErrorExpr(type: Type)
+			PlaceholderExpr(type: Type, example: Expr)
 
 			abstract primary.PrimaryExpr {
 				IntLiteral(value: int)
