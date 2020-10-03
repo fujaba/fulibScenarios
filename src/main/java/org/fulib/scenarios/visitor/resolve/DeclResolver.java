@@ -61,7 +61,9 @@ public class DeclResolver
             .of(null, name, null, PrimitiveType.OBJECT, new LinkedHashMap<>(), new LinkedHashMap<>(),
                 new ArrayList<>());
          decl.setPosition(position);
-         decl.setType(ClassType.of(decl));
+         final ClassType classType = ClassType.of(decl);
+         classType.setPosition(position);
+         decl.setType(classType);
          return decl;
       });
    }
