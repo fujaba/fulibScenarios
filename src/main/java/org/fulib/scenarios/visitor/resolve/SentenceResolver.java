@@ -528,24 +528,59 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    @Override
    public Sentence visit(InheritanceSentence inheritanceSentence, Scope par)
    {
-      final Type resolvedSubType = inheritanceSentence.getSubType().accept(TypeResolver.INSTANCE, par);
+      final Type subType = inheritanceSentence.getSubType();
+      final Type resolvedSubType = subType.accept(TypeResolver.INSTANCE, par);
       inheritanceSentence.setSubType(resolvedSubType);
-      final Type resolvedSuperType = inheritanceSentence.getSuperType().accept(TypeResolver.INSTANCE, par);
+      final Type superType = inheritanceSentence.getSuperType();
+      final Type resolvedSuperType = superType.accept(TypeResolver.INSTANCE, par);
       inheritanceSentence.setSuperType(resolvedSuperType);
 
-      final ClassDecl subClassDecl = resolvedSubType.accept(ExtractClassDecl.INSTANCE, null);
-      // final ClassDecl superClassDecl = resolvedSuperType.accept(ExtractClassDecl.INSTANCE, null);
+      final ClassDecl subClassDecl = getClassDecl(par, subType, resolvedSubType, "inherit.subtype.not.class",
+                                                  "inherit.subtype.external");
 
-      // TODO error if subClassDecl == null: cannot make type '...' inherit from another type
-      // TODO error if superClassDecl == null: cannot inherit from type '...'
-      // TODO error if subClassDecl.external: cannot make external type '...' inherit from another type
-      // TODO error if superClassDecl.external: cannot inherit from external type '...'
-      // TODO error if subClassDecl.superType != null && subClassDecl.superType.classDecl != superClassDecl: conflicting redeclaration of inheritance, '...' already inherits from '...'
+      final ClassDecl superClassDecl = getClassDecl(par, superType, resolvedSuperType, "inherit.supertype.not.class",
+                                                    "inherit.supertype.external");
 
-      subClassDecl.setSuperType(resolvedSuperType);
-      subClassDecl.setStoredSuperClasses(null);
+      if (subClassDecl != null && superClassDecl != null)
+      {
+         final Type oldSuperType = subClassDecl.getSuperType();
+         if (oldSuperType != null && oldSuperType != PrimitiveType.OBJECT
+             && oldSuperType.accept(ExtractClassDecl.INSTANCE, null) != superClassDecl)
+         {
+            final String subClassName = subClassDecl.getName();
+            final String oldSuperTypeDesc = oldSuperType.getDescription();
+            final Marker error = error(subType.getPosition(), "inherit.conflict", subClassName, oldSuperTypeDesc);
+            final Position position = oldSuperType.getPosition();
+            if (position != null)
+            {
+               error.note(note(position, "inherit.declaration.first", subClassName, oldSuperTypeDesc));
+            }
+            par.report(error);
+         }
+         else
+         {
+            subClassDecl.setSuperType(resolvedSuperType);
+            subClassDecl.setStoredSuperClasses(null);
+         }
+      }
 
       return inheritanceSentence;
+   }
+
+   private static ClassDecl getClassDecl(Scope par, Type subType, Type resolvedSubType, String notClassError, String externalError)
+   {
+      final ClassDecl classDecl = resolvedSubType.accept(ExtractClassDecl.INSTANCE, null);
+      if (classDecl == null)
+      {
+         par.report(error(subType.getPosition(), notClassError, resolvedSubType.getDescription()));
+         return null;
+      }
+      if (classDecl.getExternal())
+      {
+         par.report(error(subType.getPosition(), externalError, classDecl.getName()));
+         return null;
+      }
+      return classDecl;
    }
 
    // --------------- ActorSentence.Visitor ---------------
