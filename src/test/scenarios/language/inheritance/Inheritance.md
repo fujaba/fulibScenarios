@@ -9,6 +9,11 @@ Every Student has a student-id of type int.
 There is a Person with name Alice.
 There is a Student with name Bob and with student-id 1234.
 
+## Common Supertype
+
+We write Alice and Bob into people.
+We expect that name of people contains 'Alice'.
+
 ## Associations
 
 // These examples make no sense whatsoever semantically.

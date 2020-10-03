@@ -139,15 +139,7 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
             elementType = ((ListType) elementType).getElementType();
          }
 
-         if (commonType == null)
-         {
-            commonType = elementType;
-         }
-         else if (!commonType.equals(elementType))
-         {
-            // no common type -> use Object
-            return ListType.of(PrimitiveType.OBJECT);
-         }
+         commonType = commonType == null ? elementType : TypeComparer.getCommonSuperType(commonType, elementType);
       }
 
       assert commonType != null : "empty list expression";

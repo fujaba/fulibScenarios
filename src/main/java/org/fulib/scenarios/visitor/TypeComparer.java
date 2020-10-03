@@ -32,6 +32,36 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
       return relation == Result.EQUAL || relation == Result.SUPERTYPE;
    }
 
+   public static Type getCommonSuperType(Type a, Type b)
+   {
+      final Result relation = a.accept(INSTANCE, b);
+      switch (relation)
+      {
+      case EQUAL:
+      case SUPERTYPE:
+         return a;
+      case SUBTYPE:
+         return b;
+      case UNRELATED:
+         final ClassDecl classA = a.accept(ExtractClassDecl.INSTANCE, null);
+         if (classA != null)
+         {
+            final ClassDecl classB = b.accept(ExtractClassDecl.INSTANCE, null);
+            if (classB != null)
+            {
+               final ClassDecl superClass = getCommonSuperClass(classA, classB);
+               if (superClass != null)
+               {
+                  return ClassType.of(superClass);
+               }
+            }
+         }
+         // fallthrough
+      default:
+         return PrimitiveType.OBJECT;
+      }
+   }
+
    public static boolean isSuperClass(ClassDecl a, ClassDecl b)
    {
       return b.getSuperClasses().contains(a);
@@ -55,13 +85,29 @@ public enum TypeComparer implements Type.Visitor<Type, TypeComparer.Result>
 
    public static ClassDecl getCommonSuperClass(Iterable<? extends ClassDecl> classDecls)
    {
-      final Set<ClassDecl> commonClasses = getCommonSuperClasses(classDecls);
+      return first(getCommonSuperClasses(classDecls));
+   }
+
+   private static ClassDecl first(Set<ClassDecl> commonClasses)
+   {
       if (commonClasses.isEmpty())
       {
          return null;
       }
       // since the set is sorted, the first is the most specific common super classes
       return commonClasses.iterator().next();
+   }
+
+   public static Set<ClassDecl> getCommonSuperClasses(ClassDecl a, ClassDecl b)
+   {
+      final Set<ClassDecl> superClasses = new LinkedHashSet<>(a.getSuperClasses());
+      superClasses.retainAll(b.getSuperClasses());
+      return superClasses;
+   }
+
+   public static ClassDecl getCommonSuperClass(ClassDecl a, ClassDecl b)
+   {
+      return first(getCommonSuperClasses(a, b));
    }
 
    // =============== Methods ===============
