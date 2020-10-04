@@ -2,6 +2,7 @@ package org.fulib.scenarios.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.Name;
@@ -59,7 +60,7 @@ public class Identifiers
 
    static String joinCaps(ScenarioParser.NameContext context)
    {
-      return joinCaps(context.identifier().stream().map(ScenarioParser.IdentifierContext::getStart).flatMap(Identifiers::splitCaps));
+      return joinCaps(context.children.stream().map(ParseTree::getText).flatMap(Identifiers::splitCaps));
    }
 
    static String varName(ScenarioParser.NameContext context)
