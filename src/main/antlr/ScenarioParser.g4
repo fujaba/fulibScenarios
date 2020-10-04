@@ -152,7 +152,7 @@ it: IT;
 answer: THE? ANSWER;
 
 simpleName: identifier;
-name: identifier+;
+name: identifier (identifier | INTEGER)*;
 
 identifier: WORD
           // new keywords for pattern matching since v1.1
