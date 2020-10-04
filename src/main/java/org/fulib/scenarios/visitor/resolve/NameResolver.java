@@ -14,7 +14,10 @@ import org.fulib.scenarios.diagnostic.Position;
 import org.fulib.scenarios.parser.Identifiers;
 import org.fulib.util.Validator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public enum NameResolver implements CompilationContext.Visitor<Object, Object>, ScenarioGroup.Visitor<Scope, Object>,
@@ -69,8 +72,9 @@ public enum NameResolver implements CompilationContext.Visitor<Object, Object>, 
    {
       final ScenarioGroup group = scenarioFile.getGroup();
       final String className = Identifiers.toUpperCamelCase(scenarioFile.getName()) + "Test";
-      final ClassDecl classDecl = ClassDecl.of(group, className, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
-                                               new ArrayList<>());
+      final ClassDecl classDecl = ClassDecl
+         .of(group, className, null, PrimitiveType.OBJECT, new LinkedHashMap<>(), new LinkedHashMap<>(),
+             new ArrayList<>());
       classDecl.setExternal(scenarioFile.getExternal());
       classDecl.setType(ClassType.of(classDecl));
 

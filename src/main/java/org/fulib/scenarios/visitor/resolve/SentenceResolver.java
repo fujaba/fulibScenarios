@@ -525,6 +525,64 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
       return expand(areSentence.getDescriptor(), par).accept(this, par);
    }
 
+   @Override
+   public Sentence visit(InheritanceSentence inheritanceSentence, Scope par)
+   {
+      final Type subType = inheritanceSentence.getSubType();
+      final Type resolvedSubType = subType.accept(TypeResolver.INSTANCE, par);
+      inheritanceSentence.setSubType(resolvedSubType);
+      final Type superType = inheritanceSentence.getSuperType();
+      final Type resolvedSuperType = superType.accept(TypeResolver.INSTANCE, par);
+      inheritanceSentence.setSuperType(resolvedSuperType);
+
+      final ClassDecl subClassDecl = getClassDecl(par, subType, resolvedSubType, "inherit.subtype.not.class",
+                                                  "inherit.subtype.external");
+
+      final ClassDecl superClassDecl = getClassDecl(par, superType, resolvedSuperType, "inherit.supertype.not.class",
+                                                    "inherit.supertype.external");
+
+      if (subClassDecl != null && superClassDecl != null)
+      {
+         final Type oldSuperType = subClassDecl.getSuperType();
+         if (oldSuperType != null && oldSuperType != PrimitiveType.OBJECT
+             && oldSuperType.accept(ExtractClassDecl.INSTANCE, null) != superClassDecl)
+         {
+            final String subClassName = subClassDecl.getName();
+            final String oldSuperTypeDesc = oldSuperType.getDescription();
+            final Marker error = error(subType.getPosition(), "inherit.conflict", subClassName, oldSuperTypeDesc);
+            final Position position = oldSuperType.getPosition();
+            if (position != null)
+            {
+               error.note(note(position, "inherit.declaration.first", subClassName, oldSuperTypeDesc));
+            }
+            par.report(error);
+         }
+         else
+         {
+            subClassDecl.setSuperType(resolvedSuperType);
+            subClassDecl.setStoredSuperClasses(null);
+         }
+      }
+
+      return inheritanceSentence;
+   }
+
+   private static ClassDecl getClassDecl(Scope par, Type subType, Type resolvedSubType, String notClassError, String externalError)
+   {
+      final ClassDecl classDecl = resolvedSubType.accept(ExtractClassDecl.INSTANCE, null);
+      if (classDecl == null)
+      {
+         par.report(error(subType.getPosition(), notClassError, resolvedSubType.getDescription()));
+         return null;
+      }
+      if (classDecl.getExternal())
+      {
+         par.report(error(subType.getPosition(), externalError, classDecl.getName()));
+         return null;
+      }
+      return classDecl;
+   }
+
    // --------------- ActorSentence.Visitor ---------------
 
    @Override

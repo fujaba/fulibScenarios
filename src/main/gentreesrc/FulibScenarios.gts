@@ -8,6 +8,8 @@ import org.fulib.scenarios.library.Library
 
 import org.fulib.scenarios.tool.Config
 
+import java.util.Set
+
 abstract org.fulib.scenarios.ast.Node {
 	CompilationContext(config: Config, groups: [String:ScenarioGroup], libraries: [Library])
 	ScenarioGroup(context: CompilationContext, sourceDir: String, packageDir: String,
@@ -19,9 +21,11 @@ abstract org.fulib.scenarios.ast.Node {
 		Scenario(file: ScenarioFile, name: String, body: SentenceList, methodDecl: MethodDecl)
 
 		abstract decl.Decl(name: String, type: Type) {
-			ClassDecl(group: ScenarioGroup, name: String, type: Type,
+			ClassDecl(group: ScenarioGroup, name: String, type: Type, superType: Type,
 			          attributes: [String:AttributeDecl], associations: [String:AssociationDecl], methods: [MethodDecl],
-			          noconstruct external: boolean, noconstruct frozen: boolean)
+			          noconstruct external: boolean, noconstruct frozen: boolean,
+			          noconstruct storedSuperClasses: Set<ClassDecl>, readonly delegate superClasses: Set<ClassDecl>,
+			)
 
 			AttributeDecl(owner: ClassDecl, name: String, type: Type)
 			AssociationDecl(owner: ClassDecl, name: String, cardinality: int, target: ClassDecl, type: Type,
@@ -55,6 +59,7 @@ abstract org.fulib.scenarios.ast.Node {
 			HasSentence(object: Expr, clauses:[NamedExpr]) // e.g. Albert has mood happy
 			IsSentence(descriptor: VarDecl) // like ThereSentence, but only one declaration.
 			AreSentence(descriptor: MultiDescriptor)
+			InheritanceSentence(subType: Type, superType: Type)
 
 			abstract ActorSentence(actor: Name) {
 				CreateSentence(actor: Name, descriptor: MultiDescriptor)

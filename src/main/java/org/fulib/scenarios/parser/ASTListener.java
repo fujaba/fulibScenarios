@@ -301,7 +301,7 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
-   public void exitIsSentence(ScenarioParser.IsSentenceContext ctx)
+   public void exitSimpleIsSentence(ScenarioParser.SimpleIsSentenceContext ctx)
    {
       final List<NamedExpr> attributes = this.popAttributes(ctx.withClauses());
       final Type type = this.pop();
@@ -313,6 +313,16 @@ public class ASTListener extends ScenarioParserBaseListener
       final IsSentence isSentence = IsSentence.of(varDecl);
       isSentence.setPosition(position(ctx.IS()));
       this.stack.push(isSentence);
+   }
+
+   @Override
+   public void exitInheritanceIsSentence(ScenarioParser.InheritanceIsSentenceContext ctx)
+   {
+      final Type superType = this.pop();
+      final Type subType = this.pop();
+      final InheritanceSentence inheritanceSentence = InheritanceSentence.of(subType, superType);
+      inheritanceSentence.setPosition(position(ctx.IS()));
+      this.stack.push(inheritanceSentence);
    }
 
    @Override

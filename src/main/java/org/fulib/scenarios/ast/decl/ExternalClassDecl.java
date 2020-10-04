@@ -17,7 +17,10 @@ public class ExternalClassDecl extends ClassDecl.Impl
 {
    // =============== Fields ===============
 
+   private final    Object  attributesLock     = new Object();
    private volatile boolean attributesResolved = true;
+
+   private final LazyType superType = new LazyType();
 
    // =============== Constructors ===============
 
@@ -25,10 +28,10 @@ public class ExternalClassDecl extends ClassDecl.Impl
    {
    }
 
-   public ExternalClassDecl(ScenarioGroup group, String name, Type type, Map<String, AttributeDecl> attributes,
-      Map<String, AssociationDecl> associations, List<MethodDecl> methods)
+   public ExternalClassDecl(ScenarioGroup group, String name, Type type, Type superType,
+      Map<String, AttributeDecl> attributes, Map<String, AssociationDecl> associations, List<MethodDecl> methods)
    {
-      super(group, name, type, attributes, associations, methods);
+      super(group, name, type, superType, attributes, associations, methods);
    }
 
    // =============== Methods ===============
@@ -42,7 +45,7 @@ public class ExternalClassDecl extends ClassDecl.Impl
    {
       if (!this.attributesResolved)
       {
-         synchronized (this)
+         synchronized (this.attributesLock)
          {
             if (!this.attributesResolved)
             {
@@ -80,6 +83,18 @@ public class ExternalClassDecl extends ClassDecl.Impl
    }
 
    // =============== Properties ===============
+
+   @Override
+   public Type getSuperType()
+   {
+      return this.superType.get(this.getGroup().getContext());
+   }
+
+   @Override
+   public void setSuperType(Type superType)
+   {
+      this.superType.set(superType);
+   }
 
    @Override
    public Map<String, AttributeDecl> getAttributes()

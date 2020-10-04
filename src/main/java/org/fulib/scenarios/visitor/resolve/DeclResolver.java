@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
+import static org.fulib.scenarios.visitor.TypeComparer.isSuperClass;
 
 public class DeclResolver
 {
@@ -56,10 +57,13 @@ public class DeclResolver
       scope.report(warning(position, "class.name.shadow.other.decl", name, kindString(resolved)));
        */
       return scope.resolve(name, ClassDecl.class, n -> {
-         final ClassDecl decl = ClassDecl.of(null, name, null, new LinkedHashMap<>(), new LinkedHashMap<>(),
-                                             new ArrayList<>());
+         final ClassDecl decl = ClassDecl
+            .of(null, name, null, PrimitiveType.OBJECT, new LinkedHashMap<>(), new LinkedHashMap<>(),
+                new ArrayList<>());
          decl.setPosition(position);
-         decl.setType(ClassType.of(decl));
+         final ClassType classType = ClassType.of(decl);
+         classType.setPosition(position);
+         decl.setType(classType);
          return decl;
       });
    }
@@ -67,6 +71,19 @@ public class DeclResolver
    // --------------- Methods ---------------
 
    private static MethodDecl getMethod(ClassDecl owner, String name)
+   {
+      for (final ClassDecl superClass : owner.getSuperClasses())
+      {
+         final MethodDecl decl = getOwnMethod(superClass, name);
+         if (decl != null)
+         {
+            return decl;
+         }
+      }
+      return null;
+   }
+
+   private static MethodDecl getOwnMethod(ClassDecl owner, String name)
    {
       for (final MethodDecl decl : owner.getMethods())
       {
@@ -171,8 +188,8 @@ public class DeclResolver
 
    static Decl getAttributeOrAssociation(ClassDecl owner, String name)
    {
-      final AttributeDecl attribute = owner.getAttributes().get(name);
-      return attribute != null ? attribute : owner.getAssociations().get(name);
+      final AttributeDecl attribute = getAttribute(owner, name);
+      return attribute != null ? attribute : getAssociation(owner, name);
    }
 
    static Decl resolveAttributeOrAssociation(Scope scope, ClassDecl classDecl, String attributeName, Expr rhs,
@@ -209,9 +226,27 @@ public class DeclResolver
 
    // --------------- Attributes ---------------
 
+   static AttributeDecl getAttribute(ClassDecl owner, String name)
+   {
+      for (final ClassDecl superClass : owner.getSuperClasses())
+      {
+         final AttributeDecl decl = getOwnAttribute(superClass, name);
+         if (decl != null)
+         {
+            return decl;
+         }
+      }
+      return null;
+   }
+
+   static AttributeDecl getOwnAttribute(ClassDecl owner, String name)
+   {
+      return owner.getAttributes().get(name);
+   }
+
    static Decl resolveAttribute(Scope scope, ClassDecl owner, String name, Type type, Position position, Expr rhs)
    {
-      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      final AttributeDecl existingAttribute = getAttribute(owner, name);
       if (existingAttribute != null)
       {
          final Type existingType = existingAttribute.getType();
@@ -226,7 +261,7 @@ public class DeclResolver
 
          return existingAttribute;
       }
-      final AssociationDecl existingAssociation = owner.getAssociations().get(name);
+      final AssociationDecl existingAssociation = getAssociation(owner, name);
       if (existingAssociation != null)
       {
          final String newDesc = DeclDescriber.describeAttribute(type);
@@ -267,6 +302,24 @@ public class DeclResolver
 
    // --------------- Associations ---------------
 
+   static AssociationDecl getAssociation(ClassDecl owner, String name)
+   {
+      for (final ClassDecl superClass : owner.getSuperClasses())
+      {
+         final AssociationDecl decl = getOwnAssociation(superClass, name);
+         if (decl != null)
+         {
+            return decl;
+         }
+      }
+      return null;
+   }
+
+   static AssociationDecl getOwnAssociation(ClassDecl owner, String name)
+   {
+      return owner.getAssociations().get(name);
+   }
+
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
       ClassDecl otherClass, Position position, Expr rhs)
    {
@@ -276,7 +329,7 @@ public class DeclResolver
    static AssociationDecl resolveAssociation(Scope scope, ClassDecl owner, String name, int cardinality,
       ClassDecl otherClass, String otherName, int otherCardinality, Position position, Position otherPosition, Expr rhs)
    {
-      final AttributeDecl existingAttribute = owner.getAttributes().get(name);
+      final AttributeDecl existingAttribute = getAttribute(owner, name);
       if (existingAttribute != null)
       {
          final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
@@ -287,13 +340,13 @@ public class DeclResolver
          return null;
       }
 
-      final AssociationDecl existing = owner.getAssociations().get(name);
+      final AssociationDecl existing = getAssociation(owner, name);
       if (existing != null)
       {
          // uses < because redeclaration as to-one when it was to-many is ok.
          // TODO investigate this claim
 
-         if (existing.getTarget() != otherClass || existing.getCardinality() < cardinality)
+         if (!isSuperClass(existing.getTarget(), otherClass) || existing.getCardinality() < cardinality)
          {
             final String newDesc = DeclDescriber.describeAssociation(cardinality, otherClass);
             final Marker conflict = conflict(position, owner, name, existing, newDesc);

@@ -39,9 +39,18 @@ public class ClassModelVisitor extends ClassVisitor
    @Override
    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces)
    {
+      this.classDecl.setName(getSimpleName(name));
+
+      if (superName != null)
+      {
+         this.classDecl.setSuperType(UnresolvedType.of(getSimpleName(superName), superName, false));
+      }
+   }
+
+   private static String getSimpleName(String name)
+   {
       final int slashIndex = name.lastIndexOf('/');
-      final String simpleName = slashIndex < 0 ? name : name.substring(slashIndex + 1);
-      this.classDecl.setName(simpleName);
+      return slashIndex < 0 ? name : name.substring(slashIndex + 1);
    }
 
    @Override

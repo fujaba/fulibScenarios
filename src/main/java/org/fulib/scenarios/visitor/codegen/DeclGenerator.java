@@ -8,6 +8,7 @@ import org.fulib.scenarios.ast.expr.Expr;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
+import org.fulib.scenarios.visitor.ExtractClassDecl;
 
 public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
 {
@@ -22,6 +23,16 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       }
 
       par.clazz = par.modelManager.haveClass(classDecl.getName());
+
+      if (classDecl.getSuperType() != null)
+      {
+         final ClassDecl superClassDecl = classDecl.getSuperType().accept(ExtractClassDecl.INSTANCE, null);
+         if (superClassDecl != null)
+         {
+            final Clazz superClazz = par.modelManager.haveClass(superClassDecl.getName());
+            par.modelManager.haveSuper(par.clazz, superClazz);
+         }
+      }
 
       for (final AttributeDecl attributeDecl : classDecl.getAttributes().values())
       {
