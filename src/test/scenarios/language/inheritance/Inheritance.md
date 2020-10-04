@@ -14,6 +14,20 @@ There is a Student with name Bob and with student-id 1234.
 We write Alice and Bob into people.
 We expect that name of people contains 'Alice'.
 
+## Methods
+
+We call do-work on Alice.
+Do-work answers with 'done'.
+
+We call do-work on Bob.
+We expect that the answer is 'done'.
+
+We call get-name with person Alice.
+Get-name answers with name of Alice.
+
+We call get-name with person Bob.
+We expect that the answer is 'Bob'.
+
 ## Associations
 
 // These examples make no sense whatsoever semantically.
