@@ -1,7 +1,9 @@
 package org.fulib.scenarios.visitor.resolve;
 
+import org.fulib.scenarios.ast.decl.ClassDecl;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.type.*;
+import org.fulib.scenarios.diagnostic.Position;
 
 import static org.fulib.scenarios.visitor.resolve.DeclResolver.resolveClass;
 
@@ -31,7 +33,11 @@ public enum TypeResolver implements Type.Visitor<Scope, Type>
          return primitive2;
       }
 
-      return resolveClass(par, singularName, unresolvedType.getPosition()).getType();
+      final Position position = unresolvedType.getPosition();
+      final ClassDecl classDecl = resolveClass(par, singularName, position);
+      final ClassType classType = ClassType.of(classDecl);
+      classType.setPosition(position);
+      return classType;
    }
 
    private String getPrimitiveNameFromText(UnresolvedType unresolvedType)

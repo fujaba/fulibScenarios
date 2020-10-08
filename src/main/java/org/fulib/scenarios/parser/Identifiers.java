@@ -2,6 +2,7 @@ package org.fulib.scenarios.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.Name;
@@ -25,51 +26,36 @@ public class Identifiers
       return StrUtil.downFirstChar(toUpperCamelCase(text));
    }
 
-   public static Stream<String> splitCaps(String text)
+   private static Stream<String> splitCaps(String text)
    {
       return Arrays.stream(text.split("[\\W_]+"));
    }
 
-   public static String joinCaps(Stream<String> stream)
+   private static String joinCaps(Stream<String> stream)
    {
       return stream.map(StrUtil::cap).collect(Collectors.joining());
    }
 
    // --------------- Parser-Specific ---------------
 
-   static String cap(Token token)
+   static String joinCaps(ScenarioParser.SimpleNameContext simpleName)
    {
-      return StrUtil.cap(token.getText());
+      return joinCaps(splitCaps(simpleName.identifier().getText()));
    }
 
-   static Stream<String> splitCaps(TerminalNode terminalNode)
+   static String joinCaps(ScenarioParser.NameContext name)
    {
-      return splitCaps(terminalNode.getText());
+      return joinCaps(name.children.stream().map(ParseTree::getText).flatMap(Identifiers::splitCaps));
    }
 
-   static Stream<String> splitCaps(Token token)
+   static String varName(ScenarioParser.SimpleNameContext simpleName)
    {
-      return splitCaps(token.getText());
+      return simpleName == null ? null : StrUtil.downFirstChar(joinCaps(simpleName));
    }
 
-   static String joinCaps(ScenarioParser.SimpleNameContext context)
+   static String varName(ScenarioParser.NameContext name)
    {
-      return joinCaps(splitCaps(context.identifier().getStart()));
-   }
-
-   static String joinCaps(ScenarioParser.NameContext context)
-   {
-      return joinCaps(context.identifier().stream().map(ScenarioParser.IdentifierContext::getStart).flatMap(Identifiers::splitCaps));
-   }
-
-   static String varName(ScenarioParser.NameContext context)
-   {
-      return context == null ? null : StrUtil.downFirstChar(joinCaps(context));
-   }
-
-   static String varName(ScenarioParser.SimpleNameContext context)
-   {
-      return context == null ? null : StrUtil.downFirstChar(joinCaps(context));
+      return name == null ? null : StrUtil.downFirstChar(joinCaps(name));
    }
 
    static Name name(ScenarioParser.SimpleNameContext simpleName)
@@ -77,9 +63,9 @@ public class Identifiers
       return simpleName == null ? null : name(varName(simpleName), simpleName);
    }
 
-   static Name name(ScenarioParser.NameContext multiName)
+   static Name name(ScenarioParser.NameContext name)
    {
-      return multiName == null ? null : name(varName(multiName), multiName);
+      return name == null ? null : name(varName(name), name);
    }
 
    private static Name name(String value, ParserRuleContext rule)
