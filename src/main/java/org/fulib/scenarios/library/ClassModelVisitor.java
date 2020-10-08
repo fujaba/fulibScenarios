@@ -1,30 +1,27 @@
 package org.fulib.scenarios.library;
 
-import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.decl.*;
 import org.fulib.scenarios.ast.type.ListType;
 import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.ast.type.UnresolvedType;
-import org.fulib.scenarios.parser.Identifiers;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class ClassModelVisitor extends ClassVisitor
 {
+   // =============== Constants ===============
+
+   private static final String[] SETTER_PREFIXES = new String[] { "set", "with", "without" };
+
    // =============== Fields ===============
 
    private final ExternalClassDecl classDecl;
-
-   private final Set<String> properties = new LinkedHashSet<>();
 
    // =============== Constructors ===============
 
@@ -53,22 +50,6 @@ public class ClassModelVisitor extends ClassVisitor
       return slashIndex < 0 ? name : name.substring(slashIndex + 1);
    }
 
-   @Override
-   public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value)
-   {
-      if (value != null && name.startsWith("PROPERTY_"))
-      {
-         // since fulib 1.3, the property constants use UPPER_SNAKE_CASE in the field name.
-         final String attributeName = Identifiers.toLowerCamelCase(name.substring("PROPERTY_".length()));
-         if (attributeName.equals(value))
-         {
-            this.properties.add(attributeName);
-         }
-      }
-
-      return null;
-   }
-
    // all fields will be processed before the first method
 
    @Override
@@ -80,35 +61,20 @@ public class ClassModelVisitor extends ClassVisitor
          return null;
       }
 
-      final int prefixLength;
-      if (name.startsWith("get") || name.startsWith("set"))
+      final int length = name.length();
+      if (name.startsWith("get") && length > 3 && !Character.isLowerCase(name.charAt(3)))
       {
-         prefixLength = 3;
+         // convert getters to attributes
+         final String attributeName = Character.toLowerCase(name.charAt(3)) + name.substring(4);
+         this.tryCreateAttribute(attributeName, descriptor, signature);
+         return null;
       }
-      else if (name.startsWith("without"))
+      for (String prefix : SETTER_PREFIXES)
       {
-         prefixLength = 7;
-      }
-      else if (name.startsWith("with"))
-      {
-         prefixLength = 4;
-      }
-      else
-      {
-         prefixLength = 0;
-      }
-
-      if (prefixLength > 0 && name.length() > prefixLength)
-      {
-         final String attributeName = name.substring(prefixLength);
-         final String lowerAttributeName = StrUtil.downFirstChar(attributeName);
-
-         if (this.properties.contains(lowerAttributeName))
+         final int prefixLength = prefix.length();
+         if (length > prefixLength && name.startsWith(prefix) && !Character.isLowerCase(name.charAt(prefixLength)))
          {
-            if (name.charAt(0) == 'g') // must be getter
-            {
-               this.tryCreateAttribute(lowerAttributeName, descriptor, signature);
-            }
+            // ignore setters and withers
             return null;
          }
       }
