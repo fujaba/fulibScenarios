@@ -204,8 +204,16 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          toolMethod = "FulibTools.objectDiagrams().dumpSVG";
          break;
       case ".png":
-         toolClass = "org.fulib.FulibTools";
-         toolMethod = "FulibTools.objectDiagrams().dumpPng";
+         if (fileName.endsWith(".html.png"))
+         {
+            toolClass = "org.fulib.mockups.FulibMockups";
+            toolMethod = "FulibMockups.mockupTool().dump";
+         }
+         else
+         {
+            toolClass = "org.fulib.FulibTools";
+            toolMethod = "FulibTools.objectDiagrams().dumpPng";
+         }
          break;
       case ".yaml":
          toolClass = "org.fulib.FulibTools";
