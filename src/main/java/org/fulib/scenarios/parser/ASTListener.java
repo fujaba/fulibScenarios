@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.scenarios.ast.*;
 import org.fulib.scenarios.ast.decl.Name;
@@ -604,6 +605,38 @@ public class ASTListener extends ScenarioParserBaseListener
       final String value = StringEscapeUtils.unescapeJava(stripped);
       final StringLiteral stringLiteral = StringLiteral.of(value);
       stringLiteral.setPosition(position(ctx.STRING_LITERAL()));
+      this.stack.push(stringLiteral);
+   }
+
+   @Override
+   public void exitCodeBlock(ScenarioParser.CodeBlockContext ctx)
+   {
+      final StringBuilder body = new StringBuilder();
+
+      final String startText = ctx.CODE_BLOCK().getText();
+      final String incidentalSpace = startText.substring(0, startText.indexOf('`'));
+
+      for (final TerminalNode codeBlockLine : ctx.CODE_BLOCK_LINE())
+      {
+         String line = codeBlockLine.getText();
+         // strip leading incidental space
+         final int start = StringUtils.indexOfDifference(line, incidentalSpace);
+         // strip trailing line terminator
+         final int end = line.length() - (line.endsWith("\r\n") ? 2 : 1);
+         body.append(line, start, end);
+         // normalize line terminator
+         body.append('\n');
+      }
+
+      final StringLiteral stringLiteral = StringLiteral.of(body.toString());
+      stringLiteral.setPosition(position(ctx));
+
+      final TerminalNode codeBlockLanguage = ctx.CODE_BLOCK_LANGUAGE();
+      if (codeBlockLanguage != null)
+      {
+         stringLiteral.setLanguage(codeBlockLanguage.getText());
+      }
+
       this.stack.push(stringLiteral);
    }
 

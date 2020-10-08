@@ -43,6 +43,8 @@ compoundSentence: conditionalSentence
 sectionSentence: H2 HEADLINE_TEXT HEADLINE_END;
 commentSentence: LINE_COMMENT HEADLINE_TEXT HEADLINE_END;
 
+codeBlock: CODE_BLOCK CODE_BLOCK_LANGUAGE? CODE_BLOCK_LINE* CODE_BLOCK_END;
+
 // Definition
 
 thereSentence: THERE IS simpleDescriptor
@@ -143,7 +145,7 @@ matchConstraint: WHERE condExpr;
 expr: access | collection;
 
 // Primary
-primary: number | stringLiteral | it | answer | nameAccess;
+primary: number | stringLiteral | codeBlock | it | answer | nameAccess;
 primaryExpr: primary;
 
 number: DECIMAL | INTEGER;

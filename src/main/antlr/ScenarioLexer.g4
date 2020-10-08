@@ -79,6 +79,8 @@ H1:           '#' -> mode(HEADLINE);
 H2:           '##' -> mode(HEADLINE);
 LINE_COMMENT: '//' -> mode(HEADLINE);
 
+CODE_BLOCK: LEADING_WHITESPACE '```' SEMPRED_SOL -> mode(CODE_BLOCK_HEADER);
+
 BULLET: LEADING_WHITESPACE [+*-] SEMPRED_SOL;
 NUMBERED: LEADING_WHITESPACE [0-9]+ [.] SEMPRED_SOL;
 
@@ -124,3 +126,11 @@ FILE_NAME: ~')'+;
 mode HEADLINE;
 HEADLINE_END: ([\n\r] | '\r\n') -> mode(DEFAULT_MODE);
 HEADLINE_TEXT: ~[\n\r]+;
+
+mode CODE_BLOCK_HEADER;
+CODE_BLOCK_HEADER_END: ([\n\r] | '\r\n') -> skip, mode(CODE_BLOCK_BODY);
+CODE_BLOCK_LANGUAGE: ~[\n\r]+;
+
+mode CODE_BLOCK_BODY;
+CODE_BLOCK_END: [ \t\u000C]* '```' ([\n\r] | '\r\n') -> mode(DEFAULT_MODE);
+CODE_BLOCK_LINE: ~[\n\r]* ([\n\r] | '\r\n');

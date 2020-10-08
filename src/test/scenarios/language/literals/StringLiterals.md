@@ -14,3 +14,21 @@ We expect that "\r" is '\r'.
 We expect that "'" is '\''.
 We expect that "\"" is '"'.
 We expect that "\\" is '\\'.
+
+We expect that "hello world\n" is
+
+```
+hello world
+```
+.
+
+We expect that "\nhello\n\n    world\n\n" is
+
+  ```text
+
+  hello
+
+      world
+
+  ```
+.
