@@ -41,7 +41,7 @@ compoundSentence: conditionalSentence
                 ;
 
 sectionSentence: H2 HEADLINE_TEXT HEADLINE_END;
-commentSentence: LINE_COMMENT HEADLINE_TEXT HEADLINE_END;
+commentSentence: (LINE_COMMENT | BLOCKQUOTE) HEADLINE_TEXT HEADLINE_END;
 
 codeBlock: CODE_BLOCK CODE_BLOCK_LANGUAGE? CODE_BLOCK_LINE* CODE_BLOCK_END;
 
