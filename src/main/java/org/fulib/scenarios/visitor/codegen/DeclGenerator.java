@@ -97,7 +97,7 @@ public enum DeclGenerator implements Decl.Visitor<CodeGenDTO, Object>
       {
          par.modelManager
             .haveAttribute(clazz, associationDecl.getName(), targetType)
-            .setCollectionType(CollectionType.LinkedHashSet);
+            .setCollectionType(par.modelManager.getClassModel().getDefaultCollectionType());
       }
 
       return null;
