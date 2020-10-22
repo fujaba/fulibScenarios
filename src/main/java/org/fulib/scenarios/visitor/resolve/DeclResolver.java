@@ -360,8 +360,11 @@ public class DeclResolver
             {
                final Marker error = error(otherPosition, "association.reverse.late", otherName, owner.getName(),
                                           name);
-               final Marker note = firstDeclaration(existing.getPosition(), owner, name);
-               scope.report(error.note(note));
+               if (existing.getPosition() != null)
+               {
+                  error.note(firstDeclaration(existing.getPosition(), owner, name));
+               }
+               scope.report(error);
             }
             else if (!otherName.equals(other.getName()) || otherCardinality != other.getCardinality())
             {
@@ -371,7 +374,10 @@ public class DeclResolver
                error.note(note(otherPosition, "conflict.old",
                                otherClass.getName() + "." + other.getName() + ", " + existingDesc));
                error.note(note(otherPosition, "conflict.new", otherClass.getName() + "." + otherName + ", " + newDesc));
-               error.note(firstDeclaration(other.getPosition(), other.getOwner(), other.getName()));
+               if (other.getPosition() != null)
+               {
+                  error.note(firstDeclaration(other.getPosition(), other.getOwner(), other.getName()));
+               }
                scope.report(error);
             }
          }
