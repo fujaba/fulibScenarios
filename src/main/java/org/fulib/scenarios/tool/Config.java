@@ -17,10 +17,19 @@ public class Config
    private List<String> classpath = new ArrayList<>();
    private Set<String>  imports   = new HashSet<>();
 
+   private final Map<String, String> diagramHandlers = new HashMap<>();
+
    {
       // default imports
       this.imports.add("java.lang");
       this.imports.add("org.fulib.mockups");
+
+      this.diagramHandlers.put(".svg", "import(org.fulib.tools.FulibTools).objectDiagrams().dumpSVG(%s, %s)");
+      this.diagramHandlers.put(".html.png", "import(org.fulib.mockups.FulibMockups).mockupTool().dump(%s, %s)");
+      this.diagramHandlers.put(".png", "import(org.fulib.tools.FulibTools).objectDiagrams().dumpPng(%s, %s)");
+      this.diagramHandlers.put(".yaml", "import(org.fulib.tools.FulibTools).objectDiagrams().dumpYaml(%s, %s)");
+      this.diagramHandlers.put(".html", "import(org.fulib.scenarios.MockupTools).htmlTool().dump(%s, %s)");
+      this.diagramHandlers.put(".txt", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpToString(%s, %s)");
    }
 
    private Set<String> decoratorClasses = new TreeSet<>();
@@ -77,6 +86,11 @@ public class Config
    public Set<String> getDecoratorClasses()
    {
       return this.decoratorClasses;
+   }
+
+   public String getDiagramHandler(String extension)
+   {
+      return this.diagramHandlers.get(extension);
    }
 
    public boolean isGenerateTables()
@@ -194,6 +208,15 @@ public class Config
       options.addOption(
          new Option(null, "marker-end-columns", false, "include the column number where a marker ends in the output"));
 
+      options.addOption(Option
+                           .builder()
+                           .longOpt("diagram-handlers")
+                           .argName("<extension>=<method>")
+                           .numberOfArgs(2)
+                           .valueSeparator()
+                           .desc("generate diagrams with the extension using the handler method")
+                           .build());
+
       return options;
    }
 
@@ -226,6 +249,11 @@ public class Config
       if (decoratorClasses != null)
       {
          Collections.addAll(this.decoratorClasses, decoratorClasses);
+      }
+
+      for (final Map.Entry<Object, Object> entry : cmd.getOptionProperties("diagram-handlers").entrySet())
+      {
+         this.diagramHandlers.put(entry.getKey().toString(), entry.getValue().toString());
       }
    }
 }
