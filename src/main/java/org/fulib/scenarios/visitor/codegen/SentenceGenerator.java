@@ -205,8 +205,11 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
          par.bodyBuilder = oldBuilder;
       }
 
-      par.emitIndent();
-      par.bodyBuilder.append(String.format(diagramHandler, targetLiteral, objectExpr)).append(";\n");
+      if (diagramHandler != null)
+      {
+         par.emitIndent();
+         par.bodyBuilder.append(String.format(diagramHandler, targetLiteral, objectExpr)).append(";\n");
+      }
 
       return null;
    }
