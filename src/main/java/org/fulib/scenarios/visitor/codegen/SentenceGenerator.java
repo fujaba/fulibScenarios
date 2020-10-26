@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.codegen;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
@@ -186,62 +187,26 @@ public enum SentenceGenerator implements Sentence.Visitor<CodeGenDTO, Object>
       final String sourceDir = par.group.getSourceDir();
       final String packageDir = par.group.getPackageDir();
       final String fileName = diagramSentence.getFileName();
-      String target = (sourceDir + "/" + packageDir + "/" + fileName).replace('\\', '/');
+      final String target = (sourceDir + "/" + packageDir + "/" + fileName).replace('\\', '/');
 
-      final int dotIndex = fileName.lastIndexOf('.');
-      if (dotIndex < 0)
+      final String diagramHandler = par.config.getDiagramHandlerFromFile(fileName);
+      final String targetLiteral = '"' + StringEscapeUtils.escapeJava(target) + '"';
+
+      final StringBuilder oldBuilder = par.bodyBuilder;
+      final String objectExpr;
+      par.bodyBuilder = new StringBuilder();
+      try
       {
-         throw new IllegalStateException("invalid file name '" + fileName + "' - missing extension");
+         diagramSentence.getObject().accept(ExprGenerator.FLAT, par);
+         objectExpr = par.bodyBuilder.toString();
       }
-
-      final String extension = fileName.substring(dotIndex).toLowerCase();
-      final String toolClass;
-      final String toolMethod;
-      switch (extension)
+      finally
       {
-      case ".svg":
-         toolClass = "org.fulib.FulibTools";
-         toolMethod = "FulibTools.objectDiagrams().dumpSVG";
-         break;
-      case ".png":
-         if (fileName.endsWith(".html.png"))
-         {
-            toolClass = "org.fulib.mockups.FulibMockups";
-            toolMethod = "FulibMockups.mockupTool().dump";
-         }
-         else
-         {
-            toolClass = "org.fulib.FulibTools";
-            toolMethod = "FulibTools.objectDiagrams().dumpPng";
-         }
-         break;
-      case ".yaml":
-         toolClass = "org.fulib.FulibTools";
-         toolMethod = "FulibTools.objectDiagrams().dumpYaml";
-         break;
-      case ".html":
-         toolClass = "org.fulib.scenarios.MockupTools";
-         toolMethod = "MockupTools.htmlTool().dump";
-         break;
-      case ".txt":
-         toolClass = "org.fulib.scenarios.MockupTools";
-         toolMethod = "MockupTools.htmlTool().dumpToString";
-
-         break;
-      default:
-         throw new IllegalStateException("invalid file name '" + fileName + "' - unsupported extension");
+         par.bodyBuilder = oldBuilder;
       }
-
-      par.addImport(toolClass);
 
       par.emitIndent();
-
-      // method call
-      par.bodyBuilder.append(toolMethod).append('(');
-      par.emitStringLiteral(target);
-      par.bodyBuilder.append(", ");
-      diagramSentence.getObject().accept(ExprGenerator.FLAT, par);
-      par.bodyBuilder.append(");\n");
+      par.bodyBuilder.append(String.format(diagramHandler, targetLiteral, objectExpr)).append(";\n");
 
       return null;
    }
