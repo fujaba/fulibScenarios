@@ -88,6 +88,11 @@ public class Config
       return this.decoratorClasses;
    }
 
+   public Set<String> getDiagramHandlerExtensions()
+   {
+      return this.diagramHandlers.keySet();
+   }
+
    public String getDiagramHandler(String extension)
    {
       return this.diagramHandlers.get(extension);
