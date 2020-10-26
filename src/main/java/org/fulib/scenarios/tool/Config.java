@@ -93,6 +93,23 @@ public class Config
       return this.diagramHandlers.get(extension);
    }
 
+   public String getDiagramHandlerFromFile(String fileName)
+   {
+      int dotIndex = -1;
+
+      while ((dotIndex = fileName.indexOf('.', dotIndex + 1)) >= 0)
+      {
+         final String extension = fileName.substring(dotIndex);
+         final String handler = this.getDiagramHandler(extension);
+         if (handler != null)
+         {
+            return handler;
+         }
+      }
+
+      return null;
+   }
+
    public boolean isGenerateTables()
    {
       return this.generateTables;

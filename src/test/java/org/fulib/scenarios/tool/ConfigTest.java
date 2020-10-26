@@ -23,8 +23,20 @@ public class ConfigTest
    @Test
    public void diagramHandlers() throws ParseException
    {
-      final Config config = parse("--diagram-handlers", ".gif=GifTool.dump", "--diagram-handlers", ".html=HtmlTool.dump");
+      final String[] args = {
+         "--diagram-handlers",
+         ".gif=GifTool.dump",
+         "--diagram-handlers",
+         ".html=HtmlTool.dump",
+         "--diagram-handlers",
+         ".html.gif=HtmlGifTool.dump",
+      };
+      final Config config = parse(args);
 
       MatcherAssert.assertThat(config.getDiagramHandler(".gif"), CoreMatchers.equalTo("GifTool.dump"));
+      MatcherAssert.assertThat(config.getDiagramHandlerFromFile("example.gif"), CoreMatchers.equalTo("GifTool.dump"));
+      MatcherAssert.assertThat(config.getDiagramHandlerFromFile("example.html"), CoreMatchers.equalTo("HtmlTool.dump"));
+      MatcherAssert.assertThat(config.getDiagramHandlerFromFile("example.html.gif"),
+                               CoreMatchers.equalTo("HtmlGifTool.dump"));
    }
 }
