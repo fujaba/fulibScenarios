@@ -39,17 +39,26 @@ Lines starting with `##` are section headlines. In Java code, they are shown as 
 
 ## Comments
 
-Everything after `//` up to the end of a line becomes a Java comment.
+Quoted content, i.e. everything after `>` up to the end of a line, becomes a Java comment.
 
 ```markdown
-// comment
-... // this does the thing
+> comment
 ```
 
 ```java
 // comment
-... // this does the thing
 ```
+
+> ⓘ The `>` syntax for comments was added in fulibScenarios v1.6.
+
+An alternative syntax uses `//` in the scenario text:
+
+```markdown
+// comment
+There is a Student. // another comment
+```
+
+However, this is discouraged because it does not render nicely as Markdown.
 
 ### Parenthesized Comments
 
