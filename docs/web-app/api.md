@@ -4,37 +4,21 @@ description: This page lists the various API endpoints provided by the fulib.org
 
 # API
 
-{% api-method method="post" host="https://www.fulib.org" path="/runcodegen" %}
-{% api-method-summary %}
-Compile and Run a Scenario
-{% endapi-method-summary %}
+## `POST /runcodegen` - Compile and Run a Scenario
 
-{% api-method-description %}
 This endpoint generated the test methods, class model and object diagram for a given scenario. Request and response bodies are JSON objects containing the keys shown below.
-{% endapi-method-description %}
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-body-parameters %}
-{% api-method-parameter name="scenarioFileName" type="string" required=true %}
-The file name to use for the scenario. Must have the ".md" extension.
-{% endapi-method-parameter %}
+### Request
 
-{% api-method-parameter name="packageName" type="string" required=true %}
-The package name to use for the scenario file. Must be a dot-separated string of identifiers.
-{% endapi-method-parameter %}
+```javascript
+{
+  "scenarioFileName": "string", // The file name to use for the scenario. Must have the ".md" extension.
+  "packageName": "string", // The package name to use for the scenario file. Must be a dot-separated string of identifiers.
+  "scenarioText": "string", // The full scenario text, including headings. Will become the content of the .md file named by the scenarioFileName.
+}
+```
 
-{% api-method-parameter name="scenarioText" type="string" required=true %}
-The full scenario text, including headings. Will become the content of the .md file named by the scenarioFileName.
-{% endapi-method-parameter %}
-{% endapi-method-body-parameters %}
-{% endapi-method-request %}
-
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The response for a valid scenario.
-{% endapi-method-response-example-description %}
+### Response
 
 ```javascript
 {
@@ -74,75 +58,27 @@ The response for a valid scenario.
   ]
 }
 ```
-{% endapi-method-response-example %}
 
-{% api-method-response-example httpCode=400 %}
-{% api-method-response-example-description %}
-\(Future\) The response for a scenario containing a syntax error.
-{% endapi-method-response-example-description %}
+## `POST /projectzip` - Pack a Project as a Zip File
+
+Packages a scenario and all required files to build a ready-made Gradle project into a Zip file.
+
+### Request
 
 ```javascript
 {
-  "exitCode": 4,
-  "output": "...",
-  "errors": [
-    {
-      "startPosition": 25,
-      "endPosition": 30,
-      "lineNumber": 5,
-      "columnNumber": 10,
-      "code": "syntax.there",
-      "message": "invalid symbol, name expected",
-    }
-  ]
+  "scenarioFileName": "string" // Same as in POST /runcodegen.
+  "packageName": "string" // Same as in POST /runcodegen. Also doubles as the group name in build.gradle.
+  "projectName": "string" // The name to use for the Gradle project. Will end up in settings.gradle.
+  "projectVersion": "string" // The version to use for the Gradle project, will be written to build.gradle.
+  "scenarioText": "string" // Same as in POST /runcodegen	
 }
 ```
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
 
-{% api-method method="post" host="https://www.fulib.org" path="/projectzip" %}
-{% api-method-summary %}
-Pack a Project as a Zip File
-{% endapi-method-summary %}
+### Response
 
-{% api-method-description %}
-Packages a scenario and all required files to build a ready-made Gradle project into a Zip file.
-{% endapi-method-description %}
+A zip file with the following files:
 
-{% api-method-spec %}
-{% api-method-request %}
-{% api-method-body-parameters %}
-{% api-method-parameter name="scenarioFileName" type="string" required=true %}
-Same as in POST /runcodegen.
-{% endapi-method-parameter %}
-
-{% api-method-parameter name="packageName" type="string" required=true %}
-Same as in POST /runcodegen. Also doubles as the group name in build.gradle.
-{% endapi-method-parameter %}
-
-{% api-method-parameter name="projectName" type="string" required=true %}
-The name to use for the Gradle project. Will end up in settings.gradle.
-{% endapi-method-parameter %}
-
-{% api-method-parameter name="projectVersion" type="string" required=true %}
-The version to use for the Gradle project, will be written to build.gradle.
-{% endapi-method-parameter %}
-
-{% api-method-parameter name="scenarioText" type="string" required=true %}
-Same as in POST /runcodegen
-{% endapi-method-parameter %}
-{% endapi-method-body-parameters %}
-{% endapi-method-request %}
-
-{% api-method-response %}
-{% api-method-response-example httpCode=200 %}
-{% api-method-response-example-description %}
-The result of this endpoint is a project folder archived as a zip file. The following files will be present:
-{% endapi-method-response-example-description %}
-
-{% code title="project.zip" %}
 ```
 .gitignore
 gradlew
@@ -153,11 +89,3 @@ settings.gradle
 build.gradle
 src/main/scenarios/<packageName>/<scenarioFileName>
 ```
-{% endcode %}
-{% endapi-method-response-example %}
-{% endapi-method-response %}
-{% endapi-method-spec %}
-{% endapi-method %}
-
-
-
