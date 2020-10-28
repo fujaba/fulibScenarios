@@ -68,16 +68,19 @@ The keyword `it` refers to the primary expression closest to the left of it.
 Words make up names and simple strings. Which one depends on context. When you are sure you want a string, you can use a [string literal](primary.md#string-literals) instead. When you want to refer to a name, use the keyword [`the`](primary.md#names).
 
 ```markup
-<word> ::= /[a-zA-Z][a-zA-Z0-9']*/
+<word> ::= /[a-zA-Z][a-zA-Z0-9'_-]*/
 ```
 
 ## Names
 
-Names may refer to objects, but can also be used for strings. In any case, they consist of one or more words. The keyword `the` always indicates an object name. It depends on context whether a name declares an object or refers to one.
+Names may refer to objects, but can also be used for strings.
+In any case, they consist of at least one word followed by zero or more words and numbers.
+The keyword `the` always indicates an object name.
+It depends on context whether a name declares an object or refers to one.
 
 ```markup
 <simpleName> ::= the? <word>
-<multiName> ::= the? <word>+
+<multiName> ::= the? <word> (<word> | <number>)*
 <name> ::= <multiName>
 <nameAccess> ::= <multiName>
 ```
