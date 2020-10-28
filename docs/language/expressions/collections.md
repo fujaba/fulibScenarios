@@ -15,21 +15,15 @@
                  | <primary> through <primary> 
 ```
 
-{% tabs %}
-{% tab title="Scenarios" %}
 ```markup
 <access> to <access>
 <access> through <access>
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 Runtime.to(<access>, <access>)
 Runtime.through(<access>, <access>)
 ```
-{% endtab %}
-{% endtabs %}
 
 ## Lists
 
@@ -43,8 +37,6 @@ Runtime.through(<access>, <access>)
 <primaryListElem> ::= <primary> | <primaryRange>
 ```
 
-{% tabs %}
-{% tab title="Scenarios" %}
 ```markup
 <listElem> (<sep> <listElem>)+
 1, 2, 3
@@ -55,9 +47,7 @@ Runtime.through(<access>, <access>)
 1 to 3 and 6 to 10
 1 to 3 and 5 and 6 to 8 and 10
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 Runtime.list(<listElem>, ..., <listElem>)
 Runtime.list(1, 2, 3)
@@ -68,10 +58,7 @@ Runtime.list(Runtime.to(1, 3), 6)
 Runtime.list(Runtime.to(1, 3), Runtime.to(6, 10))
 Runtime.list(Runtime.to(1, 3), 5, Runtime.to(6, 8), 10)
 ```
-{% endtab %}
-{% endtabs %}
 
-{% hint style="info" %}
-The `Runtime.list(Object...)` method automatically flattens the resulting list if one or more arguments are lists.
-{% endhint %}
-
+> #### ⓘ Hint
+>
+> The `Runtime.list(Object...)` method automatically flattens the resulting list if one or more arguments are lists.

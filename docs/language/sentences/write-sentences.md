@@ -7,8 +7,6 @@
             | we (read | write)
 ```
 
-{% tabs %}
-{% tab title="Scenario" %}
 ```markup
 <actor> reads/writes <named>
 <actor> reads/writes <expr1> into <expr2>
@@ -17,8 +15,6 @@ we read 5 from size of elements
 we write 5 from points of Carli, 6, and 7 into list
 we write 1 to 5 into numbers of interest
 ```
-{% endtab %}
-{% endtabs %}
 
 ## Write Translation
 

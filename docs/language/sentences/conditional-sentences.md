@@ -7,19 +7,11 @@
 <otherwiseSentence> ::= Otherwise , <statements> .
 ```
 
-{% tabs %}
-{% tab title="Scenarios" %}
 ```markup
 If/As/When <condExpr>, <statements>.
-
-
 Otherwise, <statements>.
-
-
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 if (<condExpr>) {
     <statements>
@@ -28,8 +20,3 @@ else {
     <statements>
 }
 ```
-{% endtab %}
-{% endtabs %}
-
-## 
-

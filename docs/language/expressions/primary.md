@@ -16,8 +16,6 @@ Numbers can be written with or without a decimal part. Numbers without one will 
 <number> ::= /-?[0-9]+('.'[0-9]+)?/
 ```
 
-{% tabs %}
-{% tab title="Scenarios" %}
 ```markup
 0
 42
@@ -25,9 +23,7 @@ Numbers can be written with or without a decimal part. Numbers without one will 
 -2
 -4.5
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 0
 42
@@ -35,8 +31,6 @@ Numbers can be written with or without a decimal part. Numbers without one will 
 -2
 -4.5
 ```
-{% endtab %}
-{% endtabs %}
 
 ## String Literals
 
@@ -49,23 +43,17 @@ When you don't want to refer to an existing object or use special characters in 
 
 When using double quotes, the translation is mostly as-is. Single quotes in a Scenario become double quotes in Java.
 
-{% tabs %}
-{% tab title="Scenarios" %}
 ```markup
 'Hello World'
 "Foo Bar 3"
 '""'
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 "Hello World"
 "Foo Bar 3"
 "\"\""
 ```
-{% endtab %}
-{% endtabs %}
 
 ## It \(not yet available\)
 
@@ -94,8 +82,6 @@ Names may refer to objects, but can also be used for strings. In any case, they 
 <nameAccess> ::= <multiName>
 ```
 
-{% tabs %}
-{% tab title="Scenarios" %}
 ```markup
 Carli
 the position
@@ -108,9 +94,7 @@ my list
 the Other list
 MiXeD cAsE 
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 carli
 position
@@ -123,8 +107,6 @@ myList
 otherList
 mixedCase
 ```
-{% endtab %}
-{% endtabs %}
 
 ## Strings
 
@@ -134,8 +116,6 @@ Strings can consist of multiple words in certain contexts. See [Names](primary.m
 <string> ::= (<word> | <number>)+
 ```
 
-{% tabs %}
-{% tab title="Scenarios" %}
 ```markup
 Carli
 math
@@ -143,9 +123,7 @@ integrals
 math room
 room 3
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 "Carli"
 "math"
@@ -153,8 +131,3 @@ room 3
 "math room"
 "room 3"
 ```
-{% endtab %}
-{% endtabs %}
-
-
-

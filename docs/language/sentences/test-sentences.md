@@ -4,8 +4,6 @@
 
 Expect Sentences allow you to verify certain properties of your data model. In Java tests, these are called assertions, and that is what these sentences translate to. In essence, they consist of the keywords `we expect` followed by one or more [conditional expressions](../expressions/conditionals.md). Each `that` clause will create an additional assertion statement.
 
-{% tabs %}
-{% tab title="Scenario" %}
 ```text
 We expect that 1.5 is 1.5.
 We expect that 'str' is 'str'.
@@ -24,11 +22,8 @@ We expect that numbers contain 3.
 We expect that integers do not contain 1.5.
 
 We expect that 1 is 1 and that 2 is 2.
-
 ```
-{% endtab %}
 
-{% tab title="Java" %}
 ```java
 assertEquals(1.5, 1.5, 0);
 assertEquals("str", "str");
@@ -49,8 +44,6 @@ assertThat(integers, not(hasItem(1.5));
 assertEquals(1, 1);
 assertEquals(2, 2);
 ```
-{% endtab %}
-{% endtabs %}
 
 ```markup
 <expectSentence> ::= we expect <thatClauses> .
@@ -62,19 +55,19 @@ assertEquals(2, 2);
 
 Diagram sentences allow you to visualize object structures by creating files that display them. There are many kinds of formats you can use. Which one depends on the file extension of the file name.
 
-{% hint style="info" %}
-The examples below are derived from the following scenario, with `<fileName>` being the filename shown in the examples:
-
-```text
-There is a Product with name Sneakers, with id beef-6f, with price 99.99, and with color red.
-There is a Product with name Pumps, with id cafe-18, with price 104.49, and with color black.
-
-There is a Store with name Amazon.
-Amazon has products Sneakers and Pumps.
-
-![amazon, sneakers, pumps](<fileName>)
-```
-{% endhint %}
+> #### ⓘ Hint
+>
+> The examples below are derived from the following scenario, with `<fileName>` being the filename shown in the examples:
+> 
+> ```text
+> There is a Product with name Sneakers, with id beef-6f, with price 99.99, and with color red.
+> There is a Product with name Pumps, with id cafe-18, with price 104.49, and with color black.
+> 
+> There is a Store with name Amazon.
+> Amazon has products Sneakers and Pumps.
+> 
+> ![amazon, sneakers, pumps](<fileName>)
+> ```
 
 * `.png` creates ordinary images of object diagrams. They may have low resolution and are not suitably for high definition viewing. Example:
 
@@ -86,7 +79,6 @@ Amazon has products Sneakers and Pumps.
 
 * `.yaml` visualizes object structures in the format used by [fulibYaml](https://github.com/fujaba/fulibYaml).
 
-{% code title="amazon.yaml" %}
 ```yaml
 - amazon1: 	Store
   name: 	Amazon
@@ -104,17 +96,14 @@ Amazon has products Sneakers and Pumps.
   name: 	Pumps
   price: 	104.49
 ```
-{% endcode %}
 
 * `.txt` allows you to write the string representation of objects to a file. When passing a list, each item is written on a new line.
 
-{% code title="amazon.txt" %}
 ```markup
 Amazon
 Sneakers beef-6f red
 Pumps cafe-18 black
 ```
-{% endcode %}
 
 * `.tables.html` formats object structures as interlinked HTML tables.
 
