@@ -24,6 +24,7 @@ import org.fulib.scenarios.ast.type.PrimitiveType;
 import org.fulib.scenarios.ast.type.Type;
 import org.fulib.scenarios.diagnostic.Marker;
 import org.fulib.scenarios.diagnostic.Position;
+import org.fulib.scenarios.tool.Config;
 import org.fulib.scenarios.visitor.ExtractClassDecl;
 import org.fulib.scenarios.visitor.Namer;
 import org.fulib.scenarios.visitor.TypeConversion;
@@ -299,6 +300,20 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    public Sentence visit(DiagramSentence diagramSentence, Scope par)
    {
       diagramSentence.setObject(diagramSentence.getObject().accept(ExprResolver.INSTANCE, par));
+
+      final Config config = DeclResolver.getEnclosingClass(par).getGroup().getContext().getConfig();
+
+      final String fileName = diagramSentence.getFileName();
+      final String diagramHandler = config.getDiagramHandlerFromFile(fileName);
+      if (diagramHandler == null)
+      {
+         final Position position = diagramSentence.getPosition();
+         final Marker error = error(position, "diagram.filename.extension.unsupported", fileName);
+         error.note(
+            note(position, "diagram.filename.extension.hint", new TreeSet<>(config.getDiagramHandlerExtensions())));
+         par.report(error);
+      }
+
       return diagramSentence;
    }
 

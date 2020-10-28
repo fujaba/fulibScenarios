@@ -11,19 +11,30 @@ public class Config
 {
    // =============== Fields ===============
 
-   private String       modelDir;
-   private String       testDir;
-   private List<String> inputDirs = new ArrayList<>();
-   private List<String> classpath = new ArrayList<>();
-   private Set<String>  imports   = new HashSet<>();
+   private String modelDir;
+   private String testDir;
+   private final List<String> inputDirs = new ArrayList<>();
+   private final List<String> classpath = new ArrayList<>();
+   private final Set<String> imports = new HashSet<>();
+
+   private final Set<String> decoratorClasses = new TreeSet<>();
+
+   private final Map<String, String> diagramHandlers = new HashMap<>();
 
    {
       // default imports
       this.imports.add("java.lang");
       this.imports.add("org.fulib.mockups");
-   }
 
-   private Set<String> decoratorClasses = new TreeSet<>();
+      this.diagramHandlers.put(".svg", "import(org.fulib.FulibTools).objectDiagrams().dumpSVG(%s, %s)");
+      this.diagramHandlers.put(".html.png", "import(org.fulib.mockups.FulibMockups).mockupTool().dump(%s, %s)");
+      this.diagramHandlers.put(".png", "import(org.fulib.FulibTools).objectDiagrams().dumpPng(%s, %s)");
+      this.diagramHandlers.put(".yaml", "import(org.fulib.FulibTools).objectDiagrams().dumpYaml(%s, %s)");
+      this.diagramHandlers.put(".html", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpScreen(%s, %s)");
+      this.diagramHandlers.put(".tables.html", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpTables(%s, %s)");
+      this.diagramHandlers.put(".mockup.html", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpMockup(%s)");
+      this.diagramHandlers.put(".txt", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpToString(%s, %s)");
+   }
 
    private boolean generateTables;
 
@@ -77,6 +88,33 @@ public class Config
    public Set<String> getDecoratorClasses()
    {
       return this.decoratorClasses;
+   }
+
+   public Set<String> getDiagramHandlerExtensions()
+   {
+      return this.diagramHandlers.keySet();
+   }
+
+   public String getDiagramHandler(String extension)
+   {
+      return this.diagramHandlers.get(extension);
+   }
+
+   public String getDiagramHandlerFromFile(String fileName)
+   {
+      int dotIndex = -1;
+
+      while ((dotIndex = fileName.indexOf('.', dotIndex + 1)) >= 0)
+      {
+         final String extension = fileName.substring(dotIndex);
+         final String handler = this.getDiagramHandler(extension);
+         if (handler != null)
+         {
+            return handler;
+         }
+      }
+
+      return null;
    }
 
    public boolean isGenerateTables()
@@ -194,6 +232,15 @@ public class Config
       options.addOption(
          new Option(null, "marker-end-columns", false, "include the column number where a marker ends in the output"));
 
+      options.addOption(Option
+                           .builder()
+                           .longOpt("diagram-handlers")
+                           .argName("<extension>=<method>")
+                           .numberOfArgs(2)
+                           .valueSeparator()
+                           .desc("generate diagrams with the extension using the handler method")
+                           .build());
+
       return options;
    }
 
@@ -226,6 +273,11 @@ public class Config
       if (decoratorClasses != null)
       {
          Collections.addAll(this.decoratorClasses, decoratorClasses);
+      }
+
+      for (final Map.Entry<Object, Object> entry : cmd.getOptionProperties("diagram-handlers").entrySet())
+      {
+         this.diagramHandlers.put(entry.getKey().toString(), entry.getValue().toString());
       }
    }
 }
