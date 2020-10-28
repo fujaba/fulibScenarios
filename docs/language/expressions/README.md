@@ -8,3 +8,7 @@ Expressions are the language constructs that produce a value of sorts. Nearly ev
               | <number> <name>
 ```
 
+* [Primary](primary.md)
+* [Access](access.md)
+* [Collections \[WIP\]](collections.md)
+* [Conditionals \[WIP\]](conditionals.md)
