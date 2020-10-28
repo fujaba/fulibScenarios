@@ -71,11 +71,11 @@ Diagram sentences allow you to visualize object structures by creating files tha
 
 * `.png` creates ordinary images of object diagrams. They may have low resolution and are not suitably for high definition viewing. Example:
 
-![amazon.png](../../.gitbook/assets/download.png)
+![amazon.png](assets/download.png)
 
 * `.svg` creates object diagrams in [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics) format. This can be scaled to any size, making it useful for embedding in websites or printing. You can also select the text in the diagrams.
 
-![amazon.svg](../../.gitbook/assets/amazon-svg.png)
+![amazon.svg](assets/amazon-svg.png)
 
 * `.yaml` visualizes object structures in the format used by [fulibYaml](https://github.com/fujaba/fulibYaml).
 
@@ -107,7 +107,7 @@ Pumps cafe-18 black
 
 * `.tables.html` formats object structures as interlinked HTML tables.
 
-![amazon.tables.html](../../.gitbook/assets/amazon-tables.png)
+![amazon.tables.html](assets/amazon-tables.png)
 
 ```markup
 <diagramSentence> ::= ![ <expr> ]( <fileName> )
