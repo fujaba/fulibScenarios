@@ -11,11 +11,13 @@ public class Config
 {
    // =============== Fields ===============
 
-   private String       modelDir;
-   private String       testDir;
-   private List<String> inputDirs = new ArrayList<>();
-   private List<String> classpath = new ArrayList<>();
-   private Set<String>  imports   = new HashSet<>();
+   private String modelDir;
+   private String testDir;
+   private final List<String> inputDirs = new ArrayList<>();
+   private final List<String> classpath = new ArrayList<>();
+   private final Set<String> imports = new HashSet<>();
+
+   private final Set<String> decoratorClasses = new TreeSet<>();
 
    private final Map<String, String> diagramHandlers = new HashMap<>();
 
@@ -33,8 +35,6 @@ public class Config
       this.diagramHandlers.put(".mockup.html", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpMockup(%s)");
       this.diagramHandlers.put(".txt", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpToString(%s, %s)");
    }
-
-   private Set<String> decoratorClasses = new TreeSet<>();
 
    private boolean generateTables;
 
