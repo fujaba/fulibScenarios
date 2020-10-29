@@ -649,6 +649,14 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
+   public void exitIt(ScenarioParser.ItContext ctx)
+   {
+      final ItLiteral it = ItLiteral.of();
+      it.setPosition(position(ctx.IT()));
+      this.stack.push(it);
+   }
+
+   @Override
    public void exitNameAccess(ScenarioParser.NameAccessContext ctx)
    {
       final Name name = name(ctx.name());
