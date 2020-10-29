@@ -2,7 +2,10 @@
 
 ## Headlines
 
-A scenario starts with a header line, like '\# Basics' at the top. The header line becomes the name of the test method in the Java code. You may have multiple scenarios in one file. Each header line starts a new test method, or 'scenario'. Keep in mind that you cannot access objects from another scenario.
+A scenario starts with a header line, like '\# My First Scenario' in the following example.
+The header line becomes the name of the test method in the Java code.
+You may have multiple scenarios in one file.
+Each header line starts a new test method, or 'scenario'.
 
 ```markdown
 # My First Scenario
@@ -27,7 +30,8 @@ void theSecondOne() {
 
 ## Sections
 
-Lines starting with `##` are section headlines. In Java code, they are shown as special comments.
+Lines starting with `##` are section headlines.
+In Java code, they are shown as special comments.
 
 ```markdown
 ## Examples
@@ -38,6 +42,11 @@ Lines starting with `##` are section headlines. In Java code, they are shown as 
 ```
 
 ## Comments
+
+Comments allow you to put additional information in a scenario without affecting its semantics.
+There are multiple different comment syntaxes available.
+
+### Blockquote Comments
 
 Quoted content, i.e. everything after `>` up to the end of a line, becomes a Java comment.
 
@@ -51,6 +60,8 @@ Quoted content, i.e. everything after `>` up to the end of a line, becomes a Jav
 
 > ⓘ The `>` syntax for comments was added in fulibScenarios v1.6.
 
+### Slashy Comments
+
 An alternative syntax uses `//` in the scenario text:
 
 ```markdown
@@ -58,16 +69,32 @@ An alternative syntax uses `//` in the scenario text:
 There is a Student. // another comment
 ```
 
+```java
+// comment
+Student student = new Student();
+// another comment
+```
+
 However, this is discouraged because it does not render nicely as Markdown.
 
 ### Parenthesized Comments
 
-Another form of comment uses parentheses. These comments will not be present in the resulting Java code.
+Another form of comment uses parentheses.
+These comments will not be present in the resulting Java code.
 
 ```markdown
-... (this will not be part of the Java code) ...
+There is a Student (without a name for now).
 ```
 
 ```java
-... ...
+Student student = new Student();
+```
+
+### HTML Comments
+
+This syntax is similar to parenthesized comments in that they will not end up in the Java code.
+However, they will not be visible in rendered Markdown.
+
+```markdown
+There is a Student <!-- without a name for now -->.
 ```
