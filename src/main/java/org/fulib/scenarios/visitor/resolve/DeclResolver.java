@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import static org.fulib.builder.Type.MANY;
 import static org.fulib.scenarios.diagnostic.Marker.error;
 import static org.fulib.scenarios.diagnostic.Marker.note;
 import static org.fulib.scenarios.visitor.TypeComparer.isSuperClass;
@@ -196,27 +197,12 @@ public class DeclResolver
       Position position)
    {
       final Type attributeType = rhs.getType();
+      final ClassDecl otherClassDecl = attributeType.accept(ExtractClassDecl.INSTANCE, null);
 
-      if (attributeType instanceof ListType)
+      if (otherClassDecl != null && otherClassDecl.getGroup() == classDecl.getGroup())
       {
-         // new value is multi-valued
-
-         final Type otherType = ((ListType) attributeType).getElementType();
-         if (otherType instanceof ClassType)
-         {
-            return resolveAssociation(scope, classDecl, attributeName, org.fulib.builder.Type.MANY,
-                                      ((ClassType) otherType).getClassDecl(), position, rhs);
-         }
-         else
-         {
-            // was element type that we have no control over, e.g. List<String>
-            return resolveAttribute(scope, classDecl, attributeName, attributeType, position, rhs);
-         }
-      }
-      else if (attributeType instanceof ClassType)
-      {
-         return resolveAssociation(scope, classDecl, attributeName, 1, ((ClassType) attributeType).getClassDecl(),
-                                   position, rhs);
+         int cardinality = attributeType instanceof ListType ? MANY : 1;
+         return resolveAssociation(scope, classDecl, attributeName, cardinality, otherClassDecl, position, rhs);
       }
       else
       {
