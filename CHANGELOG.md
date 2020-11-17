@@ -332,3 +332,29 @@
 ## Bugfixes
 
 * Fixed the --object-diagram and --object-diagram-svg options not doing anything. #200
+
+# fulibScenarios v1.6.0
+
+## New Features
+
++ Added inheritance. #162 #164 #184
++ Add Sentences can now concatenate strings. #201
++ Names can now contain numbers separated by spaces. #203
++ Added fenced code blocks as multiline string literals. #204
++ Blockquotes in scenarios now become comments in the Java code. #207
++ Added support for the new `.html.png` diagram format for fulibMockups v0.3. #210
++ Added the `--diagram-handlers` option for defining custom diagram file name extensions. #213
+
+## Improvements
+
+* Attributes in external classes are now detected only via getters, without requiring `PROPERTY_*` constants. #205
+* Disabled false negative syntax ambiguity warnings. #214
+* Unidirectional to-many associations now use `List`/`ArrayList` as the collection type. #209
+* Unidirectional associations are now translated as such to the fulib class model. #216
+  > This has no impact on generated Java code, but is visible in class diagrams.
+
+## Bugfixes
+
+* The compiler now produces a diagnostic error instead of an exception when the `it` literal is used. #208 #215
+* Fixed a compiler exception caused by conflicts with externally declared associations. #211
+* Fixed an exception when attempting to generate a diagram with an unsupported extension. #212 #213
