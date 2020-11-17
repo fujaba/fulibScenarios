@@ -335,6 +335,11 @@
 
 # fulibScenarios v1.6.0
 
+## General
+
+* Updated to fulib v1.3.0.
+* Updated to fulibTools v1.3.0.
+
 ## New Features
 
 + Added inheritance. #162 #164 #184
