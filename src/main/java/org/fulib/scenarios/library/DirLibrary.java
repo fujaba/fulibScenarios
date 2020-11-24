@@ -16,21 +16,43 @@ public class DirLibrary extends Library
 
    // =============== Methods ===============
 
-   private File getFile(String className)
+   private File getValidFileOrNull(String className)
    {
-      return new File(this.getSource().getPath() + File.separatorChar + className + ".class");
+      final String classFileName = className.replace('/', File.separatorChar) + ".class";
+      final File file = new File(this.getSource(), classFileName);
+      if (!file.exists())
+      {
+         return null;
+      }
+
+      final String canonicalFile;
+      try
+      {
+         canonicalFile = file.getCanonicalPath();
+      }
+      catch (IOException e)
+      {
+         return null;
+      }
+
+      // case sensitive check
+      if (!canonicalFile.endsWith(classFileName))
+      {
+         return null;
+      }
+      return file;
    }
 
    @Override
    public boolean hasClass(String name)
    {
-      return this.getFile(name).exists();
+      return this.getValidFileOrNull(name) != null;
    }
 
    @Override
    public InputStream loadClass(String name) throws IOException
    {
-      final File file = this.getFile(name);
-      return file.exists() ? new FileInputStream(file) : null;
+      final File file = this.getValidFileOrNull(name);
+      return file != null ? new FileInputStream(file) : null;
    }
 }
