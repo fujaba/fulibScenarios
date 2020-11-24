@@ -363,3 +363,10 @@
 * The compiler now produces a diagnostic error instead of an exception when the `it` literal is used. #208 #215
 * Fixed a compiler exception caused by conflicts with externally declared associations. #211
 * Fixed an exception when attempting to generate a diagram with an unsupported extension. #212 #213
+
+# fulibScenarios v1.6.1
+
+## Bugfixes
+
+* Fixed a compiler exception when a variable name clashes with a declaration without a position. #217
+* Class resolution from directories on the classpath is now case-sensitive. #218
