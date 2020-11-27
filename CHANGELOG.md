@@ -370,3 +370,14 @@
 
 * Fixed a compiler exception when a variable name clashes with a declaration without a position. #217
 * Class resolution from directories on the classpath is now case-sensitive. #218
+
+# fulibScenarios v1.6.2
+
+## General
+
+* Updated to fulibTools v1.4.1.
+
+## Improvements
+
+* `a`/`an` is now optional in placeholders. #220
+  > This makes it possible to write `Every student has credits of type int.` instead of `a credits`.
