@@ -76,7 +76,7 @@ namedExpr: THE? simpleName expr # NamedSimple
          ;
 bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF (expr | aPlaceholder | manyPlaceholder);
 
-placeholderNamedExpr: (A | AN) name (likePlaceholder | ofTypePlaceholder);
+placeholderNamedExpr: (A | AN)? name (likePlaceholder | ofTypePlaceholder);
 
 aPlaceholder: (A | AN) typeName (LIKE expr)?;
 manyPlaceholder: MANY typesName (LIKE expr)?;
