@@ -67,7 +67,7 @@ dependencies {
    api group: 'org.fulib', name: 'fulib', version: '1.4.1'
 
    // https://mvnrepository.com/artifact/org.fulib/fulibTools
-   api group: 'org.fulib', name: 'fulibTools', version: '1.4.0'
+   api group: 'org.fulib', name: 'fulibTools', version: '1.4.1'
 
    // --------------- Other Libraries ---------------
 
