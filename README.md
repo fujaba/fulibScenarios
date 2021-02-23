@@ -1,7 +1,6 @@
 # Fulib Scenarios
 
 [![Java CI](https://github.com/fujaba/fulibScenarios/workflows/Java%20CI/badge.svg)](https://github.com/fujaba/fulibScenarios/actions)
-[![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg)](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion "Download")
 
 A compiler for textual scenarios.
 
@@ -44,8 +43,7 @@ Make sure you use the `jcenter` repository:
 ```groovy
 repositories {
     // ...
-    
-    jcenter()
+    mavenCentral()
 }
 ```
 
