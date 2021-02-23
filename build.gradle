@@ -65,18 +65,18 @@ dependencies {
    // --------------- Build Tools ---------------
 
    // https://mvnrepository.com/artifact/de.clashsoft/gentreesrc
-   gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.10.1'
+   gentreesrc group: 'de.clashsoft', name: 'gentreesrc', version: '0.10.2'
 
    // https://mvnrepository.com/artifact/org.antlr/antlr4
-   antlr group: 'org.antlr', name: 'antlr4', version: '4.8'
+   antlr group: 'org.antlr', name: 'antlr4', version: '4.9.1'
 
    // --------------- Fulib Libraries ---------------
 
    // https://mvnrepository.com/artifact/org.fulib/fulib
-   api group: 'org.fulib', name: 'fulib', version: '1.4.1'
+   api group: 'org.fulib', name: 'fulib', version: '1.5.1'
 
    // https://mvnrepository.com/artifact/org.fulib/fulibTools
-   api group: 'org.fulib', name: 'fulibTools', version: '1.4.1'
+   api group: 'org.fulib', name: 'fulibTools', version: '1.5.1'
 
    // --------------- Other Libraries ---------------
 
@@ -84,7 +84,7 @@ dependencies {
    implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9'
 
    // https://mvnrepository.com/artifact/org.antlr/antlr4-runtime
-   implementation group: 'org.antlr', name: 'antlr4-runtime', version: '4.8'
+   implementation group: 'org.antlr', name: 'antlr4-runtime', version: '4.9.1'
 
    // https://mvnrepository.com/artifact/commons-cli/commons-cli
    implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
@@ -98,7 +98,7 @@ dependencies {
    testImplementation group: 'junit', name: 'junit', version: '4.13'
 
    // https://mvnrepository.com/artifact/org.fulib/fulibMockups
-   testImplementation group: 'org.fulib', name: 'fulibMockups', version: '[0.2.0,)'
+   testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.3.1'
 
    // https://mvnrepository.com/artifact/org.fulib/fulibTables
    testImplementation group: 'org.fulib', name: 'fulibTables', version: '1.4.0'
