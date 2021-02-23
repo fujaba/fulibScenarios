@@ -147,10 +147,11 @@ matchConstraint: WHERE condExpr;
 expr: access | collection;
 
 // Primary
-primary: number | stringLiteral | codeBlock | it | answer | nameAccess;
+primary: number | booleanLiteral | stringLiteral | codeBlock | it | answer | nameAccess;
 primaryExpr: primary;
 
 number: DECIMAL | INTEGER;
+booleanLiteral: TRUE | FALSE;
 stringLiteral: STRING_LITERAL;
 it: IT;
 answer: THE? ANSWER;
@@ -170,6 +171,9 @@ identifier: WORD
           // new keywords for placeholders since v1.4
           | EVERY
           | TYPE
+          // new keywords for boolean literals since v1.7
+          | TRUE
+          | FALSE
           ;
 
 nameAccess: THE? name;
