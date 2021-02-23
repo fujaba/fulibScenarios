@@ -2,9 +2,11 @@ plugins {
    id 'java-library'
    id 'antlr'
    id 'maven-publish'
-   id 'com.jfrog.bintray' version '1.8.4'
-   id 'de.clashsoft.simple-publish' version '0.6.0'
    id 'de.clashsoft.gentreesrc-gradle' version '0.5.0'
+   // https://plugins.gradle.org/plugin/com.bmuschko.nexus
+   id 'com.bmuschko.nexus' version '2.3.1'
+   // https://plugins.gradle.org/plugin/io.codearte.nexus-staging
+   id 'io.codearte.nexus-staging' version '0.22.0'
 }
 
 apply from: 'gradle/functional-test.gradle'
@@ -16,31 +18,39 @@ group = 'org.fulib'
 version = 'git describe --tags'.execute().text[1..-2] // strip v and \n
 description = 'A compiler for textual example scenarios.'
 
-publishInfo {
-   organization = 'fujaba'
-   websiteUrl = 'https://www.fulib.org/'
-   githubRepo = 'fujaba/fulibScenarios'
-   labels = [ 'source', 'generator', 'scenario', 'markdown' ]
+modifyPom {
+   project {
+      name = project.name
+      description = project.description
+      url = 'https://github.com/fujaba/fulibScenarios'
+      inceptionYear = '2019'
 
-   license {
-      name = 'BSD 3-Clause License'
-      url = 'https://opensource.org/licenses/BSD-3-Clause'
-   }
+      scm {
+         url = 'https://github.com/fujaba/fulibScenarios'
+      }
 
-   developer {
-      id = 'Clashsoft'
-      name = 'Adrian Kunz'
-      email = 'clashsoft@hotmail.com'
-   }
+      licenses {
+         license {
+            name = 'BSD 3-Clause License'
+            url = 'https://opensource.org/licenses/BSD-3-Clause'
+         }
+      }
 
-   developer {
-      id = 'azuendorf'
-      name = 'Albert Zündorf'
-      email = 'zuendorf@uni-kassel.de'
+      developers {
+         developer {
+            id = 'Clashsoft'
+            name = 'Adrian Kunz'
+            email = 'clashsoft@hotmail.com'
+         }
+
+         developer {
+            id = 'azuendorf'
+            name = 'Albert Zündorf'
+            email = 'zuendorf@uni-kassel.de'
+         }
+      }
    }
 }
-
-bintray.pkg.userOrg = 'clashsoft'
 
 sourceCompatibility = 1.8
 
