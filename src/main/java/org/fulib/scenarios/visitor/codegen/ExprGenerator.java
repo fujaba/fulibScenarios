@@ -157,6 +157,13 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    }
 
    @Override
+   public Object visit(BooleanLiteral booleanLiteral, CodeGenDTO par)
+   {
+      par.bodyBuilder.append(booleanLiteral.getValue());
+      return null;
+   }
+
+   @Override
    public Object visit(StringLiteral stringLiteral, CodeGenDTO par)
    {
       par.emitStringLiteral(stringLiteral.getValue());
