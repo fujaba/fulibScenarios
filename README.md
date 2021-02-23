@@ -1,6 +1,5 @@
 # Fulib Scenarios
 
-[![Build Status](https://travis-ci.org/fujaba/fulibScenarios.svg?branch=master)](https://travis-ci.org/fujaba/fulibScenarios "Build Status")
 [![Java CI](https://github.com/fujaba/fulibScenarios/workflows/Java%20CI/badge.svg)](https://github.com/fujaba/fulibScenarios/actions)
 [![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg)](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion "Download")
 
@@ -13,7 +12,6 @@ A compiler for textual scenarios.
 Development
 - [Source Code](https://github.com/fujaba/fulibScenarios)
 - [Issue Tracker](https://github.com/fujaba/fulibScenarios/issues)
-- [Build Status](https://travis-ci.org/fujaba/fulibScenarios/branches)
 
 Documentation
 - [Language Reference](https://fujaba.gitbook.io/fulib-scenarios/)
