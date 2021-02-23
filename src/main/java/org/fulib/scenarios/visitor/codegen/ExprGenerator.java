@@ -62,7 +62,11 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(AttributeAccess attributeAccess, CodeGenDTO par)
    {
       attributeAccess.getReceiver().accept(this, par);
-      par.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().getValue())).append("()");
+      final Name name = attributeAccess.getName();
+      par.bodyBuilder
+         .append(name.getDecl() != null && name.getDecl().getType() == PrimitiveType.BOOLEAN ? ".is" : ".get")
+         .append(StrUtil.cap(name.getValue()))
+         .append("()");
       return null;
    }
 

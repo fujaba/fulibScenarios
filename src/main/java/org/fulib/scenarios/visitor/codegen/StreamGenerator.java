@@ -179,7 +179,7 @@ public enum StreamGenerator implements Expr.Visitor<CodeGenDTO, Void>
       listAttributeAccess.getReceiver().accept(this, par);
       par.bodyBuilder.append(".map(");
       par.bodyBuilder.append(elementTypeName);
-      par.bodyBuilder.append("::get");
+      par.bodyBuilder.append(attribute != null && attribute.getType() == PrimitiveType.BOOLEAN ? "::is" : "::get");
       par.bodyBuilder.append(StrUtil.cap(name.getValue()));
       par.bodyBuilder.append(')');
 
