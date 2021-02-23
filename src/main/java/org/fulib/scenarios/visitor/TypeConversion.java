@@ -10,10 +10,7 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
-import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
-import org.fulib.scenarios.ast.expr.primary.IntLiteral;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.SentenceList;
@@ -202,6 +199,27 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          return doubleLiteral;
       case STRING:
          return StringLiteral.of(Double.toString(doubleLiteral.getValue()));
+      }
+
+      return null;
+   }
+
+   @Override
+   public Expr visit(BooleanLiteral booleanLiteral, Type par)
+   {
+      if (!(par instanceof PrimitiveType))
+      {
+         return null;
+      }
+
+      switch ((PrimitiveType) par)
+      {
+      case OBJECT:
+      case BOOLEAN:
+      case BOOLEAN_WRAPPER:
+         return booleanLiteral;
+      case STRING:
+         return StringLiteral.of(Boolean.toString(booleanLiteral.getValue()));
       }
 
       return null;

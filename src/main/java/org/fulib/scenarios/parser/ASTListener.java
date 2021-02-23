@@ -597,6 +597,14 @@ public class ASTListener extends ScenarioParserBaseListener
    }
 
    @Override
+   public void exitBooleanLiteral(ScenarioParser.BooleanLiteralContext ctx)
+   {
+      final BooleanLiteral literal = BooleanLiteral.of(ctx.TRUE() != null);
+      literal.setPosition(position(ctx.start));
+      this.stack.push(literal);
+   }
+
+   @Override
    public void exitStringLiteral(ScenarioParser.StringLiteralContext ctx)
    {
       final String text = ctx.STRING_LITERAL().getText();
