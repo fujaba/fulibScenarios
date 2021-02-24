@@ -131,7 +131,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          case CHAR:
          case CHAR_WRAPPER:
             // <expr>.charAt(0)
-            return methodCall(expr, "charAt", IntLiteral.of(1), to);
+            return methodCall(expr, "charAt", IntLiteral.of(0), to);
          }
       }
       if (from == primitiveToWrapper(to) || to == primitiveToWrapper(from))
