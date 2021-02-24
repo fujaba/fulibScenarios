@@ -177,7 +177,9 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       case DOUBLE_WRAPPER:
          return intLiteral;
       case STRING:
-         return StringLiteral.of(Integer.toString(intLiteral.getValue()));
+         final StringLiteral stringLiteral = StringLiteral.of(Integer.toString(intLiteral.getValue()));
+         stringLiteral.setPosition(intLiteral.getPosition());
+         return stringLiteral;
       }
 
       return null;
@@ -198,7 +200,9 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       case DOUBLE_WRAPPER:
          return doubleLiteral;
       case STRING:
-         return StringLiteral.of(Double.toString(doubleLiteral.getValue()));
+         final StringLiteral stringLiteral = StringLiteral.of(Double.toString(doubleLiteral.getValue()));
+         stringLiteral.setPosition(doubleLiteral.getPosition());
+         return stringLiteral;
       }
 
       return null;
@@ -219,7 +223,9 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       case BOOLEAN_WRAPPER:
          return booleanLiteral;
       case STRING:
-         return StringLiteral.of(Boolean.toString(booleanLiteral.getValue()));
+         final StringLiteral stringLiteral = StringLiteral.of(Boolean.toString(booleanLiteral.getValue()));
+         stringLiteral.setPosition(booleanLiteral.getPosition());
+         return stringLiteral;
       }
 
       return null;
@@ -271,24 +277,34 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          return stringLiteral;
       case INT:
       case INT_WRAPPER:
+         final int intValue;
          try
          {
-            return IntLiteral.of(Integer.parseInt(value));
+            intValue = Integer.parseInt(value);
          }
          catch (NumberFormatException ex)
          {
             return null;
          }
+
+         final IntLiteral intLiteral = IntLiteral.of(intValue);
+         intLiteral.setPosition(stringLiteral.getPosition());
+         return intLiteral;
       case DOUBLE:
       case DOUBLE_WRAPPER:
+         final double doubleValue;
          try
          {
-            return DoubleLiteral.of(Double.parseDouble(value));
+            doubleValue = Double.parseDouble(value);
          }
          catch (NumberFormatException ex)
          {
             return null;
          }
+
+         final DoubleLiteral doubleLiteral = DoubleLiteral.of(doubleValue);
+         doubleLiteral.setPosition(stringLiteral.getPosition());
+         return doubleLiteral;
       case CHAR:
       case CHAR_WRAPPER:
          if (value.length() == 1)
