@@ -226,6 +226,36 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
    }
 
    @Override
+   public Expr visit(CharLiteral charLiteral, Type par)
+   {
+      if (!(par instanceof PrimitiveType))
+      {
+         return null;
+      }
+
+      switch ((PrimitiveType) par)
+      {
+      case OBJECT:
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
+      case INT:
+      case LONG:
+      case FLOAT:
+      case DOUBLE:
+         return charLiteral;
+      case STRING:
+         final StringLiteral stringLiteral = StringLiteral.of(String.valueOf(charLiteral.getValue()));
+         stringLiteral.setPosition(charLiteral.getPosition());
+         return stringLiteral;
+      }
+      return null;
+   }
+
+   @Override
    public Expr visit(StringLiteral stringLiteral, Type par)
    {
       if (!(par instanceof PrimitiveType))

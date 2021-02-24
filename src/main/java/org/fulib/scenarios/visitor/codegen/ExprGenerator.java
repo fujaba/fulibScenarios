@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.codegen;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
@@ -164,6 +165,13 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(BooleanLiteral booleanLiteral, CodeGenDTO par)
    {
       par.bodyBuilder.append(booleanLiteral.getValue());
+      return null;
+   }
+
+   @Override
+   public Object visit(CharLiteral charLiteral, CodeGenDTO par)
+   {
+      par.bodyBuilder.append('\'').append(StringEscapeUtils.escapeJava(String.valueOf(charLiteral))).append('\'');
       return null;
    }
 

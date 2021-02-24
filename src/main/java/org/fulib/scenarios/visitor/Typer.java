@@ -62,6 +62,12 @@ public enum Typer implements Expr.Visitor<Object, Type>, Name.Visitor<Object, Ty
    }
 
    @Override
+   public Type visit(CharLiteral charLiteral, Object par)
+   {
+      return PrimitiveType.CHAR;
+   }
+
+   @Override
    public Type visit(StringLiteral stringLiteral, Object par)
    {
       return PrimitiveType.STRING;
