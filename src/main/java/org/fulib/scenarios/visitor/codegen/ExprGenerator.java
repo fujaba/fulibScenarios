@@ -171,7 +171,11 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    @Override
    public Object visit(CharLiteral charLiteral, CodeGenDTO par)
    {
-      par.bodyBuilder.append('\'').append(StringEscapeUtils.escapeJava(String.valueOf(charLiteral))).append('\'');
+      final char value = charLiteral.getValue();
+      par.bodyBuilder
+         .append('\'')
+         .append(value == '\'' ? "\\'" : StringEscapeUtils.escapeJava(String.valueOf(value)))
+         .append('\'');
       return null;
    }
 
