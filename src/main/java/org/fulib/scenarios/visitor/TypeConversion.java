@@ -263,6 +263,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          return null;
       }
 
+      final String value = stringLiteral.getValue();
       switch ((PrimitiveType) par)
       {
       case OBJECT:
@@ -272,7 +273,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       case INT_WRAPPER:
          try
          {
-            return IntLiteral.of(Integer.parseInt(stringLiteral.getValue()));
+            return IntLiteral.of(Integer.parseInt(value));
          }
          catch (NumberFormatException ex)
          {
@@ -282,12 +283,21 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       case DOUBLE_WRAPPER:
          try
          {
-            return DoubleLiteral.of(Double.parseDouble(stringLiteral.getValue()));
+            return DoubleLiteral.of(Double.parseDouble(value));
          }
          catch (NumberFormatException ex)
          {
             return null;
          }
+      case CHAR:
+      case CHAR_WRAPPER:
+         if (value.length() == 1)
+         {
+            final CharLiteral charLiteral = CharLiteral.of(value.charAt(0));
+            charLiteral.setPosition(stringLiteral.getPosition());
+            return charLiteral;
+         }
+         return null;
       }
 
       return null;
