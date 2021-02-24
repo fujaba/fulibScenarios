@@ -92,6 +92,7 @@ abstract org.fulib.scenarios.ast.Node {
 				IntLiteral(value: int)
 				DoubleLiteral(value: double)
 				BooleanLiteral(value: boolean)
+				CharLiteral(value: char)
 				StringLiteral(value: String, noconstruct language: String)
 				NameAccess(name: Name)
 				AnswerLiteral()
