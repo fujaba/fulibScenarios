@@ -167,14 +167,17 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       switch ((PrimitiveType) par)
       {
       case OBJECT:
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
       case INT:
       case INT_WRAPPER:
       case LONG:
-      case LONG_WRAPPER:
       case FLOAT:
-      case FLOAT_WRAPPER:
       case DOUBLE:
-      case DOUBLE_WRAPPER:
          return intLiteral;
       case STRING:
          final StringLiteral stringLiteral = StringLiteral.of(Integer.toString(intLiteral.getValue()));
