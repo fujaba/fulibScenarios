@@ -381,3 +381,25 @@
 
 * `a`/`an` is now optional in placeholders. #220
   > This makes it possible to write `Every student has credits of type int.` instead of `a credits`.
+
+# fulibScenarios v1.7.0
+
+## General
+
+* Updated to fulib v1.5.1. #221
+* Updated to fulibTools v1.5.1. #221
+
+## New Features
+
++ Added the boolean literals `true` and `false`. #219 #224
+
+## Improvements
+
+* String literals with exactly one character can now be converted to `char` and `Character`. #223 #225
+* Integer literals can now be converted to `byte`, `short`, `char` and their wrappers. #225
+* Integer literals can no longer be converted to the `Long`, `Float` and `Double` wrappers. #225
+
+## Bugfixes
+
+* Automatic `String` → `char` conversions now generate a call to `<expr>.charAt(0)` instead of `charAt(1)`. #222 #225
+* Properties in external classes where the getter starts with `is` are now correctly recognized as such. #224

@@ -32,7 +32,7 @@ Install the [fulibGradle plugin](https://github.com/fujaba/fulibGradle):
 plugins {
     id 'java'
     // https://plugins.gradle.org/plugin/org.fulib.fulibGradle
-    id 'org.fulib.fulibGradle' version '0.4.0'
+    id 'org.fulib.fulibGradle' version '0.5.0'
 
     // ...
 }
@@ -56,11 +56,11 @@ dependencies {
     // ...
 
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.6.2'
+    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.7.0'
 
     // optional (required for mockups):
     // https://mvnrepository.com/artifact/org.fulib/fulibMockups
-    testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.2.0'
+    testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.3.1'
 
     // optional (required for pattern matching):
     // https://mvnrepository.com/artifact/org.fulib/fulibTables
