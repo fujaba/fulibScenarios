@@ -4,7 +4,7 @@
 
 Expect Sentences allow you to verify certain properties of your data model. In Java tests, these are called assertions, and that is what these sentences translate to. In essence, they consist of the keywords `we expect` followed by one or more [conditional expressions](../expressions/conditionals.md). Each `that` clause will create an additional assertion statement.
 
-```text
+```scenario
 We expect that 1.5 is 1.5.
 We expect that 'str' is 'str'.
 We expect that credits of Alice is 20.
@@ -59,7 +59,7 @@ Diagram sentences allow you to visualize object structures by creating files tha
 >
 > The examples below are derived from the following scenario, with `<fileName>` being the filename shown in the examples:
 > 
-> ```text
+> ```scenario
 > There is a Product with name Sneakers, with id beef-6f, with price 99.99, and with color red.
 > There is a Product with name Pumps, with id cafe-18, with price 104.49, and with color black.
 > 

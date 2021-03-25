@@ -7,7 +7,7 @@ The header line becomes the name of the test method in the Java code.
 You may have multiple scenarios in one file.
 Each header line starts a new test method, or 'scenario'.
 
-```markdown
+```scenario
 # My First Scenario
 
 // ...
@@ -33,7 +33,7 @@ void theSecondOne() {
 Lines starting with `##` are section headlines.
 In Java code, they are shown as special comments.
 
-```markdown
+```scenario
 ## Examples
 ```
 
@@ -50,7 +50,7 @@ There are multiple different comment syntaxes available.
 
 Quoted content, i.e. everything after `>` up to the end of a line, becomes a Java comment.
 
-```markdown
+```scenario
 > comment
 ```
 
@@ -64,7 +64,7 @@ Quoted content, i.e. everything after `>` up to the end of a line, becomes a Jav
 
 An alternative syntax uses `//` in the scenario text:
 
-```markdown
+```scenario
 // comment
 There is a Student. // another comment
 ```
@@ -82,7 +82,7 @@ However, this is discouraged because it does not render nicely as Markdown.
 Another form of comment uses parentheses.
 These comments will not be present in the resulting Java code.
 
-```markdown
+```scenario
 There is a Student (without a name for now).
 ```
 
@@ -95,6 +95,6 @@ Student student = new Student();
 This syntax is similar to parenthesized comments in that they will not end up in the Java code.
 However, they will not be visible in rendered Markdown.
 
-```markdown
+```scenario
 There is a Student <!-- without a name for now -->.
 ```

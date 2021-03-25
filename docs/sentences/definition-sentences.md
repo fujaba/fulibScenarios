@@ -58,7 +58,7 @@ There Sentences are similar to Is Sentences. In addition to being only usable in
 
 * You can omit the name of the object. In this case, it will be inferred from the first string attribute, or the class name.
 
-```text
+```scenario
 There is the university.
 There is a student.
 There is a student with name Karli.
@@ -87,7 +87,7 @@ There is the student anna with age 21 and with name Anna.
 
 * You can declare multiple objects at once. This saves you from typing the class name and the attribute names multiple times when you want to create multiple objects with of the same type and with the same attribute. If you use the same number of values for every attribute, they are assigned to the objects in order \(second example\). If you have only one value of an attribute, this value is assigned to the attribute of each object \(third example\). Note that the number of generated lines grows quickly with the number of attributes and objects. You may want to split a There Sentence with many objects into multiple sentences for readability.
 
-```text
+```scenario
 There are students with names Karli and Anna.
 
 There are students with names Bob, Charlie and David and with credits 10, 20, 30.
@@ -202,7 +202,7 @@ university.withStudents(alice, bob);
 >
 > A common mistake when omitting the explicit object name is having an association right after the class:
 >
-> ```text
+> ```scenario
 > There is a Student with university Uni Kassel.
 > ```
 >
@@ -215,14 +215,14 @@ university.withStudents(alice, bob);
 >
 > The Scenario compiler will produce an error:
 >
-> ```text
+> ```scenario
 > error: invalid redeclaration of 'uniKassel' [variable.redeclaration]
 > perhaps this name was inferred from the first attribute and you need to give this object an explicit name?
 > ```
 >
 > Following the compiler's advice, you can either give the object an explicit name, or introduce another attribute, if appropriate.
 >
-> ```text
+> ```scenario
 > There is the Student Charlie with university Uni Kassel.
 > There is a Student with name Charlie and with university Uni Kassel.
 > ```
@@ -285,20 +285,20 @@ bob.withFriends(alice, charlie);
 >
 > Make sure that when creating associations that are their own reverse, you specify many values when using `one of` , or omit the `one of` when there is only one value. The following examples ignored this rule:
 >
-> ```text
+> ```scenario
 > Alice has associate and is one of the associate of Bob. // "one of" but one item
 > Charlie has enemies and is enemies of Alice and Dude.   // no "one of" but many items
 > ```
 >
 > Intuitively, you can see that the sentences are grammatically weird, because of the mixed singular and plural forms. To fix the first example, we can change the association name \(first `associate`\) to plural and add another example item:
 >
-> ```text
+> ```scenario
 > Alice has associates and is associate of Bob and Charlie.
 > ```
 >
 > The second sentence can be fixed by changing the reverse name \(second `enemies`\) to singular:
 >
-> ```text
+> ```scenario
 > Charlie has enemies and is enemy of Alice and Dude.
 > ```
 >
