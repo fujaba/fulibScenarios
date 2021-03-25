@@ -510,12 +510,19 @@ public enum SentenceResolver implements Sentence.Visitor<Scope, Sentence>
    private void checkForExisting(Scope par, String name, Position position)
    {
       final Decl existing = par.resolve(name);
-      if (existing != null)
+      if (existing == null)
       {
-         par.report(error(position, "variable.redeclaration", name)
-                       .note(note(position, "variable.redeclaration.hint"))
-                       .note(note(existing.getPosition(), "variable.declaration.first", name)));
+         return;
       }
+
+      final Marker error = error(position, "variable.redeclaration", name);
+      error.note(note(position, "variable.redeclaration.hint"));
+      final Position existingPosition = existing.getPosition();
+      if (existingPosition != null)
+      {
+         error.note(note(existingPosition, "variable.declaration.first", name));
+      }
+      par.report(error);
    }
 
    private static String findUnique(String name, Scope par)

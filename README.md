@@ -1,8 +1,6 @@
 # Fulib Scenarios
 
-[![Build Status](https://travis-ci.org/fujaba/fulibScenarios.svg?branch=master)](https://travis-ci.org/fujaba/fulibScenarios "Build Status")
 [![Java CI](https://github.com/fujaba/fulibScenarios/workflows/Java%20CI/badge.svg)](https://github.com/fujaba/fulibScenarios/actions)
-[![Download](https://api.bintray.com/packages/clashsoft/maven/fulibScenarios/images/download.svg)](https://bintray.com/clashsoft/maven/fulibScenarios/_latestVersion "Download")
 
 A compiler for textual scenarios.
 
@@ -13,7 +11,6 @@ A compiler for textual scenarios.
 Development
 - [Source Code](https://github.com/fujaba/fulibScenarios)
 - [Issue Tracker](https://github.com/fujaba/fulibScenarios/issues)
-- [Build Status](https://travis-ci.org/fujaba/fulibScenarios/branches)
 
 Documentation
 - [Language Reference](https://fujaba.gitbook.io/fulib-scenarios/)
@@ -35,7 +32,7 @@ Install the [fulibGradle plugin](https://github.com/fujaba/fulibGradle):
 plugins {
     id 'java'
     // https://plugins.gradle.org/plugin/org.fulib.fulibGradle
-    id 'org.fulib.fulibGradle' version '0.4.0'
+    id 'org.fulib.fulibGradle' version '0.5.0'
 
     // ...
 }
@@ -46,8 +43,7 @@ Make sure you use the `jcenter` repository:
 ```groovy
 repositories {
     // ...
-    
-    jcenter()
+    mavenCentral()
 }
 ```
 
@@ -60,11 +56,11 @@ dependencies {
     // ...
 
     // https://mvnrepository.com/artifact/org.fulib/fulibScenarios
-    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.5.1'
+    fulibScenarios group: 'org.fulib', name: 'fulibScenarios', version: '1.7.0'
 
     // optional (required for mockups):
     // https://mvnrepository.com/artifact/org.fulib/fulibMockups
-    testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.2.0'
+    testImplementation group: 'org.fulib', name: 'fulibMockups', version: '0.3.1'
 
     // optional (required for pattern matching):
     // https://mvnrepository.com/artifact/org.fulib/fulibTables

@@ -62,11 +62,12 @@ public class ClassModelVisitor extends ClassVisitor
       }
 
       final int length = name.length();
-      if (name.startsWith("get") && length > 3 && !Character.isLowerCase(name.charAt(3)))
+      if (tryCreateAttribute(name, descriptor, signature, "get"))
       {
-         // convert getters to attributes
-         final String attributeName = Character.toLowerCase(name.charAt(3)) + name.substring(4);
-         this.tryCreateAttribute(attributeName, descriptor, signature);
+         return null;
+      }
+      if (tryCreateAttribute(name, descriptor, signature, "is"))
+      {
          return null;
       }
       for (String prefix : SETTER_PREFIXES)
@@ -86,6 +87,20 @@ public class ClassModelVisitor extends ClassVisitor
       }
 
       return null;
+   }
+
+   private boolean tryCreateAttribute(String name, String descriptor, String signature, String prefix)
+   {
+      final int prefixLength = prefix.length();
+      if (name.startsWith(prefix) && name.length() > prefixLength && !Character.isLowerCase(name.charAt(prefixLength)))
+      {
+         // convert getters to attributes
+         final String attributeName =
+            Character.toLowerCase(name.charAt(prefixLength)) + name.substring(prefixLength + 1);
+         this.tryCreateAttribute(attributeName, descriptor, signature);
+         return true;
+      }
+      return false;
    }
 
    @Override

@@ -332,3 +332,74 @@
 ## Bugfixes
 
 * Fixed the --object-diagram and --object-diagram-svg options not doing anything. #200
+
+# fulibScenarios v1.6.0
+
+## General
+
+* Updated to fulib v1.3.0.
+* Updated to fulibTools v1.3.0.
+
+## New Features
+
++ Added inheritance. #162 #164 #184
++ Add Sentences can now concatenate strings. #201
++ Names can now contain numbers separated by spaces. #203
++ Added fenced code blocks as multiline string literals. #204
++ Blockquotes in scenarios now become comments in the Java code. #207
++ Added support for the new `.html.png` diagram format for fulibMockups v0.3. #210
++ Added the `--diagram-handlers` option for defining custom diagram file name extensions. #213
+
+## Improvements
+
+* Attributes in external classes are now detected only via getters, without requiring `PROPERTY_*` constants. #205
+* Disabled false negative syntax ambiguity warnings. #214
+* Unidirectional to-many associations now use `List`/`ArrayList` as the collection type. #209
+* Unidirectional associations are now translated as such to the fulib class model. #216
+  > This has no impact on generated Java code, but is visible in class diagrams.
+
+## Bugfixes
+
+* The compiler now produces a diagnostic error instead of an exception when the `it` literal is used. #208 #215
+* Fixed a compiler exception caused by conflicts with externally declared associations. #211
+* Fixed an exception when attempting to generate a diagram with an unsupported extension. #212 #213
+
+# fulibScenarios v1.6.1
+
+## Bugfixes
+
+* Fixed a compiler exception when a variable name clashes with a declaration without a position. #217
+* Class resolution from directories on the classpath is now case-sensitive. #218
+
+# fulibScenarios v1.6.2
+
+## General
+
+* Updated to fulibTools v1.4.1.
+
+## Improvements
+
+* `a`/`an` is now optional in placeholders. #220
+  > This makes it possible to write `Every student has credits of type int.` instead of `a credits`.
+
+# fulibScenarios v1.7.0
+
+## General
+
+* Updated to fulib v1.5.1. #221
+* Updated to fulibTools v1.5.1. #221
+
+## New Features
+
++ Added the boolean literals `true` and `false`. #219 #224
+
+## Improvements
+
+* String literals with exactly one character can now be converted to `char` and `Character`. #223 #225
+* Integer literals can now be converted to `byte`, `short`, `char` and their wrappers. #225
+* Integer literals can no longer be converted to the `Long`, `Float` and `Double` wrappers. #225
+
+## Bugfixes
+
+* Automatic `String` → `char` conversions now generate a call to `<expr>.charAt(0)` instead of `charAt(1)`. #222 #225
+* Properties in external classes where the getter starts with `is` are now correctly recognized as such. #224

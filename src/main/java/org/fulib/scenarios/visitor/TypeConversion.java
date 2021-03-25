@@ -10,10 +10,7 @@ import org.fulib.scenarios.ast.expr.access.ExampleAccess;
 import org.fulib.scenarios.ast.expr.call.CallExpr;
 import org.fulib.scenarios.ast.expr.collection.ListExpr;
 import org.fulib.scenarios.ast.expr.collection.RangeExpr;
-import org.fulib.scenarios.ast.expr.primary.DoubleLiteral;
-import org.fulib.scenarios.ast.expr.primary.IntLiteral;
-import org.fulib.scenarios.ast.expr.primary.NameAccess;
-import org.fulib.scenarios.ast.expr.primary.StringLiteral;
+import org.fulib.scenarios.ast.expr.primary.*;
 import org.fulib.scenarios.ast.scope.Scope;
 import org.fulib.scenarios.ast.sentence.AnswerSentence;
 import org.fulib.scenarios.ast.sentence.SentenceList;
@@ -134,7 +131,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          case CHAR:
          case CHAR_WRAPPER:
             // <expr>.charAt(0)
-            return methodCall(expr, "charAt", IntLiteral.of(1), to);
+            return methodCall(expr, "charAt", IntLiteral.of(0), to);
          }
       }
       if (from == primitiveToWrapper(to) || to == primitiveToWrapper(from))
@@ -170,17 +167,22 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       switch ((PrimitiveType) par)
       {
       case OBJECT:
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
       case INT:
       case INT_WRAPPER:
       case LONG:
-      case LONG_WRAPPER:
       case FLOAT:
-      case FLOAT_WRAPPER:
       case DOUBLE:
-      case DOUBLE_WRAPPER:
          return intLiteral;
       case STRING:
-         return StringLiteral.of(Integer.toString(intLiteral.getValue()));
+         final StringLiteral stringLiteral = StringLiteral.of(Integer.toString(intLiteral.getValue()));
+         stringLiteral.setPosition(intLiteral.getPosition());
+         return stringLiteral;
       }
 
       return null;
@@ -201,9 +203,64 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
       case DOUBLE_WRAPPER:
          return doubleLiteral;
       case STRING:
-         return StringLiteral.of(Double.toString(doubleLiteral.getValue()));
+         final StringLiteral stringLiteral = StringLiteral.of(Double.toString(doubleLiteral.getValue()));
+         stringLiteral.setPosition(doubleLiteral.getPosition());
+         return stringLiteral;
       }
 
+      return null;
+   }
+
+   @Override
+   public Expr visit(BooleanLiteral booleanLiteral, Type par)
+   {
+      if (!(par instanceof PrimitiveType))
+      {
+         return null;
+      }
+
+      switch ((PrimitiveType) par)
+      {
+      case OBJECT:
+      case BOOLEAN:
+      case BOOLEAN_WRAPPER:
+         return booleanLiteral;
+      case STRING:
+         final StringLiteral stringLiteral = StringLiteral.of(Boolean.toString(booleanLiteral.getValue()));
+         stringLiteral.setPosition(booleanLiteral.getPosition());
+         return stringLiteral;
+      }
+
+      return null;
+   }
+
+   @Override
+   public Expr visit(CharLiteral charLiteral, Type par)
+   {
+      if (!(par instanceof PrimitiveType))
+      {
+         return null;
+      }
+
+      switch ((PrimitiveType) par)
+      {
+      case OBJECT:
+      case BYTE:
+      case BYTE_WRAPPER:
+      case SHORT:
+      case SHORT_WRAPPER:
+      case CHAR:
+      case CHAR_WRAPPER:
+      case INT:
+      case LONG:
+      case FLOAT:
+      case DOUBLE:
+         return charLiteral;
+      case STRING:
+         final StringLiteral stringLiteral = StringLiteral.of(String.valueOf(charLiteral.getValue()));
+         stringLiteral.setPosition(charLiteral.getPosition());
+         return stringLiteral;
+      }
       return null;
    }
 
@@ -215,6 +272,7 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          return null;
       }
 
+      final String value = stringLiteral.getValue();
       switch ((PrimitiveType) par)
       {
       case OBJECT:
@@ -222,24 +280,43 @@ public enum TypeConversion implements Expr.Visitor<Type, Expr>
          return stringLiteral;
       case INT:
       case INT_WRAPPER:
+         final int intValue;
          try
          {
-            return IntLiteral.of(Integer.parseInt(stringLiteral.getValue()));
+            intValue = Integer.parseInt(value);
          }
          catch (NumberFormatException ex)
          {
             return null;
          }
+
+         final IntLiteral intLiteral = IntLiteral.of(intValue);
+         intLiteral.setPosition(stringLiteral.getPosition());
+         return intLiteral;
       case DOUBLE:
       case DOUBLE_WRAPPER:
+         final double doubleValue;
          try
          {
-            return DoubleLiteral.of(Double.parseDouble(stringLiteral.getValue()));
+            doubleValue = Double.parseDouble(value);
          }
          catch (NumberFormatException ex)
          {
             return null;
          }
+
+         final DoubleLiteral doubleLiteral = DoubleLiteral.of(doubleValue);
+         doubleLiteral.setPosition(stringLiteral.getPosition());
+         return doubleLiteral;
+      case CHAR:
+      case CHAR_WRAPPER:
+         if (value.length() == 1)
+         {
+            final CharLiteral charLiteral = CharLiteral.of(value.charAt(0));
+            charLiteral.setPosition(stringLiteral.getPosition());
+            return charLiteral;
+         }
+         return null;
       }
 
       return null;

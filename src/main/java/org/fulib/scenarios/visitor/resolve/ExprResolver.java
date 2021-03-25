@@ -19,6 +19,7 @@ import org.fulib.scenarios.ast.expr.conditional.ConditionalOperatorExpr;
 import org.fulib.scenarios.ast.expr.conditional.PredicateOperatorExpr;
 import org.fulib.scenarios.ast.expr.operator.BinaryExpr;
 import org.fulib.scenarios.ast.expr.primary.AnswerLiteral;
+import org.fulib.scenarios.ast.expr.primary.ItLiteral;
 import org.fulib.scenarios.ast.expr.primary.NameAccess;
 import org.fulib.scenarios.ast.expr.primary.StringLiteral;
 import org.fulib.scenarios.ast.scope.ExtendingScope;
@@ -103,6 +104,13 @@ public enum ExprResolver implements Expr.Visitor<Scope, Expr>
          return ErrorExpr.of(PrimitiveType.ERROR);
       }
       return NameAccess.of(ResolvedName.of(answerVar));
+   }
+
+   @Override
+   public Expr visit(ItLiteral itLiteral, Scope par)
+   {
+      par.report(error(itLiteral.getPosition(), "it.not.implemented"));
+      return ErrorExpr.of(PrimitiveType.ERROR);
    }
 
    @Override

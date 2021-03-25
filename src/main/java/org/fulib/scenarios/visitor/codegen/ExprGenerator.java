@@ -1,5 +1,6 @@
 package org.fulib.scenarios.visitor.codegen;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.fulib.StrUtil;
 import org.fulib.scenarios.ast.NamedExpr;
 import org.fulib.scenarios.ast.decl.Decl;
@@ -62,7 +63,11 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(AttributeAccess attributeAccess, CodeGenDTO par)
    {
       attributeAccess.getReceiver().accept(this, par);
-      par.bodyBuilder.append(".get").append(StrUtil.cap(attributeAccess.getName().getValue())).append("()");
+      final Name name = attributeAccess.getName();
+      par.bodyBuilder
+         .append(name.getDecl() != null && name.getDecl().getType() == PrimitiveType.BOOLEAN ? ".is" : ".get")
+         .append(StrUtil.cap(name.getValue()))
+         .append("()");
       return null;
    }
 
@@ -153,6 +158,24 @@ public enum ExprGenerator implements Expr.Visitor<CodeGenDTO, Object>
    public Object visit(DoubleLiteral doubleLiteral, CodeGenDTO par)
    {
       par.bodyBuilder.append(doubleLiteral.getValue());
+      return null;
+   }
+
+   @Override
+   public Object visit(BooleanLiteral booleanLiteral, CodeGenDTO par)
+   {
+      par.bodyBuilder.append(booleanLiteral.getValue());
+      return null;
+   }
+
+   @Override
+   public Object visit(CharLiteral charLiteral, CodeGenDTO par)
+   {
+      final char value = charLiteral.getValue();
+      par.bodyBuilder
+         .append('\'')
+         .append(value == '\'' ? "\\'" : StringEscapeUtils.escapeJava(String.valueOf(value)))
+         .append('\'');
       return null;
    }
 

@@ -13,12 +13,14 @@ header: H1 HEADLINE_TEXT HEADLINE_END;
 
 actor: WE | THE? name;
 
-sentence: simpleSentences FULL_STOP
-        | compoundSentence FULL_STOP
+sentence: simpleSentences sentenceEnd
+        | compoundSentence sentenceEnd
         | diagramSentence
         | sectionSentence
         | commentSentence
         ;
+
+sentenceEnd: FULL_STOP | {_input.LA(-1) == CODE_BLOCK_END}?;
 
 simpleSentence: thereSentence
               | isSentence
@@ -74,7 +76,7 @@ namedExpr: THE? simpleName expr # NamedSimple
          ;
 bidiNamedExpr: firstName=simpleName AND (IS | ARE) (ONE OF)? THE? otherName=simpleName OF (expr | aPlaceholder | manyPlaceholder);
 
-placeholderNamedExpr: (A | AN) name (likePlaceholder | ofTypePlaceholder);
+placeholderNamedExpr: (A | AN)? name (likePlaceholder | ofTypePlaceholder);
 
 aPlaceholder: (A | AN) typeName (LIKE expr)?;
 manyPlaceholder: MANY typesName (LIKE expr)?;
@@ -145,10 +147,11 @@ matchConstraint: WHERE condExpr;
 expr: access | collection;
 
 // Primary
-primary: number | stringLiteral | codeBlock | it | answer | nameAccess;
+primary: number | booleanLiteral | stringLiteral | codeBlock | it | answer | nameAccess;
 primaryExpr: primary;
 
 number: DECIMAL | INTEGER;
+booleanLiteral: TRUE | FALSE;
 stringLiteral: STRING_LITERAL;
 it: IT;
 answer: THE? ANSWER;
@@ -168,6 +171,9 @@ identifier: WORD
           // new keywords for placeholders since v1.4
           | EVERY
           | TYPE
+          // new keywords for boolean literals since v1.7
+          | TRUE
+          | FALSE
           ;
 
 nameAccess: THE? name;

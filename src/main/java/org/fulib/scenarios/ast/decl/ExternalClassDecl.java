@@ -58,7 +58,8 @@ public class ExternalClassDecl extends ClassDecl.Impl
 
    private void filterAttributes()
    {
-      final Scope scope = new GlobalScope(this.getGroup().getContext());
+      final ScenarioGroup group = this.getGroup();
+      final Scope scope = new GlobalScope(group.getContext());
 
       for (Iterator<AttributeDecl> iterator = super.getAttributes().values().iterator(); iterator.hasNext(); )
       {
@@ -66,7 +67,7 @@ public class ExternalClassDecl extends ClassDecl.Impl
          final Type type = attribute.getType().accept(TypeResolver.INSTANCE, scope);
          final ClassDecl otherClass = type.accept(ExtractClassDecl.INSTANCE, null);
 
-         if (otherClass == null)
+         if (otherClass == null || otherClass.getGroup() != group)
          {
             attribute.setType(type);
             continue;

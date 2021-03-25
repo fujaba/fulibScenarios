@@ -91,9 +91,12 @@ abstract org.fulib.scenarios.ast.Node {
 			abstract primary.PrimaryExpr {
 				IntLiteral(value: int)
 				DoubleLiteral(value: double)
+				BooleanLiteral(value: boolean)
+				CharLiteral(value: char)
 				StringLiteral(value: String, noconstruct language: String)
 				NameAccess(name: Name)
 				AnswerLiteral()
+				ItLiteral()
 			}
 
 			access.AttributeAccess(name: Name, receiver: Expr)
