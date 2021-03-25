@@ -2,7 +2,7 @@
 
 Primary expressions are those that do not involve any complex operations. Typically, they consist of one value or a few words.
 
-```markup
+```bnf
 <primary> ::= <number> | <stringLiteral> | <it>
             | <nameAccess> | <string>
 <primaryExpr> ::= <primary> | <primaryCollection>
@@ -12,11 +12,11 @@ Primary expressions are those that do not involve any complex operations. Typica
 
 Numbers can be written with or without a decimal part. Numbers without one will become `int` in Java, and those with a decimal part will become `double`s. Usually, the translation is as-is.
 
-```markup
+```bnf
 <number> ::= /-?[0-9]+('.'[0-9]+)?/
 ```
 
-```markup
+```scenario
 0
 42
 1.5
@@ -36,14 +36,14 @@ Numbers can be written with or without a decimal part. Numbers without one will 
 
 When you don't want to refer to an existing object or use special characters in a string, use a string literal with single or double quotes.
 
-```markup
+```bnf
 <stringLiteral> ::= /"[^"]*"/
                   | /'[^']*'/
 ```
 
 When using double quotes, the translation is mostly as-is. Single quotes in a Scenario become double quotes in Java.
 
-```markup
+```scenario
 'Hello World'
 "Foo Bar 3"
 '""'
@@ -59,7 +59,7 @@ When using double quotes, the translation is mostly as-is. Single quotes in a Sc
 
 The keyword `it` refers to the primary expression closest to the left of it.
 
-```markup
+```bnf
 <it> ::= it
 ```
 
@@ -67,7 +67,7 @@ The keyword `it` refers to the primary expression closest to the left of it.
 
 Words make up names and simple strings. Which one depends on context. When you are sure you want a string, you can use a [string literal](primary.md#string-literals) instead. When you want to refer to a name, use the keyword [`the`](primary.md#names).
 
-```markup
+```bnf
 <word> ::= /[a-zA-Z][a-zA-Z0-9'_-]*/
 ```
 
@@ -78,14 +78,14 @@ In any case, they consist of at least one word followed by zero or more words an
 The keyword `the` always indicates an object name.
 It depends on context whether a name declares an object or refers to one.
 
-```markup
+```bnf
 <simpleName> ::= the? <word>
 <multiName> ::= the? <word> (<word> | <number>)*
 <name> ::= <multiName>
 <nameAccess> ::= <multiName>
 ```
 
-```markup
+```scenario
 Carli
 the position
 index
@@ -115,11 +115,11 @@ mixedCase
 
 Strings can consist of multiple words in certain contexts. See [Names](primary.md#names) for when a string refers to an object.
 
-```markup
+```bnf
 <string> ::= (<word> | <number>)+
 ```
 
-```markup
+```scenario
 Carli
 math
 integrals

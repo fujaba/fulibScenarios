@@ -2,7 +2,7 @@
 
 Access refers to accessing an attribute from some expression. This is usually done with getters.
 
-```markup
+```bnf
 <access> ::= <primary>
            | <attributeAccess>
            | <exampleAccess>
@@ -17,11 +17,11 @@ Access refers to accessing an attribute from some expression. This is usually do
 
 The simplest form of access is by attribute name. This invokes the getter on the receiving object.
 
-```markup
+```bnf
 <attributeAccess> ::= <name> of <access>
 ```
 
-```markup
+```scenario
 (the) <name> of <access>
 ```
 
@@ -35,7 +35,7 @@ Access on lists with names ending with `s` are treated specially, by vectorizing
 
 Not yet available: If the name is `size` or `count`, it returns the size of the list.
 
-```markup
+```scenario
 (the) <name>s of <someList>
 (the) size of <someList>
 (the) count of <someList>
@@ -51,11 +51,11 @@ Not yet available: If the name is `size` or `count`, it returns the size of the 
 
 This expression serves as a way of documenting the expected value of an expression. This expectation is not checked; the expected value is not written to the Java code. As such, this type of expression has only commentary value.
 
-```markup
+```bnf
 <exampleAccess> ::= <primaryExpr> from <namedAccess>
 ```
 
-```markup
+```scenario
 <primaryExpr> from <namedAccess>
 ```
 

@@ -1,13 +1,13 @@
 # Write Sentences \[WIP\]
 
-```markup
+```bnf
 <writeSentence> ::= <writeSV> <named>
                   | <writeSV> <expr1> into <expr2>
 <writeSV> ::= <actor> (reads | writes)
             | we (read | write)
 ```
 
-```markup
+```scenario
 <actor> reads/writes <named>
 <actor> reads/writes <expr1> into <expr2>
 we read score of player A

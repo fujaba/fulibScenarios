@@ -2,12 +2,12 @@
 
 ## If/As/When and Otherwise Sentences
 
-```markup
+```bnf
 <ifSentence> ::= (if | as | when) <condExpr> , <statements> . <otherwiseSentence>?
 <otherwiseSentence> ::= Otherwise , <statements> .
 ```
 
-```markup
+```scenario
 If/As/When <condExpr>, <statements>.
 Otherwise, <statements>.
 ```

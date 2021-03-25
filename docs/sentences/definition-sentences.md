@@ -4,7 +4,7 @@
 
 Is Sentences are the simplest way to define objects. They define a type, a name and various attributes. Is Sentences can be used in tests as well as calls.
 
-```markup
+```scenario
 Kassel is a City.
 
 Frankfurt is a City with 750000 inhabitants.
@@ -16,7 +16,7 @@ City kassel = new City();
 City frankfurt = new City().setInhabitants(750000);
 ```
 
-```markup
+```bnf
 <isSentence> ::= <name> is <simpleConstructor> .
 
 <simpleConstructor> ::= <simpleTypeClause> <withClauses>?
@@ -33,7 +33,7 @@ City frankfurt = new City().setInhabitants(750000);
 
 Has Sentences can only be used to set attributes on objects, but not to declare them. Like Is Sentences, they can be used in tests and calls.
 
-```markup
+```scenario
 Kassel has postcode 34117.
 Kassel has 200000 inhabitants.
 Kassel has area 106.78 (sq km).
@@ -45,7 +45,7 @@ kassel.setInhabitants(200000);
 kassel.setArea(106.78);
 ```
 
-```markup
+```bnf
 <hasSentence> ::= <nameAccess> <hasClauses> .
 
 <hasClauses> ::= <hasClause> (<sep> <hasClause>)*
@@ -74,7 +74,7 @@ Student anna = new Student().setAge(21).setName("Anna");
 
 The equivalent sentences with an explicit name are:
 
-```markup
+```scenario
 There is the university university.
 There is the student student.
 There is the student karli with name Karli.
@@ -122,13 +122,13 @@ fred.setCredits(temp1);
 
 Again, you can give your objects explicit names instead of relying on the inferred names.
 
-```markup
+```scenario
 There are the students Karli and Anna with names Karli and Anna.
 There are the students Bob, Charlie and David with names Bob, Charlie and David and with credits 10, 20, 30.
 There are the students Emil and Fred with names Emil and Fred and with 40 credits.
 ```
 
-```markup
+```bnf
 <thereSentence> ::= <thereClause> (<sep> <thereClause>)* .
 
 <thereClauses> ::= there is <simpleDescriptor> | there are <multiDescriptor>
@@ -141,7 +141,7 @@ There are the students Emil and Fred with names Emil and Fred and with 40 credit
 
 Create sentences are used in place of There Sentences within calls. The examples from above are written with Create Sentences as follows \(the translation stays the same so is not listed again here\):
 
-```markup
+```scenario
 We create the university.
 We create a student.
 We create a student with name Karli.
@@ -165,7 +165,7 @@ We create the students Emil and Fred with names Emil and Fred and with 40 credit
 >
 > You get the equivalent Create Sentence from a There Sentence by replacing `There is` / `There are` with `We create` and vice-versa.
 
-```markup
+```bnf
 <createSentence> ::= <actor> create(s) <descriptor> .
 ```
 
@@ -173,12 +173,12 @@ We create the students Emil and Fred with names Emil and Fred and with 40 credit
 
 With and Has Clauses can also create associations instead of attributes. This usually depends on the value. If it refers to an object, you get an association. If the value is a string or number, it becomes an attribute. Associations are by default uni-directional.
 
-```markup
+```scenario
 There is a University with name Uni Kassel.
 There is a Student with name Bob.
 ```
 
-```markup
+```scenario
 There is a Student with name Alice and with university Uni Kassel.
 Bob has university Uni Kassel.
 ```
@@ -190,7 +190,7 @@ bob.setUniversity(uniKassel);
 
 If you specify multiple values, the association becomes to-many.
 
-```markup
+```scenario
 The university has students Alice and Bob.
 ```
 
@@ -231,7 +231,7 @@ university.withStudents(alice, bob);
 
 To make an association bidirectional, you have to specify the reverse name. This is only necessary once; you can omit the reverse name as long as you specify it in any one place. The important bit is the `and is university of` between the association name and the values.
 
-```markup
+```scenario
 Uni Kassel has students and is university of Alice and Bob.
 ```
 
@@ -245,7 +245,7 @@ You may also specify this association between students and universities from the
 
 By including the association for Bob, the two sentences become identical in effect to the previous example. Note how you can omit the reverse association name here because it was already specified in the sentence about Alice.
 
-```markup
+```scenario
 Alice has university and is one of the students of the Uni Kassel.
 Bob has university Uni Kassel.
 ```
@@ -259,7 +259,7 @@ bob.setUniversity(uniKassel);
 
 You can specify an association where the source and target class are the same \(first example\). Further, the an association may be its own reverse \(second example\). This also works for to-many associations \(third example\).
 
-```markup
+```scenario
 Alice has right-neighbor and is left-neighbor of Bob.
 
 

@@ -1,6 +1,6 @@
 # Sentences \[WIP\]
 
-```markup
+```bnf
 <sentence> ::= <thereSentence> | <isSentence> | <hasSentence>
              | <expectSentence> | <diagramSentence>
 ```

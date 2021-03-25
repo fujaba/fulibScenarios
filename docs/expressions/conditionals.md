@@ -1,16 +1,16 @@
 # Conditionals \[WIP\]
 
-```markup
+```bnf
 <condExpr> ::= <attrCheck> | <condOpExpr>
 ```
 
 ## Attribute Check Expression
 
-```markup
+```bnf
 <attrCheck> ::= <access> has <namedExpr>
 ```
 
-```markup
+```scenario
 <access> has <namedExpr>
 ```
 
@@ -20,7 +20,7 @@
 
 ## Conditional Operator Expression
 
-```markup
+```bnf
 <condOpExpr> ::= <access> <condOp> <access>
 <condOp> ::= <eqOp>
            | <cmpOp>
@@ -29,11 +29,11 @@
 
 ### Equality Operators
 
-```markup
+```bnf
 <eqOp> ::= is | is not | is the same as | is not the same as
 ```
 
-```markup
+```scenario
 is
 is not
 is the same as
@@ -49,12 +49,12 @@ equals
 
 ### Comparison Operators
 
-```markup
+```bnf
 <cmpOp> ::= is less than | is not less than | is less equal
           | is greater than | is greater equal | is not greater than
 ```
 
-```markup
+```scenario
 is less than
 is not less than
 is less equal
@@ -74,11 +74,11 @@ is greater equal
 
 ### Collection Operators
 
-```markup
+```bnf
 <collOp> ::= contains | does not contain | is in | is not in
 ```
 
-```markup
+```scenario
 contains
 does not contain
 is in

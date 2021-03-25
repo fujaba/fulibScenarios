@@ -45,7 +45,7 @@ assertEquals(1, 1);
 assertEquals(2, 2);
 ```
 
-```markup
+```bnf
 <expectSentence> ::= we expect <thatClauses> .
 <thatClauses> ::= <thatClause> (<sep> <thatClause>)*
 <thatClause> ::= that <condExpr>
@@ -99,7 +99,7 @@ Diagram sentences allow you to visualize object structures by creating files tha
 
 * `.txt` allows you to write the string representation of objects to a file. When passing a list, each item is written on a new line.
 
-```markup
+```scenario
 Amazon
 Sneakers beef-6f red
 Pumps cafe-18 black
@@ -109,7 +109,7 @@ Pumps cafe-18 black
 
 ![amazon.tables.html](assets/amazon-tables.png)
 
-```markup
+```bnf
 <diagramSentence> ::= ![ <expr> ]( <fileName> )
 <fileName> ::= one or more arbitrary characters except ')'
 ```

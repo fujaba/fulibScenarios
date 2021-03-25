@@ -1,13 +1,13 @@
 # Collections \[WIP\]
 
-```markup
+```bnf
 <collection> ::= <range> | <list>
 <primaryCollection> ::= <primaryRange> | <primaryList>
 ```
 
 ## Ranges
 
-```markup
+```bnf
 <range> ::= <access> to <access>
           | <access> through <access>
           
@@ -15,7 +15,7 @@
                  | <primary> through <primary> 
 ```
 
-```markup
+```scenario
 <access> to <access>
 <access> through <access>
 ```
@@ -27,7 +27,7 @@ Runtime.through(<access>, <access>)
 
 ## Lists
 
-```markup
+```bnf
 <sep> ::= ',' | 'and' | ',' 'and'
 
 <list> ::= <listElem> (<sep> <listElem>)+
@@ -37,7 +37,7 @@ Runtime.through(<access>, <access>)
 <primaryListElem> ::= <primary> | <primaryRange>
 ```
 
-```markup
+```scenario
 <listElem> (<sep> <listElem>)+
 1, 2, 3
 1, 2, and 3
