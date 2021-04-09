@@ -15,7 +15,7 @@ apply from: 'gradle/webapp.gradle'
 // --------------- Info ---------------
 
 group = 'org.fulib'
-version = 'git describe --tags'.execute().text[1..-2] // strip v and \n
+version = 'git describe --tags'.execute([], rootDir).text[1..-2] // strip v and \n
 description = 'A compiler for textual example scenarios.'
 
 modifyPom {
