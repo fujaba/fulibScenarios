@@ -5,7 +5,7 @@
 A scenario starts with a header line, like '\# My First Scenario' in the following example.
 The header line becomes the name of the test method in the Java code.
 You may have multiple scenarios in one file.
-Each header line starts a new test method, or 'scenario'.
+Each header line starts a new scenario, which corresponds to one test method.
 
 ```scenario
 # My First Scenario
@@ -58,8 +58,6 @@ Quoted content, i.e. everything after `>` up to the end of a line, becomes a Jav
 // comment
 ```
 
-> ⓘ The `>` syntax for comments was added in fulibScenarios v1.6.
-
 ### Slashy Comments
 
 An alternative syntax uses `//` in the scenario text:
@@ -97,4 +95,8 @@ However, they will not be visible in rendered Markdown.
 
 ```scenario
 There is a Student <!-- without a name for now -->.
+```
+
+```java
+Student student = new Student();
 ```
