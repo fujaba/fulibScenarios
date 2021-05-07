@@ -10,7 +10,6 @@ plugins {
 }
 
 apply from: 'gradle/functional-test.gradle'
-apply from: 'gradle/webapp.gradle'
 
 // --------------- Info ---------------
 
