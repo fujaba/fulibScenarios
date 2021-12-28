@@ -1,14 +1,10 @@
 def taskName = 'compileScenarios'
 def sourceDirs = [ 'src/test/scenarios' ]
-def imports = [ 'org.fulib.mockups' ]
 def modelOutputDir = "$buildDir/generated-src/scenarios/main/"
 def testOutputDir = "$buildDir/generated-src/scenarios/test/"
 
 tasks.register(taskName, JavaExec) {
-   configureTestCompile(it,
-      modelOutputDir, testOutputDir, sourceDirs,
-      '-i', imports.join(','),
-   )
+   configureTestCompile(it, modelOutputDir, testOutputDir, sourceDirs)
 }
 
 compileTestJava.dependsOn taskName
@@ -22,7 +18,6 @@ tasks.register('compileInvalidScenarios', JavaExec) { JavaExec j ->
       "$buildDir/generated-src/invalid_scenarios/main/",
       "$buildDir/generated-src/invalid_scenarios/test/",
       [ sourceDir ],
-      '-i', imports.join(','),
       '--marker-end-columns',
    )
 
