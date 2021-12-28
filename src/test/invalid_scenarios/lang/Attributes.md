@@ -134,8 +134,9 @@ note: perhaps you meant to refer to 'herba' instead of the string literal 'Herbi
 
 ## External Attributes
 
-There is a WebApp.
-WebApp has 1 foo.
-<!--         ^^^
-error: cannot resolve attribute 'foo' in external class 'WebApp' [attribute.unresolved.external]
--->
+// TODO: Find an alternative for WebApp.
+// There is a WebApp.
+// WebApp has 1 foo.
+// <!--         ^^^
+// error: cannot resolve attribute 'foo' in external class 'WebApp' [attribute.unresolved.external]
+// -->

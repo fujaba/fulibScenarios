@@ -1,10 +1,11 @@
 # External Methods
 
-There is the WebApp app.
-We call run on app.
-<!--    ^^^
-error: cannot resolve method 'run' in external class 'WebApp' [method.unresolved.external]
--->
+// TODO: Find an alternative for WebApp.
+// There is the WebApp app.
+// We call run on app.
+// <!--    ^^^
+// error: cannot resolve method 'run' in external class 'WebApp' [method.unresolved.external]
+// -->
 
 # Primitive Receiver
 
