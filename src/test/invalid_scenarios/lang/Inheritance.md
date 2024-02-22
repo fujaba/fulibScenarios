@@ -7,12 +7,13 @@ error: cannot make non-class type 'int' inherit from a type [inherit.subtype.not
 error: cannot inherit from non-class type 'long' [inherit.supertype.not.class]
 -->
 
-Every WebApp is a Page.
-<!--  ^^^^^^
-error: cannot make external class 'WebApp' inherit from a type [inherit.subtype.external]
-                  ^^^^
-error: cannot inherit from external class 'Page' [inherit.supertype.external]
--->
+// TODO: Find an alternative for WebApp.
+// Every WebApp is a Page.
+// <!--  ^^^^^^
+// error: cannot make external class 'WebApp' inherit from a type [inherit.subtype.external]
+//                   ^^^^
+// error: cannot inherit from external class 'Page' [inherit.supertype.external]
+// -->
 
 Every Foo is a Bar.
 <!--           ^^^

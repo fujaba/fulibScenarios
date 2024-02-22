@@ -6,5 +6,5 @@ There is the Object foo.
 <!-- ^^^^^^^^^^^^^^^
 error: unsupported diagram file name extension 'foo.gif' [diagram.filename.extension.unsupported]
      ^^^^^^^^^^^^^^^
-note: extension must be one of [.html, .html.png, .mockup.html, .png, .svg, .tables.html, .txt, .yaml] [diagram.filename.extension.hint]
+note: extension must be one of [.png, .svg, .yaml] [diagram.filename.extension.hint]
 -->

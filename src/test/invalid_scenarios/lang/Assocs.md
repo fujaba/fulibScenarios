@@ -97,15 +97,16 @@ note: now: association to one 'AssocReEntityOther' [conflict.new]
 
 ## External Associations
 
-There is a WebApp.
-There is a Page.
-WebApp has foo and is bar of Page.
-<!--       ^^^
-error: cannot resolve association 'foo' in external class 'WebApp' [association.unresolved.external]
--->
-
-There is a NonExternal.
-NonExternal has webapp and is nonExternal of WebApp.
-<!--                          ^^^^^^^^^^^
-error: cannot resolve association 'nonExternal' in external class 'WebApp' [association.unresolved.external]
--->
+// TODO: Find an alternative to WebApp/Page for this.
+// There is a WebApp.
+// There is a Page.
+// WebApp has foo and is bar of Page.
+// <!--       ^^^
+// error: cannot resolve association 'foo' in external class 'WebApp' [association.unresolved.external]
+// -->
+// 
+// There is a NonExternal.
+// NonExternal has webapp and is nonExternal of WebApp.
+// <!--                          ^^^^^^^^^^^
+// error: cannot resolve association 'nonExternal' in external class 'WebApp' [association.unresolved.external]
+// -->

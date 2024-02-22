@@ -24,16 +24,10 @@ public class Config
    {
       // default imports
       this.imports.add("java.lang");
-      this.imports.add("org.fulib.mockups");
 
       this.diagramHandlers.put(".svg", "import(org.fulib.FulibTools).objectDiagrams().dumpSVG(%s, %s)");
-      this.diagramHandlers.put(".html.png", "import(org.fulib.mockups.FulibMockups).mockupTool().dump(%s, %s)");
       this.diagramHandlers.put(".png", "import(org.fulib.FulibTools).objectDiagrams().dumpPng(%s, %s)");
       this.diagramHandlers.put(".yaml", "import(org.fulib.FulibTools).objectDiagrams().dumpYaml(%s, %s)");
-      this.diagramHandlers.put(".html", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpScreen(%s, %s)");
-      this.diagramHandlers.put(".tables.html", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpTables(%s, %s)");
-      this.diagramHandlers.put(".mockup.html", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpMockup(%s)");
-      this.diagramHandlers.put(".txt", "import(org.fulib.scenarios.MockupTools).htmlTool().dumpToString(%s, %s)");
    }
 
    private boolean generateTables;
