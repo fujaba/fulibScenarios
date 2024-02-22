@@ -7,6 +7,6 @@ We recommend first checking out the example scenarios on [fulib.org](https://www
 This documentation is still work in progress and may be incomplete. Unfinished chapters are marked with `[WIP]`.
 
 * [Terminology](terminology.md)
-* [Basics](basics.md)
+* [Quickstart](quickstart/README.md)
 * [Expressions](expressions/README.md)
 * [Sentences \[WIP\]](sentences/README.md)
