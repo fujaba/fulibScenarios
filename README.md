@@ -38,19 +38,15 @@ plugins {
 }
 ```
 
-Make sure you use the `jcenter` repository:
-
-```groovy
-repositories {
-    // ...
-    mavenCentral()
-}
-```
-
 Specify the version by adding the `fulibScenarios` dependency.
 Pattern matching requires `fulibTables`.
 
 ```groovy
+repositories {
+   // ...
+   mavenCentral()
+}
+
 dependencies {
     // ...
 
