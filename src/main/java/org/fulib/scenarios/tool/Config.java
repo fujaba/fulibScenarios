@@ -28,6 +28,7 @@ public class Config
       this.diagramHandlers.put(".svg", "import(org.fulib.FulibTools).objectDiagrams().dumpSVG(%s, %s)");
       this.diagramHandlers.put(".png", "import(org.fulib.FulibTools).objectDiagrams().dumpPng(%s, %s)");
       this.diagramHandlers.put(".yaml", "import(org.fulib.FulibTools).objectDiagrams().dumpYaml(%s, %s)");
+      this.diagramHandlers.put(".txt", "import(org.fulib.FulibTools).objectDiagrams().dumpToString(%s, %s)");
    }
 
    private boolean generateTables;
