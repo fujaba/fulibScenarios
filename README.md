@@ -1,20 +1,26 @@
-# Fulib Scenarios
+# fulibScenarios -- ⚠️ DEPRECATED ⚠️
 
 [![Java CI](https://github.com/fujaba/fulibScenarios/workflows/Java%20CI/badge.svg)](https://github.com/fujaba/fulibScenarios/actions)
+
+> [!WARNING]
+> fulibScenarios is **deprecated**.
+> It only receives security updates because it is an important part of the fulibGradle > fulibScenarios > fulib chain.
+> Without it, fulib's `ClassModelDecorator` would not be called.
+> A future version of fulib will include the necessary glue to find and call these decorators.
 
 A compiler for textual scenarios.
 
 ## Links
 
-- [Web App](https://www.fulib.org)
+- [Web App](https://fulib.org) -- no longer includes fulibScenarios playground
 
 Development
 - [Source Code](https://github.com/fujaba/fulibScenarios)
 - [Issue Tracker](https://github.com/fujaba/fulibScenarios/issues)
 
 Documentation
-- [Language Reference](https://fujaba.gitbook.io/fulib-scenarios/)
-- [StackOverflow Questions](https://stackoverflow.com/questions/tagged/fulibscenarios)
+- ~~[Language Reference](https://fujaba.gitbook.io/fulib-scenarios/)~~ -- no longer available
+- [Docs](https://fulib.org/docs/fulibScenarios/README.md) / [Alternative](https://github.com/fujaba/fulibScenarios/tree/master/docs)
 
 Related Projects
 - [fulib.org](https://github.com/fujaba/fulib.org)
@@ -24,7 +30,8 @@ Related Projects
 
 ## Installation
 
-> ⓘ The following snippets are all intended to be placed in your `build.gradle` script.
+> [!NOTE]
+> The following snippets are all intended to be placed in your `build.gradle` script.
 
 Install the [fulibGradle plugin](https://github.com/fujaba/fulibGradle):
 
